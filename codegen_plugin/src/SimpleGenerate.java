@@ -1,3 +1,4 @@
+import com.google.common.collect.Lists;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -17,9 +18,11 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import org.apache.velocity.runtime.parser.ParseException;
@@ -64,16 +67,17 @@ public class SimpleGenerate extends AnAction {
                 try {
                     VirtualFile virtualFile = compileContext.getModuleOutputDirectoryForTests(module);
 
-                    URL urls[] = new URL[2];
-                    try {
-                        urls[0] = new URL(virtualFile.getUrl()+"/");
-                        urls[1] = new URL(compileContext.getModuleOutputDirectoryForTests(module).getUrl()+"/");
-                    } catch (MalformedURLException e) {
-                       log.error(e);
-                       return false;
+                    List<URL> urls = Lists.newLinkedList();
+                    if (addClassPath(compileContext, virtualFile, urls, module)) return false;
+
+                    VirtualFile[] classessRoots = OrderEnumerator.orderEntries(module).recursively().getClassesRoots();
+                    for(VirtualFile virtualFile1: classessRoots) {
+                        urls.add(new URL(virtualFile.getUrl()));
                     }
 
-                    URLClassLoader urlClassLoader = new URLClassLoader(urls, this.getClass().getClassLoader());
+
+
+                    URLClassLoader urlClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]), this.getClass().getClassLoader());
                     Class compiledClass = urlClassLoader.loadClass(className);
 
                     List<RestService> restService = SpringRestReflector.reflect(Arrays.asList(compiledClass), true);
@@ -86,6 +90,7 @@ public class SimpleGenerate extends AnAction {
                     String ext = ".ts";
                     String fileName = restService.get(0).getServiceName() + ext;
 
+                    //PsiFile oldFile = PsiManager.getInstance(project).findFile(VirtualFileManager.getInstance().findFileByUrl());
                     PsiFile file = PsiFileFactory.getInstance(project).createFileFromText(fileName, Language.findLanguageByID("TypeScript"),text);
 
 
@@ -104,6 +109,19 @@ public class SimpleGenerate extends AnAction {
        // Messages.showMessageDialog(project, "Hello, " + txt + "!\n I am glad to see you.", "Information", Messages.getInformationIcon());
     }
 
+    private boolean addClassPath(CompileContext compileContext, VirtualFile virtualFile, List<URL> urls, Module module) {
+        try {
+            urls.add(new URL(virtualFile.getUrl()+"/"));
+            //Special case, older configuration often map their output dir to module/classes
+            urls.add(new URL(virtualFile.getParent().getParent()+"/classes/"));
+            urls.add(new URL(compileContext.getModuleOutputDirectoryForTests(module).getUrl()+"/"));
+        } catch (MalformedURLException e) {
+           log.error(e);
+            return true;
+        }
+        return false;
+    }
+
     private void moveFileToGeneratedDir(PsiFile file, Project project, Module module) {
         PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(module.getModuleFile().getParent());
         PsiDirectory rscDir = dir.findSubdirectory("generated-sources");
@@ -115,6 +133,10 @@ public class SimpleGenerate extends AnAction {
             rscDir = getOrCreate(rscDir,"services");
         }
 
+        PsiFile oldFile = rscDir.findFile(file.getName());
+        if(oldFile != null) {
+            oldFile.delete();
+        }
         rscDir.add(file);
     }
 
