@@ -1,4 +1,4 @@
-import org.apache.velocity.runtime.parser.ParseException;
+
 import rest.RestService;
 import org.junit.Test;
 import probes.TestProbeController;
@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TemplateTest {
     @Test
-    public void testBasicTemplating() throws IOException, ParseException {
+    public void testBasicTemplating()  {
         List<RestService> services = SpringRestReflector.reflect(Arrays.asList(TestProbeController.class), true);
         TypescriptRestGenerator.generate("booga", services);
 

@@ -8,25 +8,17 @@ import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.EditorKind;
-import com.intellij.openapi.fileEditor.DocumentsEditor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
-import org.apache.velocity.runtime.parser.ParseException;
-import org.codehaus.plexus.util.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import reflector.SpringRestReflector;
 import reflector.TypescriptRestGenerator;
@@ -38,6 +30,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.List;
+
+
 
 public class SimpleGenerate extends AnAction {
 
@@ -99,7 +93,7 @@ public class SimpleGenerate extends AnAction {
 
 
                     return true;
-                } catch (RuntimeException | ParseException | IOException | ClassNotFoundException e) {
+                } catch (RuntimeException |  IOException | ClassNotFoundException e) {
                     log.error(e);
                     Messages.showErrorDialog(project, e.getMessage(), "An Error has occurred");
                 }
