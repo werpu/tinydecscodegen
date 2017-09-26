@@ -1,0 +1,6 @@
+tmp
+.DS_Store
+.idea
+target
+*.iml
+/codegen/velocity.log

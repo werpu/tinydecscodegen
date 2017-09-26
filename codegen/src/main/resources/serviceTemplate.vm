@@ -1,0 +1,42 @@
+import IPromise = angular.IPromise;
+import {Injectable, extended} from "TinyDecorations";
+import Rest = extended.Rest
+import Restable = extended.Restable;
+import PathVariable = extended.PathVariable;
+import RequestBody = extended.RequestBody;
+import RequestParam = extended.RequestParam;
+
+/**
+* Rest service ${service.serviceName}
+*/
+
+@Injectable("${service.serviceName}")
+#if(!$service.serviceRootUrl.empty)
+@Restable({
+    $rootUrl: "$service.serviceRootUrl"
+})
+#end
+public class ${service.serviceName} {
+
+    constructor() {}
+
+#foreach($method in $service.methods)
+    @Rest({
+        url: "$method.url",
+        type: "${method.restType.name()}" #if( $method.returnValue.get().array ),
+        isArray:  true
+        #end
+
+    })
+    $method.name (
+        #foreach($param in $method.params) @${param.paramType.name()}(#if($param.paramType.pathVariable||$param.paramType.requestBody)#else"${param.name}"#end) ${param.toTypeScript()}#if( $velocityHasNext ), #end
+
+        #end): IPromise<#if(!${method.returnValue.isPresent()})any#else${method.returnValue.get().toTypeScript()}#end>
+    {
+        return null;
+    }
+#end
+
+}
+
+
