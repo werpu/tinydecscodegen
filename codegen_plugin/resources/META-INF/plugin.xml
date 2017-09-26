@@ -2,15 +2,17 @@
     <id>com.github.tinydecs-codegen.service</id>
     <name>Service Codegen for the ts-ng-tinydecs lib</name>
     <version>0.0.1</version>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">Werner Punz</vendor>
+    <vendor email="werner.punz@gmail.com" url="">Werner Punz</vendor>
 
     <description><![CDATA[
      This is a first attempt at a tinydecs codegen
     ]]></description>
 
     <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      This is the first pre alpha release
+      of the code generator for the ts-ng-tinydecorations
+      Currently only service generation is supported
+      Expect more to come soom
     ]]>
     </change-notes>
 
