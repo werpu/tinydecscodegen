@@ -3,6 +3,7 @@ package reflector.utils;
 public class TypescriptTypeMapper {
 
     public static final String map(String in) {
+        in = in.trim();
         if (in.equals("java.lang.String")) {
             return "string";
         } else if (in.equals("int") || in.equals("long") || in.equals("Integer") || in.equals("Long") || in.equals("Numeric") || in.equals("java.lang.Integer") || in.equals("java.lang.Long") | in.equals("java.lang.Numeric")) {
@@ -15,5 +16,6 @@ public class TypescriptTypeMapper {
             return ReflectUtils.reduceClassName(in);
         }
     }
+
 
 }

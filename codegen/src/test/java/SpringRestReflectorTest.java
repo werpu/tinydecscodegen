@@ -28,7 +28,7 @@ public class SpringRestReflectorTest {
         assertTrue(restService.getServiceName().equals("TestProbeService"));
         assertTrue(restService.getServiceRootUrl().equals("rest/testprobe1"));
 
-        assertTrue(restService.getMethods().size() == 3);
+        assertTrue(restService.getMethods().size() == 5);
 
 
         //first method
@@ -38,6 +38,8 @@ public class SpringRestReflectorTest {
         RestMethod method0 = restService.getMethods().get(0);
         RestMethod method1 = restService.getMethods().get(1);
         RestMethod method2 = restService.getMethods().get(2);
+        RestMethod method3 = restService.getMethods().get(3);
+        RestMethod method4 = restService.getMethods().get(4);
 
         assertTrue(method0.getName().equals("probeGet"));
         assertTrue(method0.getUrl().indexOf("approval/getit/resource") != -1);
@@ -62,6 +64,9 @@ public class SpringRestReflectorTest {
 
         assertTrue(retVal0.get().toTypeScript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName).equals("ProbeRetVal"));
         assertTrue(retVal2.get().toTypeScript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName).equals("Array<ProbeRetVal>"));
+
+        assertTrue(method3.getReturnValue().get().toTypeScript().equals("{[key:string]:ProbeRetVal}"));
+        assertTrue(method4.getReturnValue().get().toTypeScript().equals("{[key:string]:{[key:string]:number}}"));
     }
 
     private void assertParameters(RestMethod method0) {

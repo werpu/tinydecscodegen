@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Werner Punz on 15.02.2016.
@@ -30,5 +31,19 @@ public class TestProbeController {
                                                     @RequestParam("right") String rightUuid,
                                                     @RequestBody() String filter) {
         return new ReturnValue<>(Collections.emptyList());
+    }
+
+    @RequestMapping(value = "/approval/postit/scope/{app}/{right}/{filter}", method = {RequestMethod.POST})
+    public ReturnValue<Map<String, ProbeRetVal>> probePost2(@RequestParam("app") String appUuid,
+                                                           @RequestParam("right") String rightUuid,
+                                                           @RequestBody() String filter) {
+        return new ReturnValue<>(Collections.emptyMap());
+    }
+
+    @RequestMapping(value = "/approval/postit/scope/{app}/{right}/{filter}", method = {RequestMethod.POST})
+    public ReturnValue<Map<String, Map<String, Integer>>> probePost3(@RequestParam("app") String appUuid,
+                                                            @RequestParam("right") String rightUuid,
+                                                            @RequestBody() String filter) {
+        return new ReturnValue<>(Collections.emptyMap());
     }
 }

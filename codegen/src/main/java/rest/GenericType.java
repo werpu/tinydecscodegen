@@ -31,17 +31,34 @@ public class GenericType {
         }
 
 
-        retVal.append(finalOwnerType);
+
 
         List<String> generics = childTypes.stream().map(inGeneric -> inGeneric.toTypescript(reducers)).collect(Collectors.toList());
         if (!generics.isEmpty()) {
-            if (!Strings.isNullOrEmpty(ownerType)) {
+            if (!Strings.isNullOrEmpty(finalOwnerType) && !finalOwnerType.startsWith("Map")) {
+                retVal.append(finalOwnerType);
                 retVal.append("<");
-            }
-            retVal.append(Joiner.on(",").join(generics));
-            if (!Strings.isNullOrEmpty(ownerType)) {
+                retVal.append(Joiner.on(",").join(generics));
                 retVal.append(">");
+            } else if (!Strings.isNullOrEmpty(finalOwnerType) && finalOwnerType.startsWith("Map") && generics.size() > 1) {
+                retVal.append("");
+                retVal.append("").append("{[key:")
+                        .append(generics.get(0)).append("]:")
+                        .append(Joiner.on(",").join(generics.subList(1, generics.size())))
+                        .append("}");
+            } else if (!Strings.isNullOrEmpty(finalOwnerType) && finalOwnerType.startsWith("Map") && generics.size() < 1) {
+                retVal.append("");
+                retVal.append("{[")
+                        .append(generics.get(0)).append("]:")
+                        .append(Joiner.on(",").join(generics.subList(1, generics.size())))
+                        .append("}")
+                        .append("");
+            } else {
+                retVal.append(Joiner.on(",").join(generics));
             }
+
+        } else {
+            retVal.append(finalOwnerType);
         }
         return retVal.toString();
     }
