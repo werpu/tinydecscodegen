@@ -16,7 +16,7 @@ import RequestParam = extended.RequestParam;
     $rootUrl: "$service.serviceRootUrl"
 })
 #end
-public class ${service.serviceName} {
+export class ${service.serviceName} {
 
     constructor() {}
 
