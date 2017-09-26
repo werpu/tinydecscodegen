@@ -3,5 +3,6 @@ tmp
 .idea
 target
 *.iml
+!codegen.iml
 !codegen_plugin.iml
 /codegen/velocity.log
