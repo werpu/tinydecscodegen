@@ -72,7 +72,7 @@ public class SimpleGenerate extends AnAction {
 
                     VirtualFile[] classessRoots = OrderEnumerator.orderEntries(module).recursively().getClassesRoots();
                     for(VirtualFile virtualFile1: classessRoots) {
-                        urls.add(new URL(virtualFile.getUrl()));
+                        urls.add(new URL(virtualFile1.getUrl()));
                     }
 
 
