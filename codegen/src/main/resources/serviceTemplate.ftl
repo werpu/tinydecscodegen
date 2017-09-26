@@ -11,7 +11,7 @@ import RequestParam = extended.RequestParam;
 */
 
 @Injectable("${service.serviceName}")
-<#if !(service.serviceRootUrl?has_content)>
+<#if service.serviceRootUrl?has_content>
 @Restable({
     $rootUrl: "${service.serviceRootUrl}"
 })
@@ -24,9 +24,8 @@ export class ${service.serviceName} {
 
     @Rest({
         url: "$method.url",
-        type: "${method.restType.name()}" <#if method.returnValue.get().array?? >,
-        isArray:  true
-        </#if>
+        type: "${method.restType.name()}"<#if method.returnValue.get().array == true >,
+        isArray:  true</#if>
     })
     ${method.name} (
         <#list method.params as param>@${param.paramType.name()}(<#if param.paramType.pathVariable?? || $param.paramType.requestBody??><#else>"${param.name}"</#if>) ${param.toTypeScript()}<#sep>,
