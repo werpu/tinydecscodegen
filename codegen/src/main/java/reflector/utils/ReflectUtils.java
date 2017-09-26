@@ -56,18 +56,18 @@ public class ReflectUtils {
     /**
      * parses a generic type variable information into a parsing tree
      *
-     * @param typeString
+     * @param tStr
      * @return
      */
-    public static List<GenericType> buildGenericTypes(String typeString) {
-        List<String> nativeTypes = semanticSplitting(typeString);
+    public static List<GenericType> buildGenericTypes(String tStr) {
+        List<String> nativeTypes = semanticSplitting(tStr);
         List<GenericType> retVal = Lists.newArrayList();
         for (String nativeType : nativeTypes) {
             String owner = nativeType.replaceAll("^([^\\<]*)\\<+.*\\>\\s*$", "$1");
-            String generic = typeString.replaceAll("^[^\\<]*\\<+(.*)\\>\\s*$", "$1");
+            String genericContent = (tStr.contains("<")) ? tStr.replaceAll("^[^\\<]*\\<+(.*)\\>\\s*$", "$1") : "";
             List genericTypes = Collections.emptyList();
-            if (!generic.equals(nativeType)) {
-                genericTypes = buildGenericTypes(generic);
+            if (!owner.equals(nativeType)) {
+                genericTypes = buildGenericTypes(genericContent);
             }
             GenericType genericType = new GenericType(owner, genericTypes);
             retVal.add(genericType);

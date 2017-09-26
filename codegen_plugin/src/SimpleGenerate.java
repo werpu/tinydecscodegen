@@ -72,7 +72,7 @@ public class SimpleGenerate extends AnAction {
 
                     VirtualFile[] classessRoots = OrderEnumerator.orderEntries(module).recursively().getClassesRoots();
                     for(VirtualFile virtualFile1: classessRoots) {
-                        urls.add(new URL(virtualFile1.getUrl()));
+                        urls.add(addClassPath(virtualFile1));
                     }
 
 
@@ -92,10 +92,12 @@ public class SimpleGenerate extends AnAction {
 
                     //PsiFile oldFile = PsiManager.getInstance(project).findFile(VirtualFileManager.getInstance().findFileByUrl());
                     PsiFile file = PsiFileFactory.getInstance(project).createFileFromText(fileName, Language.findLanguageByID("TypeScript"),text);
+                    ApplicationManager.getApplication().runWriteAction(() -> {
+                        moveFileToGeneratedDir(file, project, module);
+                        FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
+                    });
 
 
-                    moveFileToGeneratedDir(file, project, module);
-                    FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
                     return true;
                 } catch (RuntimeException | ParseException | IOException | ClassNotFoundException e) {
                     log.error(e);
@@ -107,6 +109,18 @@ public class SimpleGenerate extends AnAction {
 
        // String txt= Messages.showInputDialog(project, "What is your name?", "Input your name", Messages.getQuestionIcon());
        // Messages.showMessageDialog(project, "Hello, " + txt + "!\n I am glad to see you.", "Information", Messages.getInformationIcon());
+    }
+
+    @NotNull
+    private URL addClassPath(VirtualFile virtualFile1) throws MalformedURLException {
+        String url = virtualFile1.getUrl();
+        if(url.contains(".jar") && url.startsWith("jar://")) {
+            url = url.replaceAll("jar:/","jar:file:/");
+        }
+        if(!url.endsWith("/")) {
+            url = url + "/";
+        }
+        return new URL(url);
     }
 
     private boolean addClassPath(CompileContext compileContext, VirtualFile virtualFile, List<URL> urls, Module module) {
