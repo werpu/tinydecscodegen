@@ -72,10 +72,7 @@ public class SpringRestReflector {
         String[] value = mapping.value();
         RequestMethod[] reqMethods = mapping.method(); //if there is more than one request method we map it over to additional typescript methods
 
-        if(reqMethods.length == 0) {
-            reqMethods = new RequestMethod[1];
-            reqMethods[0] = RequestMethod.GET;
-        }
+        reqMethods = reqMethodDefault(reqMethods);
         String[] consumes = mapping.consumes();
         //we can savely ignore produces since we always return a json object in our case
 
@@ -90,7 +87,11 @@ public class SpringRestReflector {
 
         Optional<RestVar> returnValue = ReflectUtils.getGenericRetVal(method);
 
+        expandAllReqMethods(name, reqMethods, restVars, url, restMethods, returnValue);
+        return restMethods.stream();
+    }
 
+    private static void expandAllReqMethods(String name, RequestMethod[] reqMethods, List<RestVar> restVars, String url, List<RestMethod> restMethods, Optional<RestVar> returnValue) {
         for (RequestMethod requestMethod : reqMethods) {
 
             try {
@@ -104,7 +105,14 @@ public class SpringRestReflector {
             }
 
         }
-        return restMethods.stream();
+    }
+
+    private static RequestMethod[] reqMethodDefault(RequestMethod[] reqMethods) {
+        if(reqMethods.length == 0) {
+            reqMethods = new RequestMethod[1];
+            reqMethods[0] = RequestMethod.GET;
+        }
+        return reqMethods;
     }
 
 

@@ -203,6 +203,6 @@ public class ReflectUtils {
         if (Strings.isNullOrEmpty(in)) {
             return in;
         }
-        return in.replaceAll(".*\\.([^\\<^\\>]+)[\\<\\>]{0,1}.*", "$1");
+        return in.replaceAll(".*[\\.\\$]([^\\<^\\>\\$]+)[\\<\\>]{0,1}.*", "$1");
     }
 }
