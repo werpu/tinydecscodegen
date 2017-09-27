@@ -31,11 +31,11 @@
 
     <actions>
         <!-- Add your actions here -->
-        <group id="SimpleGenerateMenu" text="_Tiny Decorations" description="Code gens">
+        <group id="TinyDecsMenu" text="_Tiny Decorations" description="Tiny Decorations Code generators">
             <add-to-group group-id="MainMenu" anchor="last"/>
-            <action id="Service" class="SimpleGenerate" text="Service Generation"
+            <action id="Service" class="ServiceGenerationAction" text="Service Generation"
                     description="Generate a typescript service">
-                <keyboard-shortcut keymap="$default" first-keystroke="ctrl meta G"/>
+                <keyboard-shortcut keymap="$default" first-keystroke="alt shift f1"/>
             </action>
         </group>
 

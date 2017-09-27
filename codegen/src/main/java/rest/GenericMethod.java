@@ -26,25 +26,15 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Root class describing a single rest service
+ * a generic method descriptor
  */
 @Getter
 @AllArgsConstructor
 @EqualsAndHashCode
-public class RestService {
-
-    private final String serviceName;
-    private final String serviceRootUrl;
-    private final List<RestMethod> methods;
-
-
-    public RestService(String serviceName, List<RestMethod> methods) {
-        this.serviceName = serviceName;
-        this.methods = methods;
-        this.serviceRootUrl = "";
-    }
-
-
+public class GenericMethod {
+    protected final Optional<RestVar> returnValue;
+    protected final List<RestVar> params;
 }

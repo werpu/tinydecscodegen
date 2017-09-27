@@ -19,32 +19,9 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package rest;
-
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-
-import java.util.List;
 
 /**
- * Root class describing a single rest service
+ * Generator action for dtos
  */
-@Getter
-@AllArgsConstructor
-@EqualsAndHashCode
-public class RestService {
-
-    private final String serviceName;
-    private final String serviceRootUrl;
-    private final List<RestMethod> methods;
-
-
-    public RestService(String serviceName, List<RestMethod> methods) {
-        this.serviceName = serviceName;
-        this.methods = methods;
-        this.serviceRootUrl = "";
-    }
-
-
+class DtoGenerate {
 }
