@@ -31,12 +31,12 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.function.Function;
 
-@Getter
-@EqualsAndHashCode(callSuper = true)
 
 /**
  * A generic rest variable
  */
+@Getter
+@EqualsAndHashCode(callSuper = true)
 public class RestVar extends GenericVar {
 
     private final RestVarType paramType;
@@ -57,13 +57,14 @@ public class RestVar extends GenericVar {
         this.array = array;
     }
 
+    @SuppressWarnings("unchecked")
     public String toTypeScript(Function<String, String>... reducers) {
 
         GenericType varGeneric = new GenericType((classType != null) ? classType.getTypeName() : "", Arrays.asList(generics));
         return (Strings.isNullOrEmpty(name)) ? varGeneric.toTypescript(reducers) : name + ": " +varGeneric.toTypescript(reducers);
     }
 
-
+    @SuppressWarnings("unchecked")
     public String toTypeScript() {
         return this.toTypeScript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName);
     }
