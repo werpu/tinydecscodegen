@@ -23,12 +23,15 @@ package reflector;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.thoughtworks.paranamer.BytecodeReadingParanamer;
 import rest.*;
 import org.springframework.web.bind.annotation.*;
 import reflector.utils.ReflectUtils;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -63,7 +66,7 @@ public class SpringRestReflector {
 
     }
 
-    private static Stream<RestMethod> mapMethod(Method method, boolean flattenResult) {
+    public static Stream<RestMethod> mapMethod(Method method, boolean flattenResult) {
         RequestMapping mapping = method.getAnnotation(RequestMapping.class);
         String name = method.getName();
         String[] value = mapping.value();
@@ -111,14 +114,20 @@ public class SpringRestReflector {
      * @return
      */
     private static Stream<RestVar> getRestVars(Method method) {
-        return Arrays.stream(method.getParameters()).filter(parameter -> {
+        int index = 0;
+        final Parameter[] params = method.getParameters();
+        final List<Parameter> paramsList = Arrays.asList(params);
+        final  BytecodeReadingParanamer panameter = new BytecodeReadingParanamer();
+
+        final  String names[] = panameter.lookupParameterNames(method);
+        return Arrays.stream(params).filter(parameter -> {
             return parameter.isAnnotationPresent(PathVariable.class) || parameter.isAnnotationPresent(RequestParam.class) ||
                     parameter.isAnnotationPresent(RequestBody.class);
-        }).map(parameter -> {
-            String name = parameter.getName();
+        }).map( parameter -> {
+            int pos = paramsList.indexOf(parameter);
             Class paramType = parameter.getType();
+            String name = names [pos];
             RestVarType restVarType = null;
-
             if (parameter.isAnnotationPresent(PathVariable.class)) {
                 restVarType = RestVarType.PathVariable;
             } else if (parameter.isAnnotationPresent(RequestParam.class)) {
@@ -129,6 +138,7 @@ public class SpringRestReflector {
             boolean array = ReflectUtils.isArrayType(paramType);
             return new RestVar(restVarType, name, paramType, array);
         });
+
     }
 
     private static boolean isRestService(Class cls) {

@@ -76,8 +76,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         </dependency>
 
         <dependency>
-            <groupId>org.jetbrains.idea.maven</groupId>
-            <artifactId></artifactId>
+            <groupId>com.thoughtworks.paranamer</groupId>
+            <artifactId>paranamer</artifactId>
+            <version>2.4</version>
         </dependency>
 
     </dependencies>

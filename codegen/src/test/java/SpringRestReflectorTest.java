@@ -60,7 +60,7 @@ public class SpringRestReflectorTest {
         assertTrue(retVal2.isPresent());
         assertTrue(retVal2.get().isArray());
 
-        assertTrue(param2.toTypeScript().equals("arg2: string"));
+        assertTrue(param2.toTypeScript().equals("filter: string"));
 
         assertTrue(retVal0.get().toTypeScript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName).equals("ProbeRetVal"));
         assertTrue(retVal2.get().toTypeScript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName).equals("Array<ProbeRetVal>"));
