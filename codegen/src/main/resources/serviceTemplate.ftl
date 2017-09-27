@@ -23,7 +23,7 @@ export class ${service.serviceName} {
     <#list service.methods as method>
 
     @Rest({
-        url: "$method.url",
+        url: "${method.url}",
         type: "${method.restType.name()}"<#if method.returnValue.get().array == true >,
         isArray:  true</#if>
     })
