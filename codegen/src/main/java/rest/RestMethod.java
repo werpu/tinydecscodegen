@@ -22,7 +22,7 @@ import java.util.Optional;
  * our parsing model
  */
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public class RestMethod extends GenericMethod{
 
     private final String url;
