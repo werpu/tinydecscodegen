@@ -27,10 +27,15 @@ import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import reflector.SpringRestReflector;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiManager;
+import reflector.SpringJavaRestReflector;
 import reflector.TypescriptRestGenerator;
 import rest.RestService;
 import utils.IntellijUtils;
@@ -59,6 +64,13 @@ public class ServiceGenerationAction extends AnAction {
             return;
         }
 
+        VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
+        PsiJavaFile javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(vFile);
+        PsiClass clz = javaFile.getClasses()[0];
+
+        //clz.getContainingFile()
+        //clz.getAllMethods()[3].getParameterList().getParameters()[0].getModifierList().getAnnotations()[0].getParameterList().getAttributes()[0].getValue().
+
         Module module = IntellijUtils.getModuleFromEditor(project, editor);
         String className = IntellijUtils.getClassNameFromEditor(project, editor);
 
@@ -75,7 +87,7 @@ public class ServiceGenerationAction extends AnAction {
                     URLClassLoader urlClassLoader = IntellijUtils.getClassLoader(compileContext, module);
                     Class compiledClass = urlClassLoader.loadClass(className);
 
-                    List<RestService> restService = SpringRestReflector.reflect(Arrays.asList(compiledClass), true);
+                    List<RestService> restService = SpringJavaRestReflector.reflect(Arrays.asList(compiledClass), true);
                     if(restService == null || restService.isEmpty()) {
                         log.error("No rest code found in selected file");
                         return false;

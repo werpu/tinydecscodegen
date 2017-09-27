@@ -10,10 +10,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 import rest.RestService;
 import org.junit.Test;
 import probes.TestProbeController;
-import reflector.SpringRestReflector;
+import reflector.SpringJavaRestReflector;
 import reflector.TypescriptRestGenerator;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 public class TemplateTest {
     @Test
     public void testBasicTemplating()  {
-        List<RestService> services = SpringRestReflector.reflect(Arrays.asList(TestProbeController.class), true);
+        List<RestService> services = SpringJavaRestReflector.reflect(Arrays.asList(TestProbeController.class), true);
         TypescriptRestGenerator.generate(services);
 
         assertTrue(true);

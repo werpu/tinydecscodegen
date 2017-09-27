@@ -3,7 +3,7 @@ import rest.RestService;
 import rest.RestVar;
 import org.junit.Test;
 import probes.TestProbeController;
-import reflector.SpringRestReflector;
+import reflector.SpringJavaRestReflector;
 import reflector.utils.ReflectUtils;
 import reflector.utils.TypescriptTypeMapper;
 
@@ -15,13 +15,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
-public class SpringRestReflectorTest {
+public class SpringJavaRestReflectorTest {
 
 
 
     @Test
     public void testBasicReflection() {
-        List<RestService> services = SpringRestReflector.reflect(Arrays.asList(TestProbeController.class), true);
+        List<RestService> services = SpringJavaRestReflector.reflect(Arrays.asList(TestProbeController.class), true);
         assertTrue(services.size() == 1);
 
         RestService restService = services.get(0);
@@ -72,7 +72,7 @@ public class SpringRestReflectorTest {
     private void assertParameters(RestMethod method0) {
         for(RestVar param: method0.getParams()) {
             assertTrue(param.getParamType().isPathVariable());
-            assertTrue(((Class) param.getClassType()).getName().contains("String"));
+            assertTrue(param.getClassType().getTypeName().contains("String"));
             assertTrue(param.toTypeScript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName).equals(param.getName()+": string"));
             assertFalse(param.isArray());
         }

@@ -54,10 +54,13 @@ import java.util.stream.Collectors;
  */
 public class GenericType {
 
+
     @NonNull
     private final String ownerType;
     @NonNull
     private final List<GenericType> childTypes;
+
+
 
 
     public String toTypescript(Function<String, String>... reducers) {
@@ -99,5 +102,10 @@ public class GenericType {
             retVal.append(finalOwnerType);
         }
         return retVal.toString();
+    }
+
+
+    public String getTypeName() {
+        return ownerType;
     }
 }

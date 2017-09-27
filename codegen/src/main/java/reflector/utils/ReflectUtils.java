@@ -120,7 +120,7 @@ public class ReflectUtils {
             //no generic
             Type retCls = m.getGenericReturnType();
 
-            return Optional.ofNullable(new RestVar(RestVarType.RequestRetval, null, retCls, false));
+            return Optional.ofNullable(new RestVar(RestVarType.RequestRetval, null, new GenericType(retCls.getTypeName(), Collections.emptyList()), false));
         }
     }
 

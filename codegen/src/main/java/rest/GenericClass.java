@@ -19,22 +19,23 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+
 package rest;
+
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import java.lang.reflect.Type;
+import java.util.List;
 
 @Getter
-@EqualsAndHashCode
 @AllArgsConstructor
-/**
- * generic variable
- */
-public class GenericVar {
-    protected final String name;
-    protected final GenericType classType;
-    protected final GenericType[] generics;
+@EqualsAndHashCode
+public class GenericClass {
+
+    private final GenericType clazz;
+
+    private final List<RestMethod> methods;
+
 }

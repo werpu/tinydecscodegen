@@ -43,14 +43,14 @@ public class RestVar extends GenericVar {
     private final boolean array;
 
 
-    public RestVar(RestVarType paramType, String name, Type classType, boolean array) {
+    public RestVar(RestVarType paramType, String name, GenericType classType, boolean array) {
         super(name, classType, new GenericType[0]);
         this.paramType = paramType;
         this.array = array;
     }
 
 
-    public RestVar(RestVarType paramType, String name, boolean array, Type classType, GenericType... generics) {
+    public RestVar(RestVarType paramType, String name, boolean array, GenericType classType, GenericType... generics) {
         super(name, classType, generics);
 
         this.paramType = paramType;

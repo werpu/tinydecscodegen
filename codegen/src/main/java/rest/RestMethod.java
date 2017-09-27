@@ -23,7 +23,7 @@ import java.util.Optional;
  */
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class RestMethod extends GenericMethod{
+public class RestMethod extends GenericMethod {
 
     private final String url;
     private final String name;

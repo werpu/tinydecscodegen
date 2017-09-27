@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 /**
  * Reflection class to handle spring based rest services
  */
-public class SpringRestReflector {
+public class SpringJavaRestReflector {
 
     public static List<RestService> reflect(List<Class> toReflect, boolean flattenResult) {
         return toReflect.parallelStream().filter(cls -> {
@@ -149,7 +149,7 @@ public class SpringRestReflector {
                 restVarType = RestVarType.RequestBody;
             }
             boolean array = ReflectUtils.isArrayType(paramType);
-            return new RestVar(restVarType, name, paramType, array);
+            return new RestVar(restVarType, name, new GenericType(paramType.getTypeName(), Collections.emptyList()), array);
         });
 
     }
