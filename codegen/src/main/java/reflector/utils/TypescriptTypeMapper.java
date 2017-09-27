@@ -27,7 +27,7 @@ package reflector.utils;
  */
 public class TypescriptTypeMapper {
 
-    public static final String map(String in) {
+    public static String map(String in) {
         in = in.trim();
         if (in.equals("java.lang.String")) {
             return "string";
@@ -41,6 +41,4 @@ public class TypescriptTypeMapper {
             return ReflectUtils.reduceClassName(in);
         }
     }
-
-
 }

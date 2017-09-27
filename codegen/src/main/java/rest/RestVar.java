@@ -32,7 +32,8 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
+
 /**
  * A generic rest variable
  */
