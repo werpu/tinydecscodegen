@@ -139,7 +139,7 @@ public class ReflectUtils {
         methods.removeIf(include.negate());
         Stream.of(clazz.getDeclaredMethods()).filter(include).forEach(methods::add);
 
-        final int access = Modifier.PUBLIC | Modifier.PROTECTED | Modifier.PRIVATE;
+      /*  final int access = Modifier.PUBLIC | Modifier.PROTECTED | Modifier.PRIVATE;
 
         Package p = clazz.getPackage();
         if (!includeAllPackageAndPrivateMethodsOfSuperclasses) {
@@ -169,6 +169,7 @@ public class ReflectUtils {
         }
         for (clazz = clazz.getSuperclass(); clazz != null; clazz = clazz.getSuperclass())
             Stream.of(clazz.getDeclaredMethods()).filter(include).forEach(methods::add);
+         */
         return methods;
     }
 
