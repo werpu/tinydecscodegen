@@ -71,6 +71,11 @@ public class SpringRestReflector {
         String name = method.getName();
         String[] value = mapping.value();
         RequestMethod[] reqMethods = mapping.method(); //if there is more than one request method we map it over to additional typescript methods
+
+        if(reqMethods.length == 0) {
+            reqMethods = new RequestMethod[1];
+            reqMethods[0] = RequestMethod.GET;
+        }
         String[] consumes = mapping.consumes();
         //we can savely ignore produces since we always return a json object in our case
 
@@ -182,7 +187,7 @@ public class SpringRestReflector {
                 serviceName = ann.name();
             }
         } else {
-            serviceName = "";
+            serviceName = ReflectUtils.reduceClassName(cls.getName());
         }
 
         if(serviceName.endsWith("Controller"))  {
