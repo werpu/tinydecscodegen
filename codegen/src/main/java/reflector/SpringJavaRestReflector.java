@@ -151,7 +151,7 @@ public class SpringJavaRestReflector {
             } else if (parameter.isAnnotationPresent(RequestParam.class)) {
                 restVarType = RestVarType.RequesParam;
                 restName = ((RequestParam)parameter.getAnnotation(RequestParam.class)).value();
-                name = Strings.isNullOrEmpty(restName) ? name : restName;
+
             } else {
                 restVarType = RestVarType.RequestBody;
             }
