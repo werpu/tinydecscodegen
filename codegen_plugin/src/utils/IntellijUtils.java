@@ -35,14 +35,19 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import org.jetbrains.annotations.NotNull;
+import reflector.SpringJavaRestReflector;
+import reflector.TypescriptRestGenerator;
+import rest.RestService;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -67,6 +72,11 @@ public class IntellijUtils {
         List<URL> urls = Lists.newLinkedList();
         addClassPath(compileContext, virtualFile, urls, module);
 
+        return getModuleClassLoader(module, urls);
+    }
+
+    public static URLClassLoader getClassLoader(Module module) throws MalformedURLException {
+        List<URL> urls = Lists.newLinkedList();
         return getModuleClassLoader(module, urls);
     }
 
@@ -149,5 +159,22 @@ public class IntellijUtils {
     public static Module getModuleFromEditor(Project project, Editor editor) {
         VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
         return ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(vFile);
+    }
+
+    public static boolean generate(Project project, Module module, String className, URLClassLoader urlClassLoader) throws ClassNotFoundException {
+        Class compiledClass = urlClassLoader.loadClass(className);
+
+        List<RestService> restService = SpringJavaRestReflector.reflect(Arrays.asList(compiledClass), true);
+        if (restService == null || restService.isEmpty()) {
+            Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
+            return false;
+        }
+        String text = TypescriptRestGenerator.generate(restService);
+
+        String ext = ".ts";
+        String fileName = restService.get(0).getServiceName() + ext;
+
+        generateNewTypescriptFile(text, fileName, project, module);
+        return true;
     }
 }

@@ -85,22 +85,7 @@ public class ServiceGenerationAction extends AnAction {
             private boolean compileDone(CompileContext compileContext) {
                 try {
                     URLClassLoader urlClassLoader = IntellijUtils.getClassLoader(compileContext, module);
-                    Class compiledClass = urlClassLoader.loadClass(className);
-
-                    List<RestService> restService = SpringJavaRestReflector.reflect(Arrays.asList(compiledClass), true);
-                    if(restService == null || restService.isEmpty()) {
-                        log.error("No rest code found in selected file");
-                        return false;
-                    }
-                    String text = TypescriptRestGenerator.generate(restService);
-
-                    String ext = ".ts";
-                    String fileName = restService.get(0).getServiceName() + ext;
-
-                    IntellijUtils.generateNewTypescriptFile(text, fileName, project, module);
-
-
-                    return true;
+                    IntellijUtils.generate(project, module, className, urlClassLoader);
                 } catch (RuntimeException |  IOException | ClassNotFoundException e) {
                     log.error(e);
                     Messages.showErrorDialog(project, e.getMessage(), "An Error has occurred");
