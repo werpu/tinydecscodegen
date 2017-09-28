@@ -35,26 +35,36 @@ import java.util.function.Function;
 /**
  * A generic rest variable
  */
-@Getter
+
 @EqualsAndHashCode(callSuper = true)
 public class RestVar extends GenericVar {
 
+    @Getter
     private final RestVarType paramType;
+    @Getter
     private final boolean array;
 
+    private final String restName;
 
-    public RestVar(RestVarType paramType, String name, GenericType classType, boolean array) {
+
+    public RestVar(RestVarType paramType, String restName,  String name, GenericType classType, boolean array) {
         super(name, classType, new GenericType[0]);
         this.paramType = paramType;
         this.array = array;
+        this.restName = restName;
     }
 
 
-    public RestVar(RestVarType paramType, String name, boolean array, GenericType classType, GenericType... generics) {
+    public RestVar(RestVarType paramType, String restName, String name, boolean array, GenericType classType, GenericType... generics) {
         super(name, classType, generics);
 
         this.paramType = paramType;
         this.array = array;
+        this.restName = restName;
+    }
+
+    public String getRestName() {
+        return Strings.isNullOrEmpty(restName) ? name: restName;
     }
 
     @SuppressWarnings("unchecked")

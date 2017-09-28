@@ -28,7 +28,7 @@ export class ${service.serviceName} {
         isArray:  true</#if>
     })
     ${method.name} (
-        <#list method.params as param>@${param.paramType.name()}(<#if param.paramType.requestParam>"${param.name}"</#if>) ${param.toTypeScript()}<#sep>,
+        <#list method.params as param>@${param.paramType.name()}(<#if param.paramType.requestParam>"${param.restName}"</#if>) ${param.toTypeScript()}<#sep>,
         </#sep></#list>): IPromise<<#if !method.returnValue.isPresent()>any<#else>${method.returnValue.get().toTypeScript()}></#if> {
         return null;
     }

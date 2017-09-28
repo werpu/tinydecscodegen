@@ -110,7 +110,7 @@ public class ReflectUtils {
             GenericType genericTypes = new GenericType("", childTypes);
 
 
-            RestVar retVal = new RestVar(RestVarType.RequestRetval, null,
+            RestVar retVal = new RestVar(RestVarType.RequestRetval, null, null,
                     isArrayType(m.getReturnType()) || isArrayType(false, Optional.of(ownerType)),
                     null,
                     genericTypes);
@@ -120,7 +120,7 @@ public class ReflectUtils {
             //no generic
             Type retCls = m.getGenericReturnType();
 
-            return Optional.ofNullable(new RestVar(RestVarType.RequestRetval, null, new GenericType(retCls.getTypeName(), Collections.emptyList()), false));
+            return Optional.ofNullable(new RestVar(RestVarType.RequestRetval, null, null, new GenericType(retCls.getTypeName(), Collections.emptyList()), false));
         }
     }
 
@@ -139,49 +139,7 @@ public class ReflectUtils {
         methods.removeIf(include.negate());
         Stream.of(clazz.getDeclaredMethods()).filter(include).forEach(methods::add);
 
-      /*  final int access = Modifier.PUBLIC | Modifier.PROTECTED | Modifier.PRIVATE;
-
-        Package p = clazz.getPackage();
-        if (!includeAllPackageAndPrivateMethodsOfSuperclasses) {
-            int pass = includeOverridenAndHidden ?
-                    Modifier.PUBLIC | Modifier.PROTECTED : Modifier.PROTECTED;
-            include = include.and(m -> {
-                int mod = m.getModifiers();
-                return (mod & pass) != 0
-                        || (mod & access) == 0 && m.getDeclaringClass().getPackage() == p;
-            });
-        }
-        if (!includeOverridenAndHidden) {
-            Map<Object, Set<Package>> types = new HashMap<>();
-            final Set<Package> pkgIndependent = Collections.emptySet();
-            for (Method m : methods) {
-                int acc = m.getModifiers() & access;
-                if (acc == Modifier.PRIVATE) continue;
-                if (acc != 0) types.put(methodKey(m), pkgIndependent);
-                else types.computeIfAbsent(methodKey(m), x -> new HashSet<>()).add(p);
-            }
-            include = include.and(m -> {
-                int acc = m.getModifiers() & access;
-                return acc != 0 ? acc == Modifier.PRIVATE
-                        || types.putIfAbsent(methodKey(m), pkgIndependent) == null :
-                        noPkgOverride(m, types, pkgIndependent);
-            });
-        }
-        for (clazz = clazz.getSuperclass(); clazz != null; clazz = clazz.getSuperclass())
-            Stream.of(clazz.getDeclaredMethods()).filter(include).forEach(methods::add);
-         */
         return methods;
-    }
-
-    static boolean noPkgOverride(
-            Method m, Map<Object, Set<Package>> types, Set<Package> pkgIndependent) {
-        Set<Package> pkg = types.computeIfAbsent(methodKey(m), key -> new HashSet<>());
-        return pkg != pkgIndependent && pkg.add(m.getDeclaringClass().getPackage());
-    }
-
-    private static Object methodKey(Method m) {
-        return Arrays.asList(m.getName(),
-                MethodType.methodType(m.getReturnType(), m.getParameterTypes()));
     }
 
     public static boolean isArrayType(Class retCls) {

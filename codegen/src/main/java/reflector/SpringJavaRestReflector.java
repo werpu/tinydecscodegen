@@ -145,17 +145,18 @@ public class SpringJavaRestReflector {
             Class paramType = parameter.getType();
             String name = (names.length  <= pos) ? parameter.getName() : names[pos];
             RestVarType restVarType = null;
+            String restName = "";
             if (parameter.isAnnotationPresent(PathVariable.class)) {
                 restVarType = RestVarType.PathVariable;
             } else if (parameter.isAnnotationPresent(RequestParam.class)) {
                 restVarType = RestVarType.RequesParam;
-                String paramName = parameter.getAnnotation(RequestParam.class).name();
-                name = Strings.isNullOrEmpty(paramName) ? name : paramName;
+                restName = ((RequestParam)parameter.getAnnotation(RequestParam.class)).value();
+                name = Strings.isNullOrEmpty(restName) ? name : restName;
             } else {
                 restVarType = RestVarType.RequestBody;
             }
             boolean array = ReflectUtils.isArrayType(paramType);
-            return new RestVar(restVarType, name, new GenericType(paramType.getTypeName(), Collections.emptyList()), array);
+            return new RestVar(restVarType, restName, name, new GenericType(paramType.getTypeName(), Collections.emptyList()), array);
         });
 
     }
