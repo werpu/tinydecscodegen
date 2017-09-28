@@ -63,11 +63,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             <scope>test</scope>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>cz.habarta.typescript-generator</groupId>
             <artifactId>typescript-generator-maven-plugin</artifactId>
             <version>1.28.343</version>
         </dependency>
+        -->
 
         <dependency>
             <groupId>org.freemarker</groupId>

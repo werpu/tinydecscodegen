@@ -4,6 +4,10 @@ export class Sanity {
                 prop3: Date = new Date(), private _param4 = "hello2") {
     }
 
+    set param4(param4: string) {
+        this._param4 = param4;
+    }
+
     get param4(): string {
         return this._param4+"hello world"
     }

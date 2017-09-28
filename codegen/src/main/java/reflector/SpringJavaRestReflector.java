@@ -24,6 +24,8 @@ package reflector;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.thoughtworks.paranamer.BytecodeReadingParanamer;
+import com.thoughtworks.paranamer.CachingParanamer;
+import com.thoughtworks.paranamer.Paranamer;
 import rest.*;
 import org.springframework.web.bind.annotation.*;
 import reflector.utils.ReflectUtils;
@@ -130,21 +132,25 @@ public class SpringJavaRestReflector {
         int index = 0;
         final Parameter[] params = method.getParameters();
         final List<Parameter> paramsList = Arrays.asList(params);
-        final  BytecodeReadingParanamer panameter = new BytecodeReadingParanamer();
 
-        final  String names[] = panameter.lookupParameterNames(method);
+
+        final  String names[] = new BytecodeReadingParanamer().lookupParameterNames(method, true);
+
+
         return Arrays.stream(params).filter(parameter -> {
             return parameter.isAnnotationPresent(PathVariable.class) || parameter.isAnnotationPresent(RequestParam.class) ||
                     parameter.isAnnotationPresent(RequestBody.class);
         }).map( parameter -> {
             int pos = paramsList.indexOf(parameter);
             Class paramType = parameter.getType();
-            String name = names [pos];
+            String name = (names.length  <= pos) ? parameter.getName() : names[pos];
             RestVarType restVarType = null;
             if (parameter.isAnnotationPresent(PathVariable.class)) {
                 restVarType = RestVarType.PathVariable;
             } else if (parameter.isAnnotationPresent(RequestParam.class)) {
                 restVarType = RestVarType.RequesParam;
+                String paramName = parameter.getAnnotation(RequestParam.class).name();
+                name = Strings.isNullOrEmpty(paramName) ? name : paramName;
             } else {
                 restVarType = RestVarType.RequestBody;
             }

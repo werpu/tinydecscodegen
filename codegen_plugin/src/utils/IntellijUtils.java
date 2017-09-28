@@ -108,6 +108,9 @@ public class IntellijUtils {
         if(!url.endsWith("/")) {
             url = url + "/";
         }
+
+        //fix windows urls
+        url = url.replaceAll("(jar\\:){0,1}(file\\://)([A-Za-z]:.*)","$1$2/$3");
         return new URL(url);
     }
 
@@ -118,8 +121,8 @@ public class IntellijUtils {
             urls.add(new URL(virtualFile.getParent().getParent()+"/classes/"));
             urls.add(new URL(compileContext.getModuleOutputDirectoryForTests(module).getUrl()+"/"));
         } catch (MalformedURLException e) {
-           IntellijUtils.log.error(e);
-           throw new RuntimeException(e);
+            IntellijUtils.log.error(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -144,7 +147,7 @@ public class IntellijUtils {
     public static PsiDirectory getOrCreate(PsiDirectory dir, String subDirStr) {
         PsiDirectory findResult = dir.findSubdirectory(subDirStr);
         return findResult != null ? findResult :
-        dir.createSubdirectory(subDirStr);
+                dir.createSubdirectory(subDirStr);
     }
 
     @NotNull
@@ -163,6 +166,7 @@ public class IntellijUtils {
 
     public static boolean generate(Project project, Module module, String className, URLClassLoader urlClassLoader) throws ClassNotFoundException {
         Class compiledClass = urlClassLoader.loadClass(className);
+
 
         List<RestService> restService = SpringJavaRestReflector.reflect(Arrays.asList(compiledClass), true);
         if (restService == null || restService.isEmpty()) {
