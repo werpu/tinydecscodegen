@@ -22,11 +22,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package gui;
 
-import jdk.nashorn.internal.objects.annotations.Getter;
-
 import javax.swing.*;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
+import java.util.function.Function;
 
 public class Confirm extends JDialog {
     public static final String CURRENT = " (Current)";
@@ -36,7 +37,7 @@ public class Confirm extends JDialog {
     private JButton buttonCancel;
     private JComboBox comboBox1;
 
-    private DataRunnable performOk;
+    private Function<String, Boolean> performOk;
 
     private Runnable performCancel;
 
@@ -44,22 +45,30 @@ public class Confirm extends JDialog {
 
     private String selectedClass;
 
+    public Confirm(Function<String, Boolean> performOk, Runnable performCancel, List<String> comboBoxElements) {
+        this();
+        this.setTitle("Inheritance Hierarchy Detected");
+
+        this.performOk = performOk;
+        this.performCancel = performCancel;
+        this.comboBoxElements = comboBoxElements;
+        comboBoxElements.set(0, comboBoxElements.get(0) + CURRENT);
+
+        this.selectedClass = comboBoxElements.get(0);
+        comboBoxElements.set(comboBoxElements.size() - 1, comboBoxElements.get(comboBoxElements.size() - 1) + LAST_PARENT);
+        comboBox1.setModel(new DefaultComboBoxModel<String>(comboBoxElements.toArray(new String[comboBoxElements.size()])));
+    }
+
+
     public Confirm() {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
 
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onOK();
-            }
-        });
+        buttonOK.addActionListener( e -> onOK());
 
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        });
+        buttonCancel.addActionListener( e -> onCancel());
+
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -70,41 +79,22 @@ public class Confirm extends JDialog {
         });
 
         // call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        comboBox1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JComboBox cb = (JComboBox)e.getSource();
-                selectedClass = (String)cb.getSelectedItem();
+        contentPane.registerKeyboardAction( e -> onCancel(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-            }
+        comboBox1.addActionListener( e -> {
+            JComboBox cb = (JComboBox) e.getSource();
+            selectedClass = (String) cb.getSelectedItem();
         });
     }
 
-    public Confirm(DataRunnable<String> performOk, Runnable performCancel, List<String> comboBoxElements) {
-        this();
-        this.setTitle("Inheritance Hierarchy Detected");
-
-        this.performOk = performOk;
-        this.performCancel = performCancel;
-        this.comboBoxElements = comboBoxElements;
-        comboBoxElements.set(0 ,comboBoxElements.get(0)+ CURRENT);
-
-        this.selectedClass = comboBoxElements.get(0);
-        comboBoxElements.set(comboBoxElements.size() - 1 ,comboBoxElements.get(comboBoxElements.size() - 1)+ LAST_PARENT);
-        comboBox1.setModel(new DefaultComboBoxModel<String>(comboBoxElements.toArray(new String[comboBoxElements.size()])));
-    }
 
     private void onOK() {
         // add your code here
         dispose();
-        if(performOk != null) {
-
-            performOk.run(selectedClass.replace(CURRENT, "").replace(LAST_PARENT, ""));
+        if (performOk != null) {
+            this.performOk.apply(selectedClass.replace(CURRENT, "").replace(LAST_PARENT, ""));
         }
 
     }
@@ -112,7 +102,7 @@ public class Confirm extends JDialog {
     private void onCancel() {
         // add your code here if necessary
         dispose();
-        if(performCancel != null) {
+        if (performCancel != null) {
             performCancel.run();
         }
 

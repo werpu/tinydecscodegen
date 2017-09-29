@@ -52,6 +52,11 @@
                     description="Generate a typescript dto">
                 <keyboard-shortcut keymap="$default" first-keystroke="alt meta f4"/>
             </action>
+
+            <action id="Test" class="AlterFileAction" text="AlterFileAction"
+                    description="Generate a typescript dto">
+
+            </action>
         </group>
 
     </actions>

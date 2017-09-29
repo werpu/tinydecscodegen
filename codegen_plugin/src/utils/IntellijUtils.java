@@ -32,6 +32,8 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
@@ -41,6 +43,9 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
+import com.intellij.psi.search.FileTypeIndex;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.indexing.FileBasedIndex;
 import gui.Confirm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +61,7 @@ import java.awt.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -68,7 +73,7 @@ public class IntellijUtils {
 
 
     public static void generateNewTypescriptFile(String text, String fileName, Project project, Module module) {
-        PsiFile file = PsiFileFactory.getInstance(project).createFileFromText(fileName, Language.findLanguageByID("TypeScript"),text);
+        PsiFile file = PsiFileFactory.getInstance(project).createFileFromText(fileName, Language.findLanguageByID("TypeScript"), text);
         ApplicationManager.getApplication().runWriteAction(() -> {
             moveFileToGeneratedDir(file, project, module);
             FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
@@ -92,7 +97,7 @@ public class IntellijUtils {
     @NotNull
     public static URLClassLoader getModuleClassLoader(Module module, List<URL> urls) throws MalformedURLException {
         VirtualFile[] classessRoots = OrderEnumerator.orderEntries(module).recursively().getClassesRoots();
-        for(VirtualFile virtualFile1: classessRoots) {
+        for (VirtualFile virtualFile1 : classessRoots) {
             urls.add(addClassPath(virtualFile1));
         }
 
@@ -111,24 +116,24 @@ public class IntellijUtils {
     @NotNull
     public static URL addClassPath(VirtualFile virtualFile1) throws MalformedURLException {
         String url = virtualFile1.getUrl();
-        if(url.contains(".jar") && url.startsWith("jar://")) {
-            url = url.replaceAll("jar:/","jar:file:/");
+        if (url.contains(".jar") && url.startsWith("jar://")) {
+            url = url.replaceAll("jar:/", "jar:file:/");
         }
-        if(!url.endsWith("/")) {
+        if (!url.endsWith("/")) {
             url = url + "/";
         }
 
         //fix windows urls
-        url = url.replaceAll("(jar\\:){0,1}(file\\://)([A-Za-z]:.*)","$1$2/$3");
+        url = url.replaceAll("(jar\\:){0,1}(file\\://)([A-Za-z]:.*)", "$1$2/$3");
         return new URL(url);
     }
 
     public static void addClassPath(CompileContext compileContext, VirtualFile virtualFile, List<URL> urls, Module module) {
         try {
-            urls.add(new URL(virtualFile.getUrl()+"/"));
+            urls.add(new URL(virtualFile.getUrl() + "/"));
             //Special case, older configuration often map their output dir to module/classes
-            urls.add(new URL(virtualFile.getParent().getParent()+"/classes/"));
-            urls.add(new URL(compileContext.getModuleOutputDirectoryForTests(module).getUrl()+"/"));
+            urls.add(new URL(virtualFile.getParent().getParent() + "/classes/"));
+            urls.add(new URL(compileContext.getModuleOutputDirectoryForTests(module).getUrl() + "/"));
         } catch (MalformedURLException e) {
             IntellijUtils.log.error(e);
             throw new RuntimeException(e);
@@ -141,13 +146,13 @@ public class IntellijUtils {
         if (rscDir == null) {
             String subDirStr = "target";
             rscDir = getOrCreate(dir, subDirStr);
-            rscDir = getOrCreate(rscDir,"generated-sources");
-            rscDir = getOrCreate(rscDir,"ts-ng-tinydecorations");
-            rscDir = getOrCreate(rscDir,"services");
+            rscDir = getOrCreate(rscDir, "generated-sources");
+            rscDir = getOrCreate(rscDir, "ts-ng-tinydecorations");
+            rscDir = getOrCreate(rscDir, "services");
         }
 
         PsiFile oldFile = rscDir.findFile(file.getName());
-        if(oldFile != null) {
+        if (oldFile != null) {
             oldFile.delete();
         }
         rscDir.add(file);
@@ -165,7 +170,7 @@ public class IntellijUtils {
         PsiJavaFile javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(vFile);
 
         String packageName = javaFile.getPackageName();
-        return packageName +"."+javaFile.getName().replaceAll(".java","");
+        return packageName + "." + javaFile.getName().replaceAll(".java", "");
     }
 
     public static Module getModuleFromEditor(Project project, Editor editor) {
@@ -213,10 +218,10 @@ public class IntellijUtils {
         final ClassHolder classHolder = new ClassHolder();
 
         classHolder.hierarchyEndpoint = compiledClass;
-        if(ReflectUtils.hasParent(compiledClass)) {
-            Confirm dialog = new Confirm((String data) -> {
+        if (ReflectUtils.hasParent(compiledClass)) {
+            Confirm dialog = new Confirm(data -> {
 
-                if(!Strings.isNullOrEmpty(data)) {
+                if (!Strings.isNullOrEmpty(data)) {
                     try {
                         classHolder.hierarchyEndpoint = urlClassLoader.loadClass(data);
                     } catch (ClassNotFoundException e) {
@@ -226,7 +231,7 @@ public class IntellijUtils {
                 List<GenericClass> dtos = SpringJavaRestReflector.reflectDto(Arrays.asList(compiledClass), classHolder.hierarchyEndpoint);
                 if (dtos == null || dtos.isEmpty()) {
                     Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
-                    return;
+                    return false;
                 }
                 String text = TypescriptDtoGenerator.generate(dtos);
 
@@ -234,6 +239,7 @@ public class IntellijUtils {
                 String fileName = dtos.get(0).getName() + ext;
 
                 generateNewTypescriptFile(text, fileName, project, module);
+                return true;
             }, null, ReflectUtils.getInheritanceHierarchyAsString(compiledClass));
 
             SwingUtils.centerOnParent(dialog, true);
@@ -244,5 +250,19 @@ public class IntellijUtils {
 
 
         return true;
+    }
+
+    //https://intellij-support.jetbrains.com/hc/en-us/community/posts/115000080064-find-virtual-file-for-relative-path-under-content-roots
+    public static List<VirtualFile> findFileByRelativePath(@NotNull Project project, @NotNull String fileRelativePath) {
+        String relativePath = fileRelativePath.startsWith("/") ? fileRelativePath : "/" + fileRelativePath;
+        Set<FileType> fileTypes = Collections.singleton(FileTypeManager.getInstance().getFileTypeByFileName(relativePath));
+        final List<VirtualFile> fileList = new ArrayList<>();
+        FileBasedIndex.getInstance().processFilesContainingAllKeys(FileTypeIndex.NAME, fileTypes, GlobalSearchScope.projectScope(project), null, virtualFile -> {
+            if (virtualFile.getPath().endsWith(relativePath)) {
+                fileList.add(virtualFile);
+            }
+            return true;
+        });
+        return fileList;
     }
 }
