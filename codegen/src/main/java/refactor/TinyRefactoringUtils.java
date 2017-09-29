@@ -24,8 +24,6 @@ package refactor;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,14 +36,6 @@ import java.util.stream.Collectors;
  *
  */
 
-@Setter
-@Getter
-class NgModuleJson {
-    String name;
-    String[] declarations;
-    String[] imports;
-    String[] exports;
-}
 
 
 public class TinyRefactoringUtils {
@@ -71,7 +61,7 @@ public class TinyRefactoringUtils {
 
             Gson gson = new Gson();
             NgModuleJson moduleData = gson.fromJson(jsonString.toString(), NgModuleJson.class);
-            appendDeclare(declareClass, moduleData);
+            moduleData.appendDeclare(declareClass);
             String replacement = gson.toJson(moduleData);
 
             return  modulePart.replace(jsonString, replacement);
@@ -105,7 +95,7 @@ public class TinyRefactoringUtils {
 
             Gson gson = new Gson();
             NgModuleJson moduleData = gson.fromJson(jsonString.toString(), NgModuleJson.class);
-            appendImport(declareClass, moduleData);
+            moduleData.appendImport(declareClass);
             String replacement = gson.toJson(moduleData);
 
             return  modulePart.replace(jsonString, replacement);
@@ -138,7 +128,7 @@ public class TinyRefactoringUtils {
 
             Gson gson = new Gson();
             NgModuleJson moduleData = gson.fromJson(jsonString.toString(), NgModuleJson.class);
-            appendExport(declareClass, moduleData);
+            moduleData.appendExport(declareClass);
             String replacement = gson.toJson(moduleData);
 
             return  modulePart.replace(jsonString, replacement);
@@ -174,23 +164,7 @@ public class TinyRefactoringUtils {
         return skip;
     }
 
-    private static void appendDeclare(String declareClass, NgModuleJson moduleData) {
-        List<String> declares = Lists.newArrayList(Arrays.asList(moduleData.declarations == null ? new String[0]: moduleData.declarations));
-        declares.add(declareClass);
-        moduleData.declarations = declares.toArray(new String[declares.size()]);
-    }
 
-    private static void appendImport(String declareClass, NgModuleJson moduleData) {
-        List<String> declares = Lists.newArrayList(Arrays.asList(moduleData.imports == null ? new String[0]: moduleData.imports));
-        declares.add(declareClass);
-        moduleData.imports = declares.toArray(new String[declares.size()]);
-    }
-
-    private static void appendExport(String declareClass, NgModuleJson moduleData) {
-        List<String> exports = Lists.newArrayList(Arrays.asList(moduleData.exports == null ? new String[0]: moduleData.exports));
-        exports.add(declareClass);
-        moduleData.exports = exports.toArray(new String[exports.size()]);
-    }
 
     private static List<String> getNgModuleBlocks(String contentToAlter) {
         return Arrays.asList(contentToAlter.split("@NgModule"));
@@ -204,7 +178,7 @@ public class TinyRefactoringUtils {
      * @param modulePart
      * @return
      */
-    private static StringBuilder getJsonString(String modulePart) {
+    public static StringBuilder getJsonString(String modulePart) {
         modulePart = stripComments(modulePart);
         char[] tokens = modulePart.toCharArray();
 

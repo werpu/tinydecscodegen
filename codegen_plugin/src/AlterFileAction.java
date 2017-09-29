@@ -2,9 +2,14 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import utils.IntellijRefactor;
 import utils.IntellijUtils;
+import utils.Offset;
 
 import java.util.List;
+
+
+
 
 public class AlterFileAction extends AnAction {
     @Override
@@ -20,10 +25,11 @@ public class AlterFileAction extends AnAction {
         VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
         PsiJavaFile javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(vFile);*/
 
-        List<VirtualFile> vFile = IntellijUtils.findFileByRelativePath(project, "webapp/typescript/wli/components/approvalDialog.ts");
+        List<VirtualFile> vFile = IntellijUtils.findFileByRelativePath(project, "webapp/typescript/app-module.ts");
+        List<Offset> offsets = IntellijRefactor.findNgModuleOffsets(project, vFile);
 
-
-       // PsiFileFactory.getInstance(project).createFileFromText()
+        System.out.println("offeset");
+        // PsiFileFactory.getInstance(project).createFileFromText()
         //PsiDirectory.add()
      //  PsiFile psiJSFile = PsiManager.getInstance(project).findFile(vFile.get(0));
       // FileType ft = psiJSFile.getFileType();
@@ -35,4 +41,5 @@ public class AlterFileAction extends AnAction {
 
 
     }
+
 }
