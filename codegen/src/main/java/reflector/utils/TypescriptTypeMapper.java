@@ -35,6 +35,8 @@ public class TypescriptTypeMapper {
             return "number";
         } else if (in.equals("float") || in.equals("double") || in.equals("Float") || in.equals("Double") || in.equals("java.lang.Float") || in.equals("java.lang.Double")) {
             return "float";
+        } else if (in.equals("boolean") || in.equals("Boolean") || in.equals("java.lang.Boolean")) {
+            return "boolean";
         } else if (in.equals("java.util.List") || in.equals("List") || in.equals("Set") || in.equals("java.util.Set")) {
             return "Array";
         } else {
