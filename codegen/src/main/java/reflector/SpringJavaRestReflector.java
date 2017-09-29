@@ -24,8 +24,6 @@ package reflector;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.thoughtworks.paranamer.BytecodeReadingParanamer;
-import com.thoughtworks.paranamer.CachingParanamer;
-import com.thoughtworks.paranamer.Paranamer;
 import rest.*;
 import org.springframework.web.bind.annotation.*;
 import reflector.utils.ReflectUtils;
@@ -34,7 +32,6 @@ import java.beans.IntrospectionException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -174,7 +171,7 @@ public class SpringJavaRestReflector {
             if (parameter.isAnnotationPresent(PathVariable.class)) {
                 restVarType = RestVarType.PathVariable;
             } else if (parameter.isAnnotationPresent(RequestParam.class)) {
-                restVarType = RestVarType.RequesParam;
+                restVarType = RestVarType.RequestParam;
                 restName = ((RequestParam) parameter.getAnnotation(RequestParam.class)).value();
 
             } else {

@@ -26,14 +26,14 @@ package rest;
  */
 public enum RestVarType {
 
-    PathVariable, RequesParam, RequestBody, RequestRetval;
+    PathVariable, RequestParam, RequestBody, RequestRetval;
 
     public boolean isPathVariable() {
         return this == PathVariable;
     }
 
     public boolean isRequestParam() {
-        return this == RequesParam;
+        return this == RequestParam;
     }
 
     public boolean isRequestBody() {

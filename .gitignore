@@ -5,3 +5,5 @@ target
 *.iml
 !codegen_plugin.iml
 /codegen/velocity.log
+build/
+.gradle
