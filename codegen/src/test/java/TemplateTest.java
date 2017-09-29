@@ -27,7 +27,6 @@ public class TemplateTest {
     static String probe = "/// <reference path=\"../../../dist/TinyDecorations.d.ts\" />\n" +
             "/// <reference path=\"../../../dist/Cache.d.ts\" />\n" +
             "/// <reference path=\"../../../dist/Routing.d.ts\" />\n" +
-            "\n" +
             "// Declare app level module which depends on views, and components\n" +
             "import {View2Module} from \"./view2/View2Module\";\n" +
             "import {View1Module} from \"./view1/View1Module\";\n" +

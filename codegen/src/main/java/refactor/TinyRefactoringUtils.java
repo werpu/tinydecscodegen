@@ -1,28 +1,45 @@
+/*
+
+Copyright 2017 Werner Punz
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software
+is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 package refactor;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * A simple set of refactorings for the tiny decs,
- * since there is no real Psi Api for Typescript we rely simply on json parsing
+ * since there is no documented Psi Api
+ * for Typescript we rely simply on json parsing
  *
- * @NgModule({ name:"moduleName
- * })
  */
 
-@Data
+@Setter
+@Getter
 class NgModuleJson {
     String name;
     String[] declarations;
@@ -33,12 +50,19 @@ class NgModuleJson {
 
 public class TinyRefactoringUtils {
 
+    /**
+     * adds a declare entry to an existing ngModule
+     *
+     * @param declareClass
+     * @param contentToAlter
+     * @return
+     */
     public static String ngModuleAddDeclare(String declareClass, String contentToAlter) {
         if(contentToAlter.trim().indexOf("@NgModule") == -1) {
             return contentToAlter;
         }
         int skip = calculateSkip(contentToAlter);
-       ;
+
 
         List<String> ngModuleBlocks = getNgModuleBlocks(contentToAlter);
         String unprocessed  = getPrefix(skip, ngModuleBlocks);
@@ -59,14 +83,13 @@ public class TinyRefactoringUtils {
         return Joiner.on(" @NgModule").join(summary);
     }
 
-    private static int calculateSkip(String contentToAlter) {
-        int skip = 1;
-        if(contentToAlter.trim().indexOf("@NgModule") == 0) {
-            skip = 0;
-        }
-        return skip;
-    }
-
+    /**
+     * adds an import to an existing ngModule
+     *
+     * @param declareClass
+     * @param contentToAlter
+     * @return
+     */
     public static String ngModuleAddImport(String declareClass, String contentToAlter) {
         if(contentToAlter.trim().indexOf("@NgModule") == -1) {
             return contentToAlter;
@@ -83,6 +106,39 @@ public class TinyRefactoringUtils {
             Gson gson = new Gson();
             NgModuleJson moduleData = gson.fromJson(jsonString.toString(), NgModuleJson.class);
             appendImport(declareClass, moduleData);
+            String replacement = gson.toJson(moduleData);
+
+            return  modulePart.replace(jsonString, replacement);
+        }).collect(Collectors.toList());
+
+        List summary = join(unprocessed, codeBlocks);
+
+        return Joiner.on(" @NgModule").join(summary);
+    }
+
+
+    /**
+     * Adds an export to an existing ngModule
+     *
+     * @param declareClass
+     * @param contentToAlter
+     * @return
+     */
+    public static String ngModuleAddExport(String declareClass, String contentToAlter) {
+        if(contentToAlter.trim().indexOf("@NgModule") == -1) {
+            return contentToAlter;
+        }
+        int skip = calculateSkip(contentToAlter);
+
+        List<String> ngModuleBlocks = getNgModuleBlocks(contentToAlter);
+        String unprocessed  = getPrefix(skip, ngModuleBlocks);
+
+        List<String> codeBlocks = ngModuleBlocks.stream().skip(skip).map(modulePart -> {
+            StringBuilder jsonString = getJsonString(modulePart);
+
+            Gson gson = new Gson();
+            NgModuleJson moduleData = gson.fromJson(jsonString.toString(), NgModuleJson.class);
+            appendExport(declareClass, moduleData);
             String replacement = gson.toJson(moduleData);
 
             return  modulePart.replace(jsonString, replacement);
@@ -110,29 +166,12 @@ public class TinyRefactoringUtils {
         return summary;
     }
 
-    public static String ngModuleAddExport(String declareClass, String contentToAlter) {
-        if(contentToAlter.trim().indexOf("@NgModule") == -1) {
-            return contentToAlter;
+    private static int calculateSkip(String contentToAlter) {
+        int skip = 1;
+        if(contentToAlter.trim().indexOf("@NgModule") == 0) {
+            skip = 0;
         }
-        int skip = calculateSkip(contentToAlter);
-
-        List<String> ngModuleBlocks = getNgModuleBlocks(contentToAlter);
-        String unprocessed  = getPrefix(skip, ngModuleBlocks);
-
-        List<String> codeBlocks = ngModuleBlocks.stream().skip(skip).map(modulePart -> {
-            StringBuilder jsonString = getJsonString(modulePart);
-
-            Gson gson = new Gson();
-            NgModuleJson moduleData = gson.fromJson(jsonString.toString(), NgModuleJson.class);
-            appendExport(declareClass, moduleData);
-            String replacement = gson.toJson(moduleData);
-
-            return  modulePart.replace(jsonString, replacement);
-        }).collect(Collectors.toList());
-
-        List summary = join(unprocessed, codeBlocks);
-
-        return Joiner.on(" @NgModule").join(summary);
+        return skip;
     }
 
     private static void appendDeclare(String declareClass, NgModuleJson moduleData) {
@@ -158,7 +197,13 @@ public class TinyRefactoringUtils {
     }
 
 
-
+    /**
+     * unfortunately java does not have recursive Regexps
+     * so we have to fish the NgModule metadata the hard way
+     *
+     * @param modulePart
+     * @return
+     */
     private static StringBuilder getJsonString(String modulePart) {
         modulePart = stripComments(modulePart);
         char[] tokens = modulePart.toCharArray();
@@ -195,5 +240,3 @@ public class TinyRefactoringUtils {
     }
 
 }
-
-//^[^@NgModule]*(@NgModule)[\n\(\{\}\)A-Za-z0-9\s]*
