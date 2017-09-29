@@ -25,10 +25,14 @@ import com.google.common.base.Strings;
 
 import com.google.common.collect.Lists;
 import rest.GenericType;
+import rest.GenericVar;
 import rest.RestVar;
 import rest.RestVarType;
 
 
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -36,6 +40,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -141,6 +147,46 @@ public class ReflectUtils {
 
         return methods;
     }
+
+    public static boolean hasParent(Class clazz) {
+        return !clazz.getSuperclass().equals(Object.class);
+    }
+
+    public static Collection<GenericVar> getAllProperties(Class clazz, boolean classOnly) throws IntrospectionException {
+
+        PropertyDescriptor[] allProps = (classOnly) ? Introspector.getBeanInfo(clazz, clazz.getSuperclass()).getPropertyDescriptors() : Introspector.getBeanInfo(clazz, Object.class).getPropertyDescriptors();
+
+
+        final List<GenericVar> publicProperties = Arrays.asList(clazz.getDeclaredFields()).stream()
+                .filter(declaredField -> {
+                    return Modifier.isPublic(declaredField.getModifiers()) && !Modifier.isStatic(declaredField.getModifiers());
+                }).map(declaredField -> {
+                    List<GenericType> genericTypes = buildGenericTypes(declaredField.getGenericType().getTypeName());
+                    return new GenericVar(declaredField.getName(), genericTypes.get(0), new GenericType[0]);
+                }).collect(Collectors.toList());
+
+        final Set<String> propIdx = publicProperties.parallelStream().map(prop -> {
+            return prop.getName();
+        }).collect(Collectors.toSet());
+
+
+        List<GenericVar>  accessors = Arrays.asList(allProps).stream()
+                //filter out setter only properties
+                .filter(propertyDescriptor -> {
+                    //we need to filter out the write only and public props for deeper introspection
+                    return propertyDescriptor.getReadMethod() != null && !propIdx.contains(propertyDescriptor.getName());
+                }).map(propertyDescriptor -> {
+                    // Introspector.getBeanInfo(GenericClass.class).getPropertyDescriptors()[2].getReadMethod().getGenericReturnType().getTypeName()
+                    List<GenericType> genericTypes = buildGenericTypes(propertyDescriptor.getReadMethod().getGenericReturnType().getTypeName());
+                    return new GenericVar(propertyDescriptor.getName(), genericTypes.get(0),  new GenericType[0]);
+                }).collect(Collectors.toList()); //now lets transform the remaining props
+
+        List<GenericVar> retVal =  Lists.newArrayListWithCapacity(publicProperties.size()+accessors.size());
+        retVal.addAll(publicProperties);
+        retVal.addAll(accessors);
+        return retVal;
+    }
+
 
     public static boolean isArrayType(Class retCls) {
         return retCls.isArray() || retCls.isInstance(Collections.emptyList());

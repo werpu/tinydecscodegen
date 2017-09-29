@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 public class TemplateTest {
     @Test
     public void testBasicTemplating()  {
-        List<RestService> services = SpringJavaRestReflector.reflect(Arrays.asList(TestProbeController.class), true);
+        List<RestService> services = SpringJavaRestReflector.reflectRestService(Arrays.asList(TestProbeController.class), true);
         TypescriptRestGenerator.generate(services);
 
         assertTrue(true);

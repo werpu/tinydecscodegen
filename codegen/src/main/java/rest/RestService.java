@@ -39,13 +39,13 @@ public class RestService extends GenericClass {
     private final String serviceRootUrl;
 
     public RestService(String serviceName, List<RestMethod> methods) {
-        super(new GenericType(serviceName, Collections.emptyList()), methods);
+        super(new GenericType(serviceName, Collections.emptyList()), null, methods, Collections.emptyList());
         this.serviceName = serviceName;
         this.serviceRootUrl = "";
     }
 
     public RestService(String serviceName, String serviceUrl, List<RestMethod> methods) {
-        super(new GenericType(serviceName, Collections.emptyList()), methods);
+        super(new GenericType(serviceName, Collections.emptyList()), null, methods, Collections.emptyList());
         this.serviceName = serviceName;
         this.serviceRootUrl = serviceUrl;
     }

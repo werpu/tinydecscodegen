@@ -35,15 +35,23 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
+import gui.Confirm;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import reflector.SpringJavaRestReflector;
+import reflector.TypescriptDtoGenerator;
 import reflector.TypescriptRestGenerator;
+import reflector.utils.ReflectUtils;
+import rest.GenericClass;
 import rest.RestService;
 
+import javax.swing.*;
+import java.awt.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -168,7 +176,7 @@ public class IntellijUtils {
         Class compiledClass = urlClassLoader.loadClass(className);
 
 
-        List<RestService> restService = SpringJavaRestReflector.reflect(Arrays.asList(compiledClass), true);
+        List<RestService> restService = SpringJavaRestReflector.reflectRestService(Arrays.asList(compiledClass), true);
         if (restService == null || restService.isEmpty()) {
             Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
             return false;
@@ -177,6 +185,50 @@ public class IntellijUtils {
 
         String ext = ".ts";
         String fileName = restService.get(0).getServiceName() + ext;
+
+        generateNewTypescriptFile(text, fileName, project, module);
+        return true;
+    }
+
+    class MyDialogWrapper extends DialogWrapper {
+        public MyDialogWrapper(Project project) {
+            super(project);
+            setTitle("Parent class found");
+        }
+
+        @Nullable
+        @Override
+        protected JComponent createCenterPanel() {
+            return null;
+        }
+    }
+
+    static class BooleanHolder {
+        public boolean classOnly = true;
+    }
+
+    public static boolean generateDto(Project project, Module module, String className, URLClassLoader urlClassLoader) throws ClassNotFoundException {
+        Class compiledClass = urlClassLoader.loadClass(className);
+        final BooleanHolder booleanHolder = new BooleanHolder();
+
+        if(ReflectUtils.hasParent(compiledClass)) {
+            Confirm dialog = new Confirm(() -> {
+                booleanHolder.classOnly = false;
+            }, null);
+            dialog.pack();
+            dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+            dialog.setVisible(true);
+        }
+
+        List<GenericClass> dtos = SpringJavaRestReflector.reflectDto(Arrays.asList(compiledClass), booleanHolder.classOnly);
+        if (dtos == null || dtos.isEmpty()) {
+            Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
+            return false;
+        }
+        String text = TypescriptDtoGenerator.generate(dtos);
+
+        String ext = ".ts";
+        String fileName = dtos.get(0).getName() + ext;
 
         generateNewTypescriptFile(text, fileName, project, module);
         return true;

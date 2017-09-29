@@ -30,6 +30,7 @@ import rest.*;
 import org.springframework.web.bind.annotation.*;
 import reflector.utils.ReflectUtils;
 
+import java.beans.IntrospectionException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
@@ -43,7 +44,29 @@ import java.util.stream.Stream;
  */
 public class SpringJavaRestReflector {
 
-    public static List<RestService> reflect(List<Class> toReflect, boolean flattenResult) {
+
+    public static List<GenericClass> reflectDto(List<Class> toReflect, boolean classOnly) {
+        return toReflect.stream().map(clazz -> {
+
+            Collection<GenericVar> props = Collections.emptyList();
+            GenericClass parent = null;
+            try {
+                props = ReflectUtils.getAllProperties(clazz, classOnly);
+
+                if(classOnly && !clazz.getSuperclass().equals(Object.class)) {
+                    parent = reflectDto(Arrays.asList(clazz.getSuperclass()), classOnly).get(0);
+                }
+            } catch (IntrospectionException e) {
+                e.printStackTrace();
+            }
+            GenericType classDescriptor = ReflectUtils.buildGenericTypes(clazz.getTypeName()).get(0);
+
+            return new GenericClass(classDescriptor, parent, Collections.emptyList(), props.stream().collect(Collectors.toList()));
+
+        }).collect(Collectors.toList());
+    }
+
+    public static List<RestService> reflectRestService(List<Class> toReflect, boolean flattenResult) {
         return toReflect.parallelStream().filter(cls -> {
             return isRestService(cls);
         }).map(cls -> {
@@ -63,7 +86,9 @@ public class SpringJavaRestReflector {
                     return mapMethod(method, flattenResult);
                 })
                 .flatMap(rMethod -> rMethod)
-                .sorted((o1, o2) -> {return o1.getName().compareTo(o2.getName());})
+                .sorted((o1, o2) -> {
+                    return o1.getName().compareTo(o2.getName());
+                })
                 .collect(Collectors.toList());
 
     }
@@ -110,7 +135,7 @@ public class SpringJavaRestReflector {
     }
 
     private static RequestMethod[] reqMethodDefault(RequestMethod[] reqMethods) {
-        if(reqMethods.length == 0) {
+        if (reqMethods.length == 0) {
             reqMethods = new RequestMethod[1];
             reqMethods[0] = RequestMethod.GET;
         }
@@ -134,23 +159,23 @@ public class SpringJavaRestReflector {
         final List<Parameter> paramsList = Arrays.asList(params);
 
 
-        final  String names[] = new BytecodeReadingParanamer().lookupParameterNames(method, true);
+        final String names[] = new BytecodeReadingParanamer().lookupParameterNames(method, true);
 
 
         return Arrays.stream(params).filter(parameter -> {
             return parameter.isAnnotationPresent(PathVariable.class) || parameter.isAnnotationPresent(RequestParam.class) ||
                     parameter.isAnnotationPresent(RequestBody.class);
-        }).map( parameter -> {
+        }).map(parameter -> {
             int pos = paramsList.indexOf(parameter);
             Class paramType = parameter.getType();
-            String name = (names.length  <= pos) ? parameter.getName() : names[pos];
+            String name = (names.length <= pos) ? parameter.getName() : names[pos];
             RestVarType restVarType = null;
             String restName = "";
             if (parameter.isAnnotationPresent(PathVariable.class)) {
                 restVarType = RestVarType.PathVariable;
             } else if (parameter.isAnnotationPresent(RequestParam.class)) {
                 restVarType = RestVarType.RequesParam;
-                restName = ((RequestParam)parameter.getAnnotation(RequestParam.class)).value();
+                restName = ((RequestParam) parameter.getAnnotation(RequestParam.class)).value();
 
             } else {
                 restVarType = RestVarType.RequestBody;
@@ -205,7 +230,7 @@ public class SpringJavaRestReflector {
             serviceName = ReflectUtils.reduceClassName(cls.getName());
         }
 
-        if(serviceName.endsWith("Controller"))  {
+        if (serviceName.endsWith("Controller")) {
             serviceName = serviceName.replaceAll("Controller", "Service");
         }
         return serviceName;

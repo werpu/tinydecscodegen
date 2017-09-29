@@ -27,6 +27,8 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+import reflector.utils.ReflectUtils;
+import reflector.utils.TypescriptTypeMapper;
 
 import java.util.List;
 import java.util.function.Function;
@@ -66,7 +68,8 @@ public class GenericType {
     public String toTypescript(Function<String, String>... reducers) {
         StringBuilder retVal = new StringBuilder();
 
-        String finalOwnerType = ownerType;
+        String finalOwnerType = Strings.nullToEmpty(ownerType);
+
         for (Function<String, String> reducer : reducers) {
             finalOwnerType = reducer.apply(finalOwnerType);
         }
@@ -104,6 +107,10 @@ public class GenericType {
         return retVal.toString();
     }
 
+
+    public String toTypeScript() {
+        return toTypescript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName);
+    }
 
     public String getTypeName() {
         return ownerType;

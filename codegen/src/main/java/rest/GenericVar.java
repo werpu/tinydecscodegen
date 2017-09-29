@@ -36,5 +36,5 @@ import java.lang.reflect.Type;
 public class GenericVar {
     protected final String name;
     protected final GenericType classType;
-    protected final GenericType[] generics;
+    protected final GenericType[] generics; //TODO probably deprecated since the classtype itself can handle the generics
 }

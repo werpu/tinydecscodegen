@@ -30,7 +30,6 @@ public class ServiceGenerateActionWithoutCompile extends AnAction {
 
         VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
         PsiJavaFile javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(vFile);
-        PsiClass clz = javaFile.getClasses()[0];
 
         Module module = IntellijUtils.getModuleFromEditor(project, editor);
         String className = IntellijUtils.getClassNameFromEditor(project, editor);
@@ -46,7 +45,5 @@ public class ServiceGenerateActionWithoutCompile extends AnAction {
         }
 
     }
-
-
 }
 

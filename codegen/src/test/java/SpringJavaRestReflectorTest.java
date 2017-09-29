@@ -1,3 +1,5 @@
+import probes.TestDto;
+import rest.GenericClass;
 import rest.RestMethod;
 import rest.RestService;
 import rest.RestVar;
@@ -21,7 +23,7 @@ public class SpringJavaRestReflectorTest {
 
     @Test
     public void testBasicReflection() {
-        List<RestService> services = SpringJavaRestReflector.reflect(Arrays.asList(TestProbeController.class), true);
+        List<RestService> services = SpringJavaRestReflector.reflectRestService(Arrays.asList(TestProbeController.class), true);
         assertTrue(services.size() == 1);
 
         RestService restService = services.get(0);
@@ -67,6 +69,20 @@ public class SpringJavaRestReflectorTest {
 
         assertTrue(method3.getReturnValue().get().toTypeScript().equals("{[key:string]:ProbeRetVal}"));
         assertTrue(method4.getReturnValue().get().toTypeScript().equals("{[key:string]:{[key:string]:number}}"));
+    }
+
+    @Test
+    public void testDtoReflection() {
+        List<GenericClass> genericClasses = SpringJavaRestReflector.reflectDto(Arrays.asList( TestDto.class), true);
+        assertTrue(genericClasses.size() == 1);
+        GenericClass parsedClass = genericClasses.get(0);
+        assertTrue(parsedClass.getName().equals("TestDto"));
+
+        assertTrue(parsedClass.getProperties().size() == 3);
+
+        assertTrue(parsedClass.getProperties().get(2).getName().equals("retVal"));
+        assertTrue(parsedClass.getProperties().get(2).getClassType().toTypescript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName).equals("ProbeRetVal"));
+
     }
 
     private void assertParameters(RestMethod method0) {

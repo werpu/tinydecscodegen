@@ -26,16 +26,36 @@ package rest;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import reflector.utils.ReflectUtils;
 
 import java.util.List;
 
-@Getter
+
 @AllArgsConstructor
 @EqualsAndHashCode
+@Getter
 public class GenericClass {
+
 
     private final GenericType clazz;
 
-    private final List<RestMethod> methods;
+    private final GenericClass parentClass;
+
+    private final List<? extends RestMethod> methods;
+
+    /**
+     * we split between methods and properties
+     * despite properties always having setters and getters
+     * (which they should not in a sanely designed
+     * property system - which java doesn´t have)
+     * we treat them separately
+     */
+    @Getter
+    private final List<? extends GenericVar> properties;
+
+    public String getName() {
+        return ReflectUtils.reduceClassName(clazz.toTypescript());
+    }
+
 
 }
