@@ -24,7 +24,7 @@ export class ${service.serviceName} {
 
     @Rest({
         url: "${method.url}",
-        type: "${method.restType.name()}"<#if method.returnValue.get().array == true >,
+        method: "${method.restType.name()}"<#if method.returnValue.get().array == true >,
         isArray:  true</#if>
     })
     ${method.name} (
