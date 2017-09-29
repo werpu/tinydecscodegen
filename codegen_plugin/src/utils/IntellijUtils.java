@@ -209,7 +209,7 @@ public class IntellijUtils {
     }
 
     public static boolean generateDto(Project project, Module module, String className, URLClassLoader urlClassLoader) throws ClassNotFoundException {
-        Class compiledClass = urlClassLoader.loadClass(className);
+        final Class compiledClass = urlClassLoader.loadClass(className);
         final ClassHolder classHolder = new ClassHolder();
 
         classHolder.hierarchyEndpoint = compiledClass;
@@ -223,6 +223,17 @@ public class IntellijUtils {
                         e.printStackTrace();
                     }
                 }
+                List<GenericClass> dtos = SpringJavaRestReflector.reflectDto(Arrays.asList(compiledClass), classHolder.hierarchyEndpoint);
+                if (dtos == null || dtos.isEmpty()) {
+                    Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
+                    return;
+                }
+                String text = TypescriptDtoGenerator.generate(dtos);
+
+                String ext = ".ts";
+                String fileName = dtos.get(0).getName() + ext;
+
+                generateNewTypescriptFile(text, fileName, project, module);
             }, null, ReflectUtils.getInheritanceHierarchyAsString(compiledClass));
 
             SwingUtils.centerOnParent(dialog, true);
@@ -231,17 +242,7 @@ public class IntellijUtils {
             dialog.setVisible(true);
         }
 
-        List<GenericClass> dtos = SpringJavaRestReflector.reflectDto(Arrays.asList(compiledClass), classHolder.hierarchyEndpoint);
-        if (dtos == null || dtos.isEmpty()) {
-            Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
-            return false;
-        }
-        String text = TypescriptDtoGenerator.generate(dtos);
 
-        String ext = ".ts";
-        String fileName = dtos.get(0).getName() + ext;
-
-        generateNewTypescriptFile(text, fileName, project, module);
         return true;
     }
 }
