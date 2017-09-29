@@ -215,6 +215,8 @@ public class IntellijUtils {
             Confirm dialog = new Confirm(() -> {
                 booleanHolder.classOnly = false;
             }, null);
+
+            SwingUtils.centerOnParent(dialog, true);
             dialog.pack();
             dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
             dialog.setVisible(true);
