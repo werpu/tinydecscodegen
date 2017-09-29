@@ -50,6 +50,12 @@ import java.util.stream.Stream;
 public class ReflectUtils {
 
 
+    /**
+     * semantic splitting of a comma separated list of types (but not their embedded generics)
+     *
+     * @param in a string representation of generic types
+     * @return a list of generic types as string
+     */
     public static List<String> semanticSplitting(String in) {
 
         List<String> tokens = Lists.newLinkedList();
@@ -107,6 +113,12 @@ public class ReflectUtils {
         return retVal;
     }
 
+    /**
+     * transforms the internal retval into our generic variable representation
+     *
+     * @param m the method which needs to be investigated
+     * @return an optional of a variable with absent being the return value void
+     */
     public static Optional<RestVar> getGenericRetVal(Method m) {
         try {
             ParameterizedType retCls = (ParameterizedType) m.getGenericReturnType();
@@ -148,13 +160,53 @@ public class ReflectUtils {
         return methods;
     }
 
+    /**
+     * gets the entire inheritance hierarchy of a given class excluding java.lang.Object
+     * <p>
+     * the hierarchy is presented top down for easier gui displaying
+     * with the current class being the top class
+     * and the last class before object being the last element
+     *
+     * @return
+     */
+    public static List<Class> getInheritanceHierarchy(Class clazz) {
+        List<Class> hierarchy = Lists.newLinkedList();
+        while (!clazz.equals(Object.class)) {
+            hierarchy.add(clazz);
+            clazz = clazz.getSuperclass();
+        }
+        return hierarchy;
+    }
+
+    /**
+     * gets the entire inheritance hierarchy of a given class excluding java.lang.Object
+     * <p>
+     * the hierarchy is presented top down for easier gui displaying
+     * with the current class being the top class
+     * and the last class before object being the last element
+     *
+     * @return
+     */
+    public static List<String> getInheritanceHierarchyAsString(Class clazz) {
+        List<String> retList = getInheritanceHierarchy(clazz).stream().map(theClass -> {
+             return theClass.getName();
+        }).collect(Collectors.toList());
+        return retList;
+    }
+
+    /**
+     * checks if the inheritance hierarchy has a parent other than object
+     *
+     * @param clazz the class to check
+     * @return true if it extends another class
+     */
     public static boolean hasParent(Class clazz) {
         return !clazz.getSuperclass().equals(Object.class);
     }
 
-    public static Collection<GenericVar> getAllProperties(Class clazz, boolean classOnly) throws IntrospectionException {
+    public static Collection<GenericVar> getAllProperties(Class clazz, Class includingEndpoint) throws IntrospectionException {
 
-        PropertyDescriptor[] allProps = (classOnly) ? Introspector.getBeanInfo(clazz, clazz.getSuperclass()).getPropertyDescriptors() : Introspector.getBeanInfo(clazz, Object.class).getPropertyDescriptors();
+        PropertyDescriptor[] allProps =  Introspector.getBeanInfo(clazz, includingEndpoint.getSuperclass()).getPropertyDescriptors();
 
 
         final List<GenericVar> publicProperties = Arrays.asList(clazz.getDeclaredFields()).stream()
@@ -170,7 +222,7 @@ public class ReflectUtils {
         }).collect(Collectors.toSet());
 
 
-        List<GenericVar>  accessors = Arrays.asList(allProps).stream()
+        List<GenericVar> accessors = Arrays.asList(allProps).stream()
                 //filter out setter only properties
                 .filter(propertyDescriptor -> {
                     //we need to filter out the write only and public props for deeper introspection
@@ -178,10 +230,10 @@ public class ReflectUtils {
                 }).map(propertyDescriptor -> {
                     // Introspector.getBeanInfo(GenericClass.class).getPropertyDescriptors()[2].getReadMethod().getGenericReturnType().getTypeName()
                     List<GenericType> genericTypes = buildGenericTypes(propertyDescriptor.getReadMethod().getGenericReturnType().getTypeName());
-                    return new GenericVar(propertyDescriptor.getName(), genericTypes.get(0),  new GenericType[0]);
+                    return new GenericVar(propertyDescriptor.getName(), genericTypes.get(0), new GenericType[0]);
                 }).collect(Collectors.toList()); //now lets transform the remaining props
 
-        List<GenericVar> retVal =  Lists.newArrayListWithCapacity(publicProperties.size()+accessors.size());
+        List<GenericVar> retVal = Lists.newArrayListWithCapacity(publicProperties.size() + accessors.size());
         retVal.addAll(publicProperties);
         retVal.addAll(accessors);
         return retVal;

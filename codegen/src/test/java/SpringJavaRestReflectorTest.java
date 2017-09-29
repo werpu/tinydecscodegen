@@ -73,7 +73,7 @@ public class SpringJavaRestReflectorTest {
 
     @Test
     public void testDtoReflection() {
-        List<GenericClass> genericClasses = SpringJavaRestReflector.reflectDto(Arrays.asList( TestDto.class), true);
+        List<GenericClass> genericClasses = SpringJavaRestReflector.reflectDto(Arrays.asList( TestDto.class), TestDto.class);
         assertTrue(genericClasses.size() == 1);
         GenericClass parsedClass = genericClasses.get(0);
         assertTrue(parsedClass.getName().equals("TestDto"));

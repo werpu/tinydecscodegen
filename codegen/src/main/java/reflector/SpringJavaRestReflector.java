@@ -42,16 +42,16 @@ import java.util.stream.Stream;
 public class SpringJavaRestReflector {
 
 
-    public static List<GenericClass> reflectDto(List<Class> toReflect, boolean classOnly) {
+    public static List<GenericClass> reflectDto(List<Class> toReflect, Class includingEndpoint) {
         return toReflect.stream().map(clazz -> {
 
             Collection<GenericVar> props = Collections.emptyList();
             GenericClass parent = null;
             try {
-                props = ReflectUtils.getAllProperties(clazz, classOnly);
+                props = ReflectUtils.getAllProperties(clazz, includingEndpoint);
 
-                if(classOnly && !clazz.getSuperclass().equals(Object.class)) {
-                    parent = reflectDto(Arrays.asList(clazz.getSuperclass()), classOnly).get(0);
+                if(includingEndpoint.getName().equals(clazz.getName()) && !clazz.getSuperclass().equals(Object.class)) {
+                    parent = reflectDto(Arrays.asList(clazz.getSuperclass()), includingEndpoint).get(0);
                 }
             } catch (IntrospectionException e) {
                 e.printStackTrace();

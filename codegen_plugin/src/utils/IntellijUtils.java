@@ -21,6 +21,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package utils;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -203,18 +204,26 @@ public class IntellijUtils {
         }
     }
 
-    static class BooleanHolder {
-        public boolean classOnly = true;
+    static class ClassHolder {
+        public Class hierarchyEndpoint = null;
     }
 
     public static boolean generateDto(Project project, Module module, String className, URLClassLoader urlClassLoader) throws ClassNotFoundException {
         Class compiledClass = urlClassLoader.loadClass(className);
-        final BooleanHolder booleanHolder = new BooleanHolder();
+        final ClassHolder classHolder = new ClassHolder();
 
+        classHolder.hierarchyEndpoint = compiledClass;
         if(ReflectUtils.hasParent(compiledClass)) {
-            Confirm dialog = new Confirm(() -> {
-                booleanHolder.classOnly = false;
-            }, null);
+            Confirm dialog = new Confirm((String data) -> {
+
+                if(!Strings.isNullOrEmpty(data)) {
+                    try {
+                        classHolder.hierarchyEndpoint = urlClassLoader.loadClass(data);
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, null, ReflectUtils.getInheritanceHierarchyAsString(compiledClass));
 
             SwingUtils.centerOnParent(dialog, true);
             dialog.pack();
@@ -222,7 +231,7 @@ public class IntellijUtils {
             dialog.setVisible(true);
         }
 
-        List<GenericClass> dtos = SpringJavaRestReflector.reflectDto(Arrays.asList(compiledClass), booleanHolder.classOnly);
+        List<GenericClass> dtos = SpringJavaRestReflector.reflectDto(Arrays.asList(compiledClass), classHolder.hierarchyEndpoint);
         if (dtos == null || dtos.isEmpty()) {
             Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
             return false;
