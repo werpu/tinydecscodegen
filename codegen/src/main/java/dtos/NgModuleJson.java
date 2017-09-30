@@ -1,14 +1,15 @@
-package refactor;
+package dtos;
 
 import com.google.common.collect.Lists;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.Arrays;
 import java.util.List;
 
-@Setter
-@Getter
+/**
+ * json dto for NgModule decorator
+ */
+@Data
 public class NgModuleJson {
     String name;
     String[] declarations;

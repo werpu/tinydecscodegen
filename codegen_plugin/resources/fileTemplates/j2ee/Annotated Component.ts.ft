@@ -2,13 +2,13 @@ import {Component, Inject} from "TinyDecorations";
 import * as angular from "angular";
 
 /**
- * Component ${NAME}
+ * ComponentJson ${NAME}
  * @author ${AUTHOR}
  */
 @Component({
     selector: "${SELECTOR}",
-    template: ´insert your html template code here´,
-    controllerAs: "ctrl"
+    template: `${TEMPLATE}`,
+    controllerAs: "${CONTROLLER_AS}"
 })
 export class ${NAME} {
 
@@ -17,7 +17,7 @@ export class ${NAME} {
     }
 
 
-        $postLink() {
+    $postLink() {
         //add your postlink code here
     }
 }

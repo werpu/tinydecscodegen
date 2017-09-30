@@ -61,7 +61,7 @@
         </group>
 
         <action id="CreateComponent" class="actions.CreateTnDecComponent" text="CreateTinyDecsComponent"
-                description="Create a an Angular Tiny Decorations Component">
+                description="Create a an Angular Tiny Decorations Component" icon="/images/tt.png">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewXml"/>
         </action>
     </actions>

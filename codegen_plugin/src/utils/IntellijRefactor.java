@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
-import refactor.NgModuleJson;
+import dtos.NgModuleJson;
 import refactor.TinyRefactoringUtils;
 
 import java.util.ArrayList;

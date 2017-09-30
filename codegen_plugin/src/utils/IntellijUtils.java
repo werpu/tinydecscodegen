@@ -56,8 +56,10 @@ import reflector.utils.ReflectUtils;
 import rest.GenericClass;
 import rest.RestService;
 
+import javax.naming.spi.DirectoryManager;
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -196,6 +198,12 @@ public class IntellijUtils {
         return true;
     }
 
+    public static void createAndOpen(Project project, VirtualFile folder, String str, String fileNmae) throws IOException {
+        VirtualFile generated = folder.createChildData(project, fileNmae);
+        generated.setBinaryContent(str.getBytes());
+        FileEditorManager.getInstance(project).openFile(generated, true);
+    }
+
     class MyDialogWrapper extends DialogWrapper {
         public MyDialogWrapper(Project project) {
             super(project);
@@ -250,6 +258,22 @@ public class IntellijUtils {
 
 
         return true;
+    }
+
+    public static Optional<VirtualFile> getCurrentlySelectedDir(Project project) {
+
+        FileEditorManager manager = FileEditorManager.getInstance(project);
+
+        VirtualFile files[] = manager.getSelectedFiles();
+        if(files == null || files.length == 0) {
+            return Optional.empty();
+        } else {
+            VirtualFile selFile = files[0];
+            if(!selFile.isDirectory()) {
+                return Optional.ofNullable(selFile.getParent());
+            }
+            return Optional.ofNullable(files[0]);
+        }
     }
 
     //https://intellij-support.jetbrains.com/hc/en-us/community/posts/115000080064-find-virtual-file-for-relative-path-under-content-roots
