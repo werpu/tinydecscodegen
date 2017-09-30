@@ -12,7 +12,7 @@ import * as angular from "angular";
 })
 export class ${NAME} {
 
-    constructor(@Inject("$scope") private $scope, @Inject("$$element") private $element) {
+    constructor(@Inject("$scope") private $scope: IScope, @Inject("$$element") private $element: any) {
         //add your contstructor code here
     }
 
