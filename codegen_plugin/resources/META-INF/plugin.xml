@@ -27,6 +27,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <fileTemplateGroup implementation="factories.TnDecGroupFactory"/>
     </extensions>
 
     <actions>
@@ -34,30 +35,40 @@
 
         <group id="TinyDecsMenu" text="_Tiny Decorations" description="Tiny decorations actions">
             <add-to-group group-id="MainMenu" anchor="last"/>
-            <action id="Service" class="ServiceGenerateActionWithoutCompile" text="Service Generation"
+            <action id="Service" class="actions.ServiceGenerateActionWithoutCompile" text="Service Generation"
                     description="Generate a typescript service">
                 <keyboard-shortcut keymap="$default" first-keystroke="alt meta f1"/>
             </action>
-            <action id="CompileService" class="ServiceGenerationAction" text="Compilation and Service Generation"
+            <action id="CompileService" class="actions.ServiceGenerationAction" text="Compilation and Service Generation"
                     description="Generate a typescript service">
                 <keyboard-shortcut keymap="$default" first-keystroke="alt meta f2"/>
             </action>
 
-            <action id="Dto" class="DtoGenerateWithoutCompile" text="Dto Generation"
+            <action id="Dto" class="actions.DtoGenerateWithoutCompile" text="Dto Generation"
                     description="Generate a typescript dto">
                 <keyboard-shortcut keymap="$default" first-keystroke="alt meta f3"/>
             </action>
 
-            <action id="DtoCompile" class="DtoGeneration" text="Compilation and Dto Generation"
+            <action id="DtoCompile" class="actions.DtoGeneration" text="Compilation and Dto Generation"
                     description="Generate a typescript dto">
                 <keyboard-shortcut keymap="$default" first-keystroke="alt meta f4"/>
             </action>
 
-            <action id="Test" class="AlterFileAction" text="AlterFileAction"
+            <action id="Test" class="actions.AlterFileAction" text="actions.AlterFileAction"
                     description="Generate a typescript dto">
 
             </action>
         </group>
 
+        <action id="CreateComponent" class="actions.CreateTnDecComponent" text="CreateTinyDecsComponent"
+                description="Create a an Angular Tiny Decorations Component">
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewXml"/>
+        </action>
     </actions>
+    <application-components>
+
+        <component>
+            <implementation-class>components.Application</implementation-class>
+        </component>
+    </application-components>
 </idea-plugin>

@@ -1,0 +1,19 @@
+import {Controller, Inject} from "TinyDecorations";
+import * as angular from "angular";
+
+/**
+ * Component ${NAME}
+ * @author ${AUTHOR}
+ */
+@Controller({
+    name: "${NAME}",
+    template: ´insert your html template code here´,
+    controllerAs: "ctrl"
+})
+export class ${NAME} {
+
+    constructor(@Inject("$scope") private $scope, @Inject("$$element") private $element) {
+        //add your contstructor code here
+    }
+    
+}

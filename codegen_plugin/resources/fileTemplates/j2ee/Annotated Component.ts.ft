@@ -1,0 +1,23 @@
+import {Component, Inject} from "TinyDecorations";
+import * as angular from "angular";
+
+/**
+ * Component ${NAME}
+ * @author ${AUTHOR}
+ */
+@Component({
+    selector: "${SELECTOR}",
+    template: ´insert your html template code here´,
+    controllerAs: "ctrl"
+})
+export class ${NAME} {
+
+    constructor(@Inject("$scope") private $scope, @Inject("$$element") private $element) {
+        //add your contstructor code here
+    }
+
+
+        $postLink() {
+        //add your postlink code here
+    }
+}
