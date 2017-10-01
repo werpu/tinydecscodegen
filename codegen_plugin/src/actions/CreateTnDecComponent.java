@@ -1,6 +1,7 @@
 package actions;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -10,6 +11,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
@@ -51,46 +53,13 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
         super();
     }
 
-   /* @Override
-    protected void buildDialog(Project project, PsiDirectory psiDirectory, CreateFileFromTemplateDialog.Builder builder) {
-        builder
-                .setTitle("Ts").addKind("Java File", JavaFileType.INSTANCE.getIcon(), "Java File")
-                .addKind("Java File2", JavaFileType.INSTANCE.getIcon(), "Java File");
-        ;
 
-    }*/
-
-    //@Override
-    //protected String getActionName(PsiDirectory psiDirectory, String s, String s1) {
-    //    return null;
-    //}
-
-    //https://intellij-support.jetbrains.com/hc/en-us/community/posts/206755515-CreateFileFromTemplateDialog-with-additional-input-fields
-    //@Override
-
-    /**
-     * decided whether the menu item should be shown
-     */
-    /*public void update(AnActionEvent event) {
-        DataContext dataContext = event.getDataContext();
-
-        boolean enabled = true;//whatever criteria you have for when it's visible/enabled
-        Presentation presentation = event.getPresentation();
-        presentation.setVisible(enabled);
-        presentation.setEnabled(enabled);
-    }
-
-    @Override
-    public void beforeActionPerformedUpdate(@NotNull AnActionEvent e) {
-        super.beforeActionPerformedUpdate(e);
-    }
-*/
     @Override
     public void actionPerformed(AnActionEvent event) {
         final Project project = IntellijUtils.getProject(event);
 
 
-        VirtualFile file = (VirtualFile) event.getDataContext().getData(CommonDataKeys.VIRTUAL_FILE);
+        VirtualFile file = event.getDataContext().getData(CommonDataKeys.VIRTUAL_FILE);
         VirtualFile folder = file;
 
 
@@ -114,10 +83,25 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
             @Override
             protected ValidationInfo doValidate() {
 
+                if (Strings.isNullOrEmpty(mainForm.getName()) && !Strings.isNullOrEmpty(mainForm.getControllerAs())) {
+                    ValidationInfo info = new ValidationInfo("Tag selector  must have a value", mainForm.getTxtName());
+                    return info;
+                }
+
+                if (!Strings.isNullOrEmpty(mainForm.getName()) && Strings.isNullOrEmpty(mainForm.getControllerAs())) {
+                    ValidationInfo info = new ValidationInfo("Controller As  must have a value", mainForm.getTxtControllerAs());
+                    return info;
+                }
+
                 if (Strings.isNullOrEmpty(mainForm.getName()) || Strings.isNullOrEmpty(mainForm.getControllerAs())) {
                     ValidationInfo info = new ValidationInfo("Tag selector and Controller As must have values");
                     return info;
                 }
+                if(!(mainForm.getName().matches("[0-9a-z\\-]+"))) {
+                    ValidationInfo info = new ValidationInfo("The tag selector must consist of lowercase letters numbers or '-' ", mainForm.getTxtName());
+                    return info;
+                }
+
                 return null;
             }
 
@@ -147,43 +131,50 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
     }
 
     void buildFile(Project project, ComponentJson model, VirtualFile folder) {
-        ApplicationManager.getApplication().runWriteAction(() -> {
-            String className = toCamelCase(model.getSelector());
 
-            FileTemplate vslTemplate = (FileTemplateBase)
-                    FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_COMPONENT);
+        WriteCommandAction.runWriteCommandAction(project, () -> {
+                String className = toCamelCase(model.getSelector());
 
-            Map<String, Object> attrs = Maps.newHashMap();
-            attrs.put("SELECTOR", model.getSelector());
-            attrs.put("NAME", className);
-            attrs.put("TEMPLATE", model.getTemplate());
-            attrs.put("CONTROLLER_AS", model.getControllerAs());
+                FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_COMPONENT);
 
-            try {
-                String str = FileTemplateUtil.mergeTemplate(attrs, vslTemplate.getText(), false);
-                String fileNmae = className + ".ts";
+                Map<String, Object> attrs = Maps.newHashMap();
+                attrs.put("SELECTOR", model.getSelector());
+                attrs.put("NAME", className);
+                attrs.put("TEMPLATE", model.getTemplate());
+                attrs.put("CONTROLLER_AS", model.getControllerAs());
 
-                List<PsiFile> annotatedModules = IntellijUtils.findFirstAnnotatedClass(project, folder, IntellijRefactor.NG_MODULE);
-                for (PsiFile module : annotatedModules) {
-                    List<PsiElement> elements = IntellijRefactor.findAnnotatedElements(project, module, IntellijRefactor.NG_MODULE);
-                    List<RefactorUnit> refactoringsToProcess = elements.stream().map(element -> {
-                        return refactorAddExport(className, module, element);
-                    }).collect(Collectors.toList());
-                    String refactoredText = IntellijRefactor.refactor(refactoringsToProcess);
-                    VirtualFile vModule = module.getVirtualFile();
+                try {
+                    String str = FileTemplateUtil.mergeTemplate(attrs, vslTemplate.getText(), false);
+                    String fileName = className + ".ts";
 
-                    vModule.setBinaryContent(refactoredText.getBytes());
+                    List<PsiFile> annotatedModules = IntellijUtils.findFirstAnnotatedClass(project, folder, IntellijRefactor.NG_MODULE);
+                    for (PsiFile module : annotatedModules) {
+                        String relativePath = folder.getPath().replaceAll(module.getVirtualFile().getParent().getPath(),".");
+                        List<RefactorUnit> finalRefactorings = Lists.newArrayListWithCapacity(100);
+                        finalRefactorings.add(IntellijRefactor.generateAppendAfterImport(module, "\nimport {"+className+"} from \""+relativePath+"/"+className+"\";" ));
 
-                    //PsiDocumentManager.getInstance(project).commitDocument(FileDocumentManager.getInstance().getCachedDocument(vModule));
-                    //PsiElement reformatted = CodeStyleManager.getInstance(project).reformat(PsiManager.getInstance(project).findFile(vModule));
-                    //vModule.setBinaryContent(reformatted.getText().getBytes());
+
+
+                        List<PsiElement> elements = IntellijRefactor.findAnnotatedElements(project, module, IntellijRefactor.NG_MODULE);
+                        List<RefactorUnit> refactoringsToProcess = elements.stream().map(element -> {
+                            return refactorAddExport(className, module, element);
+                        }).collect(Collectors.toList());
+                        finalRefactorings.addAll(refactoringsToProcess);
+
+
+                        String refactoredText = IntellijRefactor.refactor(finalRefactorings);
+                        VirtualFile vModule = module.getVirtualFile();
+
+                        vModule.setBinaryContent(refactoredText.getBytes());
+                    }
+                    IntellijUtils.createAndOpen(project, folder, str, fileName);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                IntellijUtils.createAndOpen(project, folder, str, fileNmae);
+            });
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+
     }
 
     @NotNull

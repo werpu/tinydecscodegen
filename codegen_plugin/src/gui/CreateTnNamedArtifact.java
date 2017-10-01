@@ -23,20 +23,17 @@ package gui;
 
 import com.google.common.base.Strings;
 import dtos.ComponentJson;
-import gui.support.RegexpFormatter;
 import gui.support.RequiredListener;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.function.Function;
 
 /**
  * A simple named artifact
  */
 public class CreateTnNamedArtifact {
-    private JFormattedTextField selector;
+    private JTextField name;
 
     private JButton cancelButton;
     private JButton okButton;
@@ -63,15 +60,15 @@ public class CreateTnNamedArtifact {
         titlePane.setText(title);
         okButton.addActionListener(e -> {
             if (okFunc != null)
-                okFunc.apply(new ComponentJson(selector.getText(), Strings.nullToEmpty(""), controllerAs.getText()));
+                okFunc.apply(new ComponentJson(name.getText(), Strings.nullToEmpty(""), controllerAs.getText()));
 
         });
         cancelButton.addActionListener(e -> {
             if (cancelFunc != null)
-                cancelFunc.apply(new ComponentJson(selector.getText(), Strings.nullToEmpty(""), controllerAs.getText()));
+                cancelFunc.apply(new ComponentJson(name.getText(), Strings.nullToEmpty(""), controllerAs.getText()));
 
         });
-        selector.addPropertyChangeListener(evt -> {
+        name.addPropertyChangeListener(evt -> {
             System.out.println(evt.getPropertyName());
         });
 
@@ -98,8 +95,8 @@ public class CreateTnNamedArtifact {
      * We have some special behavior like required fields and formatted inputs
      */
     private void createUIComponents() {
-        selector = new JFormattedTextField(new RegexpFormatter("[a-z0-9\\$\\-\\_]+"));
-        new RequiredListener(selector).addFormValidListener(submittable -> {
+        name = new JTextField();
+        new RequiredListener(name).addFormValidListener(submittable -> {
             selectorValid = submittable;
             triggerButtonRecalc();
             return submittable;
@@ -144,6 +141,14 @@ public class CreateTnNamedArtifact {
 
     public void setTitle(String title) {
         this.titlePane.setText(title);
+    }
+
+    public JTextField getName() {
+        return name;
+    }
+
+    public JTextField getControllerAs() {
+        return controllerAs;
     }
 
     /**

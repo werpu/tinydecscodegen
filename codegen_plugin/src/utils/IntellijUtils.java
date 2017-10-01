@@ -205,18 +205,7 @@ public class IntellijUtils {
         FileEditorManager.getInstance(project).openFile(generated, true);
     }
 
-    class MyDialogWrapper extends DialogWrapper {
-        public MyDialogWrapper(Project project) {
-            super(project);
-            setTitle("Parent class found");
-        }
 
-        @Nullable
-        @Override
-        protected JComponent createCenterPanel() {
-            return null;
-        }
-    }
 
     static class ClassHolder {
         public Class hierarchyEndpoint = null;

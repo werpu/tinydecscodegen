@@ -4,10 +4,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import dtos.NgModuleJson;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +14,8 @@ import refactor.TinyRefactoringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class IntellijRefactor {
@@ -65,6 +65,20 @@ public class IntellijRefactor {
         return elements;
     }
 
+    public static RefactorUnit generateAppendAfterImport(PsiFile origFile, String newImport) {
+        Pattern p = Pattern.compile("((import[^\\n\\;]+)\\s+[=from]+\\s+[^\\n\\;]+[\\n\\;])");
+        Matcher m = p.matcher(origFile.getText());
+        int end = 0;
+
+        while (m.find())
+        {
+            end = m.end(1);
+        }
+
+        return new RefactorUnit(origFile, new DummyInsertPsiElement(end), newImport);
+    }
+
+
 
 
     public static String refactor(List<RefactorUnit> refactorings) {
@@ -78,8 +92,9 @@ public class IntellijRefactor {
         List<String> retVal = Lists.newArrayListWithCapacity(refactorings.size() * 2);
 
         for (RefactorUnit refactoring : refactorings) {
-            if (end < refactoring.getStartOffset()) {
+            if (refactoring.getStartOffset() > 0 && end < refactoring.getStartOffset()) {
                 retVal.add(toSplit.substring(start, refactoring.getStartOffset()));
+                start = refactoring.getEndOffset();
             }
             retVal.add(refactoring.refactoredText);
             end = refactoring.getEndOffset();

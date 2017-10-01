@@ -25,7 +25,6 @@ import com.google.common.base.Strings;
 import dtos.ComponentJson;
 import gui.support.RequiredListener;
 import gui.support.RegexpFormatter;
-import utils.SwingUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,11 +35,11 @@ import java.util.function.Function;
  * for the new Tiny Decs Create component dialog
  */
 public class CreateTnDecComponent {
-    private JFormattedTextField selector;
+    private JFormattedTextField txtName;
     private JTextArea template;
     private JButton cancelButton;
     private JButton okButton;
-    private JTextField controllerAs;
+    private JTextField txtControllerAs;
     public JPanel rootPanel;
 
     boolean selectorValid = false;
@@ -55,17 +54,17 @@ public class CreateTnDecComponent {
 
     public void callOk() {
         if (okFunc != null)
-            okFunc.apply(new ComponentJson(selector.getText(), Strings.nullToEmpty(template.getText()), controllerAs.getText()));
+            okFunc.apply(new ComponentJson(txtName.getText(), Strings.nullToEmpty(template.getText()), txtControllerAs.getText()));
     }
 
     public void callCancel() {
         if (cancelFunc != null)
-            cancelFunc.apply(new ComponentJson(selector.getText(), Strings.nullToEmpty(template.getText()), controllerAs.getText()));
+            cancelFunc.apply(new ComponentJson(txtName.getText(), Strings.nullToEmpty(template.getText()), txtControllerAs.getText()));
     }
 
 
     public String getName() {
-        return selector.getText();
+        return txtName.getText();
     }
 
     public String getTemplate() {
@@ -73,27 +72,35 @@ public class CreateTnDecComponent {
     }
 
     public String getControllerAs() {
-        return controllerAs.getText();
+        return txtControllerAs.getText();
     }
 
+
+    public JFormattedTextField getTxtName() {
+        return txtName;
+    }
+
+    public JTextField getTxtControllerAs() {
+        return txtControllerAs;
+    }
 
     /**
      * We have some special behavior like required fields and formatted inputs
      */
     private void createUIComponents() {
-        selector = new JFormattedTextField(new RegexpFormatter("[a-z0-9\\$\\-\\_]+"));
-        new RequiredListener(selector).addFormValidListener(submittable -> {
+        txtName = new JFormattedTextField(new RegexpFormatter("[a-z0-9\\$\\-\\_]+"));
+        new RequiredListener(txtName).addFormValidListener(submittable -> {
             selectorValid = submittable;
             triggerButtonRecalc();
             return submittable;
         });
-        controllerAs = new JTextField();
-        new RequiredListener(controllerAs).addFormValidListener(submittable -> {
+        txtControllerAs = new JTextField();
+        new RequiredListener(txtControllerAs).addFormValidListener(submittable -> {
             controllerAsValid = submittable;
             triggerButtonRecalc();
             return submittable;
         });
-        controllerAs.setText("ctrl");
+        txtControllerAs.setText("ctrl");
 
     }
 
@@ -123,6 +130,7 @@ public class CreateTnDecComponent {
     public void initDefault(Window window) {
         SwingUtilities.getRootPane(window).setDefaultButton(okButton);
     }
+
 
 
     /**
