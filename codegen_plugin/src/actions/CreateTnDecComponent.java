@@ -12,15 +12,23 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import dtos.ComponentJson;
 import factories.TnDecGroupFactory;
+import org.jetbrains.annotations.NotNull;
+import utils.IntellijRefactor;
 import utils.IntellijUtils;
+import utils.RefactorUnit;
 import utils.SwingUtils;
 
 import javax.swing.*;
-import java.awt.*;
+
+import java.awt.Dimension;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Create a Tiny Decs artefact.
@@ -75,7 +83,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
 
 
             VirtualFile file = (VirtualFile) event.getDataContext().getData(CommonDataKeys.VIRTUAL_FILE);
-            VirtualFile folder = file.getParent();
+            VirtualFile folder = file;
 
 
         JDialog dataDialog = new JDialog();
@@ -88,6 +96,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
         SwingUtils.centerOnParent(dataDialog, true);
 
         dataDialog.setVisible(true);
+        mainForm.initDefault(dataDialog);
 
         mainForm.onCancel(model -> {
             dataDialog.dispose();
@@ -120,11 +129,31 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
             try {
                 String str = FileTemplateUtil.mergeTemplate(attrs, vslTemplate.getText(), false);
                 String fileNmae = className + ".ts";
+
+                List<PsiFile> annotatedModules = IntellijUtils.findFirstAnnotatedClass(project, folder, IntellijRefactor.NG_MODULE);
+                for(PsiFile module: annotatedModules) {
+                    List<PsiElement> elements = IntellijRefactor.findAnnotatedElements(project, module, IntellijRefactor.NG_MODULE);
+                    List<RefactorUnit> refactoringsToProcess = elements.stream().map(element -> {
+                        return refactorAddExport(className, module, element);
+                    }).collect(Collectors.toList());
+                    String refactoredText = IntellijRefactor.refactor(refactoringsToProcess);
+                    module.getVirtualFile().setBinaryContent(refactoredText.getBytes());
+                }
                 IntellijUtils.createAndOpen(project, folder, str, fileNmae);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
+    }
+
+    @NotNull
+    private RefactorUnit refactorAddExport(String className, PsiFile module, PsiElement element) {
+        String elementText = element.getText();
+        String rawData = elementText.substring(elementText.indexOf("(")+1 , elementText.lastIndexOf(")"));
+        String refactoredData = IntellijRefactor.NG_MODULE+"("+IntellijRefactor.appendExport(rawData, className)+")";
+
+        return new RefactorUnit(module, element, refactoredData);
     }
 
 

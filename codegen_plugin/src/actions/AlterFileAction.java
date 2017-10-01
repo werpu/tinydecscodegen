@@ -28,7 +28,7 @@ public class AlterFileAction extends AnAction {
         PsiJavaFile javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(vFile);*/
 
         List<VirtualFile> vFile = IntellijUtils.findFileByRelativePath(project, "webapp/typescript/app-module.ts");
-        List<Offset> offsets = IntellijRefactor.findNgModuleOffsets(project, vFile);
+        //List<Offset> offsets = IntellijRefactor.findNgModuleOffsets(project, vFile);
 
         System.out.println("offeset");
         // PsiFileFactory.getInstance(project).createFileFromText()

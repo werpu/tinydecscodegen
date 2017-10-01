@@ -22,6 +22,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package refactor;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import dtos.NgModuleJson;
@@ -182,6 +183,13 @@ public class TinyRefactoringUtils {
     public static StringBuilder getJsonString(String modulePart) {
         modulePart = stripComments(modulePart);
         char[] tokens = modulePart.toCharArray();
+        if(Strings.isNullOrEmpty(modulePart)) {
+            return new StringBuilder("{}");
+        }
+        modulePart = modulePart.trim();
+        if(modulePart.startsWith("{") && modulePart.endsWith("}")) {
+            return new StringBuilder(modulePart);
+        }
 
         int cnt = 0;
         int parentheses = 1;

@@ -65,6 +65,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * utils class to simplify some of the intelli openapi apis
@@ -265,11 +266,11 @@ public class IntellijUtils {
         FileEditorManager manager = FileEditorManager.getInstance(project);
 
         VirtualFile files[] = manager.getSelectedFiles();
-        if(files == null || files.length == 0) {
+        if (files == null || files.length == 0) {
             return Optional.empty();
         } else {
             VirtualFile selFile = files[0];
-            if(!selFile.isDirectory()) {
+            if (!selFile.isDirectory()) {
                 return Optional.ofNullable(selFile.getParent());
             }
             return Optional.ofNullable(files[0]);
@@ -288,5 +289,25 @@ public class IntellijUtils {
             return true;
         });
         return fileList;
+    }
+
+    public static List<PsiFile> findFirstAnnotatedClass(Project project, VirtualFile currentDir, String annotationType) {
+        List<PsiFile> foundFiles = findAnnotatedFiles(project, currentDir, annotationType);
+        while(foundFiles.isEmpty() && project.getBaseDir().getPath().length() <  currentDir.getPath().length()) {
+            currentDir = currentDir.getParent();
+            foundFiles = findAnnotatedFiles(project, currentDir, annotationType);
+        }
+        return foundFiles;
+    }
+
+    private static List<PsiFile> findAnnotatedFiles(Project project, VirtualFile currentDir, String annotationType) {
+        return Arrays.asList(currentDir.getChildren()).parallelStream()
+                .filter(vFile -> vFile.getFileType().getDefaultExtension().equalsIgnoreCase("ts"))
+                .map(virtualFile -> {
+                    return PsiManager.getInstance(project).findFile(virtualFile);
+                }).filter(psiFile -> {
+                            return IntellijRefactor.hasAnnotatedElement(psiFile, annotationType);
+                        }
+                ).collect(Collectors.toList());
     }
 }
