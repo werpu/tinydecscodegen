@@ -51,28 +51,31 @@ public class CreateTnDecComponent {
 
 
     public CreateTnDecComponent() {
-        okButton.addActionListener(e -> {
-            if (okFunc != null)
-                okFunc.apply(new ComponentJson(selector.getText(), Strings.nullToEmpty(template.getText()), controllerAs.getText()));
-
-        });
-        cancelButton.addActionListener(e -> {
-            if (cancelFunc != null)
-                cancelFunc.apply(new ComponentJson(selector.getText(), Strings.nullToEmpty(template.getText()), controllerAs.getText()));
-
-        });
-        selector.addPropertyChangeListener(evt -> {
-            System.out.println(evt.getPropertyName());
-        });
-        template.addPropertyChangeListener(evt -> {
-
-        });
-        controllerAs.addPropertyChangeListener(evt -> {
-
-        });
-
-
     }
+
+    public void callOk() {
+        if (okFunc != null)
+            okFunc.apply(new ComponentJson(selector.getText(), Strings.nullToEmpty(template.getText()), controllerAs.getText()));
+    }
+
+    public void callCancel() {
+        if (cancelFunc != null)
+            cancelFunc.apply(new ComponentJson(selector.getText(), Strings.nullToEmpty(template.getText()), controllerAs.getText()));
+    }
+
+
+    public String getName() {
+        return selector.getText();
+    }
+
+    public String getTemplate() {
+        return Strings.nullToEmpty(template.getText());
+    }
+
+    public String getControllerAs() {
+        return controllerAs.getText();
+    }
+
 
     /**
      * We have some special behavior like required fields and formatted inputs

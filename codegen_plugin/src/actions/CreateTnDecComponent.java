@@ -1,5 +1,6 @@
 package actions;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -12,6 +13,9 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogBuilder;
+import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
@@ -21,6 +25,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager;
 import dtos.ComponentJson;
 import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import utils.IntellijRefactor;
 import utils.IntellijUtils;
 import utils.RefactorUnit;
@@ -85,36 +90,60 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
         final Project project = IntellijUtils.getProject(event);
 
 
+        VirtualFile file = (VirtualFile) event.getDataContext().getData(CommonDataKeys.VIRTUAL_FILE);
+        VirtualFile folder = file;
 
-            VirtualFile file = (VirtualFile) event.getDataContext().getData(CommonDataKeys.VIRTUAL_FILE);
-            VirtualFile folder = file;
+
+        final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
+
+        DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
+
+            @Nullable
+            @Override
+            protected JComponent createCenterPanel() {
+                return mainForm.rootPanel;
+            }
+
+            @Nullable
+            @Override
+            protected String getDimensionServiceKey() {
+                return "AnnComponent";
+            }
+
+            @Nullable
+            @Override
+            protected ValidationInfo doValidate() {
+
+                if (Strings.isNullOrEmpty(mainForm.getName()) || Strings.isNullOrEmpty(mainForm.getControllerAs())) {
+                    ValidationInfo info = new ValidationInfo("Tag selector and Controller As must have values");
+                    return info;
+                }
+                return null;
+            }
+
+            @Override
+            public void init() {
+                super.init();
+            }
+
+            public void show() {
+                this.init();
+                this.setModal(true);
+                this.pack();
+                super.show();
+            }
+        };
+
+        dialogWrapper.setTitle("Create Component");
+        dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
 
-        JDialog dataDialog = new JDialog();
-
-        gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
-        dataDialog.setContentPane(mainForm.rootPanel);
-        dataDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        dataDialog.pack();
-        dataDialog.setPreferredSize(new Dimension(700, 700));
-        SwingUtils.centerOnParent(dataDialog, true);
-
-        dataDialog.setVisible(true);
-        mainForm.initDefault(dataDialog);
-
-        mainForm.onCancel(model -> {
-            dataDialog.dispose();
-            return true;
-        });
-
-        mainForm.onOk(model -> {
-            dataDialog.dispose();
+        //mainForm.initDefault(dialogWrapper.getWindow());
+        dialogWrapper.show();
+        if (dialogWrapper.isOK()) {
+            ComponentJson model = new ComponentJson(mainForm.getName(), mainForm.getTemplate(), mainForm.getControllerAs());
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
-            return true;
-        });
-
-
-
+        }
     }
 
     void buildFile(Project project, ComponentJson model, VirtualFile folder) {
@@ -135,7 +164,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
                 String fileNmae = className + ".ts";
 
                 List<PsiFile> annotatedModules = IntellijUtils.findFirstAnnotatedClass(project, folder, IntellijRefactor.NG_MODULE);
-                for(PsiFile module: annotatedModules) {
+                for (PsiFile module : annotatedModules) {
                     List<PsiElement> elements = IntellijRefactor.findAnnotatedElements(project, module, IntellijRefactor.NG_MODULE);
                     List<RefactorUnit> refactoringsToProcess = elements.stream().map(element -> {
                         return refactorAddExport(className, module, element);
@@ -160,8 +189,8 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
     @NotNull
     private RefactorUnit refactorAddExport(String className, PsiFile module, PsiElement element) {
         String elementText = element.getText();
-        String rawData = elementText.substring(elementText.indexOf("(")+1 , elementText.lastIndexOf(")"));
-        String refactoredData = IntellijRefactor.NG_MODULE+"("+IntellijRefactor.appendExport(rawData, className)+")";
+        String rawData = elementText.substring(elementText.indexOf("(") + 1, elementText.lastIndexOf(")"));
+        String refactoredData = IntellijRefactor.NG_MODULE + "(" + IntellijRefactor.appendExport(rawData, className) + ")";
 
         return new RefactorUnit(module, element, refactoredData);
     }
@@ -183,7 +212,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
             sb.append(c);
             capNext = (ACTIONABLE_DELIMITERS.indexOf((int) c) >= 0); // explicit cast not needed
         }
-        return sb.toString().replaceAll("-","");
+        return sb.toString().replaceAll("-", "");
     }
 
 }
