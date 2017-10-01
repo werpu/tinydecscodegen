@@ -36,11 +36,14 @@ import java.util.function.Function;
  */
 public class CreateTnDecComponent {
     private JFormattedTextField txtName;
-    private JTextArea template;
+    private JTextArea txtTemplate;
     private JButton cancelButton;
     private JButton okButton;
     private JTextField txtControllerAs;
     public JPanel rootPanel;
+    private JLabel lblSelector;
+    private JLabel lblTemplate;
+    private JLabel lblControllerAs;
 
     boolean selectorValid = false;
     boolean controllerAsValid = false;
@@ -54,12 +57,12 @@ public class CreateTnDecComponent {
 
     public void callOk() {
         if (okFunc != null)
-            okFunc.apply(new ComponentJson(txtName.getText(), Strings.nullToEmpty(template.getText()), txtControllerAs.getText()));
+            okFunc.apply(new ComponentJson(txtName.getText(), Strings.nullToEmpty(txtTemplate.getText()), txtControllerAs.getText()));
     }
 
     public void callCancel() {
         if (cancelFunc != null)
-            cancelFunc.apply(new ComponentJson(txtName.getText(), Strings.nullToEmpty(template.getText()), txtControllerAs.getText()));
+            cancelFunc.apply(new ComponentJson(txtName.getText(), Strings.nullToEmpty(txtTemplate.getText()), txtControllerAs.getText()));
     }
 
 
@@ -68,7 +71,7 @@ public class CreateTnDecComponent {
     }
 
     public String getTemplate() {
-        return Strings.nullToEmpty(template.getText());
+        return Strings.nullToEmpty(txtTemplate.getText());
     }
 
     public String getControllerAs() {
@@ -91,47 +94,33 @@ public class CreateTnDecComponent {
         txtName = new JFormattedTextField(new RegexpFormatter("[a-z0-9\\$\\-\\_]+"));
         new RequiredListener(txtName).addFormValidListener(submittable -> {
             selectorValid = submittable;
-            triggerButtonRecalc();
             return submittable;
         });
         txtControllerAs = new JTextField();
         new RequiredListener(txtControllerAs).addFormValidListener(submittable -> {
             controllerAsValid = submittable;
-            triggerButtonRecalc();
             return submittable;
         });
         txtControllerAs.setText("ctrl");
 
     }
 
-    /**
-     * disables and enables the ok button depending on the state
-     * of the inputs
-     */
-    private void triggerButtonRecalc() {
-        /*if (okButton != null) {
-            boolean enabledState = selectorValid && controllerAsValid;
-            if(okButton.isEnabled() != enabledState) {
-                okButton.setEnabled(enabledState);
-            }
-        }*/
+
+    public JLabel getLblSelector() {
+        return lblSelector;
     }
 
-
-    public void onOk(Function<ComponentJson, Boolean> okFunc) {
-        this.okFunc = okFunc;
+    public JLabel getLblTemplate() {
+        return lblTemplate;
     }
 
-    public void onCancel(Function<ComponentJson, Boolean> cancelFunc) {
-        this.cancelFunc = cancelFunc;
+    public JLabel getLblControllerAs() {
+        return lblControllerAs;
     }
 
-
-    public void initDefault(Window window) {
-        SwingUtilities.getRootPane(window).setDefaultButton(okButton);
+    public JTextArea getTxtTemplate() {
+        return txtTemplate;
     }
-
-
 
     /**
      * a helper main for debugging purposes

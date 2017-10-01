@@ -62,6 +62,12 @@
             <action id="CreateComponent" class="actions.CreateTnDecComponent" text="Create Component"
                     description="Create a an Angular Tiny Decorations Component" icon="/images/tt.png">
             </action>
+            <action id="CreateController" class="actions.CreateTnDecController" text="Create Controller"
+                    description="Create a an Angular Tiny Decorations Controller" icon="/images/tt.png">
+            </action>
+            <action id="CreateService" class="actions.CreateTnDecService" text="Create Service"
+                    description="Create a an Angular Tiny Decorations Controller" icon="/images/tt.png">
+            </action>
         </group>
     </actions>
     <application-components>

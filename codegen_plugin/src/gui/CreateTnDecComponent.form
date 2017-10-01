@@ -35,7 +35,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="56ca5" class="javax.swing.JLabel">
+          <component id="56ca5" class="javax.swing.JLabel" binding="lblSelector">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -54,7 +54,7 @@
               <text value=""/>
             </properties>
           </component>
-          <component id="8e49c" class="javax.swing.JLabel">
+          <component id="8e49c" class="javax.swing.JLabel" binding="lblControllerAs">
             <constraints>
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -62,7 +62,7 @@
               <text value="Controller as *"/>
             </properties>
           </component>
-          <component id="78046" class="javax.swing.JLabel">
+          <component id="78046" class="javax.swing.JLabel" binding="lblTemplate">
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -88,7 +88,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="7c5e4" class="javax.swing.JTextArea" binding="template">
+              <component id="7c5e4" class="javax.swing.JTextArea" binding="txtTemplate">
                 <constraints/>
                 <properties/>
               </component>

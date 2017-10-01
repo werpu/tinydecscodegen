@@ -1,0 +1,16 @@
+import {Injectable, Inject} from "TinyDecorations";
+import * as angular from "angular";
+import IScope = angular.IScope;
+
+/**
+ * Constructor ${NAME}
+ * @author ${AUTHOR}
+ */
+@Injectable("${NAME}")
+export class ${NAME} {
+
+    constructor() {
+        //add your constructor code here
+    }
+
+}
