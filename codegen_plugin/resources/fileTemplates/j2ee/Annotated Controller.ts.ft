@@ -3,7 +3,7 @@ import * as angular from "angular";
 import IScope = angular.IScope;
 
 /**
- * ComponentJson ${NAME}
+ * Controller ${NAME}
  * @author ${AUTHOR}
  */
 @Controller({

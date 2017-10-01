@@ -3,7 +3,7 @@ import * as angular from "angular";
 import IScope = angular.IScope;
 
 /**
- * ComponentJson ${NAME}
+ * Controller ${NAME}
  * @author ${AUTHOR}
  */
 @Controller({
@@ -16,5 +16,5 @@ export class ${NAME} {
     constructor(@Inject("$scope") private $scope: IScope, @Inject("$element") private $element: any) {
         //add your constructor code here
     }
-
+    
 }

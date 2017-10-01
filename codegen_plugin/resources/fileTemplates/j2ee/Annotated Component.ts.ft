@@ -1,9 +1,9 @@
 import {Component, Inject} from "TinyDecorations";
 import * as angular from "angular";
 import IScope = angular.IScope;
-constructor
+
 /**
- * ComponentJson ${NAME}
+ * Component ${NAME}
  * @author ${AUTHOR}
  */
 @Component({
