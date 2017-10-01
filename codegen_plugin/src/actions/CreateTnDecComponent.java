@@ -9,11 +9,15 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import dtos.ComponentJson;
 import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.NotNull;
@@ -137,7 +141,13 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
                         return refactorAddExport(className, module, element);
                     }).collect(Collectors.toList());
                     String refactoredText = IntellijRefactor.refactor(refactoringsToProcess);
-                    module.getVirtualFile().setBinaryContent(refactoredText.getBytes());
+                    VirtualFile vModule = module.getVirtualFile();
+
+                    vModule.setBinaryContent(refactoredText.getBytes());
+
+                    //PsiDocumentManager.getInstance(project).commitDocument(FileDocumentManager.getInstance().getCachedDocument(vModule));
+                    //PsiElement reformatted = CodeStyleManager.getInstance(project).reformat(PsiManager.getInstance(project).findFile(vModule));
+                    //vModule.setBinaryContent(reformatted.getText().getBytes());
                 }
                 IntellijUtils.createAndOpen(project, folder, str, fileNmae);
 
