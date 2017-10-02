@@ -2,7 +2,6 @@ import {Inject, NgModule} from "TinyDecorations";
 
 /**
  * Module ${NAME}
- *
  * @author ${AUTHOR}
  */
 @NgModule({
