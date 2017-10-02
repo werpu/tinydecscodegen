@@ -69,7 +69,7 @@ public class SpringJavaRestReflector {
         }).map(cls -> {
             String serviceUrl = fetchServiceUrl(cls);
             List<RestMethod> restMethods = fetchRestMethods(cls, flattenResult);
-            return new RestService(fetchServiceName(cls), serviceUrl, restMethods);
+            return new RestService(fetchServiceName(cls),  serviceUrl, cls.getName(), restMethods);
         }).collect(Collectors.toList());
     }
 

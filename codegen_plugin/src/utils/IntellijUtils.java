@@ -262,6 +262,18 @@ public class IntellijUtils {
             dialog.pack();
             dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
             dialog.setVisible(true);
+        } else {
+            List<GenericClass> dtos = SpringJavaRestReflector.reflectDto(Arrays.asList(compiledClass), compiledClass);
+            if (dtos == null || dtos.isEmpty()) {
+                Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
+                return false;
+            }
+            String text = TypescriptDtoGenerator.generate(dtos);
+
+            String ext = ".ts";
+            String fileName = dtos.get(0).getName() + ext;
+
+            generateNewTypescriptFile(text, fileName, project, module);
         }
 
 

@@ -1,7 +1,7 @@
 /**
 * DTO typescript definition for ${clazz.name}
 *
-* @ref: ${service.className}
+* @ref: ${clazz.clazz.ownerType}
 */
 export class ${clazz.name}<#if clazz.parentClass??> extends ${clazz.parentClass.name}</#if> {
 <#list clazz.properties as prop>
