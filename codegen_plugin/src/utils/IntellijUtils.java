@@ -82,14 +82,14 @@ public class IntellijUtils {
     private static final Logger log = Logger.getInstance(IntellijUtils.class);
 
 
-    public static void generateNewTypescriptFile(String text, String fileName, String className, Project project, Module module) {
+    public static void generateNewTypescriptFile(String text, String fileName, String className,  Project project, Module module, PsiFile javaFile) {
         PsiFile file = PsiFileFactory.getInstance(project).createFileFromText(fileName, Language.findLanguageByID("TypeScript"), text);
         final Collection<PsiFile> alreadyExisting = IntellijUtils.fullTextSearch(project, className, "ts");
         ApplicationManager.getApplication().runWriteAction(() -> {
             moveFileToGeneratedDir(file, project, module);
             if (alreadyExisting != null && alreadyExisting.size() > 0) {
                 for(PsiFile origFile: alreadyExisting) {
-                    showDiff(project, file, origFile);
+                    showDiff(project, file, origFile, javaFile);
                 }
             } else {
                 ApplicationManager.getApplication().invokeLater(() -> {
@@ -127,13 +127,15 @@ public class IntellijUtils {
         });
     }
 
-    public static void showDiff(Project project, PsiFile file, PsiFile origFile) {
+    public static void showDiff(Project project, PsiFile file, PsiFile origFile, PsiFile javaFile) {
         SimpleDiffRequest request = new SimpleDiffRequest(
                 "Reference already exists",
                 new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(origFile)),
                 new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(file)),
+                new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(javaFile)),
                 "Original File: " + origFile.getVirtualFile().getPath().substring(project.getBasePath().length()),
-                "Newly Generated File"
+                "Newly Generated File",
+                "Java File: "+javaFile.getVirtualFile().getPath().substring(project.getBasePath().length())
         );
 
         DiffManager.getInstance().showDiff(project, request);
@@ -237,7 +239,7 @@ public class IntellijUtils {
         return ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(vFile);
     }
 
-    public static boolean generate(Project project, Module module, String className, URLClassLoader urlClassLoader) throws ClassNotFoundException {
+    public static boolean generate(Project project, Module module, String className, PsiFile javaFile, URLClassLoader urlClassLoader) throws ClassNotFoundException {
         Class compiledClass = urlClassLoader.loadClass(className);
 
 
@@ -251,7 +253,7 @@ public class IntellijUtils {
         String ext = ".ts";
         String fileName = restService.get(0).getServiceName() + ext;
 
-        generateNewTypescriptFile(text, fileName, className, project, module);
+        generateNewTypescriptFile(text, fileName, className, project, module, javaFile);
         return true;
     }
 
@@ -285,7 +287,7 @@ public class IntellijUtils {
         public Class hierarchyEndpoint = null;
     }
 
-    public static boolean generateDto(Project project, Module module, String className, URLClassLoader urlClassLoader) throws ClassNotFoundException {
+    public static boolean generateDto(Project project, Module module, String className, PsiFile javaFile, URLClassLoader urlClassLoader) throws ClassNotFoundException {
         final Class compiledClass = urlClassLoader.loadClass(className);
         final ClassHolder classHolder = new ClassHolder();
 
@@ -310,7 +312,7 @@ public class IntellijUtils {
                 String ext = ".ts";
                 String fileName = dtos.get(0).getName() + ext;
 
-                generateNewTypescriptFile(text, fileName, className, project, module);
+                generateNewTypescriptFile(text, fileName, className, project, module, javaFile);
                 return true;
             }, null, ReflectUtils.getInheritanceHierarchyAsString(compiledClass));
 
@@ -329,7 +331,7 @@ public class IntellijUtils {
             String ext = ".ts";
             String fileName = dtos.get(0).getName() + ext;
 
-            generateNewTypescriptFile(text, fileName, className, project, module);
+            generateNewTypescriptFile(text, fileName, className, project, module, javaFile);
         }
 
 

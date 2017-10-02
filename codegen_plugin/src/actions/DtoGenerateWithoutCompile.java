@@ -24,7 +24,7 @@ public class DtoGenerateWithoutCompile extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
         Project project = IntellijUtils.getProject(event);
-        IntellijRootData intellijRootData = new IntellijRootData(event, project).invoke();
+        IntellijRootData intellijRootData = new IntellijRootData(event, project);
         if (intellijRootData.isError()) return;
         final Module module = intellijRootData.getModule();
         final String className = intellijRootData.getClassName();
@@ -32,7 +32,7 @@ public class DtoGenerateWithoutCompile extends AnAction {
 
         try {
             URLClassLoader urlClassLoader = IntellijUtils.getClassLoader(module);
-            IntellijUtils.generateDto(project, module, className, urlClassLoader);
+            IntellijUtils.generateDto(project, module, className, intellijRootData.getJavaFile(), urlClassLoader);
 
         } catch (RuntimeException | IOException | ClassNotFoundException e) {
             log.error(e);

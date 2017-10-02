@@ -10,6 +10,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import utils.IntellijUtils;
@@ -25,14 +26,15 @@ public class ServiceGenerateActionWithoutCompile extends AnAction {
     public void actionPerformed(AnActionEvent event) {
 
         Project project = IntellijUtils.getProject(event);
-        IntellijRootData intellijRootData = new IntellijRootData(event, project).invoke();
+        IntellijRootData intellijRootData = new IntellijRootData(event, project);
         if (intellijRootData.isError()) return;
         final Module module = intellijRootData.getModule();
         final String className = intellijRootData.getClassName();
+        final PsiFile javaFile = intellijRootData.getJavaFile();
 
         try {
             URLClassLoader urlClassLoader = IntellijUtils.getClassLoader(module);
-            IntellijUtils.generate(project, module, className, urlClassLoader);
+            IntellijUtils.generate(project, module, className, javaFile, urlClassLoader);
 
         } catch (RuntimeException | IOException | ClassNotFoundException e) {
             log.error(e);

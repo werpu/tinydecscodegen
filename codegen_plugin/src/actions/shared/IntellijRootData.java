@@ -31,10 +31,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiManager;
+import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import utils.IntellijUtils;
@@ -66,10 +63,28 @@ public class IntellijRootData {
     private Project project;
     private Module module;
     private String className;
+    private PsiFile javaFile;
 
     public IntellijRootData(AnActionEvent event, Project project) {
         this.event = event;
         this.project = project;
+
+        Editor editor = IntellijUtils.getEditor(event);
+        if (editor == null) {
+            errNoEditorFound();
+            return;
+        }
+
+        VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
+
+        if (isTsFile(vFile)) {
+            fromTsFileToJavaFile(vFile);
+            return;
+        } else {
+            fromEditorToJavaFile(editor);
+            return;
+
+        }
     }
 
     public boolean isError() {
@@ -84,21 +99,9 @@ public class IntellijRootData {
         return className;
     }
 
-    public IntellijRootData invoke() {
-        Editor editor = IntellijUtils.getEditor(event);
-        if (editor == null) {
-            return errNoEditorFound();
-        }
-
-        VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
-
-        if (isTsFile(vFile)) {
-            return fromTsFileToJavaFile(vFile);
-        } else {
-            return fromEditorToJavaFile(editor);
-        }
+    public PsiFile getJavaFile() {
+        return javaFile;
     }
-
 
     private boolean isTsFile(@NotNull VirtualFile vFile) {
         return PsiManager.getInstance(project).findFile(vFile).getFileType().getDefaultExtension().equalsIgnoreCase("ts");
@@ -121,6 +124,8 @@ public class IntellijRootData {
     private IntellijRootData fromEditorToJavaFile(Editor editor) {
         module = IntellijUtils.getModuleFromEditor(project, editor);
         className = IntellijUtils.getClassNameFromEditor(project, editor);
+        VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
+        javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(vFile);
         myResult = false;
         return this;
     }
@@ -131,7 +136,7 @@ public class IntellijRootData {
         if (javaFile1 == null) {
             return errInvalidRef();
         }
-        PsiJavaFile javaFile = (PsiJavaFile) javaFile1.getContainingFile();
+        javaFile = javaFile1.getContainingFile();
         module = ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(javaFile.getVirtualFile());
         return false;
     }
