@@ -26,13 +26,17 @@ import com.google.common.collect.Lists;
 import com.intellij.diff.DiffManager;
 import com.intellij.diff.contents.DocumentContentImpl;
 import com.intellij.diff.requests.SimpleDiffRequest;
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileType;
@@ -40,9 +44,12 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
+import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.FileTypeIndex;
@@ -82,21 +89,56 @@ public class IntellijUtils {
             moveFileToGeneratedDir(file, project, module);
             if (alreadyExisting != null && alreadyExisting.size() > 0) {
                 for(PsiFile origFile: alreadyExisting) {
-                    SimpleDiffRequest request = new SimpleDiffRequest(
-                            "Reference already exists",
-                            new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(origFile)),
-                            new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(file)),
-                            "Original File: " + origFile.getVirtualFile().getPath().substring(project.getBasePath().length()),
-                            "Newly Generated File"
-                    );
-
-                    DiffManager.getInstance().showDiff(project, request);
+                    showDiff(project, file, origFile);
                 }
             } else {
-                FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
+                ApplicationManager.getApplication().invokeLater(() -> {
+
+                    String oldPath = PropertiesComponent.getInstance(project).getValue("__lastSelTarget__");
+                    VirtualFile vfile1 = null;
+                    FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
+                    descriptor.setTitle("Select Generation Target Directory");
+                    descriptor.setDescription("Please choose a target directory");
+
+
+                    if(!Strings.isNullOrEmpty(oldPath)) {
+                        VirtualFile storedPath = LocalFileSystem.getInstance().findFileByPath(oldPath);
+                        vfile1 =  FileChooser.chooseFile(descriptor, project, storedPath);
+                    } else {
+                        vfile1 =  FileChooser.chooseFile(descriptor, project, module.getModuleFile());
+                    }
+                    final VirtualFile vfile = vfile1;
+
+                    PropertiesComponent.getInstance(project).setValue("__lastSelTarget__", vfile.getPath());
+                    if(vfile != null) {
+                        WriteCommandAction.runWriteCommandAction(project, () -> {
+
+
+                            PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(vfile);
+                            dir.add(file);
+                            FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
+
+                        });
+                    } else {
+                        FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
+                    }
+                });
+
             }
 
         });
+    }
+
+    public static void showDiff(Project project, PsiFile file, PsiFile origFile) {
+        SimpleDiffRequest request = new SimpleDiffRequest(
+                "Reference already exists",
+                new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(origFile)),
+                new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(file)),
+                "Original File: " + origFile.getVirtualFile().getPath().substring(project.getBasePath().length()),
+                "Newly Generated File"
+        );
+
+        DiffManager.getInstance().showDiff(project, request);
     }
 
     public static URLClassLoader getClassLoader(CompileContext compileContext, Module module) throws MalformedURLException {
