@@ -23,6 +23,9 @@ package utils;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.intellij.diff.DiffManager;
+import com.intellij.diff.contents.DocumentContentImpl;
+import com.intellij.diff.requests.SimpleDiffRequest;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -38,17 +41,16 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.PsiSearchHelper;
 import com.intellij.util.indexing.FileBasedIndex;
 import gui.Confirm;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import reflector.SpringJavaRestReflector;
 import reflector.TypescriptDtoGenerator;
 import reflector.TypescriptRestGenerator;
@@ -56,8 +58,6 @@ import reflector.utils.ReflectUtils;
 import rest.GenericClass;
 import rest.RestService;
 
-import javax.naming.spi.DirectoryManager;
-import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -75,11 +75,27 @@ public class IntellijUtils {
     private static final Logger log = Logger.getInstance(IntellijUtils.class);
 
 
-    public static void generateNewTypescriptFile(String text, String fileName, Project project, Module module) {
+    public static void generateNewTypescriptFile(String text, String fileName, String className, Project project, Module module) {
         PsiFile file = PsiFileFactory.getInstance(project).createFileFromText(fileName, Language.findLanguageByID("TypeScript"), text);
+        final Collection<PsiFile> alreadyExisting = IntellijUtils.fullTextSearch(project, className, "ts");
         ApplicationManager.getApplication().runWriteAction(() -> {
             moveFileToGeneratedDir(file, project, module);
-            FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
+            if (alreadyExisting != null && alreadyExisting.size() > 0) {
+                for(PsiFile origFile: alreadyExisting) {
+                    SimpleDiffRequest request = new SimpleDiffRequest(
+                            "Reference already exists",
+                            new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(origFile)),
+                            new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(file)),
+                            "Original File: " + origFile.getVirtualFile().getPath().substring(project.getBasePath().length()),
+                            "Newly Generated File"
+                    );
+
+                    DiffManager.getInstance().showDiff(project, request);
+                }
+            } else {
+                FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
+            }
+
         });
     }
 
@@ -195,7 +211,7 @@ public class IntellijUtils {
         String ext = ".ts";
         String fileName = restService.get(0).getServiceName() + ext;
 
-        generateNewTypescriptFile(text, fileName, project, module);
+        generateNewTypescriptFile(text, fileName, className, project, module);
         return true;
     }
 
@@ -254,7 +270,7 @@ public class IntellijUtils {
                 String ext = ".ts";
                 String fileName = dtos.get(0).getName() + ext;
 
-                generateNewTypescriptFile(text, fileName, project, module);
+                generateNewTypescriptFile(text, fileName, className, project, module);
                 return true;
             }, null, ReflectUtils.getInheritanceHierarchyAsString(compiledClass));
 
@@ -273,7 +289,7 @@ public class IntellijUtils {
             String ext = ".ts";
             String fileName = dtos.get(0).getName() + ext;
 
-            generateNewTypescriptFile(text, fileName, project, module);
+            generateNewTypescriptFile(text, fileName, className, project, module);
         }
 
 
@@ -312,7 +328,7 @@ public class IntellijUtils {
 
     public static List<PsiFile> findFirstAnnotatedClass(Project project, VirtualFile currentDir, String annotationType) {
         List<PsiFile> foundFiles = findAnnotatedFiles(project, currentDir, annotationType);
-        while(foundFiles.isEmpty() && project.getBaseDir().getPath().length() <  currentDir.getPath().length()) {
+        while (foundFiles.isEmpty() && project.getBaseDir().getPath().length() < currentDir.getPath().length()) {
             currentDir = currentDir.getParent();
             foundFiles = findAnnotatedFiles(project, currentDir, annotationType);
         }
@@ -328,5 +344,15 @@ public class IntellijUtils {
                             return IntellijRefactor.hasAnnotatedElement(psiFile, annotationType);
                         }
                 ).collect(Collectors.toList());
+    }
+
+    public static Collection<PsiFile> fullTextSearch(Project project, String text, String extension) {
+
+        final Collection<PsiFile> foundFiles = Arrays.asList(PsiSearchHelper.SERVICE.getInstance(project).findCommentsContainingIdentifier("@ref: " + text, GlobalSearchScope.everythingScope(project)))
+                .stream()
+                .filter(item -> item.getContainingFile().getFileType().getDefaultExtension().equalsIgnoreCase(extension))
+                .map(item -> item.getContainingFile())
+                .collect(Collectors.toSet());
+        return foundFiles;
     }
 }

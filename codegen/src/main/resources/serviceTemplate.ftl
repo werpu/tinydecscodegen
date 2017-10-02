@@ -7,9 +7,9 @@ import RequestBody = extended.RequestBody;
 import RequestParam = extended.RequestParam;
 
 /**
-* Rest service ${service.serviceName}
-* @ref: ${service.ref}
-*/
+ * Rest service ${service.serviceName}
+ * @ref: ${service.ref}
+ */
 
 @Injectable("${service.serviceName}")
 <#if service.serviceRootUrl?has_content>

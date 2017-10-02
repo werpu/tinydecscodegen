@@ -81,6 +81,9 @@ public class ServiceGenerationAction extends AnAction {
                 try {
                     URLClassLoader urlClassLoader = IntellijUtils.getClassLoader(compileContext, module);
                     IntellijUtils.generate(project, module, className, urlClassLoader);
+
+
+
                 } catch (RuntimeException |  IOException | ClassNotFoundException e) {
                     log.error(e);
                     Messages.showErrorDialog(project, e.getMessage(), "An Error has occurred");
