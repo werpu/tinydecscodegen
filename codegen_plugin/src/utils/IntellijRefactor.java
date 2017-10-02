@@ -27,6 +27,10 @@ public class IntellijRefactor {
     public static boolean hasAnnotatedElement(PsiFile psiJSFile, String ann) {
         List<Offset> offsets = new ArrayList<>();
         final AtomicBoolean hasFound = new AtomicBoolean(false);
+        if(Strings.isNullOrEmpty(psiJSFile.getText()) || !psiJSFile.getText().contains(ann)) {
+            return false;
+        }
+
         PsiRecursiveElementWalkingVisitor myElementVisitor = new PsiRecursiveElementWalkingVisitor() {
 
             public void visitElement(PsiElement element) {
@@ -51,6 +55,8 @@ public class IntellijRefactor {
     public static List<PsiElement> findAnnotatedElements(Project project,  PsiFile psiFile, String ann) {
 
         List<PsiElement> elements = new ArrayList<>();
+
+
         PsiRecursiveElementWalkingVisitor myElementVisitor = new PsiRecursiveElementWalkingVisitor() {
 
             public void visitElement(PsiElement element) {
@@ -160,7 +166,7 @@ public class IntellijRefactor {
     }
 
     private static boolean isNgModuleElement(PsiElement element) {
-        return element.getText().startsWith(NG_MODULE) && element.getClass().getName().equals("com.intellij.lang.typescript.psi.impl.ES6DecoratorImpl");
+        return element != null && !Strings.isNullOrEmpty(element.getText()) && element.getText().startsWith(NG_MODULE) && element.getClass().getName().equals("com.intellij.lang.typescript.psi.impl.ES6DecoratorImpl");
     }
 
     private static boolean isAnnotatedElement(PsiElement element, String annotatedElementType) {
