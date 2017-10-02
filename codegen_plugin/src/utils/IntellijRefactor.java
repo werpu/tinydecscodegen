@@ -40,6 +40,7 @@ public class IntellijRefactor {
 
                 if (isAnnotatedElement(element, ann)) {
                     hasFound.set(true);
+                    stopWalking();
                     return;
                 }
                 super.visitElement(element);
@@ -63,6 +64,7 @@ public class IntellijRefactor {
 
                 if (isAnnotatedElement(element, ann)) {
                     elements.add(element);
+                    return; //no need to go deeper
                 }
                 super.visitElement(element);
             }
