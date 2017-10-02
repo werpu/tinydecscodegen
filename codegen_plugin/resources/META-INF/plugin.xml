@@ -60,7 +60,7 @@
         </group>
 
         <group id="TinyDecsContextMenu" text="_Tiny Decorations" popup="true" description="Tiny decorations context actions" icon="/images/tt.png">
-            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewXml"/>
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewHtmlFile"/>
             <action id="CreateComponent" class="actions.CreateTnDecComponent" text="Create Component"
                     description="Create a an Angular Tiny Decorations Component" icon="/images/tt.png">
             </action>
