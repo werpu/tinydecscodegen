@@ -10,6 +10,7 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
     public static final String TPL_ANNOTATED_COMPONENT = "Annotated Component";
     public static final String TPL_ANNOTATED_CONTROLLER = "Annotated Controller";
     public static final String TPL_ANNOTATED_SERVICE = "Annotated Service";
+    public static final String TPL_ANNOTATED_FILTER = "Annotated Filter";
 
     public static final String TPL_EXT = "ts";
 
@@ -20,6 +21,7 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
         group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_COMPONENT+ "."+ TPL_EXT, TTIcons.LogoSm));
         group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_CONTROLLER+ "."+ TPL_EXT, TTIcons.LogoSm));
         group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_SERVICE+ "."+ TPL_EXT, TTIcons.LogoSm));
+        group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_FILTER+ "."+ TPL_EXT, TTIcons.LogoSm));
 
         return group;
     }

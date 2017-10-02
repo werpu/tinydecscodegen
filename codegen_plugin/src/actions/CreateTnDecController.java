@@ -15,7 +15,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
-import dtos.ComponentJson;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.Nullable;
@@ -50,6 +49,7 @@ public class CreateTnDecController extends AnAction implements DumbAware {
 
         final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
         mainForm.getLblSelector().setText("Name *");
+        mainForm.getLblTitle().setText("Create an Annotated Controller");
 
         DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
 

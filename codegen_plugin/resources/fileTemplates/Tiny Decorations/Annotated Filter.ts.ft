@@ -1,0 +1,20 @@
+import {Filter} from "TinyDecorations";
+import * as angular from "angular";
+
+
+/**
+ * Filter ${NAME}
+ * @author ${AUTHOR}
+ */
+@Filter({
+    name:"${NAME}"
+})
+export class BoogaFilter  {
+    constructor() {}; //add your injections here
+
+    filter(originalValue: any/*change to your type here*/): string {
+
+        /*do your filter processing here*/
+        return "result"; //return the processed string value
+    }
+}

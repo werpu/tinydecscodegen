@@ -49,6 +49,7 @@ public class CreateTnDecService extends AnAction implements DumbAware {
 
         final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
         mainForm.getLblSelector().setText("Name *");
+        mainForm.getLblTitle().setText("Create an Annotated Service");
         mainForm.getLblTemplate().setVisible(false);
         mainForm.getLblControllerAs().setVisible(false);
 

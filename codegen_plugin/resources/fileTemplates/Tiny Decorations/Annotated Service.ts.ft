@@ -9,7 +9,7 @@ import IScope = angular.IScope;
 @Injectable("${NAME}")
 export class ${NAME} {
 
-    constructor() {
+    constructor() { //add your injections here
         //add your constructor code here
     }
 

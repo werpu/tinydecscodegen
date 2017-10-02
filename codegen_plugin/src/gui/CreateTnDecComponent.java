@@ -27,7 +27,6 @@ import gui.support.RequiredListener;
 import gui.support.RegexpFormatter;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.function.Function;
 
 /**
@@ -44,6 +43,7 @@ public class CreateTnDecComponent {
     private JLabel lblSelector;
     private JLabel lblTemplate;
     private JLabel lblControllerAs;
+    private JLabel lblTitle;
 
     boolean selectorValid = false;
     boolean controllerAsValid = false;
@@ -87,11 +87,15 @@ public class CreateTnDecComponent {
         return txtControllerAs;
     }
 
+    public JLabel getLblTitle() {
+        return lblTitle;
+    }
+
     /**
      * We have some special behavior like required fields and formatted inputs
      */
     private void createUIComponents() {
-        txtName = new JFormattedTextField(new RegexpFormatter("[a-z0-9\\$\\-\\_]+"));
+        txtName = new JFormattedTextField(new RegexpFormatter(".*"));
         new RequiredListener(txtName).addFormValidListener(submittable -> {
             selectorValid = submittable;
             return submittable;

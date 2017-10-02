@@ -28,6 +28,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <fileTemplateGroup implementation="factories.TnDecGroupFactory"/>
+        <defaultLiveTemplatesProvider implementation="factories.TnDecLiveTemplatesProvider"/>
+        <liveTemplateContext implementation="factories.TnDecLiveTemplatesContextProvider"/>
     </extensions>
 
     <actions>
@@ -66,7 +68,10 @@
                     description="Create a an Angular Tiny Decorations Controller" icon="/images/tt.png">
             </action>
             <action id="CreateService" class="actions.CreateTnDecService" text="Create Service"
-                    description="Create a an Angular Tiny Decorations Controller" icon="/images/tt.png">
+                    description="Create a an Angular Tiny Decorations Service" icon="/images/tt.png">
+            </action>
+            <action id="CreateFilter" class="actions.CreateTnDecFilter" text="Create Filter"
+                    description="Create a an Angular Tiny Decorations Filter" icon="/images/tt.png">
             </action>
         </group>
     </actions>
