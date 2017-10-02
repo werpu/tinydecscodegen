@@ -1,6 +1,7 @@
 package utils;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.intellij.openapi.project.Project;
@@ -163,6 +164,6 @@ public class IntellijRefactor {
     }
 
     private static boolean isAnnotatedElement(PsiElement element, String annotatedElementType) {
-        return element.getText().startsWith(annotatedElementType) && element.getClass().getName().equals("com.intellij.lang.typescript.psi.impl.ES6DecoratorImpl");
+        return element != null && !Strings.isNullOrEmpty(element.getText()) && element.getText().startsWith(annotatedElementType) && element.getClass().getName().equals("com.intellij.lang.typescript.psi.impl.ES6DecoratorImpl");
     }
 }
