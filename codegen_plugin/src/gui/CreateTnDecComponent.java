@@ -23,8 +23,8 @@ package gui;
 
 import com.google.common.base.Strings;
 import dtos.ComponentJson;
-import gui.support.RequiredListener;
 import gui.support.RegexpFormatter;
+import gui.support.RequiredListener;
 
 import javax.swing.*;
 import java.util.function.Function;

@@ -1,6 +1,4 @@
-import {Run, Inject} from "TinyDecorations";
-import * as angular from "angular";
-import IRootScope = angular.IRootScope;
+import {Inject, Run} from "TinyDecorations";import IRootScope = angular.IRootScope;
 
 /**
  * Config

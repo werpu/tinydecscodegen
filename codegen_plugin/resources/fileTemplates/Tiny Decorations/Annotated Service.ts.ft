@@ -1,6 +1,4 @@
-import {Injectable, Inject} from "TinyDecorations";
-import * as angular from "angular";
-import IScope = angular.IScope;
+import {Inject, Injectable} from "TinyDecorations";
 
 /**
  * Service ${NAME}

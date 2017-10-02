@@ -25,8 +25,6 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import java.lang.reflect.Type;
-
 @Getter
 @EqualsAndHashCode
 @AllArgsConstructor

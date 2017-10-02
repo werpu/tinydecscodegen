@@ -27,7 +27,6 @@ import lombok.Getter;
 import reflector.utils.ReflectUtils;
 import reflector.utils.TypescriptTypeMapper;
 
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.function.Function;
 

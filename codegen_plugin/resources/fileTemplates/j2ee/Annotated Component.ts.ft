@@ -1,6 +1,4 @@
-import {Component, Inject} from "TinyDecorations";
-import * as angular from "angular";
-import IScope = angular.IScope;
+import {Component, Inject} from "TinyDecorations";import IScope = angular.IScope;
 
 /**
  * Component ${NAME}

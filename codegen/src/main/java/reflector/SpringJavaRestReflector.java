@@ -24,9 +24,9 @@ package reflector;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.thoughtworks.paranamer.BytecodeReadingParanamer;
-import rest.*;
 import org.springframework.web.bind.annotation.*;
 import reflector.utils.ReflectUtils;
+import rest.*;
 
 import java.beans.IntrospectionException;
 import java.lang.reflect.Method;

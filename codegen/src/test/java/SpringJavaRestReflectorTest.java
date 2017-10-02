@@ -1,13 +1,13 @@
-import probes.TestDto;
-import rest.GenericClass;
-import rest.RestMethod;
-import rest.RestService;
-import rest.RestVar;
 import org.junit.Test;
+import probes.TestDto;
 import probes.TestProbeController;
 import reflector.SpringJavaRestReflector;
 import reflector.utils.ReflectUtils;
 import reflector.utils.TypescriptTypeMapper;
+import rest.GenericClass;
+import rest.RestMethod;
+import rest.RestService;
+import rest.RestVar;
 
 import java.util.Arrays;
 import java.util.List;

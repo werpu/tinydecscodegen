@@ -1,5 +1,4 @@
 import {Filter} from "TinyDecorations";
-import * as angular from "angular";
 
 
 /**

@@ -4,9 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import utils.IntellijRefactor;
 import utils.IntellijUtils;
-import utils.Offset;
 
 import java.util.List;
 
