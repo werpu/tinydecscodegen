@@ -308,7 +308,7 @@ public class IntellijUtils {
     }
 
     private static List<PsiFile> findAnnotatedFiles(Project project, VirtualFile currentDir, String annotationType) {
-        return Arrays.asList(currentDir.getChildren()).parallelStream()
+        return Arrays.asList(currentDir.getChildren()).stream()
                 .filter(vFile -> vFile.getFileType().getDefaultExtension().equalsIgnoreCase("ts"))
                 .map(virtualFile -> {
                     return PsiManager.getInstance(project).findFile(virtualFile);

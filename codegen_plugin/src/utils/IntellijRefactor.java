@@ -27,7 +27,8 @@ public class IntellijRefactor {
     public static boolean hasAnnotatedElement(PsiFile psiJSFile, String ann) {
         List<Offset> offsets = new ArrayList<>();
         final AtomicBoolean hasFound = new AtomicBoolean(false);
-        if(Strings.isNullOrEmpty(psiJSFile.getText()) || !psiJSFile.getText().contains(ann)) {
+        final String text = psiJSFile.getText();
+        if(Strings.isNullOrEmpty(text) || !text.contains(ann)) {
             return false;
         }
 
@@ -143,12 +144,23 @@ public class IntellijRefactor {
         }).collect(Collectors.toList());
     }
 
+    private static String remapToTs(String in) {
+        in = in.replaceAll("\"([^\"\\\\])","$1");
+
+        in = unescapeJsonStr(in);
+        return in;
+    }
+
+    private static String unescapeJsonStr(String in) {
+        return in.replaceAll("\\\\\"","\"").replaceAll("\"\\\\","\"");
+    }
+
     public static String appendDeclare(String inStr, String declare) {
         String json = TinyRefactoringUtils.getJsonString(inStr).toString();
         Gson gson = new Gson();
         NgModuleJson moduleData = gson.fromJson(json.toString(), NgModuleJson.class);
         moduleData.appendDeclare(declare);
-        return gson.toJson(moduleData);
+        return remapToTs(gson.toJson(moduleData));
     }
 
     public static String appendImport(String inStr, String declare) {
@@ -156,15 +168,21 @@ public class IntellijRefactor {
         Gson gson = new Gson();
         NgModuleJson moduleData = gson.fromJson(json.toString(), NgModuleJson.class);
         moduleData.appendImport(declare);
-        return gson.toJson(moduleData);
+        return remapToTs(gson.toJson(moduleData));
     }
 
     public static String appendExport(String inStr, String declare) {
+        inStr = inStr.replaceAll("\"","\\\"");
         String json = TinyRefactoringUtils.getJsonString(inStr).toString();
         Gson gson = new Gson();
-        NgModuleJson moduleData = gson.fromJson(json.toString(), NgModuleJson.class);
+        String jsonStr = json.toString();
+        NgModuleJson moduleData = gson.fromJson(escapeJsonStr(jsonStr), NgModuleJson.class);
         moduleData.appendExport(declare);
-        return gson.toJson(moduleData);
+        return remapToTs(gson.toJson(moduleData));
+    }
+
+    private static String escapeJsonStr(String jsonStr) {
+        return jsonStr.replaceAll("\"([^\"]+)\"","\"\\\\\"$1\\\\\"\"");
     }
 
     private static boolean isNgModuleElement(PsiElement element) {
