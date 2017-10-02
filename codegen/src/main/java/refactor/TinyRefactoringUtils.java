@@ -37,9 +37,6 @@ import java.util.stream.Collectors;
  * for Typescript we rely simply on json parsing
  *
  */
-
-
-
 public class TinyRefactoringUtils {
 
     /**

@@ -36,14 +36,30 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
+import org.jetbrains.annotations.NotNull;
 import utils.IntellijUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * root data holder,
+ * a class which determines the root data (aka module
+ * and original java file from our ide context - aka open editor)
+ * <p>
+ * It either checks for a ref in a tyescript file
+ * or determines the data from the given java file
+ * <p>
+ * If the data needed is found it is handed over
+ * to the processing engine.
+ */
 public class IntellijRootData {
 
     private static final Logger log = Logger.getInstance(IntellijRootData.class);
+    public static final String REF_DATA = "@ref:\\s([^\n\\s]+).*\n";
+    public static final String ERR_NO_EDITOR = "No editor found, please focus on a source file with a java type";
+    public static final String ERR_INVALID_REF = "The reference into the java file is invalid or outdated, no corresponding java file could be found.";
+    public static final String ERR_NO_REF = "Selected Typescript file has no reference into java file";
 
     private boolean myResult;
     private AnActionEvent event;
@@ -71,40 +87,72 @@ public class IntellijRootData {
     public IntellijRootData invoke() {
         Editor editor = IntellijUtils.getEditor(event);
         if (editor == null) {
-            log.error("No editor found, please focus on a source file with a java type");
-            myResult = true;
-            return this;
+            return errNoEditorFound();
         }
 
         VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
-        boolean isTsFile = PsiManager.getInstance(project).findFile(vFile).getFileType().getDefaultExtension().equalsIgnoreCase("ts");
-        PsiJavaFile javaFile = null;
 
-
-        module = null;
-        className = null;
-        if (isTsFile) {
-            String content = PsiManager.getInstance(project).findFile(vFile).getText();
-            Pattern pattern = Pattern.compile("@ref:\\s([^\n\\s]+).*\n");
-            Matcher m = pattern.matcher(content);
-            if (m.find()) {
-                //package found
-                //FileBasedIndex.getInstance().getContainingFiles(FileTypeIndex.containsFileOfType(JavaFileType.INSTANCE), JavaFileType.INSTANCE, GlobalSearchScope.projectScope(project))
-                className = m.group(1);
-                PsiClass javaFile1 = JavaPsiFacade.getInstance(project).findClass(className, GlobalSearchScope.projectScope(project));
-                javaFile = (PsiJavaFile) javaFile1.getContainingFile();
-                module = ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(javaFile.getVirtualFile());
-            } else {
-                Messages.showErrorDialog(project, "", "Selected Typescript file has no reference into java file");
-                myResult = true;
-                return this;
-            }
+        if (isTsFile(vFile)) {
+            return fromTsFileToJavaFile(vFile);
         } else {
-
-            module = IntellijUtils.getModuleFromEditor(project, editor);
-            className = IntellijUtils.getClassNameFromEditor(project, editor);
+            return fromEditorToJavaFile(editor);
         }
+    }
+
+
+    private boolean isTsFile(@NotNull VirtualFile vFile) {
+        return PsiManager.getInstance(project).findFile(vFile).getFileType().getDefaultExtension().equalsIgnoreCase("ts");
+    }
+
+    @NotNull
+    private IntellijRootData fromTsFileToJavaFile(VirtualFile vFile) {
+        String content = PsiManager.getInstance(project).findFile(vFile).getText();
+        Pattern pattern = Pattern.compile(REF_DATA);
+        Matcher m = pattern.matcher(content);
+        if (m.find()) {
+            myResult = fromClassNameToJavaFile(m.group(1));
+            return this;
+        } else {
+            return errNoRef();
+        }
+    }
+
+    @NotNull
+    private IntellijRootData fromEditorToJavaFile(Editor editor) {
+        module = IntellijUtils.getModuleFromEditor(project, editor);
+        className = IntellijUtils.getClassNameFromEditor(project, editor);
         myResult = false;
+        return this;
+    }
+
+    private boolean fromClassNameToJavaFile(String className) {
+        this.className = className;
+        PsiClass javaFile1 = JavaPsiFacade.getInstance(project).findClass(className, GlobalSearchScope.projectScope(project));
+        if (javaFile1 == null) {
+            return errInvalidRef();
+        }
+        PsiJavaFile javaFile = (PsiJavaFile) javaFile1.getContainingFile();
+        module = ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(javaFile.getVirtualFile());
+        return false;
+    }
+
+    private boolean errInvalidRef() {
+        Messages.showErrorDialog(project, "", ERR_INVALID_REF);
+        myResult = true;
+        return true;
+    }
+
+    @NotNull
+    private IntellijRootData errNoEditorFound() {
+        log.error(ERR_NO_EDITOR);
+        myResult = true;
+        return this;
+    }
+
+    @NotNull
+    private IntellijRootData errNoRef() {
+        Messages.showErrorDialog(project, "", ERR_NO_REF);
+        myResult = true;
         return this;
     }
 }
