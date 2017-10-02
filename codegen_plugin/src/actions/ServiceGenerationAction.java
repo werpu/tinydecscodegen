@@ -19,6 +19,7 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+import actions.shared.IntellijRootData;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -53,21 +54,10 @@ public class ServiceGenerationAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
         Project project = IntellijUtils.getProject(event);
-        Editor editor = IntellijUtils.getEditor(event);
-        if(editor == null) {
-            log.error("No editor found, please focus on a source file with a rest endpoint");
-            return;
-        }
-
-        VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
-        PsiJavaFile javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(vFile);
-        PsiClass clz = javaFile.getClasses()[0];
-
-        //clz.getContainingFile()
-        //clz.getAllMethods()[3].getParameterList().getParameters()[0].getModifierList().getAnnotations()[0].getParameterList().getAttributes()[0].getValue().
-
-        Module module = IntellijUtils.getModuleFromEditor(project, editor);
-        String className = IntellijUtils.getClassNameFromEditor(project, editor);
+        IntellijRootData intellijRootData = new IntellijRootData(event, project).invoke();
+        if (intellijRootData.isError()) return;
+        final Module module = intellijRootData.getModule();
+        final String className = intellijRootData.getClassName();
 
 
         //CompileStatusNotification compilerCallback = new CompileStatusNotification();

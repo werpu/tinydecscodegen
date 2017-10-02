@@ -123,9 +123,7 @@ public class IntellijUtils {
                         FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
                     }
                 });
-
             }
-
         });
     }
 

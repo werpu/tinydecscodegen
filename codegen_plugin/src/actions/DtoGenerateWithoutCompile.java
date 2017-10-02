@@ -1,5 +1,6 @@
 package actions;
 
+import actions.shared.IntellijRootData;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -23,17 +24,10 @@ public class DtoGenerateWithoutCompile extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
         Project project = IntellijUtils.getProject(event);
-        Editor editor = IntellijUtils.getEditor(event);
-        if (editor == null) {
-            Messages.showErrorDialog(project, "There is no editor selected", "No editor selected");
-            return;
-        }
-
-        VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
-        PsiJavaFile javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(vFile);
-
-        Module module = IntellijUtils.getModuleFromEditor(project, editor);
-        String className = IntellijUtils.getClassNameFromEditor(project, editor);
+        IntellijRootData intellijRootData = new IntellijRootData(event, project).invoke();
+        if (intellijRootData.isError()) return;
+        final Module module = intellijRootData.getModule();
+        final String className = intellijRootData.getClassName();
 
 
         try {

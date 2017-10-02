@@ -23,7 +23,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 
     <groupId>com.github.tinydecs-codegen</groupId>
     <artifactId>tinydecs-codegen-parent</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <modules>
         <module>codegen</module>
     </modules>

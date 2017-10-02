@@ -1,5 +1,6 @@
 package actions;
 
+import actions.shared.IntellijRootData;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -7,14 +8,9 @@ import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiManager;
 import utils.IntellijUtils;
 
 import java.io.IOException;
@@ -28,20 +24,11 @@ public class DtoGeneration extends AnAction {
     public void actionPerformed(AnActionEvent event)
     {
         Project project = IntellijUtils.getProject(event);
-        Editor editor = IntellijUtils.getEditor(event);
-        if(editor == null) {
-            log.error("No editor found, please focus on a source file with a java type");
-            return;
-        }
+        IntellijRootData intellijRootData = new IntellijRootData(event, project).invoke();
+        if (intellijRootData.isError()) return;
+        final Module module = intellijRootData.getModule();
+        final String className = intellijRootData.getClassName();
 
-        VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
-        PsiJavaFile javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(vFile);
-
-        //clz.getContainingFile()
-        //clz.getAllMethods()[3].getParameterList().getParameters()[0].getModifierList().getAnnotations()[0].getParameterList().getAttributes()[0].getValue().
-
-        Module module = IntellijUtils.getModuleFromEditor(project, editor);
-        String className = IntellijUtils.getClassNameFromEditor(project, editor);
 
 
         //CompileStatusNotification compilerCallback = new CompileStatusNotification();
@@ -64,4 +51,6 @@ public class DtoGeneration extends AnAction {
         });
 
     }
+
+
 }
