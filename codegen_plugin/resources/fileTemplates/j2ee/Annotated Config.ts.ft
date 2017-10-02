@@ -1,0 +1,14 @@
+import {Config, Inject} from "TinyDecorations";
+import * as angular from "angular";
+
+
+/**
+ * Config
+ * @author ${AUTHOR}
+ */
+@Config({})
+export class ${NAME} {
+    constructor() {
+        //add your config code here
+    }
+}

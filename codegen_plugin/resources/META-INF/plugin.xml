@@ -73,6 +73,19 @@
             <action id="CreateFilter" class="actions.CreateTnDecFilter" text="Create Filter"
                     description="Create a an Angular Tiny Decorations Filter" icon="/images/tt.png">
             </action>
+
+            <separator />
+            <action id="CreateModule" class="actions.CreateTnDecModule" text="Create Module"
+                    description="Create a an Angular Tiny Decorations Module" icon="/images/tt.png">
+            </action>
+
+            <separator />
+            <action id="CreateConfig" class="actions.CreateTnDecConfig" text="Create Startup Config"
+                    description="Create a an Angular Tiny Decorations Startup Config" icon="/images/tt.png">
+            </action>
+            <action id="CreateRun" class="actions.CreateTnDecRun" text="Create Run Config"
+                    description="Create a an Angular Tiny Decorations Run Config" icon="/images/tt.png">
+            </action>
         </group>
     </actions>
     <application-components>

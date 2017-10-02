@@ -8,6 +8,7 @@ import RequestParam = extended.RequestParam;
 
 /**
 * Rest service ${service.serviceName}
+* @ref: ${service.className}
 */
 
 @Injectable("${service.serviceName}")

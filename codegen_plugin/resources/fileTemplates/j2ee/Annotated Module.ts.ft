@@ -1,0 +1,17 @@
+import {NgModule, Inject} from "TinyDecorations";
+import * as angular from "angular";
+import IScope = angular.IScope;
+
+/**
+ * Module ${NAME}
+ * @author ${AUTHOR}
+ */
+@NgModule({
+    name: "${NAME}"
+})
+export class ${CLASS_NAME} {
+   static angularModule: any; //classic angular representation of the current module
+}
+
+
+export var app = ${CLASS_NAME}.angularModule; //add your legacy angular artifacts here

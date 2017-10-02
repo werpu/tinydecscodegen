@@ -1,0 +1,14 @@
+import {Run, Inject} from "TinyDecorations";
+import * as angular from "angular";
+import IRootScope = angular.IRootScope;
+
+/**
+ * Config
+ * @author ${AUTHOR}
+ */
+@Run({})
+export class ${NAME} {
+    constructor(@Inject("$rootScope") private $rootScope: IRootScope) {
+        //add your run init code here
+    }
+}
