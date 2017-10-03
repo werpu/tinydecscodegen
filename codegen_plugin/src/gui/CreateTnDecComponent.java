@@ -22,6 +22,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package gui;
 
 import com.google.common.base.Strings;
+import com.intellij.openapi.editor.EditorFactory;
 import dtos.ComponentJson;
 import gui.support.RegexpFormatter;
 import gui.support.RequiredListener;
@@ -44,6 +45,7 @@ public class CreateTnDecComponent {
     private JLabel lblTemplate;
     private JLabel lblControllerAs;
     private JLabel lblTitle;
+    private JScrollPane pnEditorHolder;
 
     boolean selectorValid = false;
     boolean controllerAsValid = false;
@@ -51,6 +53,8 @@ public class CreateTnDecComponent {
     Function<ComponentJson, Boolean> okFunc;
     Function<ComponentJson, Boolean> cancelFunc;
 
+
+    private JComponent txtTemplate2;
 
     public CreateTnDecComponent() {
     }
@@ -107,6 +111,8 @@ public class CreateTnDecComponent {
         });
         txtControllerAs.setText("ctrl");
 
+
+
     }
 
 
@@ -124,6 +130,10 @@ public class CreateTnDecComponent {
 
     public JTextArea getTxtTemplate() {
         return txtTemplate;
+    }
+
+    public JScrollPane getPnEditorHolder() {
+        return pnEditorHolder;
     }
 
     /**
