@@ -120,13 +120,17 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
 
         //mainForm.initDefault(dialogWrapper.getWindow());
         ApplicationManager.getApplication().invokeLater(() -> {
-            dialogWrapper.show();
-            if (dialogWrapper.isOK()) {
-                ComponentJson model = new ComponentJson(mainForm.getName(), editor.getDocument().getText(), mainForm.getControllerAs());
-                List<ComponentAttribute> attrs = ComponentAttributesReflector.reflect(editor.getDocument().getText(), mainForm.getControllerAs());
-                ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder));
+            try {
+                dialogWrapper.show();
+
+                if (dialogWrapper.isOK()) {
+                    ComponentJson model = new ComponentJson(mainForm.getName(), editor.getDocument().getText(), mainForm.getControllerAs());
+                    List<ComponentAttribute> attrs = ComponentAttributesReflector.reflect(editor.getDocument().getText(), mainForm.getControllerAs());
+                    ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder));
+                }
+            } finally {
+                deleteWorkFile(project, vfile);
             }
-            deleteWorkFile(project, vfile);
         });
 
     }
