@@ -147,7 +147,7 @@ public class IntellijUtils {
      */
     public static void showDiff(Project project, PsiFile file, PsiFile origFile, PsiFile javaFile) {
         //we do not show the diffs of target files
-        if(file.getVirtualFile().getPath().contains("target/generated-sources")) {
+        if(origFile.getVirtualFile().getPath().contains("target/generated-sources")) {
             return;
         }
         SimpleDiffRequest request = new SimpleDiffRequest(
