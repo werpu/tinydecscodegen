@@ -8,14 +8,10 @@ import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.psi.PsiFile;
 import utils.IntellijUtils;
 
 import java.io.IOException;
-import java.net.URLClassLoader;
 
 public class DtoGeneration extends AnAction {
 
