@@ -37,8 +37,6 @@ import static actions.FormAssertions.assertPattern;
 public class CreateTnDecComponent extends AnAction implements DumbAware {
 
 
-    public static final String TAG_SELECTOR_PATTERN = "[0-9a-z\\-]+";
-
     public CreateTnDecComponent() {
         //super("TDecs Angular ComponentJson", "Creates a Tiny Decorations Angular ComponentJson", null);
         super();
@@ -76,7 +74,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
                 return Arrays.asList(
                         assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_TAG_SELECTOR_MUST_HAVE_A_VALUE, mainForm.getTxtName()),
                         assertNotNullOrEmpty(mainForm.getControllerAs(), Messages.ERR_CTRL_AS_VALUE, mainForm.getTxtControllerAs()),
-                        assertPattern(mainForm.getName(), TAG_SELECTOR_PATTERN, Messages.ERR_TAG_SELECTOR_PATTERN, mainForm.getTxtName())
+                        assertPattern(mainForm.getName(), FormAssertions.TAG_SELECTOR_PATTERN, Messages.ERR_TAG_SELECTOR_PATTERN, mainForm.getTxtName())
                 ).stream().filter(s -> s != null).collect(Collectors.toList());
             }
 

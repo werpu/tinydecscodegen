@@ -36,8 +36,6 @@ import static actions.FormAssertions.*;
 public class CreateTnDecController extends AnAction implements DumbAware {
 
 
-    public static final String VALID_SELECTOR = "[0-9a-z]+";
-
     public CreateTnDecController() {
         //super("TDecs Angular ComponentJson", "Creates a Tiny Decorations Angular ComponentJson", null);
         super();
@@ -76,7 +74,7 @@ public class CreateTnDecController extends AnAction implements DumbAware {
                return Arrays.asList(
                         assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
                         assertNotNullOrEmpty(mainForm.getControllerAs(), Messages.ERR_CTRL_AS_VALUE, mainForm.getTxtControllerAs()),
-                        assertPattern(mainForm.getName(), VALID_SELECTOR, Messages.ERR_SELECTOR_PATTERN, mainForm.getTxtName())
+                        assertPattern(mainForm.getName(), VALID_NAME, Messages.ERR_SELECTOR_PATTERN, mainForm.getTxtName())
                 ).stream().filter(s -> s != null).collect(Collectors.toList());
             }
 

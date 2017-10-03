@@ -10,4 +10,9 @@ public class Messages {
     public static final String ERR_SELECTOR_PATTERN = "The tag selector must consist of lowercase letters or numbers and - ";
     public static final String ERR_TAG_SELECTOR_MUST_HAVE_A_VALUE = "Tag selector  must have a value";
     public static final String ERR_TAG_SELECTOR_PATTERN = "The tag selector must consist of lowercase letters numbers or '-' ";
+    public static final String ERR_CONFIG_PATTERN = "Config name must consist of letters or numbers";
+    public static final String ERR_FILTER_PATTERN = "The filter name must consist of letters or numbers only ";
+    public static final String ERR_MODULE_PATTERN = "Module name must consist of letters . or numbers";
+    public static final String ERR_RUN_PATTERN = "Run name must consist of letters  numbers";
+    public static final String ERR_SERVICE_PATTERN = "The service must must consist of letters or numbers";
 }

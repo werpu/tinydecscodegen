@@ -16,13 +16,21 @@ import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.IntellijUtils;
 import utils.ModuleElementScope;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static actions.FormAssertions.VALID_NAME;
+import static actions.FormAssertions.assertNotNullOrEmpty;
+import static actions.FormAssertions.assertPattern;
 
 /**
  * Create a Tiny Decs artefact.
@@ -68,22 +76,16 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
                 return "AnnComponent";
             }
 
+
             @Nullable
-            @Override
-            protected ValidationInfo doValidate() {
-
-                if (Strings.isNullOrEmpty(mainForm.getName()) && !Strings.isNullOrEmpty(mainForm.getControllerAs())) {
-                    ValidationInfo info = new ValidationInfo("Name  must have a value", mainForm.getTxtName());
-                    return info;
-                }
-
-                if (!(mainForm.getName().matches("[0-9A-Za-z\\.]+"))) {
-                    ValidationInfo info = new ValidationInfo("Module name must consist of letters . or numbers", mainForm.getTxtName());
-                    return info;
-                }
-
-                return null;
+            @NotNull
+            protected List<ValidationInfo> doValidateAll() {
+                return Arrays.asList(
+                        assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
+                        assertPattern(mainForm.getName(), VALID_NAME, Messages.ERR_MODULE_PATTERN, mainForm.getTxtName())
+                ).stream().filter(s -> s != null).collect(Collectors.toList());
             }
+
 
             @Override
             public void init() {

@@ -1,7 +1,6 @@
 package actions;
 
 import actions.shared.GenerateFileAndAddRef;
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -16,13 +15,21 @@ import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.IntellijUtils;
 import utils.ModuleElementScope;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static actions.FormAssertions.VALID_NAME;
+import static actions.FormAssertions.assertNotNullOrEmpty;
+import static actions.FormAssertions.assertPattern;
 
 /**
  * Create a Tiny Decs artefact.
@@ -68,22 +75,16 @@ public class CreateTnDecService extends AnAction implements DumbAware {
                 return "AnnComponent";
             }
 
+
             @Nullable
-            @Override
-            protected ValidationInfo doValidate() {
-
-                if (Strings.isNullOrEmpty(mainForm.getName()) && !Strings.isNullOrEmpty(mainForm.getControllerAs())) {
-                    ValidationInfo info = new ValidationInfo("Name  must have a value", mainForm.getTxtName());
-                    return info;
-                }
-
-                if (!(mainForm.getName().matches("[0-9A-Za-z]+"))) {
-                    ValidationInfo info = new ValidationInfo("The tag selector must consist of letters or numbers ", mainForm.getTxtName());
-                    return info;
-                }
-
-                return null;
+            @NotNull
+            protected List<ValidationInfo> doValidateAll() {
+                return Arrays.asList(
+                        assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
+                        assertPattern(mainForm.getName(), VALID_NAME, Messages.ERR_SERVICE_PATTERN, mainForm.getTxtName())
+                ).stream().filter(s -> s != null).collect(Collectors.toList());
             }
+
 
             @Override
             public void init() {
