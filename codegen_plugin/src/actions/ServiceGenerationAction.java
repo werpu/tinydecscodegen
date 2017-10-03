@@ -20,7 +20,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import actions.shared.IntellijRootData;
+import actions.shared.IntellijJavaData;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -49,15 +49,12 @@ public class ServiceGenerationAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Project project = IntellijUtils.getProject(event);
-        IntellijRootData intellijRootData = new IntellijRootData(event, project);
-        if (intellijRootData.isError()) return;
-        final Module module = intellijRootData.getModule();
-        final String className = intellijRootData.getClassName();
-        final PsiFile javaFile = intellijRootData.getJavaFile();
 
-        //CompileStatusNotification compilerCallback = new CompileStatusNotification();
-        CompilerManager.getInstance(project).compile(module, new CompileStatusNotification() {
+        final IntellijJavaData javaData = new IntellijJavaData(event);
+        if (javaData.isError()) return;
+
+
+        CompilerManager.getInstance(javaData.getProject()).compile(javaData.getModule(), new CompileStatusNotification() {
             @Override
             public void finished(boolean b, int i, int i1, CompileContext compileContext) {
                 ApplicationManager.getApplication().invokeLater(() -> compileDone(compileContext));
@@ -65,14 +62,10 @@ public class ServiceGenerationAction extends AnAction {
 
             private boolean compileDone(CompileContext compileContext) {
                 try {
-                    URLClassLoader urlClassLoader = IntellijUtils.getClassLoader(compileContext, module);
-                    IntellijUtils.generate(project, module, className, javaFile, urlClassLoader);
-
-
-
-                } catch (RuntimeException |  IOException | ClassNotFoundException e) {
+                    IntellijUtils.generate(javaData.getProject(), javaData.getModule(), javaData.getClassName(), javaData.getJavaFile(), javaData.getClassLoader(compileContext));
+                  } catch (RuntimeException |  IOException | ClassNotFoundException e) {
                     log.error(e);
-                    Messages.showErrorDialog(project, e.getMessage(), "An Error has occurred");
+                    Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions.Messages.ERR_OCCURRED);
                 }
                 return false;
             }

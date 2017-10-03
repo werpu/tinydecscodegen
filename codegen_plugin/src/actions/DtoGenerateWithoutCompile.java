@@ -1,6 +1,6 @@
 package actions;
 
-import actions.shared.IntellijRootData;
+import actions.shared.IntellijJavaData;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -18,20 +18,16 @@ public class DtoGenerateWithoutCompile extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Project project = IntellijUtils.getProject(event);
-        IntellijRootData intellijRootData = new IntellijRootData(event, project);
-        if (intellijRootData.isError()) return;
-        final Module module = intellijRootData.getModule();
-        final String className = intellijRootData.getClassName();
 
+        IntellijJavaData javaData = new IntellijJavaData(event);
+        if (javaData.isError()) return;
 
         try {
-            URLClassLoader urlClassLoader = IntellijUtils.getClassLoader(module);
-            IntellijUtils.generateDto(project, module, className, intellijRootData.getJavaFile(), urlClassLoader);
+            IntellijUtils.generateDto(javaData.getProject(), javaData.getModule(), javaData.getClassName(), javaData.getJavaFile(), javaData.getClassLoader());
 
         } catch (RuntimeException | IOException | ClassNotFoundException e) {
             log.error(e);
-            Messages.showErrorDialog(project, e.getMessage(), "An Error has occurred");
+            Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions.Messages.ERR_OCCURRED);
         }
 
     }

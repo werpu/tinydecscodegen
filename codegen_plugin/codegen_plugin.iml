@@ -10,6 +10,7 @@
     <orderEntry type="jdk" jdkName="IntelliJ IDEA IU-172.3317.76" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="codegen" />
-    <orderEntry type="library" exported="" name="Maven: org.freemarker:freemarker:2.3.23" level="project" />
+    <orderEntry type="library" name="Maven: org.freemarker:freemarker:2.3.23" level="project" />
+    <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.16.18" level="project" />
   </component>
 </module>
