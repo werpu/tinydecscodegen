@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public class TestDtoChild extends TestDto {
     String prop1;
     List<String> prop2;

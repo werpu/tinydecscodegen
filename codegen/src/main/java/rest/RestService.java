@@ -31,7 +31,7 @@ import java.util.List;
  * Root class describing a single rest service
  */
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public class RestService extends GenericClass {
 
     private final String serviceName;

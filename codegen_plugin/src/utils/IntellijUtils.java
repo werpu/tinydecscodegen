@@ -49,11 +49,15 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.cache.impl.id.IdIndex;
+import com.intellij.psi.impl.cache.impl.id.IdIndexEntry;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiSearchHelper;
+import com.intellij.util.Processor;
 import com.intellij.util.indexing.FileBasedIndex;
+import com.intellij.util.indexing.ID;
 import gui.Confirm;
 import org.jetbrains.annotations.NotNull;
 import reflector.SpringJavaRestReflector;
@@ -352,19 +356,6 @@ public class IntellijUtils {
         }
     }
 
-    //https://intellij-support.jetbrains.com/hc/en-us/community/posts/115000080064-find-virtual-file-for-relative-path-under-content-roots
-    public static List<VirtualFile> findFileByRelativePath(@NotNull Project project, @NotNull String fileRelativePath) {
-        String relativePath = fileRelativePath.startsWith("/") ? fileRelativePath : "/" + fileRelativePath;
-        Set<FileType> fileTypes = Collections.singleton(FileTypeManager.getInstance().getFileTypeByFileName(relativePath));
-        final List<VirtualFile> fileList = new ArrayList<>();
-        FileBasedIndex.getInstance().processFilesContainingAllKeys(FileTypeIndex.NAME, fileTypes, GlobalSearchScope.projectScope(project), null, virtualFile -> {
-            if (virtualFile.getPath().endsWith(relativePath)) {
-                fileList.add(virtualFile);
-            }
-            return true;
-        });
-        return fileList;
-    }
 
     public static List<PsiFile> findFirstAnnotatedClass(Project project, VirtualFile currentDir, String annotationType) {
         List<PsiFile> foundFiles = findAnnotatedFiles(project, currentDir, annotationType);
