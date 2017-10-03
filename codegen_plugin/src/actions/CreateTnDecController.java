@@ -1,7 +1,6 @@
 package actions;
 
 import actions.shared.GenerateFileAndAddRef;
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -16,13 +15,19 @@ import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.IntellijUtils;
 import utils.ModuleElementScope;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static actions.FormAssertions.*;
 
 /**
  * Create a Tiny Decs artefact.
@@ -30,6 +35,8 @@ import java.util.Map;
  */
 public class CreateTnDecController extends AnAction implements DumbAware {
 
+
+    public static final String VALID_SELECTOR = "[0-9a-z]+";
 
     public CreateTnDecController() {
         //super("TDecs Angular ComponentJson", "Creates a Tiny Decorations Angular ComponentJson", null);
@@ -64,29 +71,13 @@ public class CreateTnDecController extends AnAction implements DumbAware {
             }
 
             @Nullable
-            @Override
-            protected ValidationInfo doValidate() {
-
-                if (Strings.isNullOrEmpty(mainForm.getName()) && !Strings.isNullOrEmpty(mainForm.getControllerAs())) {
-                    ValidationInfo info = new ValidationInfo("Name  must have a value", mainForm.getTxtName());
-                    return info;
-                }
-
-                if (!Strings.isNullOrEmpty(mainForm.getName()) && Strings.isNullOrEmpty(mainForm.getControllerAs())) {
-                    ValidationInfo info = new ValidationInfo("Name  must have a value", mainForm.getTxtControllerAs());
-                    return info;
-                }
-
-                if (Strings.isNullOrEmpty(mainForm.getName()) || Strings.isNullOrEmpty(mainForm.getControllerAs())) {
-                    ValidationInfo info = new ValidationInfo("Name and Controller As must have values");
-                    return info;
-                }
-                if (!(mainForm.getName().matches("[0-9A-Za-z]+"))) {
-                    ValidationInfo info = new ValidationInfo("The tag selector must consist of letters or numbers ", mainForm.getTxtName());
-                    return info;
-                }
-
-                return null;
+            @NotNull
+            protected List<ValidationInfo> doValidateAll() {
+               return Arrays.asList(
+                        assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
+                        assertNotNullOrEmpty(mainForm.getControllerAs(), Messages.ERR_CTRL_AS_VALUE, mainForm.getTxtName()),
+                        assertPattern(mainForm.getName(), VALID_SELECTOR, Messages.ERR_SELECTOR_PATTERN, mainForm.getTxtName())
+                ).stream().filter(s -> s != null).collect(Collectors.toList());
             }
 
             @Override
@@ -113,6 +104,7 @@ public class CreateTnDecController extends AnAction implements DumbAware {
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
         }
     }
+
 
     void buildFile(Project project, ControllerJson model, VirtualFile folder) {
 
