@@ -120,11 +120,9 @@ public class IntellijUtils {
                     }
                     final VirtualFile vfile = vfile1;
 
-                    PropertiesComponent.getInstance(project).setValue("__lastSelTarget__", vfile.getPath());
                     if(vfile != null) {
                         WriteCommandAction.runWriteCommandAction(project, () -> {
-
-
+                            PropertiesComponent.getInstance(project).setValue("__lastSelTarget__", vfile.getPath());
                             PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(vfile);
                             dir.add(file);
                             FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
@@ -151,11 +149,11 @@ public class IntellijUtils {
                 "Reference already exists",
                 new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(origFile)),
                 new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(file)),
-                new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(javaFile)),
+                //new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(javaFile)),
                 "Original File: " + origFile.getVirtualFile().getPath().substring(project.getBasePath().length()),
-                "Newly Generated File",
-                "Java File: "+javaFile.getVirtualFile().getPath().substring(project.getBasePath().length())
-        );
+                "Newly Generated File"//,
+                /*"Java File: "+javaFile.getVirtualFile().getPath().substring(project.getBasePath().length()*/);
+
 
         DiffManager.getInstance().showDiff(project, request);
     }
