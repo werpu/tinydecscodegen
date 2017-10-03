@@ -100,6 +100,7 @@ public class IntellijUtils {
             moveFileToGeneratedDir(file, project, module);
             if (alreadyExisting != null && alreadyExisting.size() > 0) {
                 for(PsiFile origFile: alreadyExisting) {
+
                     showDiff(project, file, origFile, javaFile);
                 }
             } else {
@@ -145,6 +146,10 @@ public class IntellijUtils {
      * @param javaFile the root java file for the diff
      */
     public static void showDiff(Project project, PsiFile file, PsiFile origFile, PsiFile javaFile) {
+        //we do not show the diffs of target files
+        if(file.getVirtualFile().getPath().contains("target/generated-sources")) {
+            return;
+        }
         SimpleDiffRequest request = new SimpleDiffRequest(
                 "Reference already exists",
                 new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(origFile)),
