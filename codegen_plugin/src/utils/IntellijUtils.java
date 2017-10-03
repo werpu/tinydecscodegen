@@ -105,7 +105,7 @@ public class IntellijUtils {
             } else {
                 ApplicationManager.getApplication().invokeLater(() -> {
 
-                    String oldPath = PropertiesComponent.getInstance(project).getValue("__lastSelTarget__");
+                    String oldPath = PropertiesComponent.getInstance(project).getValue("__lastSelTarget__"+artifactType.name());
                     VirtualFile vfile1 = null;
                     FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
                     descriptor.setTitle("Select Generation Target Directory");
@@ -122,7 +122,7 @@ public class IntellijUtils {
 
                     if (vfile != null) {
                         WriteCommandAction.runWriteCommandAction(project, () -> {
-                            PropertiesComponent.getInstance(project).setValue("__lastSelTarget__", vfile.getPath());
+                            PropertiesComponent.getInstance(project).setValue("__lastSelTarget__"+artifactType.name(), vfile.getPath());
                             PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(vfile);
                             dir.add(file);
                             FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
