@@ -6,7 +6,7 @@ to support the [https://github.com/werpu/ts-ng-tinydecorations] project.
 
 A temporary binary build can be found under
 
-codegen_plugin/codegen_plugin.zip
+[codegen_plugin/codegen_plugin.zip](https://github.com/werpu/tinydecscodegen/tree/master/codegen_plugin)
 
 To install it simply install it via the install plugin from local filesystem
 functionality of your Jetbrains ide.
