@@ -87,6 +87,9 @@
                     description="Create a an Angular Tiny Decorations Run Config" icon="/images/tt.png">
             </action>
         </group>
+        <action id="editTemplate" class="actions.Editemplate" text="Edit HTML Template">
+            <add-to-group group-id="EditMenu" anchor="first"/>
+        </action>
     </actions>
     <application-components>
 

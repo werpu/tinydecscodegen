@@ -24,6 +24,27 @@ public class IntellijRefactor {
     public static final String NG_MODULE = "@NgModule";
 
 
+    public static void findTemplate(PsiFile psiJSFile) {
+        final AtomicBoolean hasFound = new AtomicBoolean(false);
+        PsiRecursiveElementWalkingVisitor myElementVisitor = new PsiRecursiveElementWalkingVisitor() {
+
+            public void visitElement(PsiElement element) {
+                if(hasFound.get()) {
+                    return;
+                }
+
+                if (isTemplate(element)) {
+                    hasFound.set(true);
+                    stopWalking();
+                    return;
+                }
+                super.visitElement(element);
+            }
+        };
+
+        myElementVisitor.visitFile(psiJSFile);
+    }
+
     public static boolean hasAnnotatedElement(PsiFile psiJSFile, String ann) {
         List<Offset> offsets = new ArrayList<>();
         final AtomicBoolean hasFound = new AtomicBoolean(false);
@@ -226,5 +247,16 @@ public class IntellijRefactor {
 
     private static boolean isAnnotatedElement(PsiElement element, String annotatedElementType) {
         return element != null && !Strings.isNullOrEmpty(element.getText()) && element.getText().startsWith(annotatedElementType) && element.getClass().getName().equals("com.intellij.lang.typescript.psi.impl.ES6DecoratorImpl");
+    }
+
+    private static boolean isTemplate(PsiElement element) {
+
+        if(element != null && element.getText().equals("template") && element.getNode().getElementType().equals("JS:IDENTIFIER")
+                && element.getParent().getParent().getParent().getParent().getText().startsWith("Component")
+                ) {
+            return true;
+        }
+        return false;
+
     }
 }

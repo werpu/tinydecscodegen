@@ -26,13 +26,17 @@ import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import utils.IntellijRefactor;
 import utils.IntellijUtils;
 import utils.ModuleElementScope;
 import utils.RefactorUnit;
 
+import javax.swing.text.Document;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -95,6 +99,16 @@ public class GenerateFileAndAddRef implements Runnable {
                 VirtualFile vModule = module.getVirtualFile();
 
                 vModule.setBinaryContent(refactoredText.getBytes());
+
+                com.intellij.openapi.editor.Document doc = PsiDocumentManager.getInstance(project).getDocument(module);
+
+                PsiDocumentManager.getInstance(project).commitDocument(doc);
+                List<PsiElement> modulesaltered = IntellijRefactor.findAnnotatedElements(project, module, artifactType);
+
+                modulesaltered.stream().forEach(el -> {
+                    CodeStyleManager.getInstance(project).reformat(el);
+                });
+
             }
             IntellijUtils.createAndOpen(project, folder, str, fileName);
 
