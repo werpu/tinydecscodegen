@@ -28,7 +28,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import org.jetbrains.annotations.NotNull;
 import utils.IntellijRefactor;
 import utils.IntellijUtils;
 import utils.ModuleElementScope;
@@ -78,18 +77,18 @@ public class GenerateFileAndAddRef implements Runnable {
                 List<RefactorUnit> refactoringsToProcess = elements.stream().map(element -> {
                     switch (scope) {
                         case EXPORT:
-                            return refactorAddExport(className, module, element);
+                            return IntellijRefactor.refactorAddExport(className, module, element);
                         case DECLARATIONS:
-                            return refactorAddDeclarations(className, module, element);
+                            return IntellijRefactor.refactorAddDeclarations(className, module, element);
                         default:
-                            return refactorAddImport(className, module, element);
+                            return IntellijRefactor.refactorAddImport(className, module, element);
 
                     }
                 }).collect(Collectors.toList());
 
 
                 List<RefactorUnit> finalRefactorings = Lists.newArrayList();
-                addImport(className, module, relativePath, finalRefactorings);
+                IntellijRefactor.addImport(className, module, relativePath, finalRefactorings);
                 finalRefactorings.addAll(refactoringsToProcess);
 
                 String refactoredText = IntellijRefactor.refactor(finalRefactorings);
@@ -102,37 +101,6 @@ public class GenerateFileAndAddRef implements Runnable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private void addImport(String className, PsiFile module, String relativePath, List<RefactorUnit> finalRefactorings) {
-        finalRefactorings.add(IntellijRefactor.generateAppendAfterImport(module, "\nimport {" + className + "} from \"" + relativePath + "/" + className + "\";"));
-    }
-
-    @NotNull
-    private RefactorUnit refactorAddExport(String className, PsiFile module, PsiElement element) {
-        String elementText = element.getText();
-        String rawData = elementText.substring(elementText.indexOf("(") + 1, elementText.lastIndexOf(")"));
-        String refactoredData = IntellijRefactor.NG_MODULE + "(" + IntellijRefactor.appendExport(rawData, className) + ")";
-
-        return new RefactorUnit(module, element, refactoredData);
-    }
-
-    @NotNull
-    private RefactorUnit refactorAddImport(String className, PsiFile module, PsiElement element) {
-        String elementText = element.getText();
-        String rawData = elementText.substring(elementText.indexOf("(") + 1, elementText.lastIndexOf(")"));
-        String refactoredData = IntellijRefactor.NG_MODULE + "(" + IntellijRefactor.appendImport(rawData, className) + ")";
-
-        return new RefactorUnit(module, element, refactoredData);
-    }
-
-    @NotNull
-    private RefactorUnit refactorAddDeclarations(String className, PsiFile module, PsiElement element) {
-        String elementText = element.getText();
-        String rawData = elementText.substring(elementText.indexOf("(") + 1, elementText.lastIndexOf(")"));
-        String refactoredData = IntellijRefactor.NG_MODULE + "(" + IntellijRefactor.appendDeclare(rawData, className) + ")";
-
-        return new RefactorUnit(module, element, refactoredData);
     }
 
 }

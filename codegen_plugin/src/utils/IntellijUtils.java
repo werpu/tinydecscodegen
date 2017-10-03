@@ -85,21 +85,20 @@ public class IntellijUtils {
      * It searches for refs and if some are found a diff editor is opened
      * otherwise a typescript file is generated and the user can chose to drop it into the filesystem
      *
-     *
-     * @param text the text to process as file
-     * @param fileName the file name
+     * @param text      the text to process as file
+     * @param fileName  the file name
      * @param className the classname of the originating class
-     * @param project the project
-     * @param module the module
-     * @param javaFile the originating java file
+     * @param project   the project
+     * @param module    the module
+     * @param javaFile  the originating java file
      */
-    public static void generateOrDiffTsFile(String text, String fileName, String className, Project project, Module module, PsiFile javaFile) {
+    public static void generateOrDiffTsFile(String text, String fileName, String className, Project project, Module module, PsiFile javaFile, ArtifactType artifactType) {
         PsiFile file = PsiFileFactory.getInstance(project).createFileFromText(fileName, Language.findLanguageByID("TypeScript"), text);
         final Collection<PsiFile> alreadyExisting = IntellijUtils.searchRefs(project, className, "ts");
         ApplicationManager.getApplication().runWriteAction(() -> {
             moveFileToGeneratedDir(file, project, module);
             if (alreadyExisting != null && alreadyExisting.size() > 0) {
-                for(PsiFile origFile: alreadyExisting) {
+                for (PsiFile origFile : alreadyExisting) {
 
                     showDiff(project, file, origFile, javaFile);
                 }
@@ -113,21 +112,23 @@ public class IntellijUtils {
                     descriptor.setDescription("Please choose a target directory");
 
 
-                    if(!Strings.isNullOrEmpty(oldPath)) {
+                    if (!Strings.isNullOrEmpty(oldPath)) {
                         VirtualFile storedPath = LocalFileSystem.getInstance().findFileByPath(oldPath);
-                        vfile1 =  FileChooser.chooseFile(descriptor, project, storedPath);
+                        vfile1 = FileChooser.chooseFile(descriptor, project, storedPath);
                     } else {
-                        vfile1 =  FileChooser.chooseFile(descriptor, project, module.getModuleFile());
+                        vfile1 = FileChooser.chooseFile(descriptor, project, module.getModuleFile());
                     }
                     final VirtualFile vfile = vfile1;
 
-                    if(vfile != null) {
+                    if (vfile != null) {
                         WriteCommandAction.runWriteCommandAction(project, () -> {
                             PropertiesComponent.getInstance(project).setValue("__lastSelTarget__", vfile.getPath());
                             PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(vfile);
                             dir.add(file);
                             FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
-
+                            if (artifactType.isService()) {
+                                appendServiceToModule(className, project, dir);
+                            }
                         });
                     } else {
                         FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
@@ -137,17 +138,49 @@ public class IntellijUtils {
         });
     }
 
+    //TODO duplicated code with GenerateFileAndAddRef see what can be done about it
+    private static void appendServiceToModule(String className, Project project, PsiDirectory dir) {
+        String stringArtType = IntellijRefactor.NG_MODULE;
+
+        List<PsiFile> annotatedModules = IntellijUtils.findFirstAnnotatedClass(project, dir.getVirtualFile(), stringArtType);
+
+        for (PsiFile annModule : annotatedModules) {
+            String relativePath = dir.getVirtualFile().getPath().replaceAll(annModule.getVirtualFile().getParent().getPath(), ".");
+
+            List<PsiElement> elements = IntellijRefactor.findAnnotatedElements(project, annModule, stringArtType);
+            String classNameWithoutPkg = ReflectUtils.reduceClassName(className);
+            List<RefactorUnit> refactoringsToProcess = elements.stream()
+                    .map(element -> IntellijRefactor.refactorAddDeclarations(classNameWithoutPkg, annModule, element))
+                    .collect(Collectors.toList());
+
+
+            List<RefactorUnit> finalRefactorings = Lists.newArrayList();
+            IntellijRefactor.addImport(classNameWithoutPkg, annModule, relativePath, finalRefactorings);
+            finalRefactorings.addAll(refactoringsToProcess);
+
+            String refactoredText = IntellijRefactor.refactor(finalRefactorings);
+            VirtualFile vModule = annModule.getVirtualFile();
+
+            try {
+                vModule.setBinaryContent(refactoredText.getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     /**
      * Shows a three panel diff
      *
-     * @param project the hosting project
-     * @param file the newly generated file
+     * @param project  the hosting project
+     * @param file     the newly generated file
      * @param origFile the original file
      * @param javaFile the root java file for the diff
      */
     public static void showDiff(Project project, PsiFile file, PsiFile origFile, PsiFile javaFile) {
         //we do not show the diffs of target files
-        if(origFile.getVirtualFile().getPath().contains("target/generated-sources")) {
+        if (origFile.getVirtualFile().getPath().contains("target/generated-sources")) {
             return;
         }
         SimpleDiffRequest request = new SimpleDiffRequest(
@@ -183,6 +216,7 @@ public class IntellijUtils {
 
     /**
      * fetches the classloadert of a specified module
+     *
      * @param module
      * @return
      * @throws MalformedURLException
@@ -206,6 +240,7 @@ public class IntellijUtils {
 
     /**
      * gets an editor for a specified event
+     *
      * @param event
      * @return
      */
@@ -216,6 +251,7 @@ public class IntellijUtils {
 
     /**
      * gets the project for a specified event
+     *
      * @param event
      * @return
      */
@@ -287,6 +323,7 @@ public class IntellijUtils {
 
     /**
      * create a directory if not existent
+     *
      * @param dir
      * @param subDirStr
      * @return
@@ -311,6 +348,7 @@ public class IntellijUtils {
 
     /**
      * fetches the module from the given editor
+     *
      * @param project
      * @param editor
      * @return
@@ -320,7 +358,7 @@ public class IntellijUtils {
         return ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(vFile);
     }
 
-    public static boolean generate(Project project, Module module, String className, PsiFile javaFile, URLClassLoader urlClassLoader) throws ClassNotFoundException {
+    public static boolean generateService(Project project, Module module, String className, PsiFile javaFile, URLClassLoader urlClassLoader) throws ClassNotFoundException {
         Class compiledClass = urlClassLoader.loadClass(className);
 
 
@@ -334,7 +372,7 @@ public class IntellijUtils {
         String ext = ".ts";
         String fileName = restService.get(0).getServiceName() + ext;
 
-        generateOrDiffTsFile(text, fileName, className, project, module, javaFile);
+        generateOrDiffTsFile(text, fileName, className, project, module, javaFile, ArtifactType.SERVICE);
         return true;
     }
 
@@ -398,7 +436,7 @@ public class IntellijUtils {
                 String ext = ".ts";
                 String fileName = dtos.get(0).getName() + ext;
 
-                generateOrDiffTsFile(text, fileName, className, project, module, javaFile);
+                generateOrDiffTsFile(text, fileName, className, project, module, javaFile, ArtifactType.DTO);
                 return true;
             }, null, ReflectUtils.getInheritanceHierarchyAsString(compiledClass));
 
@@ -417,7 +455,7 @@ public class IntellijUtils {
             String ext = ".ts";
             String fileName = dtos.get(0).getName() + ext;
 
-            generateOrDiffTsFile(text, fileName, className, project, module, javaFile);
+            generateOrDiffTsFile(text, fileName, className, project, module, javaFile, ArtifactType.DTO);
         }
 
 
@@ -453,10 +491,9 @@ public class IntellijUtils {
     /**
      * finds a list of files containing a special @ typescript class annotation
      *
-     * @param project the project
-     * @param currentDir the dir to search into
+     * @param project        the project
+     * @param currentDir     the dir to search into
      * @param annotationType the annotation
-     *
      * @return a list of annotated files
      */
     @NotNull
@@ -474,10 +511,9 @@ public class IntellijUtils {
     /**
      * search in the comments of a given filetype for refs
      *
-     * @param project the project in wich to search
-     * @param refName the unique ref name
+     * @param project   the project in wich to search
+     * @param refName   the unique ref name
      * @param extension the filetype extension
-     *
      * @return a set of found files
      */
     @NotNull

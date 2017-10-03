@@ -20,7 +20,7 @@ public class ServiceGenerateActionWithoutCompile extends AnAction {
         if (javaData.isError()) return;
 
         try {
-            IntellijUtils.generate(javaData.getProject(), javaData.getModule(), javaData.getClassName(), javaData.getJavaFile(), javaData.getClassLoader());
+            IntellijUtils.generateService(javaData.getProject(), javaData.getModule(), javaData.getClassName(), javaData.getJavaFile(), javaData.getClassLoader());
         } catch (RuntimeException | IOException | ClassNotFoundException e) {
             log.error(e);
             Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions.Messages.ERR_OCCURRED);

@@ -58,7 +58,7 @@ public class ServiceGenerationAction extends AnAction {
 
             private boolean compileDone(CompileContext compileContext) {
                 try {
-                    IntellijUtils.generate(javaData.getProject(), javaData.getModule(), javaData.getClassName(), javaData.getJavaFile(), javaData.getClassLoader(compileContext));
+                    IntellijUtils.generateService(javaData.getProject(), javaData.getModule(), javaData.getClassName(), javaData.getJavaFile(), javaData.getClassLoader(compileContext));
                 } catch (RuntimeException | IOException | ClassNotFoundException e) {
                     log.error(e);
                     Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions.Messages.ERR_OCCURRED);

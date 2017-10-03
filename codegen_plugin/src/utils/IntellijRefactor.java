@@ -116,6 +116,41 @@ public class IntellijRefactor {
         return Joiner.on("").join(retVal);
     }
 
+    @NotNull
+    public static RefactorUnit refactorAddExport(String className, PsiFile module, PsiElement element) {
+        String elementText = element.getText();
+        String rawData = elementText.substring(elementText.indexOf("(") + 1, elementText.lastIndexOf(")"));
+        String refactoredData = NG_MODULE + "(" + appendExport(rawData, className) + ")";
+
+        return new RefactorUnit(module, element, refactoredData);
+    }
+
+    @NotNull
+    public static RefactorUnit refactorAddImport(String className, PsiFile module, PsiElement element) {
+        String elementText = element.getText();
+        String rawData = elementText.substring(elementText.indexOf("(") + 1, elementText.lastIndexOf(")"));
+        String refactoredData = NG_MODULE + "(" + appendImport(rawData, className) + ")";
+
+        return new RefactorUnit(module, element, refactoredData);
+    }
+
+    @NotNull
+    public static  RefactorUnit refactorAddDeclarations(String className, PsiFile module, PsiElement element) {
+        String elementText = element.getText();
+        String rawData = elementText.substring(elementText.indexOf("(") + 1, elementText.lastIndexOf(")"));
+        String refactoredData = NG_MODULE + "(" + appendDeclare(rawData, className) + ")";
+
+        return new RefactorUnit(module, element, refactoredData);
+    }
+
+    public static void addImport(String className, PsiFile module, String relativePath, List<RefactorUnit> finalRefactorings) {
+        String importStatement = "\nimport {" + className + "} from \"" + relativePath + "/" + className + "\";";
+        if(module.getText().contains(importStatement)) { //skip if existing
+            return;
+        }
+        finalRefactorings.add(generateAppendAfterImport(module, importStatement));
+    }
+
 
     public List<String> appendDeclare(List<String> inStr, String declare) {
         return inStr.stream().map(in -> {
