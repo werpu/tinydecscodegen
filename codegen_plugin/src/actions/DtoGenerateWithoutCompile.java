@@ -1,6 +1,6 @@
 package actions;
 
-import actions.shared.IntellijJavaData;
+import actions.shared.JavaFileContext;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -16,7 +16,7 @@ public class DtoGenerateWithoutCompile extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
 
-        IntellijJavaData javaData = new IntellijJavaData(event);
+        JavaFileContext javaData = new JavaFileContext(event);
         if (javaData.isError()) return;
 
         try {

@@ -49,7 +49,7 @@ public class GenerateFileAndAddRef implements Runnable {
     VirtualFile folder;
     String className;
     FileTemplate vslTemplate;
-    Map<String,Object> attrs;
+    Map<String, Object> attrs;
     ModuleElementScope scope;
 
     public GenerateFileAndAddRef(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs, ModuleElementScope scope) {
@@ -76,7 +76,7 @@ public class GenerateFileAndAddRef implements Runnable {
 
                 List<PsiElement> elements = IntellijRefactor.findAnnotatedElements(project, module, artifactType);
                 List<RefactorUnit> refactoringsToProcess = elements.stream().map(element -> {
-                    switch(scope) {
+                    switch (scope) {
                         case EXPORT:
                             return refactorAddExport(className, module, element);
                         case DECLARATIONS:

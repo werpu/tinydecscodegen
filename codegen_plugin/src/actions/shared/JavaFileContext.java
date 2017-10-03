@@ -44,8 +44,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * java data holder,
- * a class which determines the root java data (aka module
+ * java context holder,
+ * a context class which determines the root java data (aka module
  * and original java file from our ide context - aka open editor)
  * <p>
  * It either checks for a ref in a tyescript file
@@ -54,17 +54,17 @@ import java.util.regex.Pattern;
  * If the data needed is found it is handed over
  * to the processing engine.
  */
-public class IntellijJavaData {
+public class JavaFileContext {
 
     public static final String REF_DATA = "@ref:\\s([^\n\\s]+).*\n";
-    private static final Logger log = Logger.getInstance(IntellijJavaData.class);
+    private static final Logger log = Logger.getInstance(JavaFileContext.class);
 
     @Getter
     private boolean error;
 
     @Getter
     private Module module;
-    
+
     @Getter
     private String className;
 
@@ -77,11 +77,11 @@ public class IntellijJavaData {
     @Getter
     private Project project;
 
-    public IntellijJavaData(AnActionEvent event) {
+    public JavaFileContext(AnActionEvent event) {
         this(event, IntellijUtils.getProject(event));
     }
 
-    public IntellijJavaData(AnActionEvent event, Project project) {
+    public JavaFileContext(AnActionEvent event, Project project) {
         this.event = event;
         this.project = project;
 
@@ -116,7 +116,7 @@ public class IntellijJavaData {
     }
 
     @NotNull
-    private IntellijJavaData fromTsFileToJavaFile(VirtualFile vFile) {
+    private JavaFileContext fromTsFileToJavaFile(VirtualFile vFile) {
         String content = PsiManager.getInstance(project).findFile(vFile).getText();
         Pattern pattern = Pattern.compile(REF_DATA);
         Matcher m = pattern.matcher(content);
@@ -129,7 +129,7 @@ public class IntellijJavaData {
     }
 
     @NotNull
-    private IntellijJavaData fromEditorToJavaFile(Editor editor) {
+    private JavaFileContext fromEditorToJavaFile(Editor editor) {
         module = IntellijUtils.getModuleFromEditor(project, editor);
         className = IntellijUtils.getClassNameFromEditor(project, editor);
         VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
@@ -156,14 +156,14 @@ public class IntellijJavaData {
     }
 
     @NotNull
-    private IntellijJavaData errNoEditorFound() {
+    private JavaFileContext errNoEditorFound() {
         log.error(actions.Messages.ERR_NO_EDITOR);
         error = true;
         return this;
     }
 
     @NotNull
-    private IntellijJavaData errNoRef() {
+    private JavaFileContext errNoRef() {
         Messages.showErrorDialog(project, "", actions.Messages.ERR_NO_REF);
         error = true;
         return this;

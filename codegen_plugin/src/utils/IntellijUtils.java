@@ -29,6 +29,7 @@ import com.intellij.diff.requests.SimpleDiffRequest;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -357,6 +358,11 @@ public class IntellijUtils {
             capNext = (ACTIONABLE_DELIMITERS.indexOf((int) c) >= 0); // explicit cast not needed
         }
         return sb.toString().replaceAll("[-/\\.]", "");
+    }
+
+    public static VirtualFile getFolderOrFile(AnActionEvent event) {
+        VirtualFile file = event.getDataContext().getData(CommonDataKeys.VIRTUAL_FILE);
+        return file;
     }
 
 

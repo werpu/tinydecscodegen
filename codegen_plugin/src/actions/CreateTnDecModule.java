@@ -7,7 +7,6 @@ import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.DumbAware;
@@ -43,8 +42,7 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
         final Project project = IntellijUtils.getProject(event);
 
 
-        VirtualFile file = event.getDataContext().getData(CommonDataKeys.VIRTUAL_FILE);
-        VirtualFile folder = file;
+        VirtualFile folder = IntellijUtils.getFolderOrFile(event);
 
 
         final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();

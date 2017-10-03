@@ -1,6 +1,6 @@
 package actions;
 
-import actions.shared.IntellijJavaData;
+import actions.shared.JavaFileContext;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -19,9 +19,8 @@ public class DtoGeneration extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        final IntellijJavaData javaData = new IntellijJavaData(event);
+        final JavaFileContext javaData = new JavaFileContext(event);
         if (javaData.isError()) return;
-
 
 
         CompilerManager.getInstance(javaData.getProject()).compile(javaData.getModule(), new CompileStatusNotification() {
