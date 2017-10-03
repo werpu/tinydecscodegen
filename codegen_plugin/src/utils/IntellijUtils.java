@@ -125,7 +125,8 @@ public class IntellijUtils {
                             PropertiesComponent.getInstance(project).setValue("__lastSelTarget__"+artifactType.name(), vfile.getPath());
                             PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(vfile);
                             dir.add(file);
-                            FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
+
+                            FileEditorManager.getInstance(project).openFile(dir.findFile(file.getName()).getVirtualFile(), true);
                             if (artifactType.isService()) {
                                 appendServiceToModule(className, project, dir);
                             }
