@@ -8,4 +8,6 @@ public class Messages {
     public static final String ERR_NAME_VALUE = "The name must have a value";
     public static final String ERR_CTRL_AS_VALUE = "The controller as must have a value";
     public static final String ERR_SELECTOR_PATTERN = "The tag selector must consist of lowercase letters or numbers and - ";
+    public static final String ERR_TAG_SELECTOR_MUST_HAVE_A_VALUE = "Tag selector  must have a value";
+    public static final String ERR_TAG_SELECTOR_PATTERN = "The tag selector must consist of lowercase letters numbers or '-' ";
 }

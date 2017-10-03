@@ -1,7 +1,6 @@
 package actions;
 
 import actions.shared.GenerateFileAndAddRef;
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -16,13 +15,20 @@ import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import dtos.ComponentJson;
 import factories.TnDecGroupFactory;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.IntellijUtils;
 import utils.ModuleElementScope;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static actions.FormAssertions.assertNotNullOrEmpty;
+import static actions.FormAssertions.assertPattern;
 
 /**
  * Create a Tiny Decs artefact.
@@ -30,6 +36,8 @@ import java.util.Map;
  */
 public class CreateTnDecComponent extends AnAction implements DumbAware {
 
+
+    public static final String TAG_SELECTOR_PATTERN = "[0-9a-z\\-]+";
 
     public CreateTnDecComponent() {
         //super("TDecs Angular ComponentJson", "Creates a Tiny Decorations Angular ComponentJson", null);
@@ -61,31 +69,18 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
                 return "AnnComponent";
             }
 
+
             @Nullable
-            @Override
-            protected ValidationInfo doValidate() {
-
-                if (Strings.isNullOrEmpty(mainForm.getName()) && !Strings.isNullOrEmpty(mainForm.getControllerAs())) {
-                    ValidationInfo info = new ValidationInfo("Tag selector  must have a value", mainForm.getTxtName());
-                    return info;
-                }
-
-                if (!Strings.isNullOrEmpty(mainForm.getName()) && Strings.isNullOrEmpty(mainForm.getControllerAs())) {
-                    ValidationInfo info = new ValidationInfo("Controller As  must have a value", mainForm.getTxtControllerAs());
-                    return info;
-                }
-
-                if (Strings.isNullOrEmpty(mainForm.getName()) || Strings.isNullOrEmpty(mainForm.getControllerAs())) {
-                    ValidationInfo info = new ValidationInfo("Tag selector and Controller As must have values");
-                    return info;
-                }
-                if (!(mainForm.getName().matches("[0-9a-z\\-]+"))) {
-                    ValidationInfo info = new ValidationInfo("The tag selector must consist of lowercase letters numbers or '-' ", mainForm.getTxtName());
-                    return info;
-                }
-
-                return null;
+            @NotNull
+            protected List<ValidationInfo> doValidateAll() {
+                return Arrays.asList(
+                        assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_TAG_SELECTOR_MUST_HAVE_A_VALUE, mainForm.getTxtName()),
+                        assertNotNullOrEmpty(mainForm.getControllerAs(), Messages.ERR_CTRL_AS_VALUE, mainForm.getTxtControllerAs()),
+                        assertPattern(mainForm.getName(), TAG_SELECTOR_PATTERN, Messages.ERR_TAG_SELECTOR_PATTERN, mainForm.getTxtName())
+                ).stream().filter(s -> s != null).collect(Collectors.toList());
             }
+
+
 
             @Override
             public void init() {

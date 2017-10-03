@@ -75,7 +75,7 @@ public class CreateTnDecController extends AnAction implements DumbAware {
             protected List<ValidationInfo> doValidateAll() {
                return Arrays.asList(
                         assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
-                        assertNotNullOrEmpty(mainForm.getControllerAs(), Messages.ERR_CTRL_AS_VALUE, mainForm.getTxtName()),
+                        assertNotNullOrEmpty(mainForm.getControllerAs(), Messages.ERR_CTRL_AS_VALUE, mainForm.getTxtControllerAs()),
                         assertPattern(mainForm.getName(), VALID_SELECTOR, Messages.ERR_SELECTOR_PATTERN, mainForm.getTxtName())
                 ).stream().filter(s -> s != null).collect(Collectors.toList());
             }
