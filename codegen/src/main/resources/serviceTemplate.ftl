@@ -35,7 +35,3 @@ export class ${service.serviceName} {
     }
     </#list>
 }
-
-
-
-
