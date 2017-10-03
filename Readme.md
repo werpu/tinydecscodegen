@@ -1,7 +1,7 @@
 # ts-ng-tinydecorations Code Generator
 
 This is bascially a set of intellij plugins in development
-to support the [https://github.com/werpu/ts-ng-tinydecorations] project.
+to support the [ts-ng-tinydecorations](https://github.com/werpu/ts-ng-tinydecorations) project.
 
 
 A temporary binary build can be found under
