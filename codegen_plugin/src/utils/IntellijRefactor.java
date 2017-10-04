@@ -14,6 +14,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager;
 import dtos.NgModuleJson;
 import org.jetbrains.annotations.NotNull;
 import refactor.TinyRefactoringUtils;
+import reflector.utils.ReflectUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -96,16 +97,10 @@ public class IntellijRefactor {
         return new RefactorUnit(module, element, refactoredData);
     }
 
-    public static void addImport(String className, PsiFile module, String relativePath, List<RefactorUnit> finalRefactorings) {
-        String importStatement = "\nimport {" + className + "} from \"" + relativePath + "/" + className + "\";";
-        if(module.getText().contains(importStatement)) { //skip if existing
-            return;
-        }
-        finalRefactorings.add(generateAppendAfterImport(module, importStatement));
-    }
 
     public static RefactorUnit generateImport(String className, PsiFile module, String relativePath) {
-        String importStatement = "\nimport {" + className + "} from \"" + relativePath + "/" + className + "\";";
+        String reducedClassName = ReflectUtils.reduceClassName(className);
+        String importStatement = "\nimport {" + reducedClassName + "} from \"" + relativePath + "/" + reducedClassName + "\";";
         if(module.getText().contains(importStatement)) { //skip if existing
             return new RefactorUnit(module, new DummyInsertPsiElement(0), "");
         }
@@ -132,7 +127,7 @@ public class IntellijRefactor {
     public static String appendDeclare(String inStr, String declare) {
         String json = TinyRefactoringUtils.getJsonString(inStr).toString();
         Gson gson = new Gson();
-        NgModuleJson moduleData = gson.fromJson(json.toString(), NgModuleJson.class);
+        NgModuleJson moduleData = gson.fromJson(escapeJsonStr(json.toString()), NgModuleJson.class);
         moduleData.appendDeclare(declare);
         return remapToTs(gson.toJson(moduleData));
     }
@@ -140,7 +135,7 @@ public class IntellijRefactor {
     public static String appendImport(String inStr, String declare) {
         String json = TinyRefactoringUtils.getJsonString(inStr).toString();
         Gson gson = new Gson();
-        NgModuleJson moduleData = gson.fromJson(json.toString(), NgModuleJson.class);
+        NgModuleJson moduleData = gson.fromJson(escapeJsonStr(json.toString()), NgModuleJson.class);
         moduleData.appendImport(declare);
         return remapToTs(gson.toJson(moduleData));
     }
@@ -193,11 +188,11 @@ public class IntellijRefactor {
         return element -> {
             switch (scope) {
                 case EXPORT:
-                    return refactorAddExport(className, angularModule.getPsiFile(), element);
+                    return refactorAddExport(ReflectUtils.reduceClassName(className) , angularModule.getPsiFile(), element);
                 case DECLARATIONS:
-                    return refactorAddDeclarations(className, angularModule.getPsiFile(), element);
+                    return refactorAddDeclarations(ReflectUtils.reduceClassName(className), angularModule.getPsiFile(), element);
                 default:
-                    return refactorAddImport(className, angularModule.getPsiFile(), element);
+                    return refactorAddImport(ReflectUtils.reduceClassName(className), angularModule.getPsiFile(), element);
 
             }
         };
