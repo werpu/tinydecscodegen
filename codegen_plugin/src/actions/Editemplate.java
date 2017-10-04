@@ -15,6 +15,6 @@ public class Editemplate extends AnAction {
         // TODO: insert action logic here
         final Project project = IntellijUtils.getProject(event);
         VirtualFile folder = IntellijUtils.getFolderOrFile(event);
-        IntellijRefactor.findTemplate(PsiManager.getInstance(project).findFile(folder));
+        //IntellijRefactor.findTemplate(PsiManager.getInstance(project).findFile(folder));
     }
 }

@@ -21,26 +21,16 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package actions.shared;
 
-import com.google.common.collect.Lists;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.codeStyle.CodeStyleManager;
-import utils.IntellijRefactor;
-import utils.IntellijUtils;
-import utils.ModuleElementScope;
-import utils.RefactorUnit;
+import utils.*;
 
-import javax.swing.text.Document;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static utils.IntellijRefactor.*;
 
 /**
  * A reusable runnable which generates the final file
@@ -71,45 +61,9 @@ public class GenerateFileAndAddRef implements Runnable {
             String str = FileTemplateUtil.mergeTemplate(attrs, vslTemplate.getText(), false);
             String fileName = className + ".ts";
 
-            String artifactType = IntellijRefactor.NG_MODULE;
+            IntellijFileContext fileContext = new IntellijFileContext(project, folder);
+            appendDeclarationToModule(fileContext, scope, className);
 
-            List<PsiFile> annotatedModules = IntellijUtils.findFirstAnnotatedClass(project, folder, artifactType);
-            for (PsiFile module : annotatedModules) {
-                String relativePath = folder.getPath().replaceAll(module.getVirtualFile().getParent().getPath(), ".");
-
-                List<PsiElement> elements = IntellijRefactor.findAnnotatedElements(project, module, artifactType);
-                List<RefactorUnit> refactoringsToProcess = elements.stream().map(element -> {
-                    switch (scope) {
-                        case EXPORT:
-                            return IntellijRefactor.refactorAddExport(className, module, element);
-                        case DECLARATIONS:
-                            return IntellijRefactor.refactorAddDeclarations(className, module, element);
-                        default:
-                            return IntellijRefactor.refactorAddImport(className, module, element);
-
-                    }
-                }).collect(Collectors.toList());
-
-
-                List<RefactorUnit> finalRefactorings = Lists.newArrayList();
-                IntellijRefactor.addImport(className, module, relativePath, finalRefactorings);
-                finalRefactorings.addAll(refactoringsToProcess);
-
-                String refactoredText = IntellijRefactor.refactor(finalRefactorings);
-                VirtualFile vModule = module.getVirtualFile();
-
-                vModule.setBinaryContent(refactoredText.getBytes());
-
-                com.intellij.openapi.editor.Document doc = PsiDocumentManager.getInstance(project).getDocument(module);
-
-                PsiDocumentManager.getInstance(project).commitDocument(doc);
-                List<PsiElement> modulesaltered = IntellijRefactor.findAnnotatedElements(project, module, artifactType);
-
-                modulesaltered.stream().forEach(el -> {
-                    CodeStyleManager.getInstance(project).reformat(el);
-                });
-
-            }
             IntellijUtils.createAndOpen(project, folder, str, fileName);
 
         } catch (IOException e) {

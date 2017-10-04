@@ -105,7 +105,7 @@ public class IntellijUtils {
             } else {
                 ApplicationManager.getApplication().invokeLater(() -> {
 
-                    String oldPath = PropertiesComponent.getInstance(project).getValue("__lastSelTarget__"+artifactType.name());
+                    String oldPath = PropertiesComponent.getInstance(project).getValue("__lastSelTarget__" + artifactType.name());
                     VirtualFile vfile1 = null;
                     FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
                     descriptor.setTitle("Select Generation Target Directory");
@@ -122,13 +122,20 @@ public class IntellijUtils {
 
                     if (vfile != null) {
                         WriteCommandAction.runWriteCommandAction(project, () -> {
-                            PropertiesComponent.getInstance(project).setValue("__lastSelTarget__"+artifactType.name(), vfile.getPath());
+                            PropertiesComponent.getInstance(project).setValue("__lastSelTarget__" + artifactType.name(), vfile.getPath());
                             PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(vfile);
                             dir.add(file);
 
                             FileEditorManager.getInstance(project).openFile(dir.findFile(file.getName()).getVirtualFile(), true);
                             if (artifactType.isService()) {
-                                appendServiceToModule(className, project, dir);
+                                IntellijFileContext fileContext = new IntellijFileContext(project, dir.getVirtualFile());
+
+                                try {
+                                    IntellijRefactor.appendDeclarationToModule(fileContext, ModuleElementScope.DECLARATIONS, className);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
                             }
                         });
                     } else {
@@ -137,38 +144,6 @@ public class IntellijUtils {
                 });
             }
         });
-    }
-
-    //TODO duplicated code with GenerateFileAndAddRef see what can be done about it
-    private static void appendServiceToModule(String className, Project project, PsiDirectory dir) {
-        String stringArtType = IntellijRefactor.NG_MODULE;
-
-        List<PsiFile> annotatedModules = IntellijUtils.findFirstAnnotatedClass(project, dir.getVirtualFile(), stringArtType);
-
-        for (PsiFile annModule : annotatedModules) {
-            String relativePath = dir.getVirtualFile().getPath().replaceAll(annModule.getVirtualFile().getParent().getPath(), ".");
-
-            List<PsiElement> elements = IntellijRefactor.findAnnotatedElements(project, annModule, stringArtType);
-            String classNameWithoutPkg = ReflectUtils.reduceClassName(className);
-            List<RefactorUnit> refactoringsToProcess = elements.stream()
-                    .map(element -> IntellijRefactor.refactorAddDeclarations(classNameWithoutPkg, annModule, element))
-                    .collect(Collectors.toList());
-
-
-            List<RefactorUnit> finalRefactorings = Lists.newArrayList();
-            IntellijRefactor.addImport(classNameWithoutPkg, annModule, relativePath, finalRefactorings);
-            finalRefactorings.addAll(refactoringsToProcess);
-
-            String refactoredText = IntellijRefactor.refactor(finalRefactorings);
-            VirtualFile vModule = annModule.getVirtualFile();
-
-            try {
-                vModule.setBinaryContent(refactoredText.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     /**
@@ -463,51 +438,7 @@ public class IntellijUtils {
         return true;
     }
 
-    public static Optional<VirtualFile> getCurrentlySelectedDir(Project project) {
 
-        FileEditorManager manager = FileEditorManager.getInstance(project);
-
-        VirtualFile files[] = manager.getSelectedFiles();
-        if (files == null || files.length == 0) {
-            return Optional.empty();
-        } else {
-            VirtualFile selFile = files[0];
-            if (!selFile.isDirectory()) {
-                return Optional.ofNullable(selFile.getParent());
-            }
-            return Optional.ofNullable(files[0]);
-        }
-    }
-
-
-    public static List<PsiFile> findFirstAnnotatedClass(Project project, VirtualFile currentDir, String annotationType) {
-        List<PsiFile> foundFiles = findAnnotatedFiles(project, currentDir, annotationType);
-        while (foundFiles.isEmpty() && project.getBaseDir().getPath().length() < currentDir.getPath().length()) {
-            currentDir = currentDir.getParent();
-            foundFiles = findAnnotatedFiles(project, currentDir, annotationType);
-        }
-        return foundFiles;
-    }
-
-    /**
-     * finds a list of files containing a special @ typescript class annotation
-     *
-     * @param project        the project
-     * @param currentDir     the dir to search into
-     * @param annotationType the annotation
-     * @return a list of annotated files
-     */
-    @NotNull
-    private static List<PsiFile> findAnnotatedFiles(Project project, VirtualFile currentDir, String annotationType) {
-        return Arrays.asList(currentDir.getChildren()).stream()
-                .filter(vFile -> vFile.getFileType().getDefaultExtension().equalsIgnoreCase("ts"))
-                .map(virtualFile -> {
-                    return PsiManager.getInstance(project).findFile(virtualFile);
-                }).filter(psiFile -> {
-                            return IntellijRefactor.hasAnnotatedElement(psiFile, annotationType);
-                        }
-                ).collect(Collectors.toList());
-    }
 
     /**
      * search in the comments of a given filetype for refs

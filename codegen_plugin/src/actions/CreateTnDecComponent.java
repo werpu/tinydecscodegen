@@ -20,7 +20,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.encoding.EncodingRegistry;
 import dtos.ComponentAttribute;
 import dtos.ComponentJson;
 import factories.TnDecGroupFactory;
@@ -32,7 +36,9 @@ import utils.ModuleElementScope;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +77,8 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
 
         mainForm.getTxtTemplate().setVisible(false);
         Editor editor = createHtmlEditor(project,document);
+        EditorSettings editorSettings = editor.getSettings();
+
         mainForm.getPnEditorHolder().getViewport().setView(editor.getComponent());
 
         DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
@@ -126,6 +134,8 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
                 if (dialogWrapper.isOK()) {
                     ComponentJson model = new ComponentJson(mainForm.getName(), editor.getDocument().getText(), mainForm.getControllerAs());
                     List<ComponentAttribute> attrs = ComponentAttributesReflector.reflect(editor.getDocument().getText(), mainForm.getControllerAs());
+
+
                     ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder));
                 }
             } finally {
@@ -139,7 +149,10 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
     private VirtualFile createWorkFile(Project project, Module module) {
         VirtualFile vfile1 = null;
         try {
-            vfile1 = module.getModuleFile().getParent().createChildData(project, "__create__cc___.html");
+            File file = FileUtil.createTempFile("edit",".html");
+            return LocalFileSystem.getInstance().findFileByPath(file.getAbsolutePath());
+
+            //vfile1 = module.getModuleFile().getParent().createChildData(project, "__create__cc___.html");
         } catch (IOException e) {
             e.printStackTrace();
         }
