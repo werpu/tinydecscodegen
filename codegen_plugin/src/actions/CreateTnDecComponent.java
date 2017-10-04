@@ -23,7 +23,6 @@ import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.encoding.EncodingRegistry;
 import dtos.ComponentAttribute;
 import dtos.ComponentJson;
@@ -132,7 +131,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
                 dialogWrapper.show();
 
                 if (dialogWrapper.isOK()) {
-                    ComponentJson model = new ComponentJson(mainForm.getName(), editor.getDocument().getText(), mainForm.getControllerAs());
+                    ComponentJson model = new ComponentJson(mainForm.getName(), new String(editor.getDocument().getText().getBytes(vfile.getCharset()), EncodingRegistry.getInstance().getDefaultCharset()).toString(), mainForm.getControllerAs());
                     List<ComponentAttribute> attrs = ComponentAttributesReflector.reflect(editor.getDocument().getText(), mainForm.getControllerAs());
 
 

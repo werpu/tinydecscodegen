@@ -47,6 +47,7 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.encoding.EncodingRegistry;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -354,7 +355,7 @@ public class IntellijUtils {
 
     public static void createAndOpen(Project project, VirtualFile folder, String str, String fileNmae) throws IOException {
         VirtualFile generated = folder.createChildData(project, fileNmae);
-        generated.setBinaryContent(str.getBytes());
+        generated.setBinaryContent(str.getBytes(generated.getCharset()));
         FileEditorManager.getInstance(project).openFile(generated, true);
     }
 

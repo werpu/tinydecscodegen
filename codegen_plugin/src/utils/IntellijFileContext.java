@@ -28,6 +28,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.encoding.EncodingRegistry;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
@@ -94,7 +95,7 @@ public class IntellijFileContext {
     }
 
     public void setText(String text) throws IOException {
-        virtualFile.setBinaryContent(text.getBytes());
+        virtualFile.setBinaryContent(text.getBytes(virtualFile.getCharset()));
     }
 
     public void commit() {
