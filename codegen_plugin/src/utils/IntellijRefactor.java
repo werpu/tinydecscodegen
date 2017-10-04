@@ -108,11 +108,6 @@ public class IntellijRefactor {
     }
 
 
-    public static void reformat(PsiElement el, Project project) {
-        CodeStyleManager.getInstance(project).reformat(el);
-    }
-
-
     private static String remapToTs(String in) {
         in = in.replaceAll("\"([^\"\\\\])","$1");
 
