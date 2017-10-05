@@ -48,6 +48,11 @@ public class EditTemplate extends AnAction {
         Document document = FileDocumentManager.getInstance().getDocument(vfile);
         final Editor editor = createHtmlEditor(fileContext.getProject(),document);
 
+        if(!fileContext.getTemplateText().isPresent()) {
+            com.intellij.openapi.ui.Messages.showErrorDialog(fileContext.getProject(), "No template string could be found", actions.Messages.ERR_OCCURRED);
+            return;
+        }
+
         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
             editor.getDocument().setText(fileContext.getTemplateText().get());
         });
@@ -102,7 +107,7 @@ public class EditTemplate extends AnAction {
             }
         };
 
-        dialogWrapper.setTitle("Create Component");
+        dialogWrapper.setTitle("Edit Template");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
         dialogWrapper.show();
@@ -139,16 +144,6 @@ public class EditTemplate extends AnAction {
             e.printStackTrace();
         }
         return vfile1;
-    }
-
-    private void deleteWorkFile(Project project, VirtualFile vfile) {
-        WriteCommandAction.runWriteCommandAction(project, () -> {
-            try {
-                vfile.delete(project);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
     }
 
 }
