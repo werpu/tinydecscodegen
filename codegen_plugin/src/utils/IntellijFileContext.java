@@ -98,7 +98,7 @@ public class IntellijFileContext {
         virtualFile.setBinaryContent(text.getBytes(virtualFile.getCharset()));
     }
 
-    public void commit() {
+    public void commit() throws IOException {
         PsiDocumentManager.getInstance(project).commitDocument(document);
     }
 

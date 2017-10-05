@@ -1,6 +1,7 @@
 package actions;
 
 import actions.shared.GenerateFileAndAddRef;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -37,7 +38,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -66,8 +66,6 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
         final Module module = ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(folder);
 
 
-
-
         final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
 
 
@@ -75,9 +73,10 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
         Document document = FileDocumentManager.getInstance().getDocument(vfile);
 
         mainForm.getTxtTemplate().setVisible(false);
-        Editor editor = createHtmlEditor(project,document);
-        EditorSettings editorSettings = editor.getSettings();
-
+        Editor editor = createHtmlEditor(project, document);
+        WriteCommandAction.runWriteCommandAction(project, () -> {
+            editor.getDocument().setText("  ");
+        });
         mainForm.getPnEditorHolder().getViewport().setView(editor.getComponent());
 
         DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
@@ -106,7 +105,6 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
             }
 
 
-
             @Override
             public void init() {
                 super.init();
@@ -114,41 +112,37 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
 
             public void show() {
                 this.init();
-                this.setModal(true);
+                this.setModal(false);
                 this.pack();
                 super.show();
             }
-        };
 
+            @Override
+            protected void doOKAction() {
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    try {
+                        ComponentJson model = new ComponentJson(mainForm.getName(), new String(editor.getDocument().getText().getBytes(vfile.getCharset()), EncodingRegistry.getInstance().getDefaultCharset()).toString(), mainForm.getControllerAs());
+                        List<ComponentAttribute> attrs = ComponentAttributesReflector.reflect(editor.getDocument().getText(), mainForm.getControllerAs());
+                        ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder));
+                    } finally {
+                        deleteWorkFile(project, vfile);
+                    }
+                });
+                super.doOKAction();
+            }
+        };
 
         dialogWrapper.setTitle("Create Component");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
-
-        //mainForm.initDefault(dialogWrapper.getWindow());
-        ApplicationManager.getApplication().invokeLater(() -> {
-            try {
-                dialogWrapper.show();
-
-                if (dialogWrapper.isOK()) {
-                    ComponentJson model = new ComponentJson(mainForm.getName(), new String(editor.getDocument().getText().getBytes(vfile.getCharset()), EncodingRegistry.getInstance().getDefaultCharset()).toString(), mainForm.getControllerAs());
-                    List<ComponentAttribute> attrs = ComponentAttributesReflector.reflect(editor.getDocument().getText(), mainForm.getControllerAs());
-
-
-                    ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder));
-                }
-            } finally {
-                deleteWorkFile(project, vfile);
-            }
-        });
-
+        dialogWrapper.show();
     }
 
     @Nullable
     private VirtualFile createWorkFile(Project project, Module module) {
         VirtualFile vfile1 = null;
         try {
-            File file = FileUtil.createTempFile("edit",".html");
+            File file = FileUtil.createTempFile("edit", ".html");
             return LocalFileSystem.getInstance().findFileByPath(file.getAbsolutePath());
 
             //vfile1 = module.getModuleFile().getParent().createChildData(project, "__create__cc___.html");
@@ -169,7 +163,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
     }
 
     @NotNull
-    public static Editor createHtmlEditor(Project project,  Document document) {
+    public static Editor createHtmlEditor(Project project, Document document) {
         EditorFactory editorFactory = EditorFactory.getInstance();
         Editor editor = editorFactory.createEditor(document, project, FileTypeManager.getInstance().getFileTypeByExtension(".html"), false);
 
@@ -187,7 +181,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
         return editor;
     }
 
-    void buildFile(Project project, ComponentJson model,List<ComponentAttribute> cAttrs, VirtualFile folder) {
+    void buildFile(Project project, ComponentJson model, List<ComponentAttribute> cAttrs, VirtualFile folder) {
 
         WriteCommandAction.runWriteCommandAction(project, () -> {
             String className = IntellijUtils.toCamelCase(model.getSelector());
