@@ -23,6 +23,7 @@ package utils;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -56,6 +57,10 @@ public class IntellijFileContext {
     Module module;
     Document document;
     VirtualFile virtualFile;
+
+    public IntellijFileContext(AnActionEvent event) {
+        this(event.getProject(), IntellijUtils.getFolderOrFile(event));
+    }
 
     public IntellijFileContext(Project project, PsiFile psiFile) {
         this.project = project;

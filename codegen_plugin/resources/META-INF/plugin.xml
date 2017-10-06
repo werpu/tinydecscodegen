@@ -35,92 +35,92 @@
     <actions>
         <!-- Add your actions here -->
 
-        <group id="TinyDecsMenu" text="_Tiny Decorations" description="Tiny decorations actions">
+        <group id="TD_TinyDecsMenu" text="_Tiny Decorations" description="Tiny decorations actions">
             <add-to-group group-id="MainMenu" anchor="last"/>
 
-            <group id="TinyDecsContextMenu1" text="_Tiny Decorations" popup="true" description="Tiny decorations context actions" icon="/images/tt.png" >
+            <group id="TD_TinyDecsContextMenu1" text="_Tiny Decorations" popup="true" description="Tiny decorations context actions" icon="/images/tt.png" >
 
-                <action id="CreateComponent1" class="actions.CreateTnDecComponent" text="Create Component"
+                <action id="TD_CreateComponent1" class="actions.CreateTnDecComponent" text="Create Component"
                         description="Create a an Angular Tiny Decorations Component" icon="/images/tt.png">
                 </action>
-                <action id="CreateController1" class="actions.CreateTnDecController" text="Create Controller"
+                <action id="TD_CreateController1" class="actions.CreateTnDecController" text="Create Controller"
                         description="Create a an Angular Tiny Decorations Controller" icon="/images/tt.png">
                 </action>
-                <action id="CreateService1" class="actions.CreateTnDecService" text="Create Service"
+                <action id="TD_CreateService1" class="actions.CreateTnDecService" text="Create Service"
                         description="Create a an Angular Tiny Decorations Service" icon="/images/tt.png">
                 </action>
-                <action id="CreateFilter1" class="actions.CreateTnDecFilter" text="Create Filter"
+                <action id="TD_CreateFilter1" class="actions.CreateTnDecFilter" text="Create Filter"
                         description="Create a an Angular Tiny Decorations Filter" icon="/images/tt.png">
                 </action>
 
                 <separator />
-                <action id="CreateModule1" class="actions.CreateTnDecModule" text="Create Module"
+                <action id="TD_CreateModule1" class="actions.CreateTnDecModule" text="Create Module"
                         description="Create a an Angular Tiny Decorations Module" icon="/images/tt.png">
                 </action>
 
                 <separator />
-                <action id="CreateConfig1" class="actions.CreateTnDecConfig" text="Create Startup Config"
+                <action id="TD_CreateConfig1" class="actions.CreateTnDecConfig" text="Create Startup Config"
                         description="Create a an Angular Tiny Decorations Startup Config" icon="/images/tt.png">
                 </action>
-                <action id="CreateRun1" class="actions.CreateTnDecRun" text="Create Run Config"
+                <action id="TD_CreateRun1" class="actions.CreateTnDecRun" text="Create Run Config"
                         description="Create a an Angular Tiny Decorations Run Config" icon="/images/tt.png">
                 </action>
             </group>
 
 
-            <group id="Generate" text="Generators" description="Tiny decorations generation" popup="true">
+            <group id="TD_Generate" text="Generators" description="Tiny decorations generation" popup="true">
 
-                <action id="Service" class="actions.ServiceGenerateActionWithoutCompile" text="Service Generation"
+                <action id="TD_Service" class="actions.ServiceGenerateActionWithoutCompile" text="Service Generation"
                         description="Generate a typescript service">
 
                 </action>
-                <action id="CompileService" class="actions.ServiceGenerationAction" text="Compilation and Service Generation"
+                <action id="TD_CompileService" class="actions.ServiceGenerationAction" text="Compilation and Service Generation"
                         description="Generate a typescript service">
 
                 </action>
                 <separator />
-                <action id="Dto" class="actions.DtoGenerateWithoutCompile" text="Dto Generation"
+                <action id="TD_Dto" class="actions.DtoGenerateWithoutCompile" text="Dto Generation"
                         description="Generate a typescript dto">
 
                 </action>
 
-                <action id="DtoCompile" class="actions.DtoGeneration" text="Compilation and Dto Generation"
+                <action id="TD_DtoCompile" class="actions.DtoGeneration" text="Compilation and Dto Generation"
                         description="Generate a typescript dto">
 
                 </action>
             </group>
 
             <separator />
-            <action id="editTemplate" class="actions.EditTemplate" text="Edit HTML Template">
+            <action id="TD_TD_EditTemplate" class="actions.EditTemplate" text="Edit HTML Template">
 
             </action>
         </group>
 
-        <group id="TinyDecsContextMenu" text="_Tiny Decorations" popup="true" description="Tiny decorations context actions" icon="/images/tt.png">
+        <group id="TD_TinyDecsContextMenu" text="_Tiny Decorations" popup="true" description="Tiny decorations context actions" icon="/images/tt.png">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewHtmlFile"/>
-            <action id="CreateComponent" class="actions.CreateTnDecComponent" text="Create Component"
+            <action id="TD_CreateComponent" class="actions.CreateTnDecComponent" text="Create Component"
                     description="Create a an Angular Tiny Decorations Component" icon="/images/tt.png">
             </action>
-            <action id="CreateController" class="actions.CreateTnDecController" text="Create Controller"
+            <action id="TD_CreateController" class="actions.CreateTnDecController" text="Create Controller"
                     description="Create a an Angular Tiny Decorations Controller" icon="/images/tt.png">
             </action>
-            <action id="CreateService" class="actions.CreateTnDecService" text="Create Service"
+            <action id="TD_CreateService" class="actions.CreateTnDecService" text="Create Service"
                     description="Create a an Angular Tiny Decorations Service" icon="/images/tt.png">
             </action>
-            <action id="CreateFilter" class="actions.CreateTnDecFilter" text="Create Filter"
+            <action id="TD_CreateFilter" class="actions.CreateTnDecFilter" text="Create Filter"
                     description="Create a an Angular Tiny Decorations Filter" icon="/images/tt.png">
             </action>
 
             <separator />
-            <action id="CreateModule" class="actions.CreateTnDecModule" text="Create Module"
+            <action id="TD_CreateModule" class="actions.CreateTnDecModule" text="Create Module"
                     description="Create a an Angular Tiny Decorations Module" icon="/images/tt.png">
             </action>
 
             <separator />
-            <action id="CreateConfig" class="actions.CreateTnDecConfig" text="Create Startup Config"
+            <action id="TD_CreateConfig" class="actions.CreateTnDecConfig" text="Create Startup Config"
                     description="Create a an Angular Tiny Decorations Startup Config" icon="/images/tt.png">
             </action>
-            <action id="CreateRun" class="actions.CreateTnDecRun" text="Create Run Config"
+            <action id="TD_CreateRun" class="actions.CreateTnDecRun" text="Create Run Config"
                     description="Create a an Angular Tiny Decorations Run Config" icon="/images/tt.png">
             </action>
         </group>

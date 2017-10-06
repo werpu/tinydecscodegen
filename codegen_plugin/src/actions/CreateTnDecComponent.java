@@ -1,10 +1,11 @@
 package actions;
 
 import actions.shared.GenerateFileAndAddRef;
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.ide.highlighter.HtmlFileType;
+import com.intellij.lang.html.HTMLLanguage;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -13,30 +14,27 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.encoding.EncodingRegistry;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
 import dtos.ComponentAttribute;
 import dtos.ComponentJson;
 import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reflector.ComponentAttributesReflector;
+import utils.IntellijFileContext;
 import utils.IntellijUtils;
 import utils.ModuleElementScope;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -61,38 +59,27 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        final Project project = IntellijUtils.getProject(event);
-        VirtualFile folder = IntellijUtils.getFolderOrFile(event);
-        final Module module = ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(folder);
 
+        final IntellijFileContext fileContext = new IntellijFileContext(event);
 
+        WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
 
+            PsiFile workFile = PsiFileFactory.getInstance(fileContext.getProject()).createFileFromText("create.html",
+                    HTMLLanguage.INSTANCE, "");
 
-
-        WriteCommandAction.runWriteCommandAction(project, () -> {
-            VirtualFile vfile = createWorkFile(project,module);
-
-            //timing issue we need to invoke later to allow the document to be created
+            Document document = workFile.getViewProvider().getDocument();
+            Editor editor = createHtmlEditor(fileContext.getProject(), document);
+            editor.getDocument().setText("  ");
 
             ApplicationManager.getApplication().invokeLater(() -> {
-                WriteCommandAction.runWriteCommandAction(project, () -> {
-                    Document document = FileDocumentManager.getInstance().getDocument(vfile);
-
-                    Editor editor = createHtmlEditor(project, document);
-                    WriteCommandAction.runWriteCommandAction(project, () -> {
-                        editor.getDocument().setText("  ");
-                    });
-
-                    ApplicationManager.getApplication().invokeLater(() -> {
-                        createDialog(project, folder, vfile, document);
-                    });
-                });
+                createDialog(fileContext.getProject(), fileContext.getVirtualFile(), document);
             });
         });
 
+
     }
 
-    private void createDialog(Project project, VirtualFile folder, VirtualFile vfile, Document document) {
+    private void createDialog(Project project, VirtualFile folder, Document document) {
         final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
 
         mainForm.getTxtTemplate().setVisible(false);
@@ -143,13 +130,11 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
             @Override
             protected void doOKAction() {
                 ApplicationManager.getApplication().invokeLater(() -> {
-                    try {
-                        ComponentJson model = new ComponentJson(mainForm.getName(), new String(editor.getDocument().getText().getBytes(vfile.getCharset()), EncodingRegistry.getInstance().getDefaultCharset()).toString(), mainForm.getControllerAs());
-                        List<ComponentAttribute> attrs = ComponentAttributesReflector.reflect(editor.getDocument().getText(), mainForm.getControllerAs());
-                        ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder));
-                    } finally {
-                        deleteWorkFile(project, vfile);
-                    }
+
+                    ComponentJson model = new ComponentJson(mainForm.getName(), new String(editor.getDocument().getText().getBytes(), EncodingRegistry.getInstance().getDefaultCharset()).toString(), mainForm.getControllerAs());
+                    List<ComponentAttribute> attrs = ComponentAttributesReflector.reflect(editor.getDocument().getText(), mainForm.getControllerAs());
+                    ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder));
+
                 });
                 super.doOKAction();
             }
@@ -161,19 +146,6 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
         dialogWrapper.show();
     }
 
-    @Nullable
-    private VirtualFile createWorkFile(Project project, Module module) {
-        VirtualFile vfile1 = null;
-        try {
-            File file = FileUtil.createTempFile("edit", ".html");
-            return LocalFileSystem.getInstance().findFileByPath(file.getAbsolutePath());
-
-            //vfile1 = module.getModuleFile().getParent().createChildData(project, "__create__cc___.html");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return vfile1;
-    }
 
     private void deleteWorkFile(Project project, VirtualFile vfile) {
         WriteCommandAction.runWriteCommandAction(project, () -> {

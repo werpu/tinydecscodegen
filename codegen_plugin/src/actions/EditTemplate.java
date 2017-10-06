@@ -21,6 +21,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package actions;
 
+import com.intellij.ide.highlighter.HtmlFileType;
+import com.intellij.lang.html.HTMLLanguage;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -29,14 +31,13 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.ComponentFileContext;
@@ -61,26 +62,21 @@ public class EditTemplate extends AnAction {
 
 
         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
-            VirtualFile vfile = createWorkFile(fileContext.getProject(), fileContext.getModule());
 
-            //timing issue we need to invoke later to allow the document to be created
+            PsiFile workFile = PsiFileFactory.getInstance(fileContext.getProject()).createFileFromText("create.html",
+                    HTMLLanguage.INSTANCE, "");
+
+            Document document = workFile.getViewProvider().getDocument();
+            Editor editor = createHtmlEditor(fileContext.getProject(), document);
+            editor.getDocument().setText(fileContext.getTemplateText().get());
 
             ApplicationManager.getApplication().invokeLater(() -> {
-                WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
-                    Document document = FileDocumentManager.getInstance().getDocument(vfile);
-                    final Editor editor = createHtmlEditor(fileContext.getProject(), document);
-                    editor.getDocument().setText(fileContext.getTemplateText().get());
-                    ApplicationManager.getApplication().invokeLater(() -> {
-                        showDialog(fileContext, vfile, editor);
-                    });
-                });
+                showDialog(fileContext, editor);
             });
         });
-
-
     }
 
-    private void showDialog(ComponentFileContext fileContext, VirtualFile vfile, Editor editor) {
+    private void showDialog(ComponentFileContext fileContext, Editor editor) {
         DialogWrapper dialogWrapper = new DialogWrapper(fileContext.getProject(), true, DialogWrapper.IdeModalityType.PROJECT) {
 
             @Nullable
@@ -117,12 +113,6 @@ public class EditTemplate extends AnAction {
                             fileContext.commit();
                         } catch (IOException e1) {
                             e1.printStackTrace();
-                        } finally {
-                            try {
-                                vfile.delete(fileContext.getProject());
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
                         }
                     });
                 });
@@ -156,15 +146,10 @@ public class EditTemplate extends AnAction {
     }
 
     @Nullable
-    private VirtualFile createWorkFile(Project project, Module module) {
-        VirtualFile vfile1 = null;
-        try {
-            File file = FileUtil.createTempFile("edit", ".html");
-            return LocalFileSystem.getInstance().findFileByPath(file.getAbsolutePath());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return vfile1;
+    private VirtualFile createWorkFile(File file) {
+
+        return LocalFileSystem.getInstance().findFileByIoFile(file);
+
     }
 
 }
