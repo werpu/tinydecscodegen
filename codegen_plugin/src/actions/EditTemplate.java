@@ -62,11 +62,12 @@ public class EditTemplate extends AnAction {
 
         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
             VirtualFile vfile = createWorkFile(fileContext.getProject(), fileContext.getModule());
-            Document document = FileDocumentManager.getInstance().getDocument(vfile);
+
             //timing issue we need to invoke later to allow the document to be created
 
             ApplicationManager.getApplication().invokeLater(() -> {
                 WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
+                    Document document = FileDocumentManager.getInstance().getDocument(vfile);
                     final Editor editor = createHtmlEditor(fileContext.getProject(), document);
                     editor.getDocument().setText(fileContext.getTemplateText().get());
                     ApplicationManager.getApplication().invokeLater(() -> {
