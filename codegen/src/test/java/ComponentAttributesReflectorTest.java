@@ -24,14 +24,16 @@ public class ComponentAttributesReflectorTest {
 
         @Test
         public void testReflect() {
-            String probe = "<h1 ng-click='ctrl.clickIt()' ng-if='ctrl.testAttr'></h1>";
+            String probe = "<h1 ng-click='ctrl.clickIt()' ng-click='ctrl.clickIt2($abc)'  ng-if='ctrl.testAttr'></h1>";
 
             List<ComponentAttribute> reflected = ComponentAttributesReflector.reflect(probe, "ctrl");
 
-            assertTrue(reflected.size() == 2);
+            assertTrue(reflected.size() == 3);
 
-            assertTrue(reflected.contains(new ComponentAttribute("clickIt", ArgumentType.Func, false)));
-            assertTrue(reflected.contains(new ComponentAttribute("testAttr", ArgumentType.Input, false)));
+            assertTrue(reflected.contains(new ComponentAttribute("clickIt", ArgumentType.Func,"Function",  false)));
+            assertTrue(reflected.contains(new ComponentAttribute("clickIt2", ArgumentType.Func,"Function", false)));
+
+            assertTrue(reflected.contains(new ComponentAttribute("testAttr", ArgumentType.Input,"any", false)));
         }
 
 }

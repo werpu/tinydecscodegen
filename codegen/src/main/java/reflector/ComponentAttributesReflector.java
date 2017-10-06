@@ -45,18 +45,50 @@ public class ComponentAttributesReflector {
         Matcher m = pattern.matcher(text);
         Set<ComponentAttribute> matches = new HashSet<>();
         while(m.find()) {
-            String match = m.group(1);
-            if(match.contains("(")) {
-                match = match.replaceAll("\\(","");
-                ComponentAttribute found = new ComponentAttribute(match, ArgumentType.Func, false);
+                String match = m.group(1);
+                ComponentAttribute found = new ComponentAttribute(match, ArgumentType.Input, "any", false);
                 matches.add(found);
-            } else {
-                ComponentAttribute found = new ComponentAttribute(match, ArgumentType.Input, false);
-                matches.add(found);
-            }
+
         }
         return matches.stream()
                 .sorted(Comparator.comparing(o -> Strings.nullToEmpty(o.getName())))
+                .filter(ComponentAttributesReflector::filterInvalidEntries)
+                .map(ComponentAttributesReflector::guessType)
                 .collect(Collectors.toList());
+    }
+
+    private static boolean filterInvalidEntries(ComponentAttribute attr) {
+        String name = attr.getName();
+
+        if(name.contains("(") && name.endsWith("(") || name.replaceAll("\\s","").contains("($")) {
+            return true;
+        } else if(name.contains("(")) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * tries to make type assumptions by detecting
+     * common naming patterns
+     *
+     * @param attr
+     * @return
+     */
+    private static ComponentAttribute guessType(ComponentAttribute attr) {
+        String name = attr.getName();
+
+        if(name.contains("(")) {
+            name = name.substring(0, name.indexOf("("));
+            return  new ComponentAttribute(name,  ArgumentType.Func, "Function", false);
+        } else  if(name.equals("value") || name.equals("ngModel")) {
+            return new ComponentAttribute(name, ArgumentType.Both, "any", false);
+        } else if(name.startsWith("lbl") || name.startsWith("label") || name.startsWith("str")) {
+            return new ComponentAttribute(name, ArgumentType.AString, "string", false);
+        } else if(name.matches("is[A-Z].*") || name.matches("can[A-Z].*")|| name.matches("has[A-Z].*")) {
+            return new ComponentAttribute(name, ArgumentType.Input, "boolean", false);
+        }
+
+        return attr;
     }
 }

@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class ComponentAttribute {
     private String name = "";
     private ArgumentType argumentType = ArgumentType.Input;
+    private String nativeType = "any";
     private boolean optional = false;
 }
