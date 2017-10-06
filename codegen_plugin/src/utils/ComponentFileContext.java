@@ -1,10 +1,13 @@
 package utils;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -12,26 +15,65 @@ import java.util.Optional;
 
 public class ComponentFileContext extends TypescriptFileContext {
 
+    @Getter
     Optional<PsiElement> templateText = Optional.empty();
+    Optional<RangeMarker> rangeMarker = Optional.empty();
     Optional<TemplateFileContext> templateRef = Optional.empty();
 
     public ComponentFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
+        init();
     }
 
     public ComponentFileContext(AnActionEvent event) {
         super(event);
+        init();
     }
 
     public ComponentFileContext(Project project, VirtualFile virtualFile) {
         super(project, virtualFile);
+        init();
     }
 
     public ComponentFileContext(IntellijFileContext fileContext) {
         super(fileContext);
+        init();
     }
 
-    public Optional<String> getTemplateText() {
+
+    private RangeMarker replaceText(Document doc, RangeMarker marker, String newText) {
+        newText = "`"+newText+"`";
+        doc.replaceString(marker.getStartOffset(), marker.getEndOffset(), newText);
+
+        return doc.createRangeMarker(marker.getStartOffset(), marker.getStartOffset()+newText.length());
+    }
+
+    public void directUpdateTemplate(String text) {
+        if(templateRef.isPresent()) {
+            templateRef.get().directUpdateTemplate(text);
+            return;
+        }
+        if(this.rangeMarker.isPresent()) {
+           rangeMarker = Optional.of(replaceText(document, rangeMarker.get(), text));
+        }
+    }
+
+    private void init() {
+        Optional<PsiElement> template = super.findPsiElements(PsiWalkFunctions::isTemplate).stream().findFirst();
+        if (template.isPresent()) {
+            Optional<PsiElement> templateString = Arrays.stream(template.get().getChildren())
+                    .filter(el -> PsiWalkFunctions.isTemplateString(el)).findFirst();
+            if (templateString.isPresent()) {
+                this.templateText = templateString;
+                this.rangeMarker = Optional.of(document.createRangeMarker(templateString.get().getTextRange()));
+            } else {
+                templateRef = getTemplateRef(template.get());
+            }
+        }
+
+    }
+
+    public Optional<String> getTemplateTextAsStr() {
 
         Optional<PsiElement> template = super.findPsiElements(PsiWalkFunctions::isTemplate).stream().findFirst();
         if (template.isPresent()) {
@@ -44,7 +86,7 @@ public class ComponentFileContext extends TypescriptFileContext {
             } else {
                 templateRef = getTemplateRef(template.get());
                 if(templateRef.isPresent()) {
-                    String templateRefText = this.templateRef.get().getTemplateText().get();
+                    String templateRefText = this.templateRef.get().getTemplateTextAsStr().get();
                     return Optional.ofNullable(templateRefText.substring(1, templateRefText.length() - 1));
                 }
             }

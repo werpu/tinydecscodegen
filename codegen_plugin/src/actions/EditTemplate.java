@@ -21,31 +21,39 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package actions;
 
-import com.intellij.ide.highlighter.HtmlFileType;
 import com.intellij.lang.html.HTMLLanguage;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.diff.impl.incrementalMerge.ui.EditorPlace;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
+import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
+import com.intellij.openapi.fileEditor.impl.EditorTabbedContainer;
+import com.intellij.openapi.fileEditor.impl.EditorWindow;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
+import com.intellij.util.messages.MessageBus;
+import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import utils.ComponentFileContext;
+import utils.IntellijUtils;
 
 import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.util.Arrays;
 
 public class EditTemplate extends AnAction {
 
@@ -55,7 +63,7 @@ public class EditTemplate extends AnAction {
         ComponentFileContext fileContext = new ComponentFileContext(e);
 
 
-        if (!fileContext.getTemplateText().isPresent()) {
+        if (!fileContext.getTemplateTextAsStr().isPresent()) {
             com.intellij.openapi.ui.Messages.showErrorDialog(fileContext.getProject(), "No template string could be found", actions.Messages.ERR_OCCURRED);
             return;
         }
@@ -63,68 +71,77 @@ public class EditTemplate extends AnAction {
 
         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
 
-            PsiFile workFile = PsiFileFactory.getInstance(fileContext.getProject()).createFileFromText("create.html",
+            //We basically do the same as the intellij fragment editor
+            //I could not find any decent docs how to do that
+            //so here is what I do, I create a double buffer document
+            //with the correct language
+            //push the psi element text in
+            //and on every doc update I update the original editor document
+            //intellij handles the rest
+            PsiFile workFile = PsiFileFactory.getInstance(fileContext.getProject()).createFileFromText("Template of: " + fileContext.getVirtualFile().getName(),
                     HTMLLanguage.INSTANCE, "");
 
-            Document document = workFile.getViewProvider().getDocument();
-            Editor editor = createHtmlEditor(fileContext.getProject(), document);
-            editor.getDocument().setText(fileContext.getTemplateText().get());
 
-            ApplicationManager.getApplication().invokeLater(() -> {
-                showDialog(fileContext, editor);
+             Document doubleBuffer = createDoubleBuffer(fileContext, workFile);
+            final FileEditorManagerEx edManager = (FileEditorManagerEx) FileEditorManagerEx.getInstance(fileContext.getProject());
+
+            EditorWindow currentWindow = edManager.getCurrentWindow();
+            edManager.createSplitter(SwingConstants.HORIZONTAL, currentWindow);
+            final VirtualFile virtualFile = workFile.getVirtualFile();
+            FileEditorManager.getInstance(fileContext.getProject()).openFile(virtualFile, true);
+            currentWindow.getTabbedPane().close();
+
+           /*
+
+            DocumentListener dl = new DocumentListener() {
+                @Override
+                public void documentChanged(DocumentEvent event) {
+                    WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
+                        Arrays.stream(edManager.getWindows()).filter(ed -> {
+                            EditorTabbedContainer tabbedPane = ed.getTabbedPane();
+                            return (tabbedPane.getTabs().getTargetInfo().getText().contains("Template of: " + fileContext.getVirtualFile().getName()));
+                        }).forEach(ed -> {
+                            ed.closeFile(virtualFile);
+                            //ed.getTabbedPane().close();
+                        });
+                        fileContext.getDocument().removeDocumentListener(this);
+                    });
+                }
+            };
+
+            editor.getComponent().getComponent(1).addFocusListener(new FocusListener() {
+                @Override
+                public void focusGained(FocusEvent e) {
+                    fileContext.getDocument().addDocumentListener(dl);
+                }
+
+                @Override
+                public void focusLost(FocusEvent e) {
+                    fileContext.getDocument().removeDocumentListener(dl);
+                }
             });
+*/
+
+            doubleBuffer.addDocumentListener(new DocumentListener() {
+                @Override
+                public void documentChanged(DocumentEvent event) {
+                    fileContext.directUpdateTemplate(event.getDocument().getText());
+                }
+            });
+
+
         });
     }
 
-    private void showDialog(ComponentFileContext fileContext, Editor editor) {
-        DialogWrapper dialogWrapper = new DialogWrapper(fileContext.getProject(), true, DialogWrapper.IdeModalityType.PROJECT) {
-
-            @Nullable
-            @Override
-            protected JComponent createCenterPanel() {
-                return editor.getComponent();
-            }
-
-            @Nullable
-            @Override
-            protected String getDimensionServiceKey() {
-                return "AnnComponent";
-            }
-
-
-            @Override
-            public void init() {
-                super.init();
-            }
-
-            public void show() {
-                this.init();
-                this.setModal(false);
-                this.pack();
-                super.show();
-            }
-
-            @Override
-            protected void doOKAction() {
-                ApplicationManager.getApplication().invokeLater(() -> {
-                    WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
-                        try {
-                            fileContext.setTemplateText(editor.getDocument().getText());
-                            fileContext.commit();
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
-                    });
-                });
-                super.doOKAction();
-            }
-        };
-
-        dialogWrapper.setTitle("Edit Template");
-        dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
-
-        dialogWrapper.show();
+    @NotNull
+    private Document createDoubleBuffer(ComponentFileContext fileContext, PsiFile workFile) {
+        Document document = workFile.getViewProvider().getDocument();
+        Editor editor = createHtmlEditor(fileContext.getProject(), document);
+        Document doubleBuffer = editor.getDocument();
+        doubleBuffer.setText(fileContext.getTemplateTextAsStr().get());
+        return doubleBuffer;
     }
+
 
     @NotNull
     public static Editor createHtmlEditor(Project project, Document document) {
@@ -143,13 +160,6 @@ public class EditTemplate extends AnAction {
         editorSettings.setSmartHome(true);
 
         return editor;
-    }
-
-    @Nullable
-    private VirtualFile createWorkFile(File file) {
-
-        return LocalFileSystem.getInstance().findFileByIoFile(file);
-
     }
 
 }
