@@ -66,11 +66,34 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
         final Module module = ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(folder);
 
 
+
+
+
+        WriteCommandAction.runWriteCommandAction(project, () -> {
+            VirtualFile vfile = createWorkFile(project,module);
+
+            //timing issue we need to invoke later to allow the document to be created
+
+            ApplicationManager.getApplication().invokeLater(() -> {
+                WriteCommandAction.runWriteCommandAction(project, () -> {
+                    Document document = FileDocumentManager.getInstance().getDocument(vfile);
+
+                    Editor editor = createHtmlEditor(project, document);
+                    WriteCommandAction.runWriteCommandAction(project, () -> {
+                        editor.getDocument().setText("  ");
+                    });
+
+                    ApplicationManager.getApplication().invokeLater(() -> {
+                        createDialog(project, folder, vfile, document);
+                    });
+                });
+            });
+        });
+
+    }
+
+    private void createDialog(Project project, VirtualFile folder, VirtualFile vfile, Document document) {
         final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
-
-
-        final VirtualFile vfile = createWorkFile(project, module);
-        Document document = FileDocumentManager.getInstance().getDocument(vfile);
 
         mainForm.getTxtTemplate().setVisible(false);
         Editor editor = createHtmlEditor(project, document);
