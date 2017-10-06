@@ -52,20 +52,34 @@ public class EditTemplate extends AnAction {
     public void actionPerformed(AnActionEvent e) {
 
         ComponentFileContext fileContext = new ComponentFileContext(e);
-        VirtualFile vfile = createWorkFile(fileContext.getProject(), fileContext.getModule());;
-        Document document = FileDocumentManager.getInstance().getDocument(vfile);
-        final Editor editor = createHtmlEditor(fileContext.getProject(),document);
 
-        if(!fileContext.getTemplateText().isPresent()) {
+
+        if (!fileContext.getTemplateText().isPresent()) {
             com.intellij.openapi.ui.Messages.showErrorDialog(fileContext.getProject(), "No template string could be found", actions.Messages.ERR_OCCURRED);
             return;
         }
 
+
         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
-            editor.getDocument().setText(fileContext.getTemplateText().get());
+            VirtualFile vfile = createWorkFile(fileContext.getProject(), fileContext.getModule());
+            Document document = FileDocumentManager.getInstance().getDocument(vfile);
+            //timing issue we need to invoke later to allow the document to be created
+
+            ApplicationManager.getApplication().invokeLater(() -> {
+                WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
+                    final Editor editor = createHtmlEditor(fileContext.getProject(), document);
+                    editor.getDocument().setText(fileContext.getTemplateText().get());
+                    ApplicationManager.getApplication().invokeLater(() -> {
+                        showDialog(fileContext, vfile, editor);
+                    });
+                });
+            });
         });
 
 
+    }
+
+    private void showDialog(ComponentFileContext fileContext, VirtualFile vfile, Editor editor) {
         DialogWrapper dialogWrapper = new DialogWrapper(fileContext.getProject(), true, DialogWrapper.IdeModalityType.PROJECT) {
 
             @Nullable
@@ -119,8 +133,6 @@ public class EditTemplate extends AnAction {
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
         dialogWrapper.show();
-
-
     }
 
     @NotNull
@@ -146,7 +158,7 @@ public class EditTemplate extends AnAction {
     private VirtualFile createWorkFile(Project project, Module module) {
         VirtualFile vfile1 = null;
         try {
-            File file = FileUtil.createTempFile("edit",".html");
+            File file = FileUtil.createTempFile("edit", ".html");
             return LocalFileSystem.getInstance().findFileByPath(file.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
