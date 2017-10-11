@@ -22,43 +22,70 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package actions;
 
 import com.intellij.lang.html.HTMLLanguage;
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.diff.impl.incrementalMerge.ui.EditorPlace;
+import com.intellij.openapi.command.impl.UndoManagerImpl;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
-import com.intellij.openapi.fileEditor.impl.EditorTabbedContainer;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
-import com.intellij.util.messages.MessageBus;
-import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 import utils.ComponentFileContext;
 import utils.IntellijUtils;
 
 import javax.swing.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.util.Arrays;
 
-public class EditTemplate extends AnAction {
+
+public class EditTemplate extends AnAction implements EditorCallback {
+    //static EditorTypingHandler handler = new EditorTypingHandler();
+    //static {
+    //    final EditorActionManager actionManager = EditorActionManager.getInstance();
+    //    final TypedAction typedAction = actionManager.getTypedAction();
+    //    handler = new EditorTypingHandler();
+    //    typedAction.setupHandler(handler);
+    //}
+
+
+    @Override
+    public void hasTyped(Editor editor) {
+
+    /*     final FileEditorManagerEx edManager = (FileEditorManagerEx) FileEditorManagerEx.getInstance(editor.getProject());
+        if(edManager.getCurrentWindow().getTabbedPane().getTabs().getTargetInfo().getText().contains("Template of: ")) {
+            return;
+        }
+        Arrays.stream(edManager.getWindows()).forEach(ed -> {
+            EditorTabbedContainer tabbedPane = ed.getTabbedPane();
+            if (tabbedPane.getTabs().getTargetInfo().getText().contains("Template of: ")) {
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    ed.closeFile(ed.getSelectedFile());
+                    tabbedPane.close();
+                });
+                handler.removeCallback(this);
+               // tabbedPane.close();
+            }
+        });*/
+    }
 
     @Override
     public void actionPerformed(AnActionEvent e) {
+        // handler.addCallback(this);
 
         ComponentFileContext fileContext = new ComponentFileContext(e);
 
@@ -67,6 +94,7 @@ public class EditTemplate extends AnAction {
             com.intellij.openapi.ui.Messages.showErrorDialog(fileContext.getProject(), "No template string could be found", actions.Messages.ERR_OCCURRED);
             return;
         }
+        Editor ediOrig = IntellijUtils.getEditor(e);
 
 
         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
@@ -82,7 +110,7 @@ public class EditTemplate extends AnAction {
                     HTMLLanguage.INSTANCE, "");
 
 
-             Document doubleBuffer = createDoubleBuffer(fileContext, workFile);
+            Document doubleBuffer = createDoubleBuffer(fileContext, workFile);
             final FileEditorManagerEx edManager = (FileEditorManagerEx) FileEditorManagerEx.getInstance(fileContext.getProject());
 
             EditorWindow currentWindow = edManager.getCurrentWindow();
@@ -91,41 +119,22 @@ public class EditTemplate extends AnAction {
             FileEditorManager.getInstance(fileContext.getProject()).openFile(virtualFile, true);
             currentWindow.getTabbedPane().close();
 
-           /*
+            //https://www.jetbrains.org/intellij/sdk/docs/tutorials/editor_basics/editor_events.html
 
-            DocumentListener dl = new DocumentListener() {
-                @Override
-                public void documentChanged(DocumentEvent event) {
-                    WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
-                        Arrays.stream(edManager.getWindows()).filter(ed -> {
-                            EditorTabbedContainer tabbedPane = ed.getTabbedPane();
-                            return (tabbedPane.getTabs().getTargetInfo().getText().contains("Template of: " + fileContext.getVirtualFile().getName()));
-                        }).forEach(ed -> {
-                            ed.closeFile(virtualFile);
-                            //ed.getTabbedPane().close();
-                        });
-                        fileContext.getDocument().removeDocumentListener(this);
-                    });
-                }
-            };
 
-            editor.getComponent().getComponent(1).addFocusListener(new FocusListener() {
-                @Override
-                public void focusGained(FocusEvent e) {
-                    fileContext.getDocument().addDocumentListener(dl);
-                }
-
-                @Override
-                public void focusLost(FocusEvent e) {
-                    fileContext.getDocument().removeDocumentListener(dl);
-                }
-            });
-*/
 
             doubleBuffer.addDocumentListener(new DocumentListener() {
                 @Override
                 public void documentChanged(DocumentEvent event) {
-                    fileContext.directUpdateTemplate(event.getDocument().getText());
+                    //ApplicationManager.getApplication().invokeLater(() -> {
+                    if(UndoManagerImpl.getInstance(fileContext.getProject()).isUndoInProgress()) {
+                        ApplicationManager.getApplication().invokeLater (() ->
+                                WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> fileContext.directUpdateTemplate(event.getDocument().getText()))
+                        );
+                        return;
+                    }
+
+                    WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> fileContext.directUpdateTemplate(event.getDocument().getText()));
                 }
             });
 
@@ -161,5 +170,6 @@ public class EditTemplate extends AnAction {
 
         return editor;
     }
+
 
 }
