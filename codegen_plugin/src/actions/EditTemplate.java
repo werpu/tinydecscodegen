@@ -22,22 +22,17 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package actions;
 
 import com.intellij.lang.html.HTMLLanguage;
-import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.ex.AnActionListener;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.command.impl.UndoManagerImpl;
+import com.intellij.openapi.command.undo.UndoManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
@@ -122,19 +117,20 @@ public class EditTemplate extends AnAction implements EditorCallback {
             //https://www.jetbrains.org/intellij/sdk/docs/tutorials/editor_basics/editor_events.html
 
 
-
             doubleBuffer.addDocumentListener(new DocumentListener() {
                 @Override
                 public void documentChanged(DocumentEvent event) {
                     //ApplicationManager.getApplication().invokeLater(() -> {
-                    if(UndoManagerImpl.getInstance(fileContext.getProject()).isUndoInProgress()) {
-                        ApplicationManager.getApplication().invokeLater (() ->
-                                WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> fileContext.directUpdateTemplate(event.getDocument().getText()))
-                        );
-                        return;
-                    }
 
-                    WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> fileContext.directUpdateTemplate(event.getDocument().getText()));
+
+                    WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
+                        UndoManager undoManager = UndoManagerImpl.getInstance(fileContext.getProject());
+                        if(undoManager.isUndoInProgress() || undoManager.isRedoInProgress()) {
+                            return;
+                        }
+                        fileContext.directUpdateTemplate(event.getDocument().getText());
+
+                    });
                 }
             });
 
