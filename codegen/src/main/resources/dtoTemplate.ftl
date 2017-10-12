@@ -3,15 +3,17 @@ import {Dto, PostConstruct} from "Dto";
 
 /**
  * DTO typescript interface definition for ${clazz.name}
+ * this is just for instanceof checks since we cannot inherit
+ * between api and impl, and api might rely on foreign base classes
+ * So the API is a no go as well.
+ *
+ * The pattern is if a class inherits this interface, you can
+ * savely cast the impl class against the api class although
+ * they share only this interface.
  *
  * @ref: ${clazz.clazz.ownerType}
  */
-export interface I${clazz.name} <#if clazz.parentClass??> extends I${clazz.parentClass.name}</#if> {
-
-<#list clazz.properties as prop>
-${prop.name}: ${prop.classType.toTypeScript()};
-</#list>
-
+export interface I${clazz.name} <#if clazz.parentClass??>  {
 }
 
 /**
@@ -35,7 +37,7 @@ export class ${clazz.name}<#if clazz.parentClass??> extends ${clazz.parentClass.
 </#sep></#list>
 })
 export class ${clazz.name}Impl <#if clazz.parentClass??> extends ${clazz.parentClass.name}Impl</#if> implements I${clazz.name} {
-    constructor(data: I${clazz.name}) {<#if clazz.parentClass??>
+    constructor(data: ${clazz.name}) {<#if clazz.parentClass??>
 
         super(data);</#if>
     }
