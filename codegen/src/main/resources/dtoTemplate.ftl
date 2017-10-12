@@ -13,7 +13,7 @@ import {Dto, PostConstruct} from "Dto";
  *
  * @ref: ${clazz.clazz.ownerType}
  */
-export interface I${clazz.name} <#if clazz.parentClass??>  {
+export interface I${clazz.name}  {
 }
 
 /**
