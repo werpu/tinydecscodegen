@@ -27,8 +27,11 @@ import lombok.Getter;
 import reflector.utils.ReflectUtils;
 import reflector.utils.TypescriptTypeMapper;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 /**
@@ -76,6 +79,25 @@ public class RestVar extends GenericVar {
     @SuppressWarnings("unchecked")
     public String toTypeScript() {
         return this.toTypeScript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName);
+    }
+
+
+    public List<GenericType> getNonJavaTypes(boolean deep) {
+            List<GenericType> retVal = new ArrayList<>();
+
+            if(this.getClassType() != null) {
+                retVal.addAll(getClassType().getNonJavaTypes(deep));
+
+            }
+            if(deep && generics != null) {
+                List found =
+                        Arrays.stream(generics).flatMap(generic -> {
+                            return generic.getNonJavaTypes(deep).stream();
+                        }).collect(Collectors.toList());
+                retVal.addAll(found);
+            }
+
+            return retVal;
     }
 
 }

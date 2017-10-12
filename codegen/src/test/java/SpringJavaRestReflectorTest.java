@@ -66,6 +66,8 @@ public class SpringJavaRestReflectorTest {
 
         assertTrue(retVal0.get().toTypeScript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName).equals("ProbeRetVal"));
         assertTrue(retVal2.get().toTypeScript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName).equals("Array<ProbeRetVal>"));
+        assertTrue(retVal2.get().getNonJavaTypes(true).get(0).getTypeName().endsWith("ProbeRetVal"));
+
 
         assertTrue(method3.getReturnValue().get().toTypeScript().equals("{[key:string]:ProbeRetVal}"));
         assertTrue(method4.getReturnValue().get().toTypeScript().equals("{[key:string]:{[key:string]:number}}"));
@@ -83,6 +85,11 @@ public class SpringJavaRestReflectorTest {
         assertTrue(parsedClass.getProperties().get(2).getName().equals("retVal"));
         assertTrue(parsedClass.getProperties().get(2).getClassType().toTypescript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName).equals("ProbeRetVal"));
 
+        assertTrue(parsedClass.getProperties().get(0).getClassType().hasJavaType(true));
+
+        assertTrue(parsedClass.getProperties().get(2).getClassType().hasExtendedType(true));
+
+        assertTrue(parsedClass.getProperties().get(2).getClassType().getNonJavaTypes(true).get(0).getTypeName().endsWith("ProbeRetVal"));
     }
 
     private void assertParameters(RestMethod method0) {

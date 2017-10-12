@@ -185,7 +185,7 @@ public class ReflectUtils {
      */
     public static List<String> getInheritanceHierarchyAsString(Class clazz) {
         List<String> retList = getInheritanceHierarchy(clazz).stream().map(theClass -> {
-             return theClass.getName();
+            return theClass.getName();
         }).collect(Collectors.toList());
         return retList;
     }
@@ -202,7 +202,7 @@ public class ReflectUtils {
 
     public static Collection<GenericVar> getAllProperties(Class clazz, Class includingEndpoint) throws IntrospectionException {
 
-        PropertyDescriptor[] allProps =  Introspector.getBeanInfo(clazz, includingEndpoint.getSuperclass()).getPropertyDescriptors();
+        PropertyDescriptor[] allProps = Introspector.getBeanInfo(clazz, includingEndpoint.getSuperclass()).getPropertyDescriptors();
 
 
         final List<GenericVar> publicProperties = Arrays.asList(clazz.getDeclaredFields()).stream()
@@ -257,5 +257,24 @@ public class ReflectUtils {
             return in;
         }
         return in.replaceAll(".*[\\.\\$]([^\\<^\\>\\$]+)[\\<\\>]{0,1}.*", "$1");
+    }
+
+    public static boolean isJavaType(Class paramType) {
+        return isJavaType(paramType.getName());
+    }
+
+    public static boolean isJavaType(String paramType) {
+        if(Strings.isNullOrEmpty(paramType)) { //something with generics
+            return true;
+        }
+        return (!Strings.isNullOrEmpty(paramType)) && (isNative(paramType) || paramType.startsWith("java."));
+    }
+
+    public static boolean isNative(String paramType) {
+        return paramType.equals("int") ||
+                paramType.equals("long") ||
+                paramType.equals("double") ||
+                paramType.equals("float") ||
+                paramType.equals("boolean");
     }
 }

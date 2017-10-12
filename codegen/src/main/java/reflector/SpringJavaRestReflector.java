@@ -79,10 +79,9 @@ public class SpringJavaRestReflector {
         Collection<Method> methods = ReflectUtils.getAllMethods(cls, false, false);
         return methods.stream()
                 .filter(method -> method.isAnnotationPresent(RequestMapping.class))
-                .map(method -> {
+                .flatMap(method -> {
                     return mapMethod(method, flattenResult);
                 })
-                .flatMap(rMethod -> rMethod)
                 .sorted((o1, o2) -> {
                     return o1.getName().compareTo(o2.getName());
                 })

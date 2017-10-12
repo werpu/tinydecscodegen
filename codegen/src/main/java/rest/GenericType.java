@@ -30,6 +30,8 @@ import lombok.NonNull;
 import reflector.utils.ReflectUtils;
 import reflector.utils.TypescriptTypeMapper;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -61,7 +63,6 @@ public class GenericType {
     private final String ownerType;
     @NonNull
     private final List<GenericType> childTypes;
-
 
 
 
@@ -114,5 +115,45 @@ public class GenericType {
 
     public String getTypeName() {
         return ownerType;
+    }
+
+    public boolean hasExtendedType(boolean deep) {
+        if(deep && childTypes != null) {
+            return childTypes.stream().filter(childType -> {
+                return childType.hasExtendedType(true);
+            }).findFirst().isPresent() || !ReflectUtils.isJavaType(ownerType);
+        }
+        return !ReflectUtils.isJavaType(ownerType);
+    }
+
+    public boolean hasJavaType(boolean deep) {
+
+        if(deep && childTypes != null && !childTypes.isEmpty() ) {
+            return ReflectUtils.isJavaType(ownerType) || childTypes.stream().filter(childType -> {
+                return childType.hasJavaType(true);
+            }).findFirst().isPresent() ;
+        }
+
+        return ReflectUtils.isJavaType(ownerType);
+    }
+
+    public List<GenericType> getNonJavaTypes(boolean deep) {
+        if(!hasExtendedType(deep)) {
+            return Collections.emptyList();
+        }
+        List<GenericType> retVal = new ArrayList<>();
+        if(ownerType != null && !ReflectUtils.isJavaType(ownerType)) {
+            retVal.add(this);
+        }
+        if(deep && childTypes != null && !childTypes.isEmpty()) {
+            List<GenericType> flattenedChilds = childTypes.stream().filter(childType -> {
+                return childType.hasExtendedType(deep);
+            }).flatMap(childType -> childType.getNonJavaTypes(deep).stream())
+                    .collect(Collectors.toList());
+
+            retVal.addAll(flattenedChilds);
+        }
+        return retVal;
+
     }
 }
