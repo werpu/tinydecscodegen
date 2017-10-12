@@ -29,6 +29,7 @@ import lombok.Getter;
 import reflector.utils.ReflectUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @AllArgsConstructor
@@ -57,5 +58,9 @@ public class GenericClass {
         return ReflectUtils.reduceClassName(clazz.toTypescript());
     }
 
+
+    public List<? extends GenericVar> getNonJavaProperties(boolean deep) {
+        return properties.stream().filter(item -> item.hasExtendedType(deep)).collect(Collectors.toList());
+    }
 
 }

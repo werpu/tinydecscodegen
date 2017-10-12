@@ -24,6 +24,14 @@ package rest;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import reflector.utils.ReflectUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Getter
 @EqualsAndHashCode
@@ -35,4 +43,30 @@ public class GenericVar {
     protected final String name;
     protected final GenericType classType;
     protected final GenericType[] generics; //TODO probably deprecated since the classtype itself can handle the generics
+
+    public boolean hasExtendedType(boolean deep) {
+        boolean hasIt = false;
+        if(classType != null) {
+            hasIt = classType.hasExtendedType(deep);
+        }
+        return hasIt || Arrays.stream(generics).filter(generic -> generic.hasExtendedType(deep)).findFirst().isPresent();
+    }
+
+    public List<GenericType> getNonJavaTypes(boolean deep) {
+        List<GenericType> retVal = new ArrayList<>();
+        if(classType != null) {
+            retVal.addAll(classType.getNonJavaTypes(deep));
+        }
+
+        retVal.addAll(Arrays.stream(generics).flatMap(generic -> generic.getNonJavaTypes(deep).stream()).collect(Collectors.toList()));
+        return retVal;
+    }
+
+    public String nonJavaTypesToString(boolean deep) {
+        Optional<String> reduction = getNonJavaTypes(deep).stream().map(item -> item.getTypeName()).map(ReflectUtils::reduceClassName).reduce((oldStr, newStr) -> oldStr+", "+newStr);
+        if(reduction.isPresent()) {
+            return reduction.get();
+        }
+        return "any";
+    }
 }
