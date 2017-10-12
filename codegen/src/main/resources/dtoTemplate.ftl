@@ -1,5 +1,6 @@
 //dto is a submodule of the tiny decorations project
-import {Dto, PostConstruct} from "Dto";
+import {PostConstruct} from "TinyDecorations";
+import {Dto} from "Dto";
 
 /**
  * DTO typescript interface definition for ${clazz.name}
@@ -32,10 +33,11 @@ export class ${clazz.name}<#if clazz.parentClass??> extends ${clazz.parentClass.
 /**
 * Implementation class for for ${clazz.name}
 */
-@Dto({<#list clazz.getNonJavaProperties(true)! as prop>
+@Dto({/* enable what you want to have mapped
+<#list clazz.getNonJavaProperties(true)! as prop>
         ${prop.name}: ${prop.nonJavaTypesToString(true)!}Impl<#sep>,
 </#sep></#list>
-})
+*/})
 export class ${clazz.name}Impl <#if clazz.parentClass??> extends ${clazz.parentClass.name}Impl</#if> implements I${clazz.name} {
     constructor(data: ${clazz.name}) {<#if clazz.parentClass??>
 
