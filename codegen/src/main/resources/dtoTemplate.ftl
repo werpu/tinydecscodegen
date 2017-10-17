@@ -1,4 +1,3 @@
-//dto is a submodule of the tiny decorations project
 import {PostConstruct} from "TinyDecorations";
 import {Dto} from "Dto";
 
@@ -20,7 +19,6 @@ export interface I${clazz.name}  {
 /**
 * DTO typescript definition for ${clazz.name}
 *
-* @ref: ${clazz.clazz.ownerType}
 */
 export class ${clazz.name}<#if clazz.parentClass??> extends ${clazz.parentClass.name}</#if> implements I${clazz.name} {
 
