@@ -1,4 +1,12 @@
 description = "intellij tinydecs codegen plugin"
 
+apply plugin: 'java'
+apply plugin: 'org.jetbrains.intellij'
 
+intellij {
+    localPath = '/Applications/Intellij IDEA.app'
+}
 
+dependencies {
+    compile project(':codegen')
+}
