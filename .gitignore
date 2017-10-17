@@ -1,9 +1,10 @@
 tmp
 .DS_Store
 .idea
+.iml
 target
 *.iml
-!codegen_plugin.iml
+
 /codegen/velocity.log
 /build/
 codegen/build/
