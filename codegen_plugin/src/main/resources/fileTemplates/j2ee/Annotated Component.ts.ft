@@ -1,0 +1,27 @@
+import {Component, Inject, Input, Both, AString, Func} from "TinyDecorations";
+import IScope = angular.IScope;
+
+/**
+ * Component ${NAME}
+ * @author ${AUTHOR}
+ */
+@Component({
+    selector: "${SELECTOR}",
+    template: `${TEMPLATE}`,
+    controllerAs: "${CONTROLLER_AS}"
+})
+export class ${NAME} {
+
+#foreach($attr in $COMPONENT_ATTRS)
+    @${attr.argumentType.name()}(#if(${attr.optional})true#end) ${attr.name}: ${attr.nativeType};
+#end
+
+    constructor(@Inject("$scope") private $scope: IScope, @Inject("$element") private $element: any) { //add your injections here
+        //add your contstructor code here
+    }
+
+
+    $postLink() {
+    //add your postlink code here
+    }
+}

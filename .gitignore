@@ -5,5 +5,13 @@ target
 *.iml
 !codegen_plugin.iml
 /codegen/velocity.log
-build/
+/build/
+codegen/build/
+codegen_plugin/build/classes/
+codegen_plugin/build/idea-sandbox/
+codegen_plugin/build/libs/
+codegen_plugin/build/patchedPluginXmlFiles/
+codegen_plugin/build/resources/
+!codegen_plugin/build/distributions/
 .gradle
+gradle

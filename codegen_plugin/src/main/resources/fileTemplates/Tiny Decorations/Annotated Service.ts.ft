@@ -1,0 +1,14 @@
+import {Inject, Injectable} from "TinyDecorations";
+
+/**
+ * Service ${NAME}
+ * @author ${AUTHOR}
+ */
+@Injectable("${NAME}")
+export class ${NAME} {
+
+    constructor() { //add your injections here
+        //add your constructor code here
+    }
+
+}

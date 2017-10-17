@@ -1,0 +1,30 @@
+<templateSet group="Tiny Decorations">
+  <template name="tstdimp" value="import {Component, Inject, Input, Output, Both, Func, Controller, Filter, extended, Injectable} from &quot;TinyDecorations&quot;;&#10;import * as angular from &quot;angular&quot;;&#10;import IScope = angular.IScope;&#10;import Rest = extended.Rest;&#10;import Restable = extended.Restable;&#10;" description="Tiny Decorations standard import" toReformat="false" toShortenFQNames="true">
+    <context>
+      <option name="TypeScript" value="true" />
+    </context>
+  </template>
+  <template name="tinj" value="@Inject(&quot;$NAME$&quot;) " description="Tiny decorations inject" toReformat="false" toShortenFQNames="true">
+    <!--
+    <variable name="NAME" expression="complete()" defaultValue="" alwaysStopAt="true" />
+    -->
+    <context>
+      <option name="TypeScript" value="true" />
+    </context>
+  </template>
+  <template name="tcinj" value="@Inject(&quot;$NAME$&quot;) " description="Tiny decorations inject and name pasted from the clipboard value" toReformat="false" toShortenFQNames="true">
+    <variable name="NAME" expression="clipboard()" defaultValue="" alwaysStopAt="true" />
+    <context>
+      <option name="TypeScript" value="true" />
+    </context>
+  </template>
+  <template name="ttpl" value="`$TPL_STRING$`" description="multiline template" toReformat="false" toShortenFQNames="true">
+    <variable name="TPL_STRING" expression="complete()" defaultValue="Fill your template in here" alwaysStopAt="true" />
+    <context>
+      <option name="TypeScript" value="true" />
+    </context>
+    <context>
+      <option name="TINY_DECS" value="true" />
+    </context>
+  </template>
+</templateSet>
