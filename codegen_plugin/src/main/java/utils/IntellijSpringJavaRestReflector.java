@@ -102,6 +102,20 @@ public class IntellijSpringJavaRestReflector {
         return Collections.emptyList();
     }
 
+
+    private static List<GenericVar> resolveLombok(List<GenericVar> before, PsiField[] fields) {
+        final Set<String> propIdx = before.stream().map(prop -> {
+            return prop.getName();
+        }).collect(Collectors.toSet());
+
+        return Arrays.asList(fields).stream()
+                .filter(declaredField -> !propIdx.contains(declaredField.getName()) &&
+                        isLomboked(declaredField)).map(declaredField -> {
+                    List<GenericType> genericTypes = ReflectUtils.buildGenericTypes(declaredField.getType().getCanonicalText());
+                    return new GenericVar(declaredField.getName(), genericTypes.get(0), new GenericType[0]);
+                }).collect(Collectors.toList());
+    }
+
     private static boolean isLombokedClass(PsiClass clazz) {
         return Arrays.stream(clazz.getModifierList()
                 .getAnnotations())
@@ -110,28 +124,17 @@ public class IntellijSpringJavaRestReflector {
                 .isPresent();
     }
 
-    private static boolean isLombokedAnn(PsiAnnotation ann) {
-        return ann.getQualifiedName().equals("Getter") || ann.getQualifiedName().equals("Data");
+    private static boolean isLomboked(PsiField declaredField) {
+        return Arrays.stream(
+                declaredField.getModifierList()
+                .getAnnotations())
+                .filter(ann -> isLombokedAnn(ann))
+                .findFirst()
+                .isPresent();
     }
 
-    private static List<GenericVar> resolveLombok(List<GenericVar> before, PsiField[] fields) {
-        final Set<String> propIdx = before.stream().map(prop -> {
-            return prop.getName();
-        }).collect(Collectors.toSet());
-
-        return Arrays.asList(fields).stream()
-                .filter(declaredField -> {
-                    return !propIdx.contains(declaredField.getName()) &&
-                            Arrays.stream(
-                                    declaredField.getModifierList()
-                                    .getAnnotations())
-                                    .filter(ann -> isLombokedAnn(ann))
-                                    .findFirst()
-                                    .isPresent();
-                }).map(declaredField -> {
-                    List<GenericType> genericTypes = ReflectUtils.buildGenericTypes(declaredField.getType().getCanonicalText());
-                    return new GenericVar(declaredField.getName(), genericTypes.get(0), new GenericType[0]);
-                }).collect(Collectors.toList());
+    private static boolean isLombokedAnn(PsiAnnotation ann) {
+        return ann.getQualifiedName().equals("Getter") || ann.getQualifiedName().equals("Data");
     }
 
     private static List<GenericVar> resolveGetters(List<GenericVar> before, PsiMethod[] methods) {
