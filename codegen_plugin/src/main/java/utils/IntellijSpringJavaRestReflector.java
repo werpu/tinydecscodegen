@@ -22,16 +22,15 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package utils;
 
 import com.google.common.collect.Lists;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiModifier;
+import com.intellij.psi.*;
+import org.jetbrains.annotations.NotNull;
 import reflector.utils.ReflectUtils;
 import rest.GenericClass;
 import rest.GenericType;
 import rest.GenericVar;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class IntellijSpringJavaRestReflector {
@@ -60,7 +59,8 @@ public class IntellijSpringJavaRestReflector {
 
 
         List<GenericVar> retVal = Lists.newArrayListWithCapacity(30);
-        retVal.addAll(resolveGetters(Collections.emptyList(), methods));
+        retVal.addAll(resolveClassLombok(Collections.emptyList(), clazz));
+        retVal.addAll(resolveGetters(retVal, methods));
         retVal.addAll(resolveLombok(retVal, fields));
         retVal.addAll(resolvePublicProps(retVal, fields));
         return retVal.stream()
@@ -70,7 +70,7 @@ public class IntellijSpringJavaRestReflector {
     }
 
     private static List<GenericVar> resolvePublicProps(List<GenericVar> before, PsiField[] fields) {
-        final Set<String> propIdx = before.parallelStream().map(prop -> {
+        final Set<String> propIdx = before.stream().map(prop -> {
             return prop.getName();
         }).collect(Collectors.toSet());
 
@@ -78,14 +78,44 @@ public class IntellijSpringJavaRestReflector {
                 .filter(declaredField -> {
                     return !propIdx.contains(declaredField.getName()) && declaredField.hasModifierProperty(PsiModifier.PUBLIC)
                             && !declaredField.hasModifierProperty(PsiModifier.STATIC);
-                }).map(declaredField -> {
-                    List<GenericType> genericTypes = ReflectUtils.buildGenericTypes(declaredField.getType().getCanonicalText());
-                    return new GenericVar(declaredField.getName(), genericTypes.get(0), new GenericType[0]);
-                }).collect(Collectors.toList());
+                }).map(IntellijSpringJavaRestReflector::remapField).collect(Collectors.toList());
+    }
+
+    @NotNull
+    private static GenericVar remapField(PsiField declaredField) {
+
+            List<GenericType> genericTypes = ReflectUtils.buildGenericTypes(declaredField.getType().getCanonicalText());
+            return new GenericVar(declaredField.getName(), genericTypes.get(0), new GenericType[0]);
+
+    }
+
+    private static List<GenericVar> resolveClassLombok(List<GenericVar> before, PsiClass clazz) {
+        final Set<String> propIdx = before.stream().map(prop -> {
+            return prop.getName();
+        }).collect(Collectors.toSet());
+        if(isLombokedClass(clazz)) {
+            return Arrays.stream(clazz.getAllFields())
+                    .filter(declaredField -> !propIdx.contains(declaredField.getName()))
+                    .map(IntellijSpringJavaRestReflector::remapField)
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    private static boolean isLombokedClass(PsiClass clazz) {
+        return Arrays.stream(clazz.getModifierList()
+                .getAnnotations())
+                .filter(ann -> isLombokedAnn(ann))
+                .findFirst()
+                .isPresent();
+    }
+
+    private static boolean isLombokedAnn(PsiAnnotation ann) {
+        return ann.getQualifiedName().equals("Getter") || ann.getQualifiedName().equals("Data");
     }
 
     private static List<GenericVar> resolveLombok(List<GenericVar> before, PsiField[] fields) {
-        final Set<String> propIdx = before.parallelStream().map(prop -> {
+        final Set<String> propIdx = before.stream().map(prop -> {
             return prop.getName();
         }).collect(Collectors.toSet());
 
@@ -95,7 +125,7 @@ public class IntellijSpringJavaRestReflector {
                             Arrays.stream(
                                     declaredField.getModifierList()
                                     .getAnnotations())
-                                    .filter(ann -> ann.getQualifiedName().equals("Getter"))
+                                    .filter(ann -> isLombokedAnn(ann))
                                     .findFirst()
                                     .isPresent();
                 }).map(declaredField -> {
@@ -105,16 +135,13 @@ public class IntellijSpringJavaRestReflector {
     }
 
     private static List<GenericVar> resolveGetters(List<GenericVar> before, PsiMethod[] methods) {
-        final Set<String> propIdx = before.parallelStream().map(prop -> {
+        final Set<String> propIdx = before.stream().map(prop -> {
             return prop.getName();
         }).collect(Collectors.toSet());
 
-        return Arrays.stream(methods).filter(m -> {
-            return
-                    m.getParameterList().getParameters().length == 0 &&
-                            m.getName().startsWith("get") &&
-                            m.hasModifierProperty(PsiModifier.PUBLIC);
-        }).map(m -> {
+        return Arrays.stream(methods).filter(m -> m.getParameterList().getParameters().length == 0 &&
+                        m.getName().startsWith("get") &&
+                        m.hasModifierProperty(PsiModifier.PUBLIC)).map(m -> {
             String name = m.getName().replaceFirst("get", "");
             String prefix = name.substring(0, 1);
             String postFix = name.substring(1);
@@ -122,7 +149,7 @@ public class IntellijSpringJavaRestReflector {
 
             return new GenericVar(name, ReflectUtils.buildGenericTypes(m.getReturnType().getCanonicalText()).get(0),
                     new GenericType[0]);
-        }).collect(Collectors.toList());
+        }).filter(genericVar -> !propIdx.contains(genericVar.getName())).collect(Collectors.toList());
     }
 
 
