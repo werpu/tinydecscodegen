@@ -1,19 +1,20 @@
 package probes;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
+@EqualsAndHashCode
+@AllArgsConstructor
 public class TestDto {
 
-    String hello = "";
+    public final String booga;
 
-    public TestDto(String hello) {
-        this.hello = hello;
-    }
+    @Getter
+    public final String booga2;
 
-    public String getHello() {
-        return hello;
-    }
+    @Getter
+    private final ProbeRetVal retVal;
 
-    public void setHello(String hello) {
-        this.hello = hello;
-    }
+
 }
-

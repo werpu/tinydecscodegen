@@ -264,10 +264,13 @@ public class ReflectUtils {
     }
 
     public static boolean isJavaType(String paramType) {
-        if(Strings.isNullOrEmpty(paramType)) { //something with generics
+        if (Strings.isNullOrEmpty(paramType)) { //something with generics
             return true;
         }
-        return (!Strings.isNullOrEmpty(paramType)) && (isNative(paramType) || paramType.startsWith("java."));
+        return (!Strings.isNullOrEmpty(paramType)) &&
+                (isNative(paramType) ||
+                        isReduced(paramType) ||
+                        paramType.startsWith("java."));
     }
 
     public static boolean isNative(String paramType) {
@@ -276,5 +279,13 @@ public class ReflectUtils {
                 paramType.equals("double") ||
                 paramType.equals("float") ||
                 paramType.equals("boolean");
+    }
+
+    public static boolean isReduced(String paramType) {
+        return paramType.equals("Integer") ||
+                paramType.equals("Boolean") ||
+                paramType.equals("Double") ||
+                paramType.equals("Float") ||
+                paramType.equals("String");
     }
 }
