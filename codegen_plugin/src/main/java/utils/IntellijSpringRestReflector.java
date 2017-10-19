@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 public class IntellijSpringRestReflector {
 
     public static List<RestService> reflectRestService(List<PsiClass> toReflect, boolean flattenResult) {
-        return toReflect.parallelStream()
+        return toReflect.stream()
                 .filter(IntellijSpringRestReflector::isRestService)
                 .map(cls -> {
                     String serviceUrl = fetchServiceUrl(cls);
@@ -164,15 +164,13 @@ public class IntellijSpringRestReflector {
 
     private static boolean isRestMethod(PsiMethod m) {
         return Arrays.stream(m.getModifierList().getAnnotations())
-                .filter(ann -> isPresent(ann, RequestMapping.class))
-                .findFirst().isPresent();
+                .anyMatch(ann -> isPresent(ann, RequestMapping.class));
     }
 
 
     private static boolean isPresent(PsiModifierListOwner ownwer, Class... annotation) {
         return Arrays.stream(ownwer.getModifierList().getAnnotations())
-                .filter(ann -> isPresent(ann, annotation))
-                .findFirst().isPresent();
+                .anyMatch(ann -> isPresent(ann, annotation));
     }
 
     private static PsiAnnotation getAnn(PsiModifierListOwner owner, Class... annotation) {
@@ -182,9 +180,8 @@ public class IntellijSpringRestReflector {
     }
 
     private static boolean isPresent(PsiAnnotation ann, Class... annotation) {
-        return Arrays.stream(annotation).map(ann2 -> ann2.getName())
-                .filter(name -> name.contains(ann.getQualifiedName()))
-                .findFirst().isPresent();
+        return Arrays.asList(annotation).stream().map(ann2 -> ann2.getName())
+                .anyMatch(name -> name.contains(ann.getQualifiedName()));
     }
 
 

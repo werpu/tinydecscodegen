@@ -31,6 +31,7 @@ import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.compiler.CompileContext;
@@ -335,8 +336,9 @@ public class IntellijUtils {
     }
 
     public static boolean generateService(Project project, Module module, PsiJavaFile javaFile) throws ClassNotFoundException {
-
         final AtomicBoolean retVal = new AtomicBoolean(true);
+
+
         Arrays.stream(javaFile.getClasses()).forEach(javaClass -> {
             if (!javaClass.hasModifierProperty(PsiModifier.PUBLIC) || !retVal.get()) {
                 return;
