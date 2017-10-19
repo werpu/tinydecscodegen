@@ -79,6 +79,10 @@
 
                 </action>
                 <separator />
+                <action id="TD_ServiceSource" class="actions.ServiceGenerateActionFromSource" text="Service Generation from Source"
+                        description="Generate a typescript service">
+                </action>
+
                 <action id="TD_DtoSrc" class="actions.DtoGenerateFromSource" text="Dto Generation from source"
                         description="Generate a typescript dto from the current editor window">
 

@@ -121,6 +121,7 @@ public class IntellijSpringRestReflector {
     private static String getAttr(PsiAnnotation mapping, String attrVal, String theDefault) {
         PsiAnnotationMemberValue attributeValue = mapping.findAttributeValue(attrVal);
         String retVal = (attributeValue != null) ? attributeValue.getText() : "";
+        retVal = fixText(retVal);
         retVal = Strings.isNullOrEmpty(retVal) ? theDefault : retVal;
         retVal = fixText(retVal);
         return retVal;
@@ -148,9 +149,9 @@ public class IntellijSpringRestReflector {
         RestVarType restVarType = null;
         String restName = "";
         String name = p.getName();
-        if (RestVarType.PathVariable.name().contains(ann.getQualifiedName())) {
+        if (ann.getQualifiedName().endsWith(RestVarType.PathVariable.name())) {
             restVarType = RestVarType.PathVariable;
-        } else if (RestVarType.RequestParam.name().contains(ann.getQualifiedName())) {
+        } else if (ann.getQualifiedName().endsWith(RestVarType.RequestParam.name())) {
             restVarType = RestVarType.RequestParam;
             restName = getAttr(ann, "value");
         } else {

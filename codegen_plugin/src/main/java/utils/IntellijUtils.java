@@ -334,6 +334,33 @@ public class IntellijUtils {
         return ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(vFile);
     }
 
+    public static boolean generateService(Project project, Module module, PsiJavaFile javaFile) throws ClassNotFoundException {
+
+        final AtomicBoolean retVal = new AtomicBoolean(true);
+        Arrays.stream(javaFile.getClasses()).forEach(javaClass -> {
+            if (!javaClass.hasModifierProperty(PsiModifier.PUBLIC) || !retVal.get()) {
+                return;
+            }
+
+            List<RestService> restService = IntellijSpringRestReflector.reflectRestService(Arrays.asList(javaClass), true);
+            if (restService == null || restService.isEmpty()) {
+                Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
+                retVal.set(false);
+                return;
+            }
+            String text = TypescriptRestGenerator.generate(restService);
+
+            String ext = ".ts";
+            String fileName = restService.get(0).getServiceName() + ext;
+
+            generateOrDiffTsFile(text, fileName, javaClass.getQualifiedName(), project, module, javaFile, ArtifactType.SERVICE);
+        });
+
+        return retVal.get();
+    }
+
+
+
     public static boolean generateService(Project project, Module module, String className, PsiFile javaFile, URLClassLoader urlClassLoader) throws ClassNotFoundException {
         Class compiledClass = urlClassLoader.loadClass(className);
 
