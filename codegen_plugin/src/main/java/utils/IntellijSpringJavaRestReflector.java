@@ -70,7 +70,7 @@ public class IntellijSpringJavaRestReflector {
         PsiClass parent = clazz;
         List<GenericVar> retVal = Lists.newLinkedList();
 
-        if(clazz.getQualifiedName().equals(includingEndoint)) {
+        if (clazz.getQualifiedName().equals(includingEndoint)) {
             return getAllProperties(clazz);
         }
         do {
@@ -78,7 +78,8 @@ public class IntellijSpringJavaRestReflector {
             retVal.addAll(getAllProperties(parent).stream().filter(element -> !propIdx.contains(element.getName())).collect(Collectors.toList()));
             clazz = parent;
             parent = parent.getSuperClass();
-        } while (parent != null && !clazz.getQualifiedName().equals(includingEndoint) && !parent.getQualifiedName().startsWith("java."));
+        }
+        while (parent != null && !clazz.getQualifiedName().equals(includingEndoint) && !parent.getQualifiedName().startsWith("java."));
 
 
         //TODO inheritance somewhere in the binaries not in the sources
@@ -122,6 +123,7 @@ public class IntellijSpringJavaRestReflector {
         retVal.addAll(resolveGetters(retVal, methods));
         retVal.addAll(resolveLombok(retVal, fields));
         retVal.addAll(resolvePublicProps(retVal, fields));
+        retVal = removeTransient(retVal, clazz);
         return retVal.stream()
                 .sorted(Comparator.comparing(GenericVar::getName))
                 .collect(Collectors.toList());
@@ -136,6 +138,14 @@ public class IntellijSpringJavaRestReflector {
                     return !propIdx.contains(declaredField.getName()) && declaredField.hasModifierProperty(PsiModifier.PUBLIC)
                             && !declaredField.hasModifierProperty(PsiModifier.STATIC);
                 }).map(IntellijSpringJavaRestReflector::remapField).collect(Collectors.toList());
+    }
+
+    private static List<GenericVar> removeTransient(List<GenericVar> before, PsiClass clazz) {
+        Arrays.stream(clazz.getAllFields()).filter(declaredField -> declaredField.hasModifierProperty(PsiModifier.TRANSIENT))
+                .forEach(field -> {
+                    before.remove(IntellijSpringJavaRestReflector.remapField(field));
+                });
+        return before;
     }
 
     @NotNull
