@@ -41,6 +41,8 @@ public class TypescriptTypeMapper {
             return "Array";
         } else if (in.equals("Class") || in.equals("java.lang.Class")){
             return "any";
+        } else if (in.equals("Object") || in.equals("java.lang.Object")){
+            return "any";
         } else {
             return ReflectUtils.reduceClassName(in);
         }
