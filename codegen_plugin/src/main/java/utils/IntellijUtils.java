@@ -71,6 +71,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -439,6 +440,58 @@ public class IntellijUtils {
         return true;
     }
 
+
+    public static boolean generateDto(Project project, Module module, PsiJavaFile javaFile) throws ClassNotFoundException {
+        final AtomicBoolean retVal = new AtomicBoolean(true);
+        Arrays.stream(javaFile.getClasses()).forEach(javaClass -> {
+            if(!javaClass.hasModifierProperty(PsiModifier.PUBLIC) || !retVal.get()) {
+                return;
+            }
+            String className = javaClass.getQualifiedName();
+
+            if(javaClass.getSuperClass() != null) {
+                Confirm dialog = new Confirm(data -> {
+
+
+                    List<GenericClass> dtos = IntellijSpringJavaRestReflector.reflectDto(Arrays.asList(javaClass), data);
+                    if (dtos == null || dtos.isEmpty()) {
+                        Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
+                        retVal.set(false);
+                        return false;
+                    }
+                    String text = TypescriptDtoGenerator.generate(dtos);
+
+                    String ext = ".ts";
+                    String fileName = dtos.get(0).getName() + ext;
+
+
+                    generateOrDiffTsFile(text, fileName, className, project, module, javaFile, ArtifactType.DTO);
+                    return true;
+                }, null, IntellijSpringJavaRestReflector.getInheritanceHierarchyAsString(javaClass));
+
+                SwingUtils.centerOnParent(dialog, true);
+                dialog.pack();
+                dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+                dialog.setVisible(true);
+            } else {
+                List<GenericClass> dtos = IntellijSpringJavaRestReflector.reflectDto(Arrays.asList(javaClass), "");
+                if (dtos == null || dtos.isEmpty()) {
+                    Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
+                    retVal.set(false);
+                    return;
+                }
+                String text = TypescriptDtoGenerator.generate(dtos);
+
+                String ext = ".ts";
+                String fileName = dtos.get(0).getName() + ext;
+
+                generateOrDiffTsFile(text, fileName, className, project, module, javaFile, ArtifactType.DTO);
+            }
+        });
+
+
+        return retVal.get();
+    }
 
 
     /**

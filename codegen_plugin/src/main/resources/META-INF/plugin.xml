@@ -79,6 +79,11 @@
 
                 </action>
                 <separator />
+                <action id="TD_DtoSrc" class="actions.DtoGenerateFromSource" text="Dto Generation from source"
+                        description="Generate a typescript dto from the current editor window">
+
+                </action>
+                <separator />
                 <action id="TD_Dto" class="actions.DtoGenerateWithoutCompile" text="Dto Generation"
                         description="Generate a typescript dto">
 

@@ -57,29 +57,64 @@ public class IntellijSpringJavaRestReflector {
     }
 
 
+    public static List<String> getInheritanceHierarchyAsString(PsiClass clazz) {
+        List<String> retList = getInheritanceHierarchy(clazz).stream().map(theClass -> {
+            return theClass.getQualifiedName();
+        }).collect(Collectors.toList());
+        return retList;
+    }
+
     private static Collection<GenericVar> inheritanceWalker(PsiClass clazz, String includingEndoint) {
 
-        Collection<GenericVar> retVal = getAllProperties(clazz);
 
-        PsiClass parent = clazz.getSuperClass();
+        PsiClass parent = clazz;
+        List<GenericVar> retVal = Lists.newLinkedList();
 
-
-        while(parent != null && !parent.getQualifiedName().equals(includingEndoint) && !parent.getQualifiedName().startsWith("java.")) {
+        if(clazz.getQualifiedName().equals(includingEndoint)) {
+            return getAllProperties(clazz);
+        }
+        do {
             final Set<String> propIdx = buildIdx(retVal);
             retVal.addAll(getAllProperties(parent).stream().filter(element -> !propIdx.contains(element.getName())).collect(Collectors.toList()));
+            clazz = parent;
             parent = parent.getSuperClass();
-        }
+        } while (parent != null && !clazz.getQualifiedName().equals(includingEndoint) && !parent.getQualifiedName().startsWith("java."));
+
 
         //TODO inheritance somewhere in the binaries not in the sources
 
         return retVal;
     }
 
+    public static PsiClass getClassFromInheritance(PsiClass parent, String qualifiedName) {
+        return getInheritanceHierarchy(parent).stream().filter(clazz -> clazz.getQualifiedName().equals(qualifiedName)).findFirst().get();
+    }
+
+    /**
+     * gets the entire inheritance hierarchy of a given class excluding java.lang.Object
+     * <p>
+     * the hierarchy is presented top down for easier gui displaying
+     * with the current class being the top class
+     * and the last class before object being the last element
+     *
+     * @return
+     */
+    public static List<PsiClass> getInheritanceHierarchy(PsiClass clazz) {
+        List<PsiClass> hierarchy = Lists.newLinkedList();
+
+        //TODO inheritance somewhere in the binaries not in the sources
+        while (clazz != null && !clazz.getQualifiedName().startsWith("java.")) {
+            hierarchy.add(clazz);
+            clazz = clazz.getSuperClass();
+        }
+        return hierarchy;
+    }
+
     public static Collection<GenericVar> getAllProperties(PsiClass clazz) {
 
-        PsiField[] fields = clazz.getAllFields();
+        PsiField[] fields = clazz.getFields();
 
-        PsiMethod[] methods = clazz.getAllMethods();
+        PsiMethod[] methods = clazz.getMethods();
 
 
         List<GenericVar> retVal = Lists.newArrayListWithCapacity(30);
@@ -106,15 +141,15 @@ public class IntellijSpringJavaRestReflector {
     @NotNull
     private static GenericVar remapField(PsiField declaredField) {
 
-            List<GenericType> genericTypes = ReflectUtils.buildGenericTypes(declaredField.getType().getCanonicalText());
-            return new GenericVar(declaredField.getName(), genericTypes.get(0), new GenericType[0]);
+        List<GenericType> genericTypes = ReflectUtils.buildGenericTypes(declaredField.getType().getCanonicalText());
+        return new GenericVar(declaredField.getName(), genericTypes.get(0), new GenericType[0]);
 
     }
 
     private static List<GenericVar> resolveClassLombok(List<GenericVar> before, PsiClass clazz) {
         final Set<String> propIdx = buildIdx(before);
-        if(isLombokedClass(clazz)) {
-            return Arrays.stream(clazz.getAllFields())
+        if (isLombokedClass(clazz)) {
+            return Arrays.stream(clazz.getFields())
                     .filter(declaredField -> !propIdx.contains(declaredField.getName()))
                     .map(IntellijSpringJavaRestReflector::remapField)
                     .collect(Collectors.toList());
@@ -145,7 +180,7 @@ public class IntellijSpringJavaRestReflector {
     private static boolean isLomboked(PsiField declaredField) {
         return Arrays.stream(
                 declaredField.getModifierList()
-                .getAnnotations())
+                        .getAnnotations())
                 .filter(ann -> isLombokedAnn(ann))
                 .findFirst()
                 .isPresent();
@@ -158,13 +193,16 @@ public class IntellijSpringJavaRestReflector {
     private static List<GenericVar> resolveGetters(List<GenericVar> before, PsiMethod[] methods) {
         final Set<String> propIdx = buildIdx(before);
 
+
         return Arrays.stream(methods).filter(m -> m.getParameterList().getParameters().length == 0 &&
-                        m.getName().startsWith("get") &&
-                        m.hasModifierProperty(PsiModifier.PUBLIC)).map(m -> {
+                !m.getName().equals("getClass") &&
+                m.getName().startsWith("get") &&
+                m.hasModifierProperty(PsiModifier.PUBLIC)).map(m -> {
             String name = m.getName().replaceFirst("get", "");
             String prefix = name.substring(0, 1);
             String postFix = name.substring(1);
             name = prefix.toLowerCase() + postFix;
+
 
             return new GenericVar(name, ReflectUtils.buildGenericTypes(m.getReturnType().getCanonicalText()).get(0),
                     new GenericType[0]);
@@ -173,8 +211,8 @@ public class IntellijSpringJavaRestReflector {
 
     private static Set<String> buildIdx(Collection<GenericVar> before) {
         return before.stream().map(prop -> {
-                return prop.getName();
-            }).collect(Collectors.toSet());
+            return prop.getName();
+        }).collect(Collectors.toSet());
     }
 
 
