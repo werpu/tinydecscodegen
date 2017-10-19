@@ -13,6 +13,7 @@ import java.util.Map;
 @RequestMapping("rest/testprobe1")
 public class TestProbeController {
 
+
     @RequestMapping(value = "/approval/getit/resource/{app}/{right}/{filter}", method = {RequestMethod.GET})
     public ReturnValue<ProbeRetVal> probeGet(@PathVariable("app") String appUuid, @PathVariable("right") String right, @PathVariable("filter") String filter) {
         return new ReturnValue<ProbeRetVal>(new ProbeRetVal());

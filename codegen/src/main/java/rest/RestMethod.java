@@ -28,6 +28,7 @@ public class RestMethod extends GenericMethod {
     private final String name;
     private final RestType restType; /* GET POST etc...*/
     private final String consumes;
+    private final String comment;
 
     public RestMethod(String url, String name, RestType restType) {
         super(Optional.empty(), Collections.emptyList());
@@ -35,6 +36,7 @@ public class RestMethod extends GenericMethod {
         this.name = name;
         this.restType = restType;
         consumes = null;
+        comment = "";
     }
 
     public RestMethod(String url, String name, RestType restType, Optional<RestVar> returnValue) {
@@ -43,6 +45,7 @@ public class RestMethod extends GenericMethod {
         this.name = name;
         this.restType = restType;
         consumes = null;
+        comment = "";
     }
 
     public RestMethod(String url, String name, RestType restType, Optional<RestVar> returnValue, List<RestVar> params) {
@@ -51,5 +54,15 @@ public class RestMethod extends GenericMethod {
         this.name = name;
         this.restType = restType;
         consumes = null;
+        comment = "";
+    }
+
+    public RestMethod(String url, String name, RestType restType, Optional<RestVar> returnValue, List<RestVar> params, String comment) {
+        super(returnValue, params);
+        this.url = url;
+        this.name = name;
+        this.restType = restType;
+        this.consumes = null;
+        this.comment = comment;
     }
 }

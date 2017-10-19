@@ -23,6 +23,7 @@ export class ${service.serviceName} {
 
     <#list service.methods as method>
 
+    ${method.comment}
     @Rest({
         url: "${method.url}",
         method: "${method.restType.name()}"<#if method.returnValue.get().array == true >,

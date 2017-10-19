@@ -98,6 +98,7 @@ public class IntellijSpringRestReflector {
             method = method.substring("RequestMethod.".length());
         }
 
+        String comment = m.getDocComment() != null ? m.getDocComment().getText(): "";
         String consumes = getAttr(mapping, "consumes");
         List<RestVar> params = getRestVars(m);
 
@@ -108,7 +109,7 @@ public class IntellijSpringRestReflector {
                 ReflectUtils.isArrayType(sReturnType),
                 null, genericTypes);
 
-        return new RestMethod(path, name, RestType.valueOf(method.toUpperCase()), Optional.ofNullable(returnType), params);
+        return new RestMethod(path, name, RestType.valueOf(method.toUpperCase()), Optional.ofNullable(returnType), params, comment);
     }
 
     private static String getAttr(PsiAnnotation mapping, String attrVal) {
