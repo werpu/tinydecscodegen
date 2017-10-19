@@ -47,7 +47,6 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.encoding.EncodingRegistry;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -70,7 +69,6 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -453,7 +451,7 @@ public class IntellijUtils {
                 Confirm dialog = new Confirm(data -> {
 
 
-                    List<GenericClass> dtos = IntellijSpringJavaRestReflector.reflectDto(Arrays.asList(javaClass), data);
+                    List<GenericClass> dtos = IntellijDtoReflector.reflectDto(Arrays.asList(javaClass), data);
                     if (dtos == null || dtos.isEmpty()) {
                         Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
                         retVal.set(false);
@@ -467,14 +465,14 @@ public class IntellijUtils {
 
                     generateOrDiffTsFile(text, fileName, className, project, module, javaFile, ArtifactType.DTO);
                     return true;
-                }, null, IntellijSpringJavaRestReflector.getInheritanceHierarchyAsString(javaClass));
+                }, null, IntellijDtoReflector.getInheritanceHierarchyAsString(javaClass));
 
                 SwingUtils.centerOnParent(dialog, true);
                 dialog.pack();
                 dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
                 dialog.setVisible(true);
             } else {
-                List<GenericClass> dtos = IntellijSpringJavaRestReflector.reflectDto(Arrays.asList(javaClass), "");
+                List<GenericClass> dtos = IntellijDtoReflector.reflectDto(Arrays.asList(javaClass), "");
                 if (dtos == null || dtos.isEmpty()) {
                     Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
                     retVal.set(false);

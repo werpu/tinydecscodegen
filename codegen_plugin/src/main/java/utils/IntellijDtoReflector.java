@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * We might add bytecode reflection wherever the sources are not reachable anymore,
  * in the future.
  */
-public class IntellijSpringJavaRestReflector {
+public class IntellijDtoReflector {
 
 
     public static List<GenericClass> reflectDto(List<PsiClass> toReflect, String includingEndpoint) {
@@ -137,13 +137,13 @@ public class IntellijSpringJavaRestReflector {
                 .filter(declaredField -> {
                     return !propIdx.contains(declaredField.getName()) && declaredField.hasModifierProperty(PsiModifier.PUBLIC)
                             && !declaredField.hasModifierProperty(PsiModifier.STATIC);
-                }).map(IntellijSpringJavaRestReflector::remapField).collect(Collectors.toList());
+                }).map(IntellijDtoReflector::remapField).collect(Collectors.toList());
     }
 
     private static List<GenericVar> removeTransient(List<GenericVar> before, PsiClass clazz) {
         Arrays.stream(clazz.getAllFields()).filter(declaredField -> declaredField.hasModifierProperty(PsiModifier.TRANSIENT))
                 .forEach(field -> {
-                    before.remove(IntellijSpringJavaRestReflector.remapField(field));
+                    before.remove(IntellijDtoReflector.remapField(field));
                 });
         return before;
     }
@@ -161,7 +161,7 @@ public class IntellijSpringJavaRestReflector {
         if (isLombokedClass(clazz)) {
             return Arrays.stream(clazz.getFields())
                     .filter(declaredField -> !propIdx.contains(declaredField.getName()))
-                    .map(IntellijSpringJavaRestReflector::remapField)
+                    .map(IntellijDtoReflector::remapField)
                     .collect(Collectors.toList());
         }
         return Collections.emptyList();

@@ -240,6 +240,14 @@ public class ReflectUtils {
         return retCls.isArray() || retCls.isInstance(Collections.emptyList());
     }
 
+    public static boolean isArrayType(String retCls) {
+        return retCls.contains("Set") ||
+                retCls.contains("List") ||
+                retCls.contains("Collection") ||
+                retCls.contains("[");
+    }
+
+
     public static boolean isArrayType(boolean array, Optional<String> genericTypeName) {
         if (!genericTypeName.isPresent()) {
             return false;
@@ -286,6 +294,10 @@ public class ReflectUtils {
                 paramType.equals("Boolean") ||
                 paramType.equals("Double") ||
                 paramType.equals("Float") ||
-                paramType.equals("String");
+                paramType.equals("String")||
+                paramType.endsWith("Map") ||
+                paramType.endsWith("List") ||
+                paramType.endsWith("Set") ||
+                paramType.endsWith("Tree");
     }
 }
