@@ -2,6 +2,7 @@ package probes;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import probes.subPackage.TestDto;
 
 import java.util.List;
 

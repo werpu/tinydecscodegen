@@ -1,5 +1,5 @@
 import org.junit.Test;
-import probes.TestDto;
+import probes.subPackage.TestDto;
 import probes.TestProbeController;
 import reflector.SpringJavaRestReflector;
 import reflector.utils.ReflectUtils;

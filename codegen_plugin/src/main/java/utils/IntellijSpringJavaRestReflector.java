@@ -30,9 +30,14 @@ import rest.GenericType;
 import rest.GenericVar;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Reflector class which uses Intellijs source code reflection api (Psi Api)
+ * For now only this one is used.
+ * We might add bytecode reflection wherever the sources are not reachable anymore,
+ * in the future.
+ */
 public class IntellijSpringJavaRestReflector {
 
 
@@ -40,7 +45,7 @@ public class IntellijSpringJavaRestReflector {
 
         return toReflect.stream().filter(clazz -> clazz.hasModifierProperty(PsiModifier.PUBLIC)).map(clazz -> {
             GenericClass parent = null;
-            Collection<GenericVar> props = getAllProperties(clazz);
+            Collection<GenericVar> props = inheritanceWalker(clazz, includingEndpoint);
             if (includingEndpoint.equals(clazz.getQualifiedName()) && clazz.getSuperClass() != null && !clazz.getSuperClass().getQualifiedName().equals(Object.class.getName())) {
                 parent = reflectDto(Arrays.asList(clazz.getSuperClass()), includingEndpoint).get(0);
             }
@@ -49,6 +54,25 @@ public class IntellijSpringJavaRestReflector {
             return new GenericClass(classDescriptor, parent, Collections.emptyList(), props.stream().collect(Collectors.toList()));
 
         }).collect(Collectors.toList());
+    }
+
+
+    private static Collection<GenericVar> inheritanceWalker(PsiClass clazz, String includingEndoint) {
+
+        Collection<GenericVar> retVal = getAllProperties(clazz);
+
+        PsiClass parent = clazz.getSuperClass();
+
+
+        while(parent != null && !parent.getQualifiedName().equals(includingEndoint) && !parent.getQualifiedName().startsWith("java.")) {
+            final Set<String> propIdx = buildIdx(retVal);
+            retVal.addAll(getAllProperties(parent).stream().filter(element -> !propIdx.contains(element.getName())).collect(Collectors.toList()));
+            parent = parent.getSuperClass();
+        }
+
+        //TODO inheritance somewhere in the binaries not in the sources
+
+        return retVal;
     }
 
     public static Collection<GenericVar> getAllProperties(PsiClass clazz) {
@@ -70,9 +94,7 @@ public class IntellijSpringJavaRestReflector {
     }
 
     private static List<GenericVar> resolvePublicProps(List<GenericVar> before, PsiField[] fields) {
-        final Set<String> propIdx = before.stream().map(prop -> {
-            return prop.getName();
-        }).collect(Collectors.toSet());
+        final Set<String> propIdx = buildIdx(before);
 
         return Arrays.asList(fields).stream()
                 .filter(declaredField -> {
@@ -90,9 +112,7 @@ public class IntellijSpringJavaRestReflector {
     }
 
     private static List<GenericVar> resolveClassLombok(List<GenericVar> before, PsiClass clazz) {
-        final Set<String> propIdx = before.stream().map(prop -> {
-            return prop.getName();
-        }).collect(Collectors.toSet());
+        final Set<String> propIdx = buildIdx(before);
         if(isLombokedClass(clazz)) {
             return Arrays.stream(clazz.getAllFields())
                     .filter(declaredField -> !propIdx.contains(declaredField.getName()))
@@ -104,9 +124,7 @@ public class IntellijSpringJavaRestReflector {
 
 
     private static List<GenericVar> resolveLombok(List<GenericVar> before, PsiField[] fields) {
-        final Set<String> propIdx = before.stream().map(prop -> {
-            return prop.getName();
-        }).collect(Collectors.toSet());
+        final Set<String> propIdx = buildIdx(before);
 
         return Arrays.asList(fields).stream()
                 .filter(declaredField -> !propIdx.contains(declaredField.getName()) &&
@@ -138,9 +156,7 @@ public class IntellijSpringJavaRestReflector {
     }
 
     private static List<GenericVar> resolveGetters(List<GenericVar> before, PsiMethod[] methods) {
-        final Set<String> propIdx = before.stream().map(prop -> {
-            return prop.getName();
-        }).collect(Collectors.toSet());
+        final Set<String> propIdx = buildIdx(before);
 
         return Arrays.stream(methods).filter(m -> m.getParameterList().getParameters().length == 0 &&
                         m.getName().startsWith("get") &&
@@ -153,6 +169,12 @@ public class IntellijSpringJavaRestReflector {
             return new GenericVar(name, ReflectUtils.buildGenericTypes(m.getReturnType().getCanonicalText()).get(0),
                     new GenericType[0]);
         }).filter(genericVar -> !propIdx.contains(genericVar.getName())).collect(Collectors.toList());
+    }
+
+    private static Set<String> buildIdx(Collection<GenericVar> before) {
+        return before.stream().map(prop -> {
+                return prop.getName();
+            }).collect(Collectors.toSet());
     }
 
 

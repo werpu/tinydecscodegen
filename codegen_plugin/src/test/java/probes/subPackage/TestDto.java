@@ -1,8 +1,9 @@
-package probes;
+package probes.subPackage;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import probes.ProbeRetVal;
 
 @EqualsAndHashCode
 @AllArgsConstructor

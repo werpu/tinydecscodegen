@@ -1,8 +1,6 @@
 import com.intellij.psi.*;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.junit.Test;
-import probes.TestDto;
-import reflector.SpringJavaRestReflector;
 import reflector.utils.ReflectUtils;
 import reflector.utils.TypescriptTypeMapper;
 import rest.GenericClass;
@@ -28,7 +26,7 @@ public class BasicTest extends LightCodeInsightFixtureTestCase {
     @Test
     public void testFirstFile() {
 
-        myFixture.configureByFiles("TestDto.java");
+        myFixture.configureByFiles("subPackage/TestDto.java");
         PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.getFile();
 
         assertTrue(psiJavaFile != null);
@@ -42,7 +40,7 @@ public class BasicTest extends LightCodeInsightFixtureTestCase {
 
     @Test
     public void testDtoReflection() {
-        myFixture.configureByFiles("TestDto.java");
+        myFixture.configureByFiles("subPackage/TestDto.java");
         PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.getFile();
 
         List<GenericClass> genericClasses = IntellijSpringJavaRestReflector.reflectDto(Arrays.asList( psiJavaFile.getClasses()), "");
@@ -60,6 +58,16 @@ public class BasicTest extends LightCodeInsightFixtureTestCase {
         assertTrue(parsedClass.getProperties().get(2).getClassType().hasExtendedType(true));
 
         assertTrue(parsedClass.getProperties().get(2).getClassType().getNonJavaTypes(true).get(0).getTypeName().endsWith("ProbeRetVal"));
+    }
+
+    @Test
+    public void testInheritance() {
+        myFixture.configureByFiles("TestDtoChild.java", "subPackage/TestDto.java");
+        PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.getFile();
+
+        List<GenericClass> genericClasses = IntellijSpringJavaRestReflector.reflectDto(Arrays.asList( psiJavaFile.getClasses()), "");
+        System.out.println("debugpoint found");
+
     }
 
 
