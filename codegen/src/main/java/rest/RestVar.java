@@ -78,7 +78,11 @@ public class RestVar extends GenericVar {
 
     @SuppressWarnings("unchecked")
     public String toTypeScript() {
-        return this.toTypeScript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName);
+        String retVal = this.toTypeScript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName);
+        if(retVal.startsWith("any<")) {
+            return "any";
+        }
+        return retVal;
     }
 
 

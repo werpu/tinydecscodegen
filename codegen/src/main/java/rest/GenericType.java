@@ -110,7 +110,11 @@ public class GenericType {
 
 
     public String toTypeScript() {
-        return toTypescript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName);
+        String retVal = toTypescript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName);
+        if(retVal.startsWith("any<")) {
+            return "any";
+        }
+        return retVal;
     }
 
     public String getTypeName() {

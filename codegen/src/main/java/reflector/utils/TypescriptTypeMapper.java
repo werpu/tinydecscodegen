@@ -39,6 +39,8 @@ public class TypescriptTypeMapper {
             return "boolean";
         } else if (in.equals("java.util.List") || in.equals("List") || in.equals("Set") || in.equals("java.util.Set")) {
             return "Array";
+        } else if (in.equals("Class") || in.equals("java.lang.Class")){
+            return "any";
         } else {
             return ReflectUtils.reduceClassName(in);
         }
