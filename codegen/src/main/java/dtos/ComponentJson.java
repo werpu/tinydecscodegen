@@ -24,6 +24,8 @@ package dtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * json dto for the Component decorator
  */
@@ -33,4 +35,6 @@ public class ComponentJson {
     String selector;
     String template;
     String controllerAs;
+    boolean transclude;
+    List<String> transclusionSlots;
 }

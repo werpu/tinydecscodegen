@@ -30,6 +30,9 @@ import gui.support.RequiredListener;
 import javax.swing.*;
 import java.util.function.Function;
 
+import static reflector.TransclusionReflector.getPossibleTransclusionSlots;
+import static reflector.TransclusionReflector.hasTransclude;
+
 /**
  * Create Component data form,
  * for the new Tiny Decs Create component dialog
@@ -60,13 +63,19 @@ public class CreateTnDecComponent {
     }
 
     public void callOk() {
-        if (okFunc != null)
-            okFunc.apply(new ComponentJson(txtName.getText(), Strings.nullToEmpty(txtTemplate.getText()), txtControllerAs.getText()));
+        if (okFunc != null) {
+            String templateText = txtTemplate.getText();
+            okFunc.apply(new ComponentJson(txtName.getText(), Strings.nullToEmpty(templateText), txtControllerAs.getText(),
+                    hasTransclude(templateText), getPossibleTransclusionSlots(templateText)));
+        }
     }
 
     public void callCancel() {
-        if (cancelFunc != null)
-            cancelFunc.apply(new ComponentJson(txtName.getText(), Strings.nullToEmpty(txtTemplate.getText()), txtControllerAs.getText()));
+        if (cancelFunc != null) {
+            String templateText = txtTemplate.getText();
+            cancelFunc.apply(new ComponentJson(txtName.getText(), Strings.nullToEmpty(templateText), txtControllerAs.getText(),
+                    hasTransclude(templateText), getPossibleTransclusionSlots(templateText)));
+        }
     }
 
 

@@ -29,15 +29,11 @@ import com.intellij.openapi.command.impl.UndoManagerImpl;
 import com.intellij.openapi.command.undo.UndoManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
-import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
@@ -47,7 +43,7 @@ import utils.IntellijUtils;
 
 import javax.swing.*;
 
-import static actions.shared.EditorUtils.createHtmlEditor;
+import static utils.SwingUtils.createHtmlEditor;
 
 
 public class EditTemplate extends AnAction implements EditorCallback {

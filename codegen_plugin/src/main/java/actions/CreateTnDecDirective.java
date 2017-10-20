@@ -1,6 +1,5 @@
 package actions;
 
-import actions.shared.EditorUtils;
 import actions.shared.GenerateFileAndAddRef;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
@@ -29,6 +28,7 @@ import reflector.ComponentAttributesReflector;
 import utils.IntellijFileContext;
 import utils.IntellijUtils;
 import utils.ModuleElementScope;
+import utils.SwingUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
 import static actions.FormAssertions.assertNotNullOrEmpty;
 import static actions.FormAssertions.assertPattern;
 import static actions.Messages.ERR_ELTYPE_SEL;
+import static reflector.TransclusionReflector.getPossibleTransclusionSlots;
+import static reflector.TransclusionReflector.hasTransclude;
 
 public class CreateTnDecDirective extends AnAction implements DumbAware {
 
@@ -60,7 +62,7 @@ public class CreateTnDecDirective extends AnAction implements DumbAware {
                     HTMLLanguage.INSTANCE, "");
 
             Document document = workFile.getViewProvider().getDocument();
-            Editor editor = EditorUtils.createHtmlEditor(fileContext.getProject(), document);
+            Editor editor = SwingUtils.createHtmlEditor(fileContext.getProject(), document);
             editor.getDocument().setText("  ");
 
             ApplicationManager.getApplication().invokeLater(() -> {
@@ -75,7 +77,7 @@ public class CreateTnDecDirective extends AnAction implements DumbAware {
         final gui.CreateTnDecDirective mainForm = new gui.CreateTnDecDirective();
 
         //mainForm.getTxtTemplate().setVisible(false);
-        Editor editor = EditorUtils.createHtmlEditor(project, document);
+        Editor editor = SwingUtils.createHtmlEditor(project, document);
         WriteCommandAction.runWriteCommandAction(project, () -> {
             editor.getDocument().setText("  ");
         });
@@ -124,8 +126,12 @@ public class CreateTnDecDirective extends AnAction implements DumbAware {
             protected void doOKAction() {
                 ApplicationManager.getApplication().invokeLater(() -> {
 
-                    DirectiveJson model = new DirectiveJson(mainForm.getName(), new String(editor.getDocument().getText().getBytes(), EncodingRegistry.getInstance().getDefaultCharset()).toString(), mainForm.getControllerAs(), buildTypes(mainForm));
-                    List<ComponentAttribute> attrs = ComponentAttributesReflector.reflect(editor.getDocument().getText(), mainForm.getControllerAs());
+                    String templateText =  new String(editor.getDocument().getText().getBytes(), EncodingRegistry.getInstance().getDefaultCharset()).toString();
+                    DirectiveJson model = new DirectiveJson(mainForm.getName(),
+                            templateText,
+                            mainForm.getControllerAs(), buildTypes(mainForm),
+                            hasTransclude(templateText), getPossibleTransclusionSlots(templateText));
+                    List<ComponentAttribute> attrs = ComponentAttributesReflector.reflect(templateText, mainForm.getControllerAs());
                     ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder));
 
                 });
@@ -193,7 +199,12 @@ public class CreateTnDecDirective extends AnAction implements DumbAware {
             attrs.put("CONTROLLER_AS", model.getControllerAs());
             attrs.put("TYPES", model.getTypes());
             attrs.put("COMPONENT_ATTRS", cAttrs);
-
+            if(model.isTransclude() && model.getTransclusionSlots().isEmpty()) {
+                attrs.put("TRANSCLUDE", true);
+            }
+            if(model.isTransclude() && !model.getTransclusionSlots().isEmpty()) {
+                attrs.put("TRANSCLUDE_SLOTS", model.getTransclusionSlots());
+            }
             new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, ModuleElementScope.EXPORT).run();
 
         });

@@ -27,6 +27,7 @@ import gui.support.RequiredListener;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Collections;
 import java.util.function.Function;
 
 /**
@@ -60,12 +61,12 @@ public class CreateTnNamedArtifact {
         titlePane.setText(title);
         okButton.addActionListener(e -> {
             if (okFunc != null)
-                okFunc.apply(new ComponentJson(name.getText(), Strings.nullToEmpty(""), controllerAs.getText()));
+                okFunc.apply(new ComponentJson(name.getText(), "", controllerAs.getText(), false, Collections.emptyList()));
 
         });
         cancelButton.addActionListener(e -> {
             if (cancelFunc != null)
-                cancelFunc.apply(new ComponentJson(name.getText(), Strings.nullToEmpty(""), controllerAs.getText()));
+                cancelFunc.apply(new ComponentJson(name.getText(), "", controllerAs.getText(), false, Collections.emptyList()));
 
         });
         name.addPropertyChangeListener(evt -> {

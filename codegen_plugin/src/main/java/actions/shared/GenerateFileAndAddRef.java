@@ -47,6 +47,9 @@ public class GenerateFileAndAddRef implements Runnable {
 
     public GenerateFileAndAddRef(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs, ModuleElementScope scope) {
         this.project = project;
+        if(!folder.isDirectory()) {
+            folder = folder.getParent();
+        }
         this.folder = folder;
         this.className = className;
         this.vslTemplate = vslTemplate;

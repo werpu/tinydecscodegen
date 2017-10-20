@@ -4,7 +4,7 @@ import IScope = angular.IScope;
 import IAttributes = angular.IAttributes;
 
 /**
- * Component ${NAME}
+ * Directive ${NAME}
  * @author ${AUTHOR}
  */
 @Directive({
@@ -12,6 +12,18 @@ import IAttributes = angular.IAttributes;
     template: `${TEMPLATE}`,
     restrict: "${TYPES}",
     bindToController: true,
+#if( $TRANSCLUDE )
+    transclude: true,
+
+#end
+#if( $TRANSCLUDE_SLOTS )
+    transclude: {
+#foreach($slot in $TRANSCLUDE_SLOTS)
+        '${slot}': '?${slot}'#if( $foreach.hasNext ), #end
+
+#end
+    },
+#end
     controllerAs: "${CONTROLLER_AS}"
 })
 export class ${NAME} {
