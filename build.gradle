@@ -8,7 +8,7 @@ allprojects {
     apply plugin: 'idea'
 
     group = 'com.github.tinydecs-codegen'
-    version = '0.5.1-SNAPSHOT '
+    version = '0.5.1-SNAPSHOT'
 }
 
 
