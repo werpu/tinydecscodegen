@@ -44,10 +44,10 @@ public class ComponentAttributesReflector {
         Pattern pattern = Pattern.compile("[^\\w]+ctrl\\.([A-Za-z0-9\\_\\$\\(]+)");
         Matcher m = pattern.matcher(text);
         Set<ComponentAttribute> matches = new HashSet<>();
-        while(m.find()) {
-                String match = m.group(1);
-                ComponentAttribute found = new ComponentAttribute(match, ArgumentType.Input, "any", false);
-                matches.add(found);
+        while (m.find()) {
+            String match = m.group(1);
+            ComponentAttribute found = new ComponentAttribute(match, ArgumentType.Input, "any", false);
+            matches.add(found);
 
         }
         return matches.stream()
@@ -60,9 +60,9 @@ public class ComponentAttributesReflector {
     private static boolean filterInvalidEntries(ComponentAttribute attr) {
         String name = attr.getName();
 
-        if(name.contains("(") && name.endsWith("(") || name.replaceAll("\\s","").contains("($")) {
+        if (name.contains("(") && name.endsWith("(") || name.replaceAll("\\s", "").contains("($")) {
             return true;
-        } else if(name.contains("(")) {
+        } else if (name.contains("(")) {
             return false;
         }
         return true;
@@ -78,15 +78,19 @@ public class ComponentAttributesReflector {
     private static ComponentAttribute guessType(ComponentAttribute attr) {
         String name = attr.getName();
 
-        if(name.contains("(")) {
+        if (name.contains("(")) {
             name = name.substring(0, name.indexOf("("));
-            return  new ComponentAttribute(name,  ArgumentType.Func, "Function", false);
-        } else  if(name.equals("value") || name.equals("ngModel")) {
+            return new ComponentAttribute(name, ArgumentType.Func, "Function", false);
+        } else if (name.equals("value") || name.equals("ngModel")) {
             return new ComponentAttribute(name, ArgumentType.Both, "any", false);
-        } else if(name.startsWith("lbl") || name.startsWith("label") || name.startsWith("str")) {
-            return new ComponentAttribute(name, ArgumentType.AString, "string", false);
-        } else if(name.matches("is[A-Z].*") || name.matches("can[A-Z].*")|| name.matches("has[A-Z].*")) {
+        } else if (name.matches("is[A-Z].*") || name.matches("can[A-Z].*") || name.matches("has[A-Z].*")) {
             return new ComponentAttribute(name, ArgumentType.Input, "boolean", false);
+        } else if (name.toLowerCase().contains("lbl") ||
+                name.toLowerCase().contains("label") ||
+                name.toLowerCase().contains("str") ||
+                name.toLowerCase().contains("txt") ||
+                name.toLowerCase().contains("text")) {
+            return new ComponentAttribute(name, ArgumentType.AString, "string", false);
         }
 
         return attr;
