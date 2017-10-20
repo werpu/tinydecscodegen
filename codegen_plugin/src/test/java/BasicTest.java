@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 public class BasicTest extends LightCodeInsightFixtureTestCase {
 
     @Override
-
     protected void setUp() throws Exception {
         super.setUp();
     }

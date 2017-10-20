@@ -22,10 +22,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package utils;
 
 import com.google.common.collect.Lists;
+import com.intellij.navigation.NavigationItem;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 import reflector.utils.ReflectUtils;
 import rest.GenericClass;
+import rest.GenericEnum;
 import rest.GenericType;
 import rest.GenericVar;
 
@@ -44,16 +46,53 @@ public class IntellijDtoReflector {
     public static List<GenericClass> reflectDto(List<PsiClass> toReflect, String includingEndpoint) {
 
         return toReflect.stream().filter(clazz -> clazz.hasModifierProperty(PsiModifier.PUBLIC)).map(clazz -> {
-            GenericClass parent = null;
-            Collection<GenericVar> props = inheritanceWalker(clazz, includingEndpoint);
-            if (includingEndpoint.equals(clazz.getQualifiedName()) && clazz.getSuperClass() != null && !clazz.getSuperClass().getQualifiedName().equals(Object.class.getName())) {
-                parent = reflectDto(Arrays.asList(clazz.getSuperClass()), includingEndpoint).get(0);
+            if (clazz.isEnum()) {
+                return reflectEnum(includingEndpoint, clazz);
+            } else {
+                return reflectClass(includingEndpoint, clazz);
             }
-            GenericType classDescriptor = ReflectUtils.buildGenericTypes(clazz.getQualifiedName()).get(0);
 
-            return new GenericClass(classDescriptor, parent, Collections.emptyList(), props.stream().collect(Collectors.toList()));
 
         }).collect(Collectors.toList());
+    }
+
+    @NotNull
+    private static GenericClass reflectClass(String includingEndpoint, PsiClass clazz) {
+        GenericClass parent = null;
+        Collection<GenericVar> props = inheritanceWalker(clazz, includingEndpoint);
+        if (includingEndpoint.equals(clazz.getQualifiedName()) && isNotObject(clazz)) {
+            parent = reflectDto(Arrays.asList(clazz.getSuperClass()), includingEndpoint).get(0);
+        }
+        GenericType classDescriptor = ReflectUtils.buildGenericTypes(clazz.getQualifiedName()).get(0);
+
+        return new GenericClass(classDescriptor, parent, Collections.emptyList(), props.stream().collect(Collectors.toList()));
+    }
+
+    public static GenericClass reflectEnum(String includingEndpoint, PsiClass clazz) {
+        GenericEnum parent = null;
+
+
+        List<String> attributes = Arrays.stream(clazz.getAllFields())
+                .filter(field -> field.getType().getPresentableText().equals("EnumProbe"))
+                .map(NavigationItem::getName)
+                .collect(Collectors.toList());
+
+        if (includingEndpoint.equals(clazz.getName()) && isNotObject(clazz) && isNotEnumClass(clazz)) {
+            parent = (GenericEnum) reflectDto(Arrays.asList(clazz.getSuperClass()), includingEndpoint).get(0);
+        }
+
+        GenericType classDescriptor = ReflectUtils.buildGenericTypes(clazz.getQualifiedName()).get(0);
+
+        return new GenericEnum(classDescriptor, parent, attributes);
+    }
+
+    private static boolean isNotObject(PsiClass clazz) {
+        return clazz.getSuperClass() != null && !clazz.getSuperClass().getQualifiedName().equals(Object.class.getName());
+    }
+
+
+    private static boolean isNotEnumClass(PsiClass clazz) {
+        return clazz.getSuperClass() != null && !clazz.getSuperClass().getQualifiedName().equals(Enum.class.getName());
     }
 
 

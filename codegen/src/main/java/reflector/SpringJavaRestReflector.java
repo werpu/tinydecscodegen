@@ -66,7 +66,7 @@ public class SpringJavaRestReflector {
      */
     private static GenericClass reflectEnum(Class includingEndpoint, Class clazz) {
 
-        Collection<GenericVar> props = Collections.emptyList();
+
         GenericEnum parent = null;
 
 
