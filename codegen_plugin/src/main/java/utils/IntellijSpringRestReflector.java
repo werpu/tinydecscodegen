@@ -28,10 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import reflector.utils.ReflectUtils;
 import rest.*;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -80,6 +77,7 @@ public class IntellijSpringRestReflector {
         return Arrays.stream(allMethods)
                 .filter(IntellijSpringRestReflector::isRestMethod)
                 .map(m -> mapMethod(m, flattenResult))
+                .sorted(Comparator.comparing(RestMethod::getName))
                 .collect(Collectors.toList());
     }
 
@@ -88,14 +86,12 @@ public class IntellijSpringRestReflector {
         String name = m.getName();
         PsiAnnotation mapping = getAnn(m, RequestMapping.class);
         String path = getAttr(mapping, "value");
-        if(path.startsWith("/")) {
-            path = path.substring(1);
-        }
+
         //TODO multiple methods possible
         String method = getAttr(mapping, "method");
         //TODO multiple consumes possible
-        if(method.startsWith("RequestMethod.")) {
-            method = method.substring("RequestMethod.".length());
+        if(method.contains(".")) {
+            method = method.substring(method.lastIndexOf(".")+1);
         }
 
         String comment = m.getDocComment() != null ? m.getDocComment().getText(): "";
@@ -109,6 +105,9 @@ public class IntellijSpringRestReflector {
                 ReflectUtils.isArrayType(sReturnType),
                 null, genericTypes);
 
+        if(Strings.isNullOrEmpty(method)) {
+            method = RestType.GET.name();
+        }
         return new RestMethod(path, name, RestType.valueOf(method.toUpperCase()), Optional.ofNullable(returnType), params, comment);
     }
 
