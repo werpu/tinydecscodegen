@@ -21,6 +21,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package reflector;
 
+import com.google.common.base.Enums;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.thoughtworks.paranamer.BytecodeReadingParanamer;
@@ -43,24 +44,62 @@ public class SpringJavaRestReflector {
 
 
     public static List<GenericClass> reflectDto(List<Class> toReflect, Class includingEndpoint) {
+
+
         return toReflect.stream().map(clazz -> {
-
-            Collection<GenericVar> props = Collections.emptyList();
-            GenericClass parent = null;
-            try {
-                props = ReflectUtils.getAllProperties(clazz, includingEndpoint);
-
-                if(includingEndpoint.getName().equals(clazz.getName()) && !clazz.getSuperclass().equals(Object.class)) {
-                    parent = reflectDto(Arrays.asList(clazz.getSuperclass()), includingEndpoint).get(0);
-                }
-            } catch (IntrospectionException e) {
-                e.printStackTrace();
+            if (clazz.isEnum()) {
+                //we have an enum here
+                return reflectEnum(includingEndpoint, clazz);
+            } else {
+                return reflectClass(includingEndpoint, clazz);
             }
-            GenericType classDescriptor = ReflectUtils.buildGenericTypes(clazz.getTypeName()).get(0);
 
-            return new GenericClass(classDescriptor, parent, Collections.emptyList(), props.stream().collect(Collectors.toList()));
 
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * for now no endpoint for enums, it is all or nothing
+     *
+     * @param clazz
+     * @return
+     */
+    private static GenericClass reflectEnum(Class includingEndpoint, Class clazz) {
+
+        Collection<GenericVar> props = Collections.emptyList();
+        GenericEnum parent = null;
+
+
+        List<String> attributes = Arrays.stream(clazz.getEnumConstants())
+                .map(enumValue -> Enums.getField((Enum) enumValue).getName())
+                .collect(Collectors.toList());
+
+        if (includingEndpoint.getName().equals(clazz.getName()) && !clazz.getSuperclass().equals(Object.class)) {
+            parent = (GenericEnum) reflectDto(Arrays.asList(clazz.getSuperclass()), includingEndpoint).get(0);
+        }
+
+        GenericType classDescriptor = ReflectUtils.buildGenericTypes(clazz.getTypeName()).get(0);
+
+        return new GenericEnum(classDescriptor, parent, attributes);
+
+
+    }
+
+    private static GenericClass reflectClass(Class includingEndpoint, Class clazz) {
+        Collection<GenericVar> props = Collections.emptyList();
+        GenericClass parent = null;
+        try {
+            props = ReflectUtils.getAllProperties(clazz, includingEndpoint);
+
+            if (includingEndpoint.getName().equals(clazz.getName()) && !clazz.getSuperclass().equals(Object.class)) {
+                parent = reflectDto(Arrays.asList(clazz.getSuperclass()), includingEndpoint).get(0);
+            }
+        } catch (IntrospectionException e) {
+            e.printStackTrace();
+        }
+        GenericType classDescriptor = ReflectUtils.buildGenericTypes(clazz.getTypeName()).get(0);
+
+        return new GenericClass(classDescriptor, parent, Collections.emptyList(), props.stream().collect(Collectors.toList()));
     }
 
     public static List<RestService> reflectRestService(List<Class> toReflect, boolean flattenResult) {
@@ -69,7 +108,7 @@ public class SpringJavaRestReflector {
         }).map(cls -> {
             String serviceUrl = fetchServiceUrl(cls);
             List<RestMethod> restMethods = fetchRestMethods(cls, flattenResult);
-            return new RestService(fetchServiceName(cls),  serviceUrl, cls.getName(), restMethods);
+            return new RestService(fetchServiceName(cls), serviceUrl, cls.getName(), restMethods);
         }).collect(Collectors.toList());
     }
 
