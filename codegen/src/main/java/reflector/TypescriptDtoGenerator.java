@@ -28,6 +28,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import rest.GenericClass;
+import rest.GenericEnum;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -45,7 +46,6 @@ public class TypescriptDtoGenerator {
      * Main entry point for the generator
      *
      * @param classes the parsing model which needs to be templated
-     *
      * @return a string with the service or errors in case of parsing errors
      */
     public static String generate(List<GenericClass> classes) {
@@ -69,18 +69,18 @@ public class TypescriptDtoGenerator {
     /**
      * the single file generation utilizing freemarker
      *
-     * @param cfg the freemarker config
+     * @param cfg     the freemarker config
      * @param classes a list of services models which need to be templated
      * @return a concatenated string of the services being processed
      */
-    private static String generate(Configuration cfg, List<GenericClass> classes)  {
+    private static String generate(Configuration cfg, List<GenericClass> classes) {
 
         return classes.stream().map((GenericClass item) -> {
             try {
 
                 Map<String, Object> root = new HashMap<>();
                 root.put("clazz", item);
-                Template tpl = cfg.getTemplate("dtoTemplate.ftl");
+                Template tpl = (item instanceof GenericEnum) ? cfg.getTemplate("enumTemplate.ftl") : cfg.getTemplate("dtoTemplate.ftl");
                 StringWriter w = new StringWriter();
                 tpl.process(root, w);
                 return w.toString();

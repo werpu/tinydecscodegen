@@ -197,7 +197,7 @@ public class ReflectUtils {
      * @return true if it extends another class
      */
     public static boolean hasParent(Class clazz) {
-        return !clazz.getSuperclass().equals(Object.class);
+        return !clazz.getSuperclass().equals(Object.class) && !clazz.getSuperclass().equals(Enum.class);
     }
 
     public static Collection<GenericVar> getAllProperties(Class clazz, Class includingEndpoint) throws IntrospectionException {

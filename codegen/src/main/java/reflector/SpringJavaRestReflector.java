@@ -74,7 +74,7 @@ public class SpringJavaRestReflector {
                 .map(enumValue -> Enums.getField((Enum) enumValue).getName())
                 .collect(Collectors.toList());
 
-        if (includingEndpoint.getName().equals(clazz.getName()) && !clazz.getSuperclass().equals(Object.class)) {
+        if (includingEndpoint.getName().equals(clazz.getName()) && !clazz.getSuperclass().equals(Object.class) && !clazz.getSuperclass().equals(Enum.class)) {
             parent = (GenericEnum) reflectDto(Arrays.asList(clazz.getSuperclass()), includingEndpoint).get(0);
         }
 

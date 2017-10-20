@@ -16,6 +16,7 @@ public class GenericEnum extends GenericClass {
 
     public GenericEnum(GenericType clazz, GenericEnum parentEnum, List<String> attributes) {
         super(clazz, parentEnum, Collections.emptyList(), Collections.emptyList());
+        this.attributes = attributes;
     }
 
 
