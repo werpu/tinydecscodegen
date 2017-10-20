@@ -74,21 +74,23 @@
 
             <group id="TD_Generate" text="Generators" description="Tiny decorations generation" popup="true">
 
-                <action id="TD_Service" class="actions.ServiceGenerateActionWithoutCompile" text="Service Generation"
-                        description="Generate a typescript service">
 
-                </action>
-                <action id="TD_CompileService" class="actions.ServiceGenerationAction" text="Compilation and Service Generation"
-                        description="Generate a typescript service">
-
-                </action>
-                <separator />
                 <action id="TD_ServiceSource" class="actions.ServiceGenerateActionFromSource" text="Service Generation from Source"
                         description="Generate a typescript service">
                 </action>
 
                 <action id="TD_DtoSrc" class="actions.DtoGenerateFromSource" text="Dto Generation from source"
                         description="Generate a typescript dto from the current editor window">
+
+                </action>
+                <!--
+                <separator />
+                <action id="TD_Service" class="actions.ServiceGenerateActionWithoutCompile" text="Service Generation"
+                        description="Generate a typescript service">
+
+                </action>
+                <action id="TD_CompileService" class="actions.ServiceGenerationAction" text="Compilation and Service Generation"
+                        description="Generate a typescript service">
 
                 </action>
                 <separator />
@@ -101,6 +103,7 @@
                         description="Generate a typescript dto">
 
                 </action>
+                -->
             </group>
 
             <separator />
