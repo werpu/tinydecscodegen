@@ -475,7 +475,10 @@ public class IntellijUtils {
             }
             String className = javaClass.getQualifiedName();
 
-            if(javaClass.getSuperClass() != null && !javaClass.getSuperClass().getQualifiedName().equals("java.lang.Object")) {
+            if(javaClass.getSuperClass() != null
+                    && !javaClass.getSuperClass().getQualifiedName().equals("java.lang.Object")
+                    && !javaClass.getSuperClass().getQualifiedName().equals("java.lang.Enum")) {
+
                 Confirm dialog = new Confirm(data -> {
 
 
