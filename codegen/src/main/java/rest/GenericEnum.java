@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 
 
-@EqualsAndHashCode
 @Getter
 public class GenericEnum extends GenericClass {
 

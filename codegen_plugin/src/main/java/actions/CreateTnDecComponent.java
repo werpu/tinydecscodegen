@@ -1,10 +1,10 @@
 package actions;
 
+import actions.shared.EditorUtils;
 import actions.shared.GenerateFileAndAddRef;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
-import com.intellij.ide.highlighter.HtmlFileType;
 import com.intellij.lang.html.HTMLLanguage;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -12,9 +12,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.EditorSettings;
-import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -52,7 +49,6 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
 
 
     public CreateTnDecComponent() {
-        //super("TDecs Angular ComponentJson", "Creates a Tiny Decorations Angular ComponentJson", null);
         super();
     }
 
@@ -68,7 +64,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
                     HTMLLanguage.INSTANCE, "");
 
             Document document = workFile.getViewProvider().getDocument();
-            Editor editor = createHtmlEditor(fileContext.getProject(), document);
+            Editor editor = EditorUtils.createHtmlEditor(fileContext.getProject(), document);
             editor.getDocument().setText("  ");
 
             ApplicationManager.getApplication().invokeLater(() -> {
@@ -83,7 +79,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
         final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
 
         mainForm.getTxtTemplate().setVisible(false);
-        Editor editor = createHtmlEditor(project, document);
+        Editor editor = EditorUtils.createHtmlEditor(project, document);
         WriteCommandAction.runWriteCommandAction(project, () -> {
             editor.getDocument().setText("  ");
         });
@@ -155,25 +151,6 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
                 e.printStackTrace();
             }
         });
-    }
-
-    @NotNull
-    public static Editor createHtmlEditor(Project project, Document document) {
-        EditorFactory editorFactory = EditorFactory.getInstance();
-        Editor editor = editorFactory.createEditor(document, project, FileTypeManager.getInstance().getFileTypeByExtension(".html"), false);
-
-        EditorSettings editorSettings = editor.getSettings();
-        editorSettings.setLineMarkerAreaShown(true);
-        editorSettings.setLineNumbersShown(true);
-        editorSettings.setFoldingOutlineShown(true);
-        editorSettings.setAnimatedScrolling(true);
-        editorSettings.setWheelFontChangeEnabled(true);
-        editorSettings.setVariableInplaceRenameEnabled(true);
-        editorSettings.setDndEnabled(true);
-        editorSettings.setAutoCodeFoldingEnabled(true);
-        editorSettings.setSmartHome(true);
-
-        return editor;
     }
 
     void buildFile(Project project, ComponentJson model, List<ComponentAttribute> cAttrs, VirtualFile folder) {

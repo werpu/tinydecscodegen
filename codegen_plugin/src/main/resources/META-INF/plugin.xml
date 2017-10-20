@@ -53,6 +53,10 @@
                         description="Create a an Angular Tiny Decorations Filter" icon="/images/tt.png">
                 </action>
 
+                <action id="TD_CreateDirective1" class="actions.CreateTnDecDirective" text="Create Directive"
+                        description="Create a an Angular Tiny Decorations Directive" icon="/images/tt.png">
+                </action>
+
                 <separator />
                 <action id="TD_CreateModule1" class="actions.CreateTnDecModule" text="Create Module"
                         description="Create a an Angular Tiny Decorations Module" icon="/images/tt.png">

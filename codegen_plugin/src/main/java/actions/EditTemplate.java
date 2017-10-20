@@ -47,6 +47,8 @@ import utils.IntellijUtils;
 
 import javax.swing.*;
 
+import static actions.shared.EditorUtils.createHtmlEditor;
+
 
 public class EditTemplate extends AnAction implements EditorCallback {
     //static EditorTypingHandler handler = new EditorTypingHandler();
@@ -148,24 +150,7 @@ public class EditTemplate extends AnAction implements EditorCallback {
     }
 
 
-    @NotNull
-    public static Editor createHtmlEditor(Project project, Document document) {
-        EditorFactory editorFactory = EditorFactory.getInstance();
-        Editor editor = editorFactory.createEditor(document, project, FileTypeManager.getInstance().getFileTypeByExtension(".html"), false);
 
-        EditorSettings editorSettings = editor.getSettings();
-        editorSettings.setLineMarkerAreaShown(true);
-        editorSettings.setLineNumbersShown(true);
-        editorSettings.setFoldingOutlineShown(true);
-        editorSettings.setAnimatedScrolling(true);
-        editorSettings.setWheelFontChangeEnabled(true);
-        editorSettings.setVariableInplaceRenameEnabled(true);
-        editorSettings.setDndEnabled(true);
-        editorSettings.setAutoCodeFoldingEnabled(true);
-        editorSettings.setSmartHome(true);
-
-        return editor;
-    }
 
 
 }

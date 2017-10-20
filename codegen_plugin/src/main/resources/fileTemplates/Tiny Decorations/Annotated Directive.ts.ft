@@ -1,0 +1,41 @@
+import {Component, Directive, Inject, Input, Both, AString, Func} from "TinyDecorations";
+
+import IScope = angular.IScope;
+import IAttributes = angular.IAttributes;
+
+/**
+ * Component ${NAME}
+ * @author ${AUTHOR}
+ */
+@Directive({
+    selector: "${SELECTOR}",
+    template: `${TEMPLATE}`,
+    restrict: "${TYPES}",
+    bindToController: true,
+    controllerAs: "${CONTROLLER_AS}"
+})
+export class ${NAME} {
+
+#foreach($attr in $COMPONENT_ATTRS)
+    @${attr.argumentType.name()}(#if(${attr.optional})true#end) ${attr.name}: ${attr.nativeType};
+#end
+
+    constructor(@Inject("$scope") private $scope: IScope) { //add your injections here
+        //add your contstructor code here
+    }
+
+
+    //link(scope: IScope, elm: any, attrs: any, controller: any, transcludes: any) {
+    //    enable for general link, note once enabled pre and postlink are disabled
+    //}
+
+    preLink(scope: IScope, elm: any, attrs:IAttributes) {
+
+        //put your prelink code here
+    }
+
+    postLink(scope: IScope, elm: any, attrs:IAttributes) {
+
+        //put your postlink code here
+    }
+}
