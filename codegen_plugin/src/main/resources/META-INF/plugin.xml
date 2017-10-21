@@ -30,6 +30,12 @@
         <fileTemplateGroup implementation="factories.TnDecGroupFactory"/>
         <defaultLiveTemplatesProvider implementation="factories.TnDecLiveTemplatesProvider"/>
         <liveTemplateContext implementation="factories.TnDecLiveTemplatesContextProvider"/>
+        <applicationConfigurable instance="configuration.ServiceGenConfiguration" />
+
+
+        <applicationService serviceInterface="configuration.ConfigSerializer"
+                            serviceImplementation="configuration.ConfigSerializer"/>
+
     </extensions>
 
     <actions>
