@@ -51,6 +51,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiSearchHelper;
+import configuration.ConfigSerializer;
 import gui.Confirm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -338,12 +339,13 @@ public class IntellijUtils {
         final AtomicBoolean retVal = new AtomicBoolean(true);
 
 
+
         Arrays.stream(javaFile.getClasses()).forEach(javaClass -> {
             if (!javaClass.hasModifierProperty(PsiModifier.PUBLIC) || !retVal.get()) {
                 return;
             }
 
-            List<RestService> restService = IntellijSpringRestReflector.reflectRestService(Arrays.asList(javaClass), true);
+            List<RestService> restService = IntellijSpringRestReflector.reflectRestService(Arrays.asList(javaClass), true, ConfigSerializer.getInstance().getState().getReturnValueStripLevel());
             if (restService == null || restService.isEmpty()) {
                 Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
                 retVal.set(false);

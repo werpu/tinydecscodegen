@@ -36,12 +36,12 @@ import java.util.stream.Collectors;
  */
 public class IntellijSpringRestReflector {
 
-    public static List<RestService> reflectRestService(List<PsiClass> toReflect, boolean flattenResult) {
+    public static List<RestService> reflectRestService(List<PsiClass> toReflect, boolean flattenResult, int returnValueNestingDepth) {
         return toReflect.stream()
                 .filter(IntellijSpringRestReflector::isRestService)
                 .map(cls -> {
                     String serviceUrl = fetchServiceUrl(cls);
-                    List<RestMethod> restMethods = fetchRestMethods(cls, flattenResult);
+                    List<RestMethod> restMethods = fetchRestMethods(cls, flattenResult, returnValueNestingDepth);
                     return new RestService(fetchServiceName(cls), serviceUrl, cls.getQualifiedName(), restMethods);
                 }).collect(Collectors.toList());
     }
@@ -72,17 +72,17 @@ public class IntellijSpringRestReflector {
         return "";
     }
 
-    private static List<RestMethod> fetchRestMethods(PsiClass cls, boolean flattenResult) {
+    private static List<RestMethod> fetchRestMethods(PsiClass cls, boolean flattenResult, int returnValueNestingDepth) {
         PsiMethod[] allMethods = cls.getAllMethods();
         return Arrays.stream(allMethods)
                 .filter(IntellijSpringRestReflector::isRestMethod)
-                .map(m -> mapMethod(m, flattenResult))
+                .map(m -> mapMethod(m, flattenResult, returnValueNestingDepth))
                 .sorted(Comparator.comparing(RestMethod::getName))
                 .collect(Collectors.toList());
     }
 
 
-    private static RestMethod mapMethod(PsiMethod m, boolean flattenResult) {
+    private static RestMethod mapMethod(PsiMethod m, boolean flattenResult, int returnValueNestingDepth) {
         String name = m.getName();
         PsiAnnotation mapping = getAnn(m, RequestMapping.class);
         String path = getAttr(mapping, "value");
@@ -99,7 +99,15 @@ public class IntellijSpringRestReflector {
         List<RestVar> params = getRestVars(m);
 
         String sReturnType = m.getReturnType().getCanonicalText();
-        List<GenericType> childTypes = ReflectUtils.buildGenericTypes(sReturnType.substring(sReturnType.indexOf("<")+1, sReturnType.lastIndexOf(">") ));
+        for(int cnt = 0; cnt < returnValueNestingDepth; cnt++) {
+            int from = sReturnType.indexOf("<");
+            int to = sReturnType.lastIndexOf(">");
+            if(from == -1 || to == -1) {
+                break;
+            }
+            sReturnType = sReturnType.substring(from+1, to);
+        }
+        List<GenericType> childTypes = ReflectUtils.buildGenericTypes(sReturnType);
         GenericType genericTypes = new GenericType("", childTypes);
         RestVar returnType = new RestVar(RestVarType.RequestRetval, null, null,
                 ReflectUtils.isArrayType(sReturnType),

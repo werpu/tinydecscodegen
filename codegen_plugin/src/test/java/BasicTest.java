@@ -80,7 +80,7 @@ public class BasicTest extends LightCodeInsightFixtureTestCase {
     public void testRestReflection() {
         myFixture.configureByFiles("TestProbeController.java", "ReturnValue.java", "ProbeRetVal.java");
         PsiJavaFile psiJavaFile = (PsiJavaFile) myFixture.getFile();
-        List<RestService> services = IntellijSpringRestReflector.reflectRestService(Arrays.asList(psiJavaFile.getClasses()), true);
+        List<RestService> services = IntellijSpringRestReflector.reflectRestService(Arrays.asList(psiJavaFile.getClasses()), true, 1);
         assertTrue(services.size() == 1);
 
         RestService restService = services.get(0);
