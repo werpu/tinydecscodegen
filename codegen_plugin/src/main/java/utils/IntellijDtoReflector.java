@@ -76,7 +76,6 @@ public class IntellijDtoReflector {
                 .filter(field -> field.getType().getPresentableText().equals("EnumProbe"))
                 .map(NavigationItem::getName)
                 .collect(Collectors.toList());
-
         if (includingEndpoint.equals(clazz.getName()) && isNotObject(clazz) && isNotEnumClass(clazz)) {
             parent = (GenericEnum) reflectDto(Arrays.asList(clazz.getSuperClass()), includingEndpoint).get(0);
         }
@@ -245,9 +244,9 @@ public class IntellijDtoReflector {
 
         return Arrays.stream(methods).filter(m -> m.getParameterList().getParameters().length == 0 &&
                 !m.getName().equals("getClass") &&
-                m.getName().startsWith("get") &&
+                (m.getName().startsWith("get") ||  m.getName().startsWith("is")) &&
                 m.hasModifierProperty(PsiModifier.PUBLIC)).map(m -> {
-            String name = m.getName().replaceFirst("get", "");
+            String name = m.getName().startsWith("get") ? m.getName().replaceFirst("get", "") :  m.getName().replaceFirst("is", "");
             String prefix = name.substring(0, 1);
             String postFix = name.substring(1);
             name = prefix.toLowerCase() + postFix;
