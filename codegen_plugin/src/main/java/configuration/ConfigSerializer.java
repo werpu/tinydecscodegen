@@ -15,6 +15,9 @@ public class ConfigSerializer implements PersistentStateComponent<TinyDecsConfig
     @Nullable
     @Override
     public TinyDecsConfiguration getState() {
+        if(state == null) {
+            state = new TinyDecsConfiguration();
+        }
         return state;
     }
 
