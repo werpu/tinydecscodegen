@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.github.tinydecs-codegen.service</id>
     <name>Service Codegen for the ts-ng-tinydecs lib</name>
-    <version>0.4.0</version>
+    <version>0.5.2-SNAPSHOT</version>
     <vendor email="werner.punz@gmail.com" url="">Werner Punz</vendor>
 
     <description><![CDATA[
@@ -17,9 +17,7 @@
     </change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <!--
-    <idea-version since-build="145.0"/>
-     -->
+    <idea-version since-build="123.72"/>
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
 
