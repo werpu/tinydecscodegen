@@ -4,3 +4,4 @@ include ':codegen', ':codegen_plugin'
 project(':codegen').projectDir = "$rootDir/codegen" as File
 
 project(':codegen_plugin').projectDir = "$rootDir/codegen_plugin" as File
+
