@@ -101,7 +101,7 @@ public class IntellijUtils {
             if (alreadyExisting != null && alreadyExisting.size() > 0) {
                 for (PsiFile origFile : alreadyExisting) {
 
-                    showDiff(project, file, origFile, javaFile);
+                    showDiff(project, file, origFile, javaFile, alreadyExisting.size() == 1);
                 }
             } else {
                 ApplicationManager.getApplication().invokeLater(() -> {
@@ -155,9 +155,9 @@ public class IntellijUtils {
      * @param origFile the original file
      * @param javaFile the root java file for the diff
      */
-    public static void showDiff(Project project, PsiFile file, PsiFile origFile, PsiFile javaFile) {
+    public static void showDiff(Project project, PsiFile file, PsiFile origFile, PsiFile javaFile, boolean showTemp) {
         //we do not show the diffs of target files
-        if (origFile.getVirtualFile().getPath().contains("target/generated-sources")) {
+        if (!showTemp && origFile.getVirtualFile().getPath().contains("target/generated-sources")) {
             return;
         }
         SimpleDiffRequest request = new SimpleDiffRequest(
@@ -279,8 +279,10 @@ public class IntellijUtils {
      * @param file
      * @param project
      * @param module
+     *
+     * @return true if a new temp file was generated or just an old one recycled (case of a second generation as temp)
      */
-    public static void moveFileToGeneratedDir(PsiFile file, Project project, Module module) {
+    public static boolean moveFileToGeneratedDir(PsiFile file, Project project, Module module) {
         PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(module.getModuleFile().getParent());
         PsiDirectory rscDir = dir.findSubdirectory("generated-sources");
         if (rscDir == null) {
@@ -292,10 +294,13 @@ public class IntellijUtils {
         }
 
         PsiFile oldFile = rscDir.findFile(file.getName());
-        if (oldFile != null) {
-            oldFile.delete();
+        boolean same = oldFile != null && !oldFile.getVirtualFile().getCanonicalPath().equals(file.getVirtualFile().getCanonicalPath());
+        if(oldFile == null) {
+            rscDir.add(file);
         }
-        rscDir.add(file);
+
+        return !same;
+
     }
 
     /**

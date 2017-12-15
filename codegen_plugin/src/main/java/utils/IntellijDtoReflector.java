@@ -24,6 +24,7 @@ package utils;
 import com.google.common.collect.Lists;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.PsiEnumConstantImpl;
 import org.jetbrains.annotations.NotNull;
 import reflector.utils.ReflectUtils;
 import rest.GenericClass;
@@ -73,7 +74,7 @@ public class IntellijDtoReflector {
 
 
         List<String> attributes = Arrays.stream(clazz.getAllFields())
-                .filter(field -> field.getType().getPresentableText().equals("EnumProbe"))
+                .filter(field -> field instanceof PsiEnumConstant)
                 .map(NavigationItem::getName)
                 .collect(Collectors.toList());
         if (includingEndpoint.equals(clazz.getName()) && isNotObject(clazz) && isNotEnumClass(clazz)) {
