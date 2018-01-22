@@ -37,4 +37,6 @@ public class Messages {
     public static final String ERR_RUN_PATTERN = "Run name must consist of letters  numbers";
     public static final String ERR_SERVICE_PATTERN = "The service must must consist of letters or numbers";
     public static final String ERR_ELTYPE_SEL = "One element type must be selected";
+    public static final String ERR_PROJECT_DIR_CHOSEN = "A project dir must be selected";
+    public static final String ERR_TARGET_DIR_CHOSEN = "A target dir must be selected";
 }

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.github.tinydecs-codegen.service</id>
     <name>Service Codegen for the ts-ng-tinydecs lib</name>
-    <version>0.5.2</version>
+    <version>0.6.0-SNAPSHOT</version>
     <vendor email="werner.punz@gmail.com" url="">Werner Punz</vendor>
 
     <description><![CDATA[
@@ -43,7 +43,15 @@
         <group id="TD_TinyDecsMenu" text="_Tiny Decorations" description="Tiny decorations actions">
             <add-to-group group-id="MainMenu" anchor="last"/>
 
+            <group id="TD_New1" text="New" description="Tiny decorations new" popup="true">
+                <action id="TD_CreateProject1" class="actions.CreateTnDecProject" text="Tiny Decorations Project"
+                        description="Create a an Angular Tiny Decorations Project" icon="/images/tt.png">
+                </action>
+            </group>
+
             <group id="TD_TinyDecsContextMenu1" text="_Tiny Decorations" popup="true" description="Tiny decorations context actions" icon="/images/tt.png" >
+
+
 
                 <action id="TD_CreateComponent1" class="actions.CreateTnDecComponent" text="Create Component"
                         description="Create a an Angular Tiny Decorations Component" icon="/images/tt.png">
@@ -119,6 +127,8 @@
 
         <group id="TD_TinyDecsContextMenu" text="_Tiny Decorations" popup="true" description="Tiny decorations context actions" icon="/images/tt.png">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewHtmlFile"/>
+
+
             <action id="TD_CreateComponent" class="actions.CreateTnDecComponent" text="Create Component"
                     description="Create a an Angular Tiny Decorations Component" icon="/images/tt.png">
             </action>
