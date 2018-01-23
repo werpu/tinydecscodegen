@@ -40,7 +40,6 @@ public class IntellijResourceDir {
 
 
         try {
-            PopupUtil.showBalloonForActiveFrame(resourcePath.substring(5, resourcePath.indexOf(".jar!") + 4), MessageType.INFO);
 
             jar = new ZipFile(resourcePath.substring(5, resourcePath.indexOf(".jar!") + 4));
 
@@ -53,7 +52,6 @@ public class IntellijResourceDir {
     }
 
     public List<ZipEntry> getAllFiles() {
-        PopupUtil.showBalloonForActiveFrame(relativePath, MessageType.INFO);
 
         String rel = relativePath.substring(relativePath.indexOf("resources/") + "resources/".length());
 
