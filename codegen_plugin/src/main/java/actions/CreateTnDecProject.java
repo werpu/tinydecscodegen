@@ -102,7 +102,7 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
             }
 
 
-            IntellijResourceDir resources = new IntellijResourceDir("/resources/projectLayout/tnDec");
+            IntellijResourceDir resources = new IntellijResourceDir(getResourcePath());
 
 
 
@@ -120,5 +120,10 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
             PopupUtil.showBalloonForActiveFrame("The project as been generated, please run npm install to load all needed dependencies", MessageType.INFO);
         }
 
+    }
+
+    @NotNull
+    protected String getResourcePath() {
+        return "/resources/projectLayout/tnDec";
     }
 }
