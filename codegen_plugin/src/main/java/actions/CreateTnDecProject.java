@@ -5,8 +5,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.ui.popup.util.PopupUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.IntellijResourceDir;
@@ -97,6 +98,7 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
                     return data;
                 }
             });
+            PopupUtil.showBalloonForActiveFrame("The project as been generated, please run npm install to load all needed dependencies", MessageType.ERROR);
         }
 
     }

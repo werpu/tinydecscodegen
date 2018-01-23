@@ -1,8 +1,11 @@
 package utils;
 
 import com.google.common.io.ByteStreams;
+import com.intellij.openapi.ui.MessageType;
+import com.intellij.openapi.ui.popup.util.PopupUtil;
 
 import java.io.*;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -27,18 +30,34 @@ public class IntellijResourceDir {
 
     public IntellijResourceDir(String relativePath) {
         resource = new File(IntellijResourceDir.class.getResource(".").getFile()).getParentFile();
-        resource = new File(resource.getPath() + relativePath);
+        String resourcePath = null;
+        try {
+            resourcePath = URLDecoder.decode(resource.getPath(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        resource = new File(resourcePath + relativePath);
+
 
         try {
-            jar = new ZipFile(resource.getPath().substring(5, resource.getPath().indexOf(".jar!") + 4));
+            PopupUtil.showBalloonForActiveFrame(resourcePath.substring(5, resourcePath.indexOf(".jar!") + 4), MessageType.INFO);
+
+            jar = new ZipFile(resourcePath.substring(5, resourcePath.indexOf(".jar!") + 4));
+
         } catch (IOException e) {
-            e.printStackTrace();
+
+
+            throw new RuntimeException(e);
         }
         this.relativePath = relativePath;
     }
 
     public List<ZipEntry> getAllFiles() {
+        PopupUtil.showBalloonForActiveFrame(relativePath, MessageType.INFO);
+
         String rel = relativePath.substring(relativePath.indexOf("resources/") + "resources/".length());
+
+
         return Collections.list(jar.entries()).stream()
                 .filter(entry -> entry.getName().indexOf(rel) >= 0)
                 .filter(entry -> !entry.isDirectory()).collect(Collectors.toList());
