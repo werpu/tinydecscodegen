@@ -29,6 +29,9 @@ import com.intellij.openapi.ui.Messages;
 import static actions.FormAssertions.assertNotNullOrEmpty;
 
 public class CreateTnDecProject extends AnAction implements DumbAware {
+
+    public static final String TN_PROJECT_LAYOUT = "/resources/projectLayout/tnDec";
+
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
 
@@ -124,6 +127,6 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
 
     @NotNull
     protected String getResourcePath() {
-        return "/resources/projectLayout/tnDec";
+        return TN_PROJECT_LAYOUT;
     }
 }

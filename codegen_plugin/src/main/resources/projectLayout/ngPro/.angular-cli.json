@@ -6,7 +6,7 @@
   "apps": [
     {
       "root": "src",
-      "outDir": "../src/main/resources/static",
+      "outDir": "${deployment_root_rel}",
       "assets": [
         "assets",
         "favicon.ico"
@@ -32,7 +32,7 @@
     },
     {
       "root": "src",
-      "outDir": "../src/main/resources/static",
+      "outDir": "${deployment_root_rel}",
       "assets": [
         "assets",
         "favicon.ico"

@@ -6,6 +6,10 @@ import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.project.Project;
 import factories.TnDecGroupFactory;
 
+
+/**
+ * Create an Angular 2 module
+ */
 public class CreateNgModule extends CreateTnDecModule {
 
     @Override
