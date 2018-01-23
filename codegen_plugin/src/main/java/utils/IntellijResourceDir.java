@@ -28,7 +28,10 @@ public class IntellijResourceDir {
 
     String relativePath;
 
-    public IntellijResourceDir(String relativePath) {
+    String subPath;
+
+    public IntellijResourceDir(String relativePath, String subPath) {
+        this.subPath = subPath;
         resource = new File(IntellijResourceDir.class.getResource(".").getFile()).getParentFile();
         String resourcePath = null;
         try {
@@ -53,7 +56,8 @@ public class IntellijResourceDir {
 
     public List<ZipEntry> getAllFiles() {
 
-        String rel = relativePath.substring(relativePath.indexOf("resources/") + "resources/".length());
+        String relPath = relativePath.replaceAll("\\\\", "/");
+        String rel = relPath.substring(relPath.indexOf("resources/") + "resources/".length());
 
 
         return Collections.list(jar.entries()).stream()
@@ -64,7 +68,7 @@ public class IntellijResourceDir {
     public void copyTo(File targetDir, TextTransformer transformer) {
 
         getAllFiles().stream().forEach(file -> {
-            File destFile = new File(targetDir.getPath() + "/" + file.getName().substring("projectLayout/tnDec/".length()));
+            File destFile = new File(targetDir.getPath() + "/" + file.getName().substring(subPath.length()));
             destFile.getParentFile().mkdirs();
             if (!isTextFile(file.getName())) {
 

@@ -8,10 +8,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public class CreateNgProject extends CreateTnDecProject {
 
-    public static final String PROJECT_LAYOUT = "/resources/projectLayout/ngPro";
+    public static final String NG_PROJECT_LAYOUT = "/resources/projectLayout/ngPro";
 
     @NotNull
     protected String getResourcePath() {
-        return PROJECT_LAYOUT;
+        return NG_PROJECT_LAYOUT;
+    }
+
+    @NotNull
+    protected String getSubPath() {
+        return "projectLayout/ngPro/";
     }
 }
