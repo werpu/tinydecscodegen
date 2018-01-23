@@ -120,7 +120,7 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
             String className = IntellijUtils.toCamelCase(name);
 
 
-            FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_MODULE);
+            FileTemplate vslTemplate = getJ2eeTemplate(project);
 
             Map<String, Object> attrs = Maps.newHashMap();
             attrs.put("CLASS_NAME", className);
@@ -128,5 +128,9 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
 
             new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, ModuleElementScope.IMPORT).run();
         });
+    }
+
+    protected FileTemplate getJ2eeTemplate(Project project) {
+        return FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_MODULE);
     }
 }

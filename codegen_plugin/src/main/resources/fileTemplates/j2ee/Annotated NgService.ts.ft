@@ -1,0 +1,15 @@
+import { Injectable } from '@angular/core';
+
+
+/**
+ * Service ${NAME}
+ * @author ${AUTHOR}
+ */
+@Injectable()
+export class ${NAME} {
+
+    constructor() { //add your injections here
+        //add your constructor code here
+    }
+
+}

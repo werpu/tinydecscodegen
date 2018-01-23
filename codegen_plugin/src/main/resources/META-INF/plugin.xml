@@ -84,8 +84,17 @@
                 </action>
             </group>
 
+        <group id="Angular_2_Plus" text="_Angular NG" popup="true" description="Actions for Angular2">
+            <action id="NG_CreateService1" class="actions_ng.CreateNgService" text="Create Angular 2 Service"
+                    description="Create a an Angular Tiny Decorations Service" icon="/images/tt.png">
+            </action>
+            <action id="NG_CreateModule1" class="actions_ng.CreateNgModule" text="Create Angular 2 Module"
+                    description="Create a an Angular Tiny Decorations Service" icon="/images/tt.png">
+            </action>
+        </group>
 
-            <group id="TD_Generate" text="Generators" description="Tiny decorations generation" popup="true">
+
+        <group id="TD_Generate" text="Generators" description="Tiny decorations generation" popup="true">
 
 
                 <action id="TD_ServiceSource" class="actions.ServiceGenerateActionFromSource" text="Service Generation from Source"

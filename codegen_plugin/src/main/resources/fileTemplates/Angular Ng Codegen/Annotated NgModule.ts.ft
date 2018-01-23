@@ -1,0 +1,17 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+/**
+ * Module ${NAME}
+ * @author ${AUTHOR}
+ */
+@NgModule({
+    name: "${NAME}"
+})
+
+@NgModule({
+    declarations: [],
+    imports: [],
+    exports: []
+})
+export class FirstPageModuleModule { }

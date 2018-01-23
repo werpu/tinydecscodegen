@@ -117,12 +117,16 @@ public class CreateTnDecService extends AnAction implements DumbAware {
         WriteCommandAction.runWriteCommandAction(project, () -> {
             String className = model.getName();
 
-            FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_SERVICE);
+            FileTemplate vslTemplate = getJ2eeTemplate(project);
 
             Map<String, Object> attrs = Maps.newHashMap();
             attrs.put("NAME", className);
 
             new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, ModuleElementScope.DECLARATIONS).run();
         });
+    }
+
+    protected FileTemplate getJ2eeTemplate(Project project) {
+        return FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_NG_SERVICE);
     }
 }
