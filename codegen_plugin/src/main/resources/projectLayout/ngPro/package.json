@@ -5,7 +5,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve  --proxy-config proxy.conf.json",
-    "build": "ng build",
+    "build": "ng build --extract-css",
+    "build-prod": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -46,6 +47,7 @@
     "protractor": "~5.1.2",
     "ts-node": "~3.2.0",
     "tslint": "~5.7.0",
-    "typescript": "~2.4.2"
+    "typescript": "~2.4.2",
+    "less": "^2.7.3"
   }
 }

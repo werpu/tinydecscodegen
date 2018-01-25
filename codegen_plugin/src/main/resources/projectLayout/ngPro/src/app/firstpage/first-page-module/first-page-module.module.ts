@@ -11,6 +11,7 @@ import {RestServiceService} from './services/rest-service.service';
 
 @NgModule({
   declarations: [FirstPageComponent, MainPageComponent, SecondPageComponent, NavRefComponent],
-  imports: [CommonModule, HttpClientModule]
+  imports: [CommonModule, HttpClientModule],
+  providers: [RestServiceService]
 })
 export class FirstPageModuleModule { }
