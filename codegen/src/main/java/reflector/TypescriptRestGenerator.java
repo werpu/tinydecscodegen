@@ -48,7 +48,7 @@ public class TypescriptRestGenerator {
      *
      * @return a string with the service or errors in case of parsing errors
      */
-    public static String generate(List<RestService> restServices) {
+    public static String generate(List<RestService> restServices, boolean ng) {
 
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
 
@@ -63,7 +63,11 @@ public class TypescriptRestGenerator {
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 
         cfg.setLogTemplateExceptions(false);
-        return generate(cfg, restServices);
+        if(ng) {
+            return generateNg(cfg,restServices );
+        } else {
+            return generate(cfg, restServices);
+        }
     }
 
     /**
@@ -92,5 +96,32 @@ public class TypescriptRestGenerator {
         }).reduce("", (s0, s1) -> s0 + "\n" + s1);
     }
 
+
+
+    /**
+     * the single file generation utilizing freemarker
+     *
+     * @param cfg the freemarker config
+     * @param restServices a list of services models which need to be templated
+     * @return a concatenated string of the services being processed
+     */
+    private static String generateNg(Configuration cfg, List<RestService> restServices)  {
+
+        return restServices.stream().map((RestService item) -> {
+            try {
+
+                Map<String, Object> root = new HashMap<>();
+                root.put("service", item);
+                Template tpl = cfg.getTemplate("ngServiceTemplate.ftl");
+                StringWriter w = new StringWriter();
+                tpl.process(root, w);
+                return w.toString();
+            } catch (TemplateException ex) {
+                return ex.getMessage();
+            } catch (IOException e) {
+                return e.getMessage();
+            }
+        }).reduce("", (s0, s1) -> s0 + "\n" + s1);
+    }
 
 }

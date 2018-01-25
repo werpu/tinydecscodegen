@@ -110,6 +110,12 @@
                         description="Generate a typescript dto from the current editor window">
 
                 </action>
+
+                <separator />
+                <action id="NG_ServiceSource" class="actions_ng.ServiceGenerateActionFromSource" text="Angular2 Service Generation from Source"
+                        description="Generate a angular 2 typescript service">
+                </action>
+
                 <!--
                 <separator />
                 <action id="TD_Service" class="actions.ServiceGenerateActionWithoutCompile" text="Service Generation"

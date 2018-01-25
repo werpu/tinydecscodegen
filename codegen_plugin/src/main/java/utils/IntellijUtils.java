@@ -340,7 +340,7 @@ public class IntellijUtils {
         return ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(vFile);
     }
 
-    public static boolean generateService(Project project, Module module, PsiJavaFile javaFile) throws ClassNotFoundException {
+    public static boolean generateService(Project project, Module module, PsiJavaFile javaFile, boolean ng) throws ClassNotFoundException {
         final AtomicBoolean retVal = new AtomicBoolean(true);
 
 
@@ -356,7 +356,7 @@ public class IntellijUtils {
                 retVal.set(false);
                 return;
             }
-            String text = TypescriptRestGenerator.generate(restService);
+            String text = TypescriptRestGenerator.generate(restService, ng);
 
             String ext = ".ts";
             String fileName = restService.get(0).getServiceName() + ext;
@@ -369,7 +369,7 @@ public class IntellijUtils {
 
 
 
-    public static boolean generateService(Project project, Module module, String className, PsiFile javaFile, URLClassLoader urlClassLoader) throws ClassNotFoundException {
+    public static boolean generateService(Project project, Module module, String className, PsiFile javaFile, URLClassLoader urlClassLoader, boolean ng) throws ClassNotFoundException {
         Class compiledClass = urlClassLoader.loadClass(className);
 
 
@@ -378,7 +378,7 @@ public class IntellijUtils {
             Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
             return false;
         }
-        String text = TypescriptRestGenerator.generate(restService);
+        String text = TypescriptRestGenerator.generate(restService, ng);
 
         String ext = ".ts";
         String fileName = restService.get(0).getServiceName() + ext;

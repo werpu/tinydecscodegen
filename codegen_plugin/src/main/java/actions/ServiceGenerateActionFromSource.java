@@ -21,7 +21,7 @@ public class ServiceGenerateActionFromSource extends AnAction {
         if (javaData.isError()) return;
 
         try {
-            IntellijUtils.generateService(javaData.getProject(), javaData.getModule(),(PsiJavaFile) javaData.getJavaFile());
+            IntellijUtils.generateService(javaData.getProject(), javaData.getModule(),(PsiJavaFile) javaData.getJavaFile(), false);
         } catch (RuntimeException |  ClassNotFoundException e) {
             log.error(e);
             Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions.Messages.ERR_OCCURRED);

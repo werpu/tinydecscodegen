@@ -71,7 +71,16 @@ public class TemplateTest {
     @Test
     public void testBasicTemplating()  {
         List<RestService> services = SpringJavaRestReflector.reflectRestService(Arrays.asList(TestProbeController.class), true);
-        TypescriptRestGenerator.generate(services);
+        TypescriptRestGenerator.generate(services, false);
+
+        assertTrue(true);
+    }
+
+
+    @Test
+    public void testBasicNgTemplating()  {
+        List<RestService> services = SpringJavaRestReflector.reflectRestService(Arrays.asList(TestProbeController.class), true);
+        TypescriptRestGenerator.generate(services, true);
 
         assertTrue(true);
     }

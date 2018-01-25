@@ -1,15 +1,17 @@
-package actions;
+package actions_ng;
 
+import actions.ServiceGenerationAction;
 import actions.shared.JavaFileContext;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.psi.PsiJavaFile;
 import utils.IntellijUtils;
 
 import java.io.IOException;
 
-public class ServiceGenerateActionWithoutCompile extends AnAction {
+public class ServiceGenerateActionFromSource extends AnAction {
 
     private static final Logger log = Logger.getInstance(ServiceGenerationAction.class);
 
@@ -20,8 +22,8 @@ public class ServiceGenerateActionWithoutCompile extends AnAction {
         if (javaData.isError()) return;
 
         try {
-            IntellijUtils.generateService(javaData.getProject(), javaData.getModule(), javaData.getClassName(), javaData.getJavaFile(), javaData.getClassLoader(), false);
-        } catch (RuntimeException | IOException | ClassNotFoundException e) {
+            IntellijUtils.generateService(javaData.getProject(), javaData.getModule(),(PsiJavaFile) javaData.getJavaFile(), true);
+        } catch (RuntimeException |  ClassNotFoundException e) {
             log.error(e);
             Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions.Messages.ERR_OCCURRED);
         }
