@@ -82,26 +82,26 @@
                 </action>
             </group>
 
-        <group id="Angular_2_Plus" text="_Angular NG" popup="true" description="Actions for Angular2">
-            <action id="NG_CreateProject1" class="actions_ng.CreateNgProject" text="Create Angular 2 Project"
-                    description="Create a an Angular 2 Project" icon="/images/tt.png">
+        <group id="Angular_2_Plus" text="_Angular NG" popup="true" description="Actions for Angular NG">
+            <action id="NG_CreateProject1" class="actions_ng.CreateNgProject" text="Create Angular Ng Project"
+                    description="Create a an Angular Ng Project" icon="/images/tt.png">
             </action>
 
             <separator />
 
 
-            <action id="NG_CreateService1" class="actions_ng.CreateNgService" text="Create Angular 2 Service"
-                    description="Create a an Angular2 Service" >
+            <action id="NG_CreateService1" class="actions_ng.CreateNgService" text="Create Angular Ng Service"
+                    description="Create a an Angular NG Service" >
             </action>
-            <action id="NG_CreateModule1" class="actions_ng.CreateNgModule" text="Create Angular 2 Module"
-                    description="Create a an Angular2 Module" >
+            <action id="NG_CreateModule1" class="actions_ng.CreateNgModule" text="Create Angular Ng Module"
+                    description="Create a an Angular NG Module" >
             </action>
-            <action id="NG_CreateComponent1" class="actions_ng.CreateNgComponent" text="Create Angular 2 Component"
-                    description="Create a an Angular2 Component" >
+            <action id="NG_CreateComponent1" class="actions_ng.CreateNgComponent" text="Create Angular Ng Component"
+                    description="Create a an Angular NG Component" >
             </action>
 
             <action id="NG_CreatePipe1" class="actions_ng.CreateNgPipe" text="Create Pipe"
-                    description="Create a an Angular2 Pipe" >
+                    description="Create a an Angular NG Pipe" >
             </action>
         </group>
 
@@ -119,8 +119,8 @@
                 </action>
 
                 <separator />
-                <action id="NG_ServiceSource" class="actions_ng.ServiceGenerateActionFromSource" text="Angular2 Service Generation from Source"
-                        description="Generate a angular 2 typescript service">
+                <action id="NG_ServiceSource" class="actions_ng.ServiceGenerateActionFromSource" text="Angular NG Service Generation from Source"
+                        description="Generate a Angular Ng typescript service">
                 </action>
 
                 <!--
@@ -193,20 +193,20 @@
 
 
             <action id="NG_CreateComponent2" class="actions_ng.CreateNgComponent" text="Create Component"
-                    description="Create a an Angular2 Component" >
+                    description="Create a an Angular NG Component" >
             </action>
 
             <action id="NG_CreateService2" class="actions_ng.CreateNgService" text="Create Service"
-                    description="Create a an Angular2 Service" >
+                    description="Create a an Angular NG Service" >
             </action>
 
             <action id="NG_CreatePipe" class="actions_ng.CreateNgPipe" text="Create Pipe"
-                    description="Create a an Angular2 Pipe" >
+                    description="Create a an Angular NG Pipe" >
             </action>
 
             <separator />
             <action id="TD_CreateModule2" class="actions_ng.CreateNgModule" text="Create Module"
-                    description="Create a an Angular Angular2 Module" >
+                    description="Create a an Angular Angular NG Module" >
             </action>
 
         </group>
