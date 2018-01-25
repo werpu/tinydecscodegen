@@ -90,7 +90,7 @@ public class ComponentAttributesReflector {
                 name.toLowerCase().contains("str") ||
                 name.toLowerCase().contains("txt") ||
                 name.toLowerCase().contains("text")) {
-            return new ComponentAttribute(name, ArgumentType.AString, "string", false);
+            return new ComponentAttribute(name, ArgumentType.Input, "string", false);
         }
 
         return attr;

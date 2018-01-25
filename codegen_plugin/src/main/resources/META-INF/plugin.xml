@@ -91,10 +91,13 @@
 
 
             <action id="NG_CreateService1" class="actions_ng.CreateNgService" text="Create Angular 2 Service"
-                    description="Create a an Angular Tiny Decorations Service" icon="/images/tt.png">
+                    description="Create a an Angular2 Service" >
             </action>
             <action id="NG_CreateModule1" class="actions_ng.CreateNgModule" text="Create Angular 2 Module"
-                    description="Create a an Angular Tiny Decorations Service" icon="/images/tt.png">
+                    description="Create a an Angular2 Module" >
+            </action>
+            <action id="NG_CreateComponent1" class="actions_ng.CreateNgComponent" text="Create Angular 2 Component"
+                    description="Create a an Angular2 Component" >
             </action>
         </group>
 
@@ -178,6 +181,26 @@
             <action id="TD_CreateRun" class="actions.CreateTnDecRun" text="Create Run Config"
                     description="Create a an Angular Tiny Decorations Run Config" icon="/images/tt.png">
             </action>
+        </group>
+
+        <group id="NG_TinyDecsContextMenu" text="_NG" popup="true" description="TD NG Actions" icon="/images/tt.png">
+
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewHtmlFile"/>
+
+
+            <action id="NG_CreateComponent2" class="actions_ng.CreateNgComponent" text="Create Component"
+                    description="Create a an Angular2 Component" >
+            </action>
+
+            <action id="NG_CreateService2" class="actions_ng.CreateNgService" text="Create Service"
+                    description="Create a an Angular2 Service" >
+            </action>
+
+            <separator />
+            <action id="TD_CreateModule2" class="actions_ng.CreateNgModule" text="Create Module"
+                    description="Create a an Angular Angular2 Module" >
+            </action>
+
         </group>
 
    </actions>

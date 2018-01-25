@@ -25,6 +25,7 @@ import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reflector.ComponentAttributesReflector;
+import reflector.TransclusionReflector;
 import utils.IntellijFileContext;
 import utils.IntellijUtils;
 import utils.ModuleElementScope;
@@ -40,8 +41,6 @@ import java.util.stream.Collectors;
 
 import static actions.FormAssertions.assertNotNullOrEmpty;
 import static actions.FormAssertions.assertPattern;
-import static reflector.TransclusionReflector.getPossibleTransclusionSlots;
-import static reflector.TransclusionReflector.hasTransclude;
 
 /**
  * Create a Tiny Decs artefact.
@@ -79,6 +78,12 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
 
     private void createDialog(Project project, VirtualFile folder, Document document) {
         final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
+
+        if(!isAngular1()) {
+            mainForm.getLblControllerAs().setVisible(false);
+            mainForm.getTxtControllerAs().setVisible(false);
+        }
+
 
         mainForm.getTxtTemplate().setVisible(false);
         Editor editor = SwingUtils.createHtmlEditor(project, document);
@@ -132,7 +137,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
                     String templateText = new String(editor.getDocument().getText().getBytes(), EncodingRegistry.getInstance().getDefaultCharset()).toString();
                     ComponentJson model = new ComponentJson(mainForm.getName(), templateText, mainForm.getControllerAs(),
                             hasTransclude(templateText), getPossibleTransclusionSlots(templateText));
-                    List<ComponentAttribute> attrs = ComponentAttributesReflector.reflect(editor.getDocument().getText(), mainForm.getControllerAs());
+                    List<ComponentAttribute> attrs = getCompAttrs(editor, mainForm);
                     ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder));
 
                 });
@@ -144,6 +149,10 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
         dialogWrapper.show();
+    }
+
+    protected List<ComponentAttribute> getCompAttrs(Editor editor, gui.CreateTnDecComponent mainForm) {
+        return ComponentAttributesReflector.reflect(editor.getDocument().getText(), mainForm.getControllerAs());
     }
 
 
@@ -162,7 +171,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
         WriteCommandAction.runWriteCommandAction(project, () -> {
             String className = IntellijUtils.toCamelCase(model.getSelector());
 
-            FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_COMPONENT);
+            FileTemplate vslTemplate = getTemplate(project);
 
             Map<String, Object> attrs = Maps.newHashMap();
             attrs.put("SELECTOR", model.getSelector());
@@ -185,5 +194,21 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
 
     }
 
+
+    protected List<String> getPossibleTransclusionSlots(String templateText) {
+        return TransclusionReflector.getPossibleTransclusionSlots(templateText);
+    }
+
+    protected boolean hasTransclude(String templateText) {
+        return TransclusionReflector.hasTransclude(templateText);
+    }
+
+    protected FileTemplate getTemplate(Project project) {
+        return FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_COMPONENT);
+    }
+
+    protected boolean isAngular1() {
+        return true;
+    }
 
 }

@@ -1,0 +1,59 @@
+import {Component, Inject, OnInit, Input, Output, EventEmitter} from '@angular/core';
+/**
+ * Component ${NAME}
+ * @author ${AUTHOR}
+ */
+@Component({
+    selector: "${SELECTOR}",
+    template: `${TEMPLATE}`,
+    style: ` `
+
+})
+export class ${NAME} implements OnInit {
+
+#foreach($attr in $COMPONENT_ATTRS)
+#if(${attr.argumentType.name()} == "Input")
+
+    @${attr.argumentType.name()}() ${attr.name}: ${attr.nativeType};
+#end
+#if(${attr.argumentType.name()} == "Both")
+
+    ${attr.name}Value: ${attr.nativeType};
+    @Output() ${attr.name}Change:EventEmitter = new EventEmitter();
+#end
+#end
+
+    constructor() { //add your injections here
+        //add your constuctor code here
+    }
+
+    ngOnInit() {
+        //add your init code here
+    }
+
+#foreach($attr in $COMPONENT_ATTRS)
+#if(${attr.argumentType.name()} == "Func")
+
+    ${attr.name}() {
+
+    }
+#end
+#end
+
+
+#foreach($attr in $COMPONENT_ATTRS)
+#if(${attr.argumentType.name()} == "Both")
+
+    @Input()
+    get ${attr.name}():${attr.nativeType} {
+        return this.${attr.name}Value;
+    }
+
+    set ${attr.name}(value: ${attr.nativeType}) {
+        this.${attr.name}Value = value;
+        this.${attr.name}Change.emit(this.${attr.name});
+    }
+#end
+#end
+
+}
