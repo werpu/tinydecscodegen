@@ -113,7 +113,11 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
                 @Override
                 public String transform(String out, String data) {
                     String relPath = Paths.get(out).relativize(Paths.get(mainForm.targetDir.getText().replaceAll("\\\\","/"))).toString();
+                    relPath = relPath.replaceAll("\\\\","/");
                     String projRelPath = Paths.get(out).relativize(Paths.get(mainForm.projectDir.getText().replaceAll("\\\\","/"))).toString();
+                    projRelPath = projRelPath.replaceAll("\\\\","/");
+
+
                     data = data.replaceAll("\\$\\{deployment_root_rel\\}", relPath);
                     data = data.replaceAll("\\$\\{proj_root_rel\\}", projRelPath);
 
