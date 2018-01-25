@@ -54,7 +54,7 @@ public class CreateTnDecFilter extends AnAction implements DumbAware {
 
         final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
         mainForm.getLblSelector().setText("Name *");
-        mainForm.getLblTitle().setText("Create an Annotated Filter");
+        mainForm.getLblTitle().setText(getTitle());
         mainForm.getLblTemplate().setVisible(false);
         mainForm.getLblControllerAs().setVisible(false);
 
@@ -112,17 +112,26 @@ public class CreateTnDecFilter extends AnAction implements DumbAware {
         }
     }
 
+    @NotNull
+    protected String getTitle() {
+        return "Create an Annotated Filter";
+    }
+
     void buildFile(Project project, ControllerJson model, VirtualFile folder) {
 
         WriteCommandAction.runWriteCommandAction(project, () -> {
             String className = model.getName();
 
-            FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_FILTER);
+            FileTemplate vslTemplate = getTemplate(project);
 
             Map<String, Object> attrs = Maps.newHashMap();
             attrs.put("NAME", className);
 
             new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, ModuleElementScope.EXPORT).run();
         });
+    }
+
+    protected FileTemplate getTemplate(Project project) {
+        return FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_FILTER);
     }
 }

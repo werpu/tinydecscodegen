@@ -99,6 +99,10 @@
             <action id="NG_CreateComponent1" class="actions_ng.CreateNgComponent" text="Create Angular 2 Component"
                     description="Create a an Angular2 Component" >
             </action>
+
+            <action id="NG_CreatePipe1" class="actions_ng.CreateNgPipe" text="Create Pipe"
+                    description="Create a an Angular2 Pipe" >
+            </action>
         </group>
 
 
@@ -194,6 +198,10 @@
 
             <action id="NG_CreateService2" class="actions_ng.CreateNgService" text="Create Service"
                     description="Create a an Angular2 Service" >
+            </action>
+
+            <action id="NG_CreatePipe" class="actions_ng.CreateNgPipe" text="Create Pipe"
+                    description="Create a an Angular2 Pipe" >
             </action>
 
             <separator />

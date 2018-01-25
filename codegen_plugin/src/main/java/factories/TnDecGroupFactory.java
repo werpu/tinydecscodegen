@@ -18,6 +18,7 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
     public static final String TPL_ANNOTATED_RUN = "Annotated Run";
     public static final String TPL_ANNOTATED_NG_MODULE = "Annotated NgModule";
     public static final String TPL_ANNOTATED_NG_COMPONENT = "Annotated NgComponent";
+    public static final String TPL_ANNOTATED_NG_PIPE = "Annotated NgPipe";
 
     public static final String TPL_EXT = "ts";
 
@@ -35,6 +36,7 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
         group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_SERVICE+ "."+ TPL_EXT));
         group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_MODULE+ "."+ TPL_EXT));
         group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_COMPONENT + "."+ TPL_EXT));
+        group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_PIPE + "."+ TPL_EXT));
 
         return group;
     }
