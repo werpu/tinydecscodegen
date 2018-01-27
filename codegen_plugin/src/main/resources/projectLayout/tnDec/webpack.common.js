@@ -49,7 +49,6 @@ const config = {
     plugins: [
         new HtmlWebpackPlugin({template: './index.html', alwaysWriteToDisk: true}),
         new webpack.optimize.CommonsChunkPlugin({ name: 'vendor', filename: 'vendor.bundle.js' }),
-        new webpack.optimize.CommonsChunkPlugin("init.js"),
         new TsconfigPathsPlugin({configFile: "./src/main/typescript/tsconfig.json"}),
         new ExtractTextPlugin({
             filename: 'index.css',
