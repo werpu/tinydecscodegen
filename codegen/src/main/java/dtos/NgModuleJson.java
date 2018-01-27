@@ -15,6 +15,7 @@ public class NgModuleJson {
     String[] declarations;
     String[] imports;
     String[] exports;
+    String[] providers;
 
 
     public void appendDeclare(String declareClass) {
@@ -24,6 +25,15 @@ public class NgModuleJson {
         }
         declares.add(declareClass);
         this.declarations = declares.toArray(new String[declares.size()]);
+    }
+
+    public void appendProvides(String declareClass) {
+        List<String> providers = Lists.newArrayList(Arrays.asList(this.providers == null ? new String[0] : this.providers));
+        if(providers.contains(declareClass)) {
+            return;
+        }
+        providers.add(declareClass);
+        this.providers = providers.toArray(new String[providers.size()]);
     }
 
     public void appendImport(String declareClass) {

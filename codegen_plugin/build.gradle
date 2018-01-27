@@ -4,8 +4,8 @@ apply plugin: 'java'
 apply plugin: 'org.jetbrains.intellij'
 
 intellij {
-    //localPath = '/Applications/Intellij IDEA.app'
-    version = '2017.3.3'
+    localPath = '/Applications/Intellij IDEA.app'
+    //version = '2017.3.3'
 }
 
 dependencies {

@@ -5,7 +5,7 @@ package utils;
  */
 public enum ModuleElementScope {
 
-    EXPORT, IMPORT, DECLARATIONS;
+    EXPORT, IMPORT, DECLARATIONS, PROVIDE;
 
 
 }

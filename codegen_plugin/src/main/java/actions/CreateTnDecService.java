@@ -122,7 +122,7 @@ public class CreateTnDecService extends AnAction implements DumbAware {
             Map<String, Object> attrs = Maps.newHashMap();
             attrs.put("NAME", className);
 
-            new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, ModuleElementScope.DECLARATIONS).run();
+            new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, ModuleElementScope.DECLARATIONS, ModuleElementScope.PROVIDE).run();
         });
     }
 

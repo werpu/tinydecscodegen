@@ -98,6 +98,16 @@ public class IntellijRefactor {
     }
 
 
+    @NotNull
+    public static  RefactorUnit refactorAddProvides(String className, PsiFile module, PsiElement element) {
+        String elementText = element.getText();
+        String rawData = elementText.substring(elementText.indexOf("(") + 1, elementText.lastIndexOf(")"));
+        String refactoredData = NG_MODULE + "(" + appendProvides(rawData, className) + ")";
+
+        return new RefactorUnit(module, element, refactoredData);
+    }
+
+
     public static RefactorUnit generateImport(String className, PsiFile module, String relativePath) {
         String reducedClassName = ReflectUtils.reduceClassName(className);
         String importStatement = "\nimport {" + reducedClassName + "} from \"" + relativePath + "/" + reducedClassName + "\";";
@@ -120,6 +130,14 @@ public class IntellijRefactor {
     }
 
     public static String appendDeclare(String inStr, String declare) {
+        String json = TinyRefactoringUtils.getJsonString(inStr).toString();
+        Gson gson = new Gson();
+        NgModuleJson moduleData = gson.fromJson(escapeJsonStr(json.toString()), NgModuleJson.class);
+        moduleData.appendDeclare(declare);
+        return remapToTs(gson.toJson(moduleData));
+    }
+
+    public static String appendProvides(String inStr, String declare) {
         String json = TinyRefactoringUtils.getJsonString(inStr).toString();
         Gson gson = new Gson();
         NgModuleJson moduleData = gson.fromJson(escapeJsonStr(json.toString()), NgModuleJson.class);
@@ -186,9 +204,10 @@ public class IntellijRefactor {
                     return refactorAddExport(ReflectUtils.reduceClassName(className) , angularModule.getPsiFile(), element);
                 case DECLARATIONS:
                     return refactorAddDeclarations(ReflectUtils.reduceClassName(className), angularModule.getPsiFile(), element);
-                default:
+                case IMPORT:
                     return refactorAddImport(ReflectUtils.reduceClassName(className), angularModule.getPsiFile(), element);
-
+                default:
+                    return refactorAddProvides(ReflectUtils.reduceClassName(className), angularModule.getPsiFile(), element);
             }
         };
     }

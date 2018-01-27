@@ -16,7 +16,7 @@ var extractLESS = new ExtractTextPlugin('styles/[name].css', {
 });
 
 const config = {
-    entry: {vendor: './src/main/typescript/vendor.ts', app:'./src/main/typescript/App.ts', styles: './src/main/resources/styles.less'},
+    entry: {vendor: ['./src/main/typescript/vendor.ts'], app:['./src/main/typescript/App.ts'], styles: './src/main/resources/styles.less'},
     output: {
         path: path.resolve(__dirname, '${deployment_root_rel}'),
         filename: '[name].js'
@@ -48,6 +48,7 @@ const config = {
     },
     plugins: [
         new HtmlWebpackPlugin({template: './index.html', alwaysWriteToDisk: true}),
+        new webpack.optimize.CommonsChunkPlugin({ name: 'vendor', filename: 'vendor.bundle.js' }),
         new webpack.optimize.CommonsChunkPlugin("init.js"),
         new TsconfigPathsPlugin({configFile: "./src/main/typescript/tsconfig.json"}),
         new ExtractTextPlugin({
