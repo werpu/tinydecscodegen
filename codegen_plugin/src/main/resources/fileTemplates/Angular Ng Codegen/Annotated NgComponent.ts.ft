@@ -6,7 +6,7 @@ import {Component, Inject, OnInit, Input, Output, EventEmitter} from '@angular/c
 @Component({
     selector: "${SELECTOR}",
     template: `${TEMPLATE}`,
-    style: ` `
+    styles: [``]
 
 })
 export class ${NAME} implements OnInit {

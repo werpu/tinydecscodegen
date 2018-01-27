@@ -49,6 +49,8 @@ public class CreateTnDecComponent {
     private JLabel lblControllerAs;
     private JLabel lblTitle;
     private JScrollPane pnEditorHolder;
+    private JLabel lblExport;
+    private JCheckBox cbExport;
 
     boolean selectorValid = false;
     boolean controllerAsValid = false;
@@ -143,6 +145,10 @@ public class CreateTnDecComponent {
 
     public JScrollPane getPnEditorHolder() {
         return pnEditorHolder;
+    }
+
+    public JCheckBox getCbExport() {
+        return cbExport;
     }
 
     /**

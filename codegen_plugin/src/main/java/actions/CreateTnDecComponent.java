@@ -2,6 +2,7 @@ package actions;
 
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.SimpleFileNameTransformer;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -49,6 +50,8 @@ import static actions.FormAssertions.assertPattern;
  */
 public class CreateTnDecComponent extends AnAction implements DumbAware {
 
+
+    public static final String EXPORT = "___export___";
 
     public CreateTnDecComponent() {
         super();
@@ -139,7 +142,8 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
                     ComponentJson model = new ComponentJson(mainForm.getName(), templateText, mainForm.getControllerAs(),
                             hasTransclude(templateText), getPossibleTransclusionSlots(templateText));
                     List<ComponentAttribute> attrs = getCompAttrs(editor, mainForm);
-                    ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder));
+                    boolean export = mainForm.getCbExport().isSelected();
+                    ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder, export));
 
                 });
                 super.doOKAction();
@@ -167,7 +171,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
         });
     }
 
-    void buildFile(Project project, ComponentJson model, List<ComponentAttribute> cAttrs, VirtualFile folder) {
+    void buildFile(Project project, ComponentJson model, List<ComponentAttribute> cAttrs, VirtualFile folder, boolean export) {
 
         WriteCommandAction.runWriteCommandAction(project, () -> {
             String className = IntellijUtils.toCamelCase(model.getSelector());
@@ -188,6 +192,11 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
             if(model.isTransclude() && !model.getTransclusionSlots().isEmpty()) {
                 attrs.put("TRANSCLUDE_SLOTS", model.getTransclusionSlots());
             }
+
+            if(export) {
+                attrs.put(EXPORT, export);
+            }
+
             generate(project, folder, className, vslTemplate, attrs);
 
         });
@@ -196,7 +205,13 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
     }
 
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
-        new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new SimpleFileNameTransformer(), ModuleElementScope.DECLARATIONS, ModuleElementScope.EXPORT).run();
+        List<ModuleElementScope> scope = Lists.newArrayList();
+        scope.add(ModuleElementScope.DECLARATIONS);
+        if(attrs.containsKey(EXPORT)) {
+            scope.add(ModuleElementScope.EXPORT);
+        }
+        ModuleElementScope[] scope1 = scope.stream().toArray(size -> new ModuleElementScope[size]);
+        new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new SimpleFileNameTransformer(), scope.toArray(new ModuleElementScope[scope.size()])).run();
     }
 
 

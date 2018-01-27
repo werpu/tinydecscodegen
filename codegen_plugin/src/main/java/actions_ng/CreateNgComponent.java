@@ -4,6 +4,7 @@ import actions.CreateTnDecComponent;
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.NgFileNameTransformer;
 import actions.shared.SimpleFileNameTransformer;
+import com.google.common.collect.Lists;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.editor.Editor;
@@ -47,6 +48,13 @@ public class CreateNgComponent extends CreateTnDecComponent {
 
     @Override
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
-        new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new NgFileNameTransformer("component"),ModuleElementScope.DECLARATIONS, ModuleElementScope.EXPORT).run();
+        List<ModuleElementScope> scope = Lists.newArrayList();
+        scope.add(ModuleElementScope.DECLARATIONS);
+        if(attrs.containsKey(EXPORT)) {
+            scope.add(ModuleElementScope.EXPORT);
+        }
+        ModuleElementScope[] scope1 = scope.stream().toArray(size -> new ModuleElementScope[size]);
+
+        new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new NgFileNameTransformer("component"), scope1).run();
     }
 }

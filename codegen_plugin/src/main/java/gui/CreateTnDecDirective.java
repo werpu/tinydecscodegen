@@ -52,6 +52,7 @@ public class CreateTnDecDirective {
     private JCheckBox attributeCheckBox;
     private JCheckBox classCheckBox;
     private JCheckBox commentCheckBox;
+    private JCheckBox cbExport;
 
     boolean selectorValid = false;
     boolean controllerAsValid = false;
@@ -162,6 +163,10 @@ public class CreateTnDecDirective {
 
     public JCheckBox getCommentCheckBox() {
         return commentCheckBox;
+    }
+
+    public JCheckBox getCbExport() {
+        return cbExport;
     }
 
     /**
