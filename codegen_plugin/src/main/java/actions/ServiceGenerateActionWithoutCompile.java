@@ -1,6 +1,7 @@
 package actions;
 
 import actions.shared.JavaFileContext;
+import actions.shared.SimpleFileNameTransformer;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -20,6 +21,7 @@ public class ServiceGenerateActionWithoutCompile extends AnAction {
         if (javaData.isError()) return;
 
         try {
+            IntellijUtils.fileNameTransformer = new SimpleFileNameTransformer();
             IntellijUtils.generateService(javaData.getProject(), javaData.getModule(), javaData.getClassName(), javaData.getJavaFile(), javaData.getClassLoader(), false);
         } catch (RuntimeException | IOException | ClassNotFoundException e) {
             log.error(e);

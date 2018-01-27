@@ -1,6 +1,7 @@
 package actions;
 
 import actions.shared.GenerateFileAndAddRef;
+import actions.shared.SimpleFileNameTransformer;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
@@ -117,7 +118,11 @@ public class CreateTnDecController extends AnAction implements DumbAware {
             attrs.put("TEMPLATE", model.getTemplate());
             attrs.put("CONTROLLER_AS", model.getControllerAs());
 
-            new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, ModuleElementScope.EXPORT).run();
+            generate(project, folder, className, vslTemplate, attrs);
         });
+    }
+
+    protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
+        new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new SimpleFileNameTransformer(), ModuleElementScope.EXPORT).run();
     }
 }

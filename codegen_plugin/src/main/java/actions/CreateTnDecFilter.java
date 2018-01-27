@@ -1,6 +1,7 @@
 package actions;
 
 import actions.shared.GenerateFileAndAddRef;
+import actions.shared.SimpleFileNameTransformer;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -127,8 +128,12 @@ public class CreateTnDecFilter extends AnAction implements DumbAware {
             Map<String, Object> attrs = Maps.newHashMap();
             attrs.put("NAME", className);
 
-            new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, ModuleElementScope.EXPORT).run();
+            generate(project, folder, className, vslTemplate, attrs);
         });
+    }
+
+    protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
+        new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new SimpleFileNameTransformer(), ModuleElementScope.EXPORT, ModuleElementScope.DECLARATIONS).run();
     }
 
     protected FileTemplate getTemplate(Project project) {

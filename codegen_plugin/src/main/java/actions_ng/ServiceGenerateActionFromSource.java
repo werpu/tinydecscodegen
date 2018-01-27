@@ -2,14 +2,13 @@ package actions_ng;
 
 import actions.ServiceGenerationAction;
 import actions.shared.JavaFileContext;
+import actions.shared.NgFileNameTransformer;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiJavaFile;
 import utils.IntellijUtils;
-
-import java.io.IOException;
 
 public class ServiceGenerateActionFromSource extends AnAction {
 
@@ -22,6 +21,7 @@ public class ServiceGenerateActionFromSource extends AnAction {
         if (javaData.isError()) return;
 
         try {
+            IntellijUtils.fileNameTransformer = new NgFileNameTransformer("service");
             IntellijUtils.generateService(javaData.getProject(), javaData.getModule(),(PsiJavaFile) javaData.getJavaFile(), true);
         } catch (RuntimeException |  ClassNotFoundException e) {
             log.error(e);

@@ -6,12 +6,8 @@ import { CommonModule } from '@angular/common';
  * @author ${AUTHOR}
  */
 @NgModule({
-    name: "${NAME}"
-})
-
-@NgModule({
     declarations: [],
     imports: [],
     exports: []
 })
-export class FirstPageModuleModule { }
+export class ${CLASS_NAME} { }

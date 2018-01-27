@@ -26,6 +26,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import dtos.NgModuleJson;
+import dtos.NgRootModuleJson;
 
 import java.util.Arrays;
 import java.util.List;
@@ -59,9 +60,9 @@ public class TinyRefactoringUtils {
             StringBuilder jsonString = getJsonString(modulePart);
 
             Gson gson = new Gson();
-            NgModuleJson moduleData = gson.fromJson(jsonString.toString(), NgModuleJson.class);
+            NgRootModuleJson moduleData = gson.fromJson(jsonString.toString(), NgRootModuleJson.class);
             moduleData.appendDeclare(declareClass);
-            String replacement = gson.toJson(moduleData);
+            String replacement = gson.toJson((moduleData.isRootModule()) ? moduleData: moduleData.toModule());
 
             return  modulePart.replace(jsonString, replacement);
         }).collect(Collectors.toList());
@@ -93,9 +94,9 @@ public class TinyRefactoringUtils {
             StringBuilder jsonString = getJsonString(modulePart);
 
             Gson gson = new Gson();
-            NgModuleJson moduleData = gson.fromJson(jsonString.toString(), NgModuleJson.class);
+            NgRootModuleJson moduleData = gson.fromJson(jsonString.toString(), NgRootModuleJson.class);
             moduleData.appendImport(declareClass);
-            String replacement = gson.toJson(moduleData);
+            String replacement = gson.toJson((moduleData.isRootModule()) ? moduleData: moduleData.toModule());
 
             return  modulePart.replace(jsonString, replacement);
         }).collect(Collectors.toList());
@@ -126,9 +127,9 @@ public class TinyRefactoringUtils {
             StringBuilder jsonString = getJsonString(modulePart);
 
             Gson gson = new Gson();
-            NgModuleJson moduleData = gson.fromJson(jsonString.toString(), NgModuleJson.class);
+            NgRootModuleJson moduleData = gson.fromJson(jsonString.toString(), NgRootModuleJson.class);
             moduleData.appendExport(declareClass);
-            String replacement = gson.toJson(moduleData);
+            String replacement = gson.toJson((moduleData.isRootModule()) ? moduleData: moduleData.toModule());
 
             return  modulePart.replace(jsonString, replacement);
         }).collect(Collectors.toList());

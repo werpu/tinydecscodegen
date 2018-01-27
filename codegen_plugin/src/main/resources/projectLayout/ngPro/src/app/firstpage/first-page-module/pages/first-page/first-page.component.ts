@@ -1,6 +1,6 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {RestServiceService} from '../../services/rest-service.service';
-import {HelloDto} from '../../../../shared/dtos/HelloDto';
+import {HelloDto} from '../../dtos/HelloDto';
 
 @Component({
   selector: 'app-first-page',

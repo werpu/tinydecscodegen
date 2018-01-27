@@ -25,6 +25,7 @@ import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.NotNull;
 import utils.*;
 
 import java.io.IOException;
@@ -45,7 +46,9 @@ public class GenerateFileAndAddRef implements Runnable {
     Map<String, Object> attrs;
     ModuleElementScope [] scope;
 
-    protected GenerateFileAndAddRef(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
+    FileNameTransformer fileNameTransformer;
+
+    protected GenerateFileAndAddRef(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs, FileNameTransformer fileNameTransformer) {
         this.project = project;
         if(!folder.isDirectory()) {
             folder = folder.getParent();
@@ -54,18 +57,13 @@ public class GenerateFileAndAddRef implements Runnable {
         this.className = className;
         this.vslTemplate = vslTemplate;
         this.attrs = attrs;
+        this.fileNameTransformer = fileNameTransformer;
     }
 
 
 
-    public GenerateFileAndAddRef(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs, ModuleElementScope scope) {
-        this(project, folder, className, vslTemplate, attrs);
-
-        this.scope = new ModuleElementScope[]{scope};
-    }
-
-    public GenerateFileAndAddRef(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs, ModuleElementScope ... scope) {
-        this(project, folder, className, vslTemplate, attrs);
+    public GenerateFileAndAddRef(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs, FileNameTransformer fileNameTransformer, ModuleElementScope ... scope) {
+        this(project, folder, className, vslTemplate, attrs, fileNameTransformer);
         this.scope = scope;
     }
 
@@ -74,12 +72,12 @@ public class GenerateFileAndAddRef implements Runnable {
         try {
 
             String str = FileTemplateUtil.mergeTemplate(attrs, vslTemplate.getText(), false);
-            String fileName = className + ".ts";
+            String fileName = getFileName();
 
             IntellijFileContext fileContext = new IntellijFileContext(project, folder);
 
             for(ModuleElementScope singleScope: scope) {
-                appendDeclarationToModule(fileContext, singleScope, className);
+                appendDeclarationToModule(fileContext, singleScope, className, getFileName());
             }
 
             IntellijUtils.createAndOpen(project, folder, str, fileName);
@@ -87,6 +85,11 @@ public class GenerateFileAndAddRef implements Runnable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @NotNull
+    private String getFileName() {
+        return fileNameTransformer.transform(className);
     }
 
 }

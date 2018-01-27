@@ -1,6 +1,7 @@
 package actions;
 
 import actions.shared.JavaFileContext;
+import actions.shared.SimpleFileNameTransformer;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -31,6 +32,7 @@ public class DtoGeneration extends AnAction {
 
             private boolean compileDone(CompileContext compileContext) {
                 try {
+                    IntellijUtils.fileNameTransformer = new SimpleFileNameTransformer();
                     IntellijUtils.generateDto(javaData.getProject(), javaData.getModule(), javaData.getClassName(), javaData.getJavaFile(), javaData.getClassLoader(compileContext));
                 } catch (RuntimeException | IOException | ClassNotFoundException e) {
                     log.error(e);

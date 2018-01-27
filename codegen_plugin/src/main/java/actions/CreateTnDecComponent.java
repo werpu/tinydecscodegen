@@ -1,6 +1,7 @@
 package actions;
 
 import actions.shared.GenerateFileAndAddRef;
+import actions.shared.SimpleFileNameTransformer;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -187,11 +188,15 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
             if(model.isTransclude() && !model.getTransclusionSlots().isEmpty()) {
                 attrs.put("TRANSCLUDE_SLOTS", model.getTransclusionSlots());
             }
-            new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, ModuleElementScope.EXPORT).run();
+            generate(project, folder, className, vslTemplate, attrs);
 
         });
 
 
+    }
+
+    protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
+        new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new SimpleFileNameTransformer(), ModuleElementScope.DECLARATIONS, ModuleElementScope.EXPORT).run();
     }
 
 

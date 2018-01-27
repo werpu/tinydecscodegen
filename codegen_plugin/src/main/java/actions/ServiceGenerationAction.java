@@ -21,6 +21,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 import actions.shared.JavaFileContext;
+import actions.shared.SimpleFileNameTransformer;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -58,6 +59,7 @@ public class ServiceGenerationAction extends AnAction {
 
             private boolean compileDone(CompileContext compileContext) {
                 try {
+                    IntellijUtils.fileNameTransformer = new SimpleFileNameTransformer();
                     IntellijUtils.generateService(javaData.getProject(), javaData.getModule(), javaData.getClassName(), javaData.getJavaFile(), javaData.getClassLoader(compileContext), isNg());
                 } catch (RuntimeException | IOException | ClassNotFoundException e) {
                     log.error(e);

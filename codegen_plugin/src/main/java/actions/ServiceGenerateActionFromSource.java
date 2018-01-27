@@ -1,6 +1,7 @@
 package actions;
 
 import actions.shared.JavaFileContext;
+import actions.shared.SimpleFileNameTransformer;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -21,6 +22,7 @@ public class ServiceGenerateActionFromSource extends AnAction {
         if (javaData.isError()) return;
 
         try {
+            IntellijUtils.fileNameTransformer = new SimpleFileNameTransformer();
             IntellijUtils.generateService(javaData.getProject(), javaData.getModule(),(PsiJavaFile) javaData.getJavaFile(), false);
         } catch (RuntimeException |  ClassNotFoundException e) {
             log.error(e);

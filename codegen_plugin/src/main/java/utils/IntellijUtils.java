@@ -21,6 +21,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package utils;
 
+import actions.shared.FileNameTransformer;
+import actions.shared.SimpleFileNameTransformer;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.intellij.diff.DiffManager;
@@ -80,6 +82,8 @@ public class IntellijUtils {
 
     private static final Logger log = Logger.getInstance(IntellijUtils.class);
 
+    public static FileNameTransformer fileNameTransformer = new SimpleFileNameTransformer();
+
 
     /**
      * Generates or diffs a typescript file.
@@ -93,7 +97,7 @@ public class IntellijUtils {
      * @param module    the module
      * @param javaFile  the originating java file
      */
-    public static void generateOrDiffTsFile(String text, String fileName, String className, Project project, Module module, PsiFile javaFile, ArtifactType artifactType) {
+    protected static void generateOrDiffTsFile(String text, String fileName, String className, Project project, Module module, PsiFile javaFile, ArtifactType artifactType) {
         PsiFile file = PsiFileFactory.getInstance(project).createFileFromText(fileName, Language.findLanguageByID("TypeScript"), text);
         final Collection<PsiFile> alreadyExisting = IntellijUtils.searchRefs(project, className, "ts");
         ApplicationManager.getApplication().runWriteAction(() -> {
@@ -121,6 +125,7 @@ public class IntellijUtils {
                     }
                     final VirtualFile vfile = vfile1;
 
+                    //todo ng2 filename handling
                     if (vfile != null) {
                         WriteCommandAction.runWriteCommandAction(project, () -> {
                             PropertiesComponent.getInstance(project).setValue("__lastSelTarget__" + artifactType.name(), vfile.getPath());
@@ -132,7 +137,7 @@ public class IntellijUtils {
                                 IntellijFileContext fileContext = new IntellijFileContext(project, dir.getVirtualFile());
 
                                 try {
-                                    IntellijRefactor.appendDeclarationToModule(fileContext, ModuleElementScope.DECLARATIONS, className);
+                                    IntellijRefactor.appendDeclarationToModule(fileContext, ModuleElementScope.DECLARATIONS, className, className);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -358,8 +363,8 @@ public class IntellijUtils {
             }
             String text = TypescriptRestGenerator.generate(restService, ng);
 
-            String ext = ".ts";
-            String fileName = restService.get(0).getServiceName() + ext;
+
+            String fileName = fileNameTransformer.transform(restService.get(0).getServiceName());
 
             generateOrDiffTsFile(text, fileName, javaClass.getQualifiedName(), project, module, javaFile, ArtifactType.SERVICE);
         });
@@ -380,8 +385,7 @@ public class IntellijUtils {
         }
         String text = TypescriptRestGenerator.generate(restService, ng);
 
-        String ext = ".ts";
-        String fileName = restService.get(0).getServiceName() + ext;
+        String fileName = fileNameTransformer.transform(restService.get(0).getServiceName());
 
         generateOrDiffTsFile(text, fileName, className, project, module, javaFile, ArtifactType.SERVICE);
         return true;
@@ -405,7 +409,7 @@ public class IntellijUtils {
         for (char c : s.toCharArray()) {
             c = (capNext)
                     ? Character.toUpperCase(c)
-                    : Character.toLowerCase(c);
+                    : c;
             sb.append(c);
             capNext = (ACTIONABLE_DELIMITERS.indexOf((int) c) >= 0); // explicit cast not needed
         }
@@ -444,8 +448,7 @@ public class IntellijUtils {
                 }
                 String text = TypescriptDtoGenerator.generate(dtos);
 
-                String ext = ".ts";
-                String fileName = dtos.get(0).getName() + ext;
+                String fileName = fileNameTransformer.transform(dtos.get(0).getName());
 
                 generateOrDiffTsFile(text, fileName, className, project, module, javaFile, ArtifactType.DTO);
                 return true;
@@ -463,8 +466,7 @@ public class IntellijUtils {
             }
             String text = TypescriptDtoGenerator.generate(dtos);
 
-            String ext = ".ts";
-            String fileName = dtos.get(0).getName() + ext;
+            String fileName = fileNameTransformer.transform(dtos.get(0).getName());
 
             generateOrDiffTsFile(text, fileName, className, project, module, javaFile, ArtifactType.DTO);
         }
@@ -497,10 +499,8 @@ public class IntellijUtils {
                     }
                     String text = TypescriptDtoGenerator.generate(dtos);
 
-                    String ext = ".ts";
-                    String fileName = dtos.get(0).getName() + ext;
 
-
+                    String fileName = fileNameTransformer.transform(dtos.get(0).getName());
                     generateOrDiffTsFile(text, fileName, className, project, module, javaFile, ArtifactType.DTO);
                     return true;
                 }, null, IntellijDtoReflector.getInheritanceHierarchyAsString(javaClass));
@@ -518,8 +518,7 @@ public class IntellijUtils {
                 }
                 String text = TypescriptDtoGenerator.generate(dtos);
 
-                String ext = ".ts";
-                String fileName = dtos.get(0).getName() + ext;
+                String fileName = fileNameTransformer.transform(dtos.get(0).getName());
 
                 generateOrDiffTsFile(text, fileName, className, project, module, javaFile, ArtifactType.DTO);
             }

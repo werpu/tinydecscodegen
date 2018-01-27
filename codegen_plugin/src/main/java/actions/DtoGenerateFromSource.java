@@ -1,6 +1,8 @@
 package actions;
 
 import actions.shared.JavaFileContext;
+import actions.shared.NgFileNameTransformer;
+import actions.shared.SimpleFileNameTransformer;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -21,6 +23,7 @@ public class DtoGenerateFromSource extends AnAction {
         if (javaData.isError()) return;
 
         try {
+            IntellijUtils.fileNameTransformer = new SimpleFileNameTransformer();
             IntellijUtils.generateDto(javaData.getProject(), javaData.getModule(), (PsiJavaFile) javaData.getJavaFile());
 
         } catch (RuntimeException | ClassNotFoundException e) {

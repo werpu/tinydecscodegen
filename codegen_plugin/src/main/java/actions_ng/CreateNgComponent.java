@@ -1,16 +1,22 @@
 package actions_ng;
 
 import actions.CreateTnDecComponent;
+import actions.shared.GenerateFileAndAddRef;
+import actions.shared.NgFileNameTransformer;
+import actions.shared.SimpleFileNameTransformer;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import dtos.ComponentAttribute;
 import factories.TnDecGroupFactory;
 import reflector.NgComponentAttributesReflector;
 import reflector.NgTransclusionReflector;
+import utils.ModuleElementScope;
 
 import java.util.List;
+import java.util.Map;
 
 public class CreateNgComponent extends CreateTnDecComponent {
 
@@ -37,5 +43,10 @@ public class CreateNgComponent extends CreateTnDecComponent {
     @Override
     protected boolean isAngular1() {
         return false;
+    }
+
+    @Override
+    protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
+        new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new NgFileNameTransformer("component"),ModuleElementScope.DECLARATIONS, ModuleElementScope.EXPORT).run();
     }
 }

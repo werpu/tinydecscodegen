@@ -1,7 +1,7 @@
 import {Inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
-import {HelloDto} from '../../../shared/dtos/HelloDto';
+import {HelloDto} from '../dtos/HelloDto';
 
 @Injectable()
 export class RestServiceService {
