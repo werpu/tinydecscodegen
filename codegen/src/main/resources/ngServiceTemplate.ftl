@@ -12,9 +12,9 @@ import { User } from "app/models/user";
 export class ${service.serviceName} {
 
 <#if service.serviceRootUrl?has_content>
-    restRoot: string = "${service.serviceRootUrl}"; // fill in your rest request root here
+    restRoot: string = "${service.serviceRootUrl}";
 <#else>
-    restRoot: string = "";
+    restRoot: string = "";// fill in your rest request root here
 </#if>
 
     constructor(private http: HttpClient) {
