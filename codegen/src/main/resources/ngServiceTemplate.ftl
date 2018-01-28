@@ -15,26 +15,28 @@ export class ${service.serviceName} {
 
     constructor(private http: HttpClient) {
     }
-
-
-
 <#list service.methods as method>
 
-    ${method.name} (
-    <#assign mType  = "${method.restType.name()?lower_case}">
-    <#list method.params as param>${param.toTypeScript()}<#sep>,
+    ${method.name} (<#assign mType  = "${method.restType.name()?lower_case}"><#list method.params as param>${param.toTypeScript()}<#sep>,
     </#sep></#list>): Observable<<#if !method.returnValue.isPresent()>any<#else>${method.returnValue.get().toTypeScript()}></#if> {
 
         let params:HttpParams = new HttpParams();
-        let body: string = null;
-    <#list method.params as param>
 
-        <#if param.paramType.name() = "RequestBody">
+    <#list method.params as param>
+        <#if mType = "post" || mType = "put"|| mType = "patch">
+        let body: string = null;
+            <#if param.paramType.name() = "RequestBody">
         body = JSON.stringify(${param.restName});
-        <#else>
+            <#else>
         params = params.append('${param.restName}', ${param.restName});
+            </#if>
+        <#else>
+            <#if param.paramType.name() != "RequestBody">
+        params = params.append('${param.restName}', ${param.restName});
+            </#if>
         </#if>
     </#list>
+
     <#if mType = "post" || mType = "put"|| mType = "patch">
         return <Observable<<#if !method.returnValue.isPresent()>any<#else>${method.returnValue.get().toTypeScript()}></#if>> this.http.${mType?lower_case}(this.restRoot + "<#if service.serviceRootUrl?has_content>${service.serviceRootUrl}</#if>${method.url}<#list method.params as param><#if param.paramType.name() = "PathVariable">/<#noparse>${</#noparse>${param.restName}<#noparse>}</#noparse></#if></#list>", body, {
             params: params
