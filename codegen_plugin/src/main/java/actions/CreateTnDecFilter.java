@@ -101,7 +101,8 @@ public class CreateTnDecFilter extends AnAction implements DumbAware {
             }
         };
 
-        dialogWrapper.setTitle("Create Filter");
+        dialogWrapper.setTitle(getDialogTitle());
+        mainForm.getLblExport().setText(getExportLabel());
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
 
@@ -111,6 +112,16 @@ public class CreateTnDecFilter extends AnAction implements DumbAware {
             ControllerJson model = new ControllerJson(mainForm.getName(), mainForm.getTemplate(), mainForm.getControllerAs());
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
         }
+    }
+
+    @NotNull
+    protected String getExportLabel() {
+        return "Export Filter";
+    }
+
+    @NotNull
+    protected String getDialogTitle() {
+        return "Create Filter";
     }
 
     @NotNull

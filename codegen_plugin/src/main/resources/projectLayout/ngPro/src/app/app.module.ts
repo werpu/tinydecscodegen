@@ -1,10 +1,11 @@
-import {BrowserModule} from '@angular/platform-browser';
-import {NgModule} from '@angular/core';
+import {APP_INITIALIZER, NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
 import {FirstPageModuleModule} from './firstpage/first-page-module/first-page-module.module';
-import {moduleWithProviders} from "./app.routes";
+import {rootRoutesProvider} from "./app.routes";
 import {SharedModule} from "./shared/app.shared.module";
+import {OnAppInit} from "./app.init";
+
 
 /**
  * The central applications module
@@ -12,10 +13,15 @@ import {SharedModule} from "./shared/app.shared.module";
  * as main page controller component
  */
 @NgModule({
-    declarations: [AppComponent],
-    imports: [moduleWithProviders, FirstPageModuleModule, SharedModule],
-    providers: [],
-    bootstrap: [AppComponent]
+  declarations: [AppComponent],
+  imports: [rootRoutesProvider, FirstPageModuleModule, SharedModule],
+  providers: [{
+    provide: APP_INITIALIZER,
+    useFactory: OnAppInit,
+    multi: true,
+    deps: [/*dependencies like services used by the init function must!!! be declared here*/]
+  }],
+  bootstrap: [AppComponent]
 })
 export class AppModule {
 }

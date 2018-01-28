@@ -10,10 +10,10 @@ import {MyService} from "./services/MyService";
 
 
 @NgModule({
-  declarations: [FirstPageComponent, SecondPageComponent, MainPageComponent, MyService],
-  imports: [SharedModule, localRoutesProvider()],
+  declarations: [FirstPageComponent, SecondPageComponent, MainPageComponent],
+  imports: [SharedModule, localRoutesProvider(/*add any locally scoped routes here*/)],
   exports: [],
-  providers: [RestServiceService]
+  providers: [RestServiceService, MyService]
 })
 export class FirstPageModuleModule {
 }

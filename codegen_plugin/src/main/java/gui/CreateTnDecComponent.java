@@ -151,6 +151,10 @@ public class CreateTnDecComponent {
         return cbExport;
     }
 
+    public JLabel getLblExport() {
+        return lblExport;
+    }
+
     /**
      * a helper main for debugging purposes
      *

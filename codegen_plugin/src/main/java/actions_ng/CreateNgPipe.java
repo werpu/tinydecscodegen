@@ -29,4 +29,17 @@ public class CreateNgPipe extends CreateTnDecFilter {
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
         new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new NgFileNameTransformer("pipe"), ModuleElementScope.DECLARATIONS, ModuleElementScope.EXPORT).run();
     }
+
+
+    @NotNull
+    @Override
+    protected String getExportLabel() {
+        return "Export Pipe";
+    }
+
+    @NotNull
+    @Override
+    protected String getDialogTitle() {
+        return getTitle();
+    }
 }
