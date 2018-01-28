@@ -102,6 +102,9 @@ public class SpringJavaRestReflector {
         return new GenericClass(classDescriptor, parent, Collections.emptyList(), props.stream().collect(Collectors.toList()));
     }
 
+
+
+
     public static List<RestService> reflectRestService(List<Class> toReflect, boolean flattenResult) {
         return toReflect.parallelStream().filter(cls -> {
             return isRestService(cls);

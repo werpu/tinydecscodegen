@@ -355,7 +355,10 @@ public class IntellijUtils {
                 return;
             }
 
-            List<RestService> restService = IntellijSpringRestReflector.reflectRestService(Arrays.asList(javaClass), true, ConfigSerializer.getInstance().getState().getReturnValueStripLevel());
+            List<PsiClass> toReflect = Arrays.asList(javaClass);
+            List<RestService> restService = (IntellijSpringRestReflector.isRestService(toReflect)) ?
+                    IntellijSpringRestReflector.reflectRestService(toReflect, true, ConfigSerializer.getInstance().getState().getReturnValueStripLevel()):
+                    IntellijJaxRsReflector.reflectRestService(toReflect, true, ConfigSerializer.getInstance().getState().getReturnValueStripLevel());
             if (restService == null || restService.isEmpty()) {
                 Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
                 retVal.set(false);

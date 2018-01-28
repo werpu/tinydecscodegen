@@ -18,6 +18,11 @@ import static utils.PsiAnnotationUtils.*;
  * placeholder for the jaxrs reflector
  */
 public class IntellijJaxRsReflector {
+
+    public boolean isRestService(List<PsiClass> toReflect) {
+        return toReflect.stream().filter(IntellijJaxRsReflector::isRestService).findFirst().isPresent();
+    }
+
     public static List<RestService> reflectRestService(List<PsiClass> toReflect, boolean flattenResult, int returnValueNestingDepth) {
         return toReflect.stream().filter(IntellijJaxRsReflector::isRestService)
                 .map(cls -> {

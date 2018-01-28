@@ -11,6 +11,8 @@ import { User } from "app/models/user";
 @Injectable()
 export class ${service.serviceName} {
 
+    restRoot: string = ""; // fill in your rest request root here
+
     constructor(private http: HttpClient) {
     }
 
@@ -34,11 +36,11 @@ export class ${service.serviceName} {
         </#if>
     </#list>
     <#if mType = "post" || mType = "put"|| mType = "patch">
-        return this.http.${mType?lower_case}("<#if service.serviceRootUrl?has_content>${service.serviceRootUrl}</#if>${method.url}<#list method.params as param><#if param.paramType.name() = "PathVariable">/<#noparse>${</#noparse>${param.restName}<#noparse>}</#noparse></#if></#list>", body, {
+        return this.http.${mType?lower_case}(this.restRoot + "<#if service.serviceRootUrl?has_content>${service.serviceRootUrl}</#if>${method.url}<#list method.params as param><#if param.paramType.name() = "PathVariable">/<#noparse>${</#noparse>${param.restName}<#noparse>}</#noparse></#if></#list>", body, {
             params: params
         });
     <#else>
-        return this.http.${mType?lower_case}("<#if service.serviceRootUrl?has_content>${service.serviceRootUrl}</#if>${method.url}<#list method.params as param><#if param.paramType.name() = "PathVariable">/<#noparse>${</#noparse>${param.restName}<#noparse>}</#noparse></#if></#list>", {
+        return this.http.${mType?lower_case}(this.restRoot + "<#if service.serviceRootUrl?has_content>${service.serviceRootUrl}</#if>${method.url}<#list method.params as param><#if param.paramType.name() = "PathVariable">/<#noparse>${</#noparse>${param.restName}<#noparse>}</#noparse></#if></#list>", {
             params: params
         });
     </#if>

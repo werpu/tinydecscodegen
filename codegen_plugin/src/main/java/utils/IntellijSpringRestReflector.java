@@ -36,6 +36,14 @@ import java.util.stream.Collectors;
  */
 public class IntellijSpringRestReflector {
 
+
+
+
+    public static boolean isRestService(List<PsiClass> toReflect) {
+        return toReflect.stream().filter(IntellijSpringRestReflector::isRestService).findFirst().isPresent();
+    }
+
+
     public static List<RestService> reflectRestService(List<PsiClass> toReflect, boolean flattenResult, int returnValueNestingDepth) {
         return toReflect.stream()
                 .filter(IntellijSpringRestReflector::isRestService)

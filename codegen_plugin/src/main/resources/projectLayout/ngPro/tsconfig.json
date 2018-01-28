@@ -3,6 +3,11 @@
   "compilerOptions": {
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
+    "paths": {
+      "Dto": [
+        "../node_modules/ts-ng-tinydecorations/dist/Dto.ts"
+      ]
+    },
     "declaration": false,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
