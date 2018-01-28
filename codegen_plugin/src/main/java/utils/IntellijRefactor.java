@@ -26,6 +26,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static refactor.TinyRefactoringUtils.clearComments;
+import static refactor.TinyRefactoringUtils.fishComments;
+
 public class IntellijRefactor {
 
     public static final String NG_MODULE = "@NgModule";
@@ -108,39 +111,48 @@ public class IntellijRefactor {
         return in.replaceAll("\\\\\"","\"").replaceAll("\"\\\\","\"");
     }
 
+
     public static String appendDeclare(String inStr, String declare) {
+        String comments = fishComments(inStr);
+        inStr = clearComments(inStr);
         String json = TinyRefactoringUtils.getJsonString(inStr).toString();
         Gson gson = new Gson();
         NgRootModuleJson moduleData = gson.fromJson(escapeJsonStr(json.toString()), NgRootModuleJson.class);
         moduleData.appendDeclare(declare);
-        return remapToTs(gson.toJson(moduleData.isRootModule() ? moduleData: moduleData.toModule()));
+        return comments+remapToTs(gson.toJson(moduleData.isRootModule() ? moduleData: moduleData.toModule()));
     }
 
     public static String appendProvides(String inStr, String declare) {
+        String comments = fishComments(inStr);
+        inStr = clearComments(inStr);
         String json = TinyRefactoringUtils.getJsonString(inStr).toString();
         Gson gson = new Gson();
         NgRootModuleJson moduleData = gson.fromJson(escapeJsonStr(json.toString()), NgRootModuleJson.class);
         moduleData.appendProvides(declare);
-        return remapToTs(gson.toJson(moduleData.isRootModule() ? moduleData: moduleData.toModule()));
+        return comments+remapToTs(gson.toJson(moduleData.isRootModule() ? moduleData: moduleData.toModule()));
 
     }
 
     public static String appendImport(String inStr, String declare) {
+        String comments = fishComments(inStr);
+        inStr = clearComments(inStr);
         String json = TinyRefactoringUtils.getJsonString(inStr).toString();
         Gson gson = new Gson();
         NgRootModuleJson moduleData = gson.fromJson(escapeJsonStr(json.toString()), NgRootModuleJson.class);
         moduleData.appendImport(declare);
-        return remapToTs(gson.toJson(moduleData.isRootModule() ? moduleData: moduleData.toModule()));
+        return comments+remapToTs(gson.toJson(moduleData.isRootModule() ? moduleData: moduleData.toModule()));
     }
 
     public static String appendExport(String inStr, String declare) {
+        String comments = fishComments(inStr);
+        inStr = clearComments(inStr);
         inStr = inStr.replaceAll("\"","\\\"");
         String json = TinyRefactoringUtils.getJsonString(inStr).toString();
         Gson gson = new Gson();
         String jsonStr = json.toString();
         NgRootModuleJson moduleData = gson.fromJson(escapeJsonStr(jsonStr), NgRootModuleJson.class);
         moduleData.appendExport(declare);
-        return remapToTs(gson.toJson(moduleData.isRootModule() ? moduleData: moduleData.toModule()));
+        return comments+remapToTs(gson.toJson(moduleData.isRootModule() ? moduleData: moduleData.toModule()));
     }
 
     private static String escapeJsonStr(String jsonStr) {

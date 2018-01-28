@@ -30,6 +30,8 @@ import dtos.NgRootModuleJson;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -168,6 +170,32 @@ public class TinyRefactoringUtils {
 
     private static List<String> getNgModuleBlocks(String contentToAlter) {
         return Arrays.asList(contentToAlter.split("@NgModule"));
+    }
+
+    public static String clearComments(String inStr) {
+        Pattern multiline = Pattern.compile("()");
+        Pattern singleLine = Pattern.compile("(\\/\\/[^\n]*\n)");
+
+        return inStr.replaceAll("/\\*(.|[\r\n])*?\\*/", "")
+                .replaceAll("//[^\\n]*\\n", "");
+    }
+
+    public static String fishComments(String inStr) {
+        Pattern  multiline = Pattern.compile("(/\\*(.|[\\r\\n])*?\\*/)");
+        Pattern singleLine = Pattern.compile("(//[^\\n]*\\n)");
+
+        StringBuilder comments = new StringBuilder();
+        Matcher m = multiline.matcher(inStr);
+        while (m.find())
+        {
+            comments.append(m.group(1));
+        }
+        m = singleLine.matcher(inStr);
+        while (m.find())
+        {
+            comments.append(m.group(1));
+        }
+        return comments.toString();
     }
 
 
