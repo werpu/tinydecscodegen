@@ -147,6 +147,12 @@ public class CreateTnDecDirective extends AnAction implements DumbAware {
             }
         };
 
+        if(!isAngular1()) {
+            mainForm.getElementCheckBox().setVisible(false);
+            mainForm.getAttributeCheckBox().setVisible(false);
+            mainForm.getClassCheckBox().setVisible(false);
+            mainForm.getCommentCheckBox().setVisible(false);
+        }
         dialogWrapper.setTitle("Create Directive");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
@@ -198,7 +204,7 @@ public class CreateTnDecDirective extends AnAction implements DumbAware {
         WriteCommandAction.runWriteCommandAction(project, () -> {
             String className = IntellijUtils.toCamelCase(model.getSelector());
 
-            FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_DIRECTIVE);
+            FileTemplate vslTemplate = getFileTemplate(project);
 
             Map<String, Object> attrs = Maps.newHashMap();
             attrs.put("SELECTOR", model.getSelector());
@@ -223,6 +229,8 @@ public class CreateTnDecDirective extends AnAction implements DumbAware {
 
     }
 
+
+
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
         List<ModuleElementScope> scope = Lists.newArrayList();
         scope.add(ModuleElementScope.DECLARATIONS);
@@ -234,4 +242,11 @@ public class CreateTnDecDirective extends AnAction implements DumbAware {
         new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new SimpleFileNameTransformer(), scopes).run();
     }
 
+    protected FileTemplate getFileTemplate(Project project) {
+        return FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_DIRECTIVE);
+    }
+
+    protected boolean isAngular1() {
+        return true;
+    }
 }

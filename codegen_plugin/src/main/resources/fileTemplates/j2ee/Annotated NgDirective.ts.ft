@@ -1,0 +1,13 @@
+import { Directive } from '@angular/core';
+
+
+/**
+ * Directive ${NAME}
+ * @author ${AUTHOR}
+ */
+@Directive({
+    selector: '${SELECTOR}'
+})
+export class ${NAME} {
+    constructor() { }
+}

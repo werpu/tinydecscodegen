@@ -29,7 +29,7 @@
         <fileTemplateGroup implementation="factories.TnDecGroupFactory"/>
         <defaultLiveTemplatesProvider implementation="factories.TnDecLiveTemplatesProvider"/>
         <liveTemplateContext implementation="factories.TnDecLiveTemplatesContextProvider"/>
-        <applicationConfigurable instance="configuration.ServiceGenConfiguration" />
+        <applicationConfigurable instance="configuration.ServiceGenConfiguration"/>
 
 
         <applicationService serviceInterface="configuration.ConfigSerializer"
@@ -44,12 +44,17 @@
             <add-to-group group-id="MainMenu" anchor="last"/>
 
 
-            <group id="TD_TinyDecsContextMenu1" text="_Tiny Decorations" popup="true" description="Tiny decorations context actions" icon="/images/tt.png" >
+            <group id="TD_TinyDecsContextMenu1" text="_Tiny Decorations" popup="true"
+                   description="Tiny decorations context actions" icon="/images/tt.png">
                 <action id="TD_CreateProject1" class="actions.CreateTnDecProject" text="Create Tiny Decorations Project"
                         description="Create a an Angular Tiny Decorations Project" icon="/images/tt.png">
                 </action>
 
-                <separator />
+                <separator/>
+                <action id="TD_CreateModule1" class="actions.CreateTnDecModule" text="Create Module"
+                        description="Create a an Angular Tiny Decorations Module" icon="/images/tt.png">
+                </action>
+                <separator/>
 
                 <action id="TD_CreateComponent1" class="actions.CreateTnDecComponent" text="Create Component"
                         description="Create a an Angular Tiny Decorations Component" icon="/images/tt.png">
@@ -68,12 +73,8 @@
                         description="Create a an Angular Tiny Decorations Directive" icon="/images/tt.png">
                 </action>
 
-                <separator />
-                <action id="TD_CreateModule1" class="actions.CreateTnDecModule" text="Create Module"
-                        description="Create a an Angular Tiny Decorations Module" icon="/images/tt.png">
-                </action>
 
-                <separator />
+                <separator/>
                 <action id="TD_CreateConfig1" class="actions.CreateTnDecConfig" text="Create Startup Config"
                         description="Create a an Angular Tiny Decorations Startup Config" icon="/images/tt.png">
                 </action>
@@ -82,44 +83,57 @@
                 </action>
             </group>
 
-        <group id="Angular_2_Plus" text="_Angular NG" popup="true" description="Actions for Angular NG">
-            <action id="NG_CreateProject1" class="actions_ng.CreateNgProject" text="Create Angular Ng Project"
-                    description="Create a an Angular Ng Project" icon="/images/tt.png">
-            </action>
-
-            <separator />
-
-
-            <action id="NG_CreateService1" class="actions_ng.CreateNgService" text="Create Angular Ng Service"
-                    description="Create a an Angular NG Service" >
-            </action>
-            <action id="NG_CreateModule1" class="actions_ng.CreateNgModule" text="Create Angular Ng Module"
-                    description="Create a an Angular NG Module" >
-            </action>
-            <action id="NG_CreateComponent1" class="actions_ng.CreateNgComponent" text="Create Angular Ng Component"
-                    description="Create a an Angular NG Component" >
-            </action>
-
-            <action id="NG_CreatePipe1" class="actions_ng.CreateNgPipe" text="Create Pipe"
-                    description="Create a an Angular NG Pipe" >
-            </action>
-        </group>
-
-
-        <group id="TD_Generate" text="Generators" description="Tiny decorations generation" popup="true">
-
-
-                <action id="TD_ServiceSource" class="actions.ServiceGenerateActionFromSource" text="Service Generation from Source"
-                        description="Generate a typescript service">
+            <group id="Angular_2_Plus" text="_Angular NG" popup="true" description="Actions for Angular NG">
+                <action id="NG_CreateProject1" class="actions_ng.CreateNgProject" text="Create Angular Ng Project"
+                        description="Create a an Angular Ng Project" icon="/images/tt.png">
                 </action>
+
+                <separator/>
+
+                <action id="NG_CreateModule1" class="actions_ng.CreateNgModule" text="Create Angular Ng Module"
+                        description="Create a an Angular NG Module">
+                </action>
+
+                <separator/>
+
+
+                <action id="NG_CreateService1" class="actions_ng.CreateNgService" text="Create Angular Ng Service"
+                        description="Create a an Angular NG Service">
+                </action>
+
+                <action id="NG_CreateComponent1" class="actions_ng.CreateNgComponent" text="Create Angular Ng Component"
+                        description="Create a an Angular NG Component">
+                </action>
+
+                <action id="NG_CreatePipe1" class="actions_ng.CreateNgPipe" text="Create Angular Ng Pipe"
+                        description="Create a an Angular NG Pipe">
+                </action>
+
+                <action id="NG_CreateDirective" class="actions_ng.CreateNgDirective" text="Create Angular Ng Directive"
+                        description="Create a an Angular NG Directive">
+                </action>
+            </group>
+
+
+            <group id="TD_Generate" text="Generators" description="Tiny decorations generation" popup="true">
+
 
                 <action id="TD_DtoSrc" class="actions.DtoGenerateFromSource" text="Dto Generation from source"
                         description="Generate a typescript dto from the current editor window">
 
                 </action>
 
-                <separator />
-                <action id="NG_ServiceSource" class="actions_ng.ServiceGenerateActionFromSource" text="Angular NG Service Generation from Source"
+                <separator/>
+
+                <action id="TD_ServiceSource" class="actions.ServiceGenerateActionFromSource"
+                        text="Service Generation from Source"
+                        description="Generate a typescript service">
+                </action>
+
+
+                <separator/>
+                <action id="NG_ServiceSource" class="actions_ng.ServiceGenerateActionFromSource"
+                        text="Angular NG Service Generation from Source"
                         description="Generate a Angular Ng typescript service">
                 </action>
 
@@ -146,13 +160,14 @@
                 -->
             </group>
 
-            <separator />
+            <separator/>
             <action id="TD_TD_EditTemplate" class="actions.EditTemplate" text="Edit HTML Template">
 
             </action>
         </group>
 
-        <group id="TD_TinyDecsContextMenu" text="_Tiny Decorations" popup="true" description="Tiny decorations context actions" icon="/images/tt.png">
+        <group id="TD_TinyDecsContextMenu" text="_Tiny Decorations" popup="true"
+               description="Tiny decorations context actions" icon="/images/tt.png">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewHtmlFile"/>
 
 
@@ -173,12 +188,12 @@
                     description="Create a an Angular Tiny Decorations Directive" icon="/images/tt.png">
             </action>
 
-            <separator />
+            <separator/>
             <action id="TD_CreateModule" class="actions.CreateTnDecModule" text="Create Module"
                     description="Create a an Angular Tiny Decorations Module" icon="/images/tt.png">
             </action>
 
-            <separator />
+            <separator/>
             <action id="TD_CreateConfig" class="actions.CreateTnDecConfig" text="Create Startup Config"
                     description="Create a an Angular Tiny Decorations Startup Config" icon="/images/tt.png">
             </action>
@@ -187,31 +202,37 @@
             </action>
         </group>
 
-        <group id="NG_TinyDecsContextMenu" text="_NG" popup="true" description="TD NG Actions" icon="/images/tt.png">
+        <group id="NG_TinyDecsContextMenu" text="_Angular NG" popup="true" description="Angular NG Actions" icon="/images/tt.png">
 
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewHtmlFile"/>
 
 
+            <action id="TD_CreateModule2" class="actions_ng.CreateNgModule" text="Create Module"
+                    description="Create a an Angular Angular NG Module">
+            </action>
+
+            <separator/>
+
             <action id="NG_CreateComponent2" class="actions_ng.CreateNgComponent" text="Create Component"
-                    description="Create a an Angular NG Component" >
+                    description="Create a an Angular NG Component">
             </action>
 
             <action id="NG_CreateService2" class="actions_ng.CreateNgService" text="Create Service"
-                    description="Create a an Angular NG Service" >
+                    description="Create a an Angular NG Service">
             </action>
 
-            <action id="NG_CreatePipe" class="actions_ng.CreateNgPipe" text="Create Pipe"
-                    description="Create a an Angular NG Pipe" >
+            <action id="NG_CreatePipe2" class="actions_ng.CreateNgPipe" text="Create Pipe"
+                    description="Create a an Angular NG Pipe">
+            </action>
+            <action id="NG_CreateDirective2" class="actions_ng.CreateNgDirective" text="Create Directive"
+                    description="Create a an Angular NG Directive">
             </action>
 
-            <separator />
-            <action id="TD_CreateModule2" class="actions_ng.CreateNgModule" text="Create Module"
-                    description="Create a an Angular Angular NG Module" >
-            </action>
+
 
         </group>
 
-   </actions>
+    </actions>
     <application-components>
 
         <component>
