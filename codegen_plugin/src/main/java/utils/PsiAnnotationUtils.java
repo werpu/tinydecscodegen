@@ -13,7 +13,6 @@ import rest.RestVarType;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 class PsiAnnotationUtils {
 
@@ -71,13 +70,15 @@ class PsiAnnotationUtils {
             sReturnType = sReturnType.substring(from+1, to);
         }
 
-        List<GenericType> childTypes = ReflectUtils.buildGenericTypes(sReturnType);
-        GenericType genericTypes = new GenericType("", childTypes);
-
         if(sReturnType.equals("Response") || sReturnType.equals("ResponseEntity")) {
             //TODO source parsing of the java source
             sReturnType = "any";
         }
+
+        List<GenericType> childTypes = ReflectUtils.buildGenericTypes(sReturnType);
+        GenericType genericTypes = new GenericType("", childTypes);
+
+
         return new RestVar(RestVarType.RequestRetval, null, null,
                 ReflectUtils.isArrayType(sReturnType),
                 null, genericTypes);

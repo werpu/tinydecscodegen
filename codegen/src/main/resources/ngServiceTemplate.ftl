@@ -32,15 +32,15 @@ export class ${service.serviceName} {
         <#if param.paramType.name() = "RequestBody">
         body = JSON.stringify(${param.restName});
         <#else>
-         params = params.append('${param.restName}', ${param.restName});
+        params = params.append('${param.restName}', ${param.restName});
         </#if>
     </#list>
     <#if mType = "post" || mType = "put"|| mType = "patch">
-        return this.http.${mType?lower_case}(this.restRoot + "<#if service.serviceRootUrl?has_content>${service.serviceRootUrl}</#if>${method.url}<#list method.params as param><#if param.paramType.name() = "PathVariable">/<#noparse>${</#noparse>${param.restName}<#noparse>}</#noparse></#if></#list>", body, {
+        return <Observable<<#if !method.returnValue.isPresent()>any<#else>${method.returnValue.get().toTypeScript()}></#if>> this.http.${mType?lower_case}(this.restRoot + "<#if service.serviceRootUrl?has_content>${service.serviceRootUrl}</#if>${method.url}<#list method.params as param><#if param.paramType.name() = "PathVariable">/<#noparse>${</#noparse>${param.restName}<#noparse>}</#noparse></#if></#list>", body, {
             params: params
         });
     <#else>
-        return this.http.${mType?lower_case}(this.restRoot + "<#if service.serviceRootUrl?has_content>${service.serviceRootUrl}</#if>${method.url}<#list method.params as param><#if param.paramType.name() = "PathVariable">/<#noparse>${</#noparse>${param.restName}<#noparse>}</#noparse></#if></#list>", {
+        return <Observable<<#if !method.returnValue.isPresent()>any<#else>${method.returnValue.get().toTypeScript()}></#if>> this.http.${mType?lower_case}(this.restRoot + "<#if service.serviceRootUrl?has_content>${service.serviceRootUrl}</#if>${method.url}<#list method.params as param><#if param.paramType.name() = "PathVariable">/<#noparse>${</#noparse>${param.restName}<#noparse>}</#noparse></#if></#list>", {
             params: params
         });
     </#if>
