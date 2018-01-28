@@ -1,5 +1,4 @@
-import {PostConstruct} from "TinyDecorations";
-import {Dto} from "Dto";
+import {Dto, PostConstruct} from "Dto";
 
 /**
  * DTO typescript interface definition for ${clazz.name}

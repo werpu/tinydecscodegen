@@ -1,3 +1,5 @@
+/// <reference path="../node_modules/ts-ng-tinydecorations/dist/Dto.d.ts" />
+
 import "Dto";
 
 import { enableProdMode } from '@angular/core';
