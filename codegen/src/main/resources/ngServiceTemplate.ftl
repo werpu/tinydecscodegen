@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpParams, HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Rx';
-import { User } from "app/models/user";
 
 /**
  * Rest service ${service.serviceName}
