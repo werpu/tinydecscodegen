@@ -9,8 +9,7 @@ describe('${CLASS_NAME}', () => {
     beforeEach(async(() => {
         TestBed.configureTestingModule({
             declarations: [ ${CLASS_NAME} ]
-        })
-            .compileComponents();
+        }).compileComponents();
     }));
 
     beforeEach(() => {
