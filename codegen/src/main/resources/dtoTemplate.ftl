@@ -43,8 +43,9 @@ export class ${clazz.name}Impl <#if clazz.parentClass??> extends ${clazz.parentC
 
     @PostConstruct()
     postConstruct(data: ${clazz.name}) {
-        //fill in your post init code here, the data is not at an applied
-        //stage in the constructor
+        //fill in your post init code here, the data is
+        //already applied to this, but you can
+        //alter it on the fly
     }
 
     //you can add custom behavior here
