@@ -48,26 +48,26 @@ public class IntellijSpringRestReflector {
 
 
     private static boolean isRestService(PsiClass cls) {
-        return isPresent(cls, RestController.class);
+        return PsiAnnotationUtils.isPresent(cls, RestController.class);
     }
 
 
     private static String fetchServiceUrl(PsiClass cls) {
 
-        if (isPresent(cls, RequestMapping.class)) {
-            PsiAnnotation ann = getAnn(cls, RequestMapping.class);
+        if (PsiAnnotationUtils.isPresent(cls, RequestMapping.class)) {
+            PsiAnnotation ann = PsiAnnotationUtils.getAnn(cls, RequestMapping.class);
             String val = (ann.findAttributeValue("value") != null) ? ann.findAttributeValue("value").getText() : "";
 
-            return getAttr(ann, "path", val);
+            return PsiAnnotationUtils.getAttr(ann, "path", val);
         }
         return "";
     }
 
     private static String fetchServiceName(PsiClass cls) {
 
-        if (isPresent(cls, RequestMapping.class)) {
-            PsiAnnotation ann = getAnn(cls, RequestMapping.class);
-            return getAttr(ann, "name", cls.getName().replace("Controller", "Service"));
+        if (PsiAnnotationUtils.isPresent(cls, RequestMapping.class)) {
+            PsiAnnotation ann = PsiAnnotationUtils.getAnn(cls, RequestMapping.class);
+            return PsiAnnotationUtils.getAttr(ann, "name", cls.getName().replace("Controller", "Service"));
         }
         return "";
     }
@@ -82,78 +82,16 @@ public class IntellijSpringRestReflector {
     }
 
 
-    private static RestMethod mapMethod(PsiMethod m, boolean flattenResult, int returnValueNestingDepth) {
-        String name = m.getName();
-        PsiAnnotation mapping = getAnn(m, RequestMapping.class);
-        String path = getAttr(mapping, "value");
-
-        //TODO multiple methods possible
-        String method = getAttr(mapping, "method");
-        //TODO multiple consumes possible
-        if(method.contains(".")) {
-            method = method.substring(method.lastIndexOf(".")+1);
-        }
-
-        String comment = m.getDocComment() != null ? m.getDocComment().getText(): "";
-        String consumes = getAttr(mapping, "consumes");
-        List<RestVar> params = getRestVars(m);
-
-        String sReturnType = m.getReturnType().getCanonicalText();
-        for(int cnt = 0; cnt < returnValueNestingDepth; cnt++) {
-            int from = sReturnType.indexOf("<");
-            int to = sReturnType.lastIndexOf(">");
-            if(from == -1 || to == -1) {
-                break;
-            }
-            sReturnType = sReturnType.substring(from+1, to);
-        }
-        List<GenericType> childTypes = ReflectUtils.buildGenericTypes(sReturnType);
-        GenericType genericTypes = new GenericType("", childTypes);
-        RestVar returnType = new RestVar(RestVarType.RequestRetval, null, null,
-                ReflectUtils.isArrayType(sReturnType),
-                null, genericTypes);
-
-        if(Strings.isNullOrEmpty(method)) {
-            method = RestType.GET.name();
-        }
-        return new RestMethod(path, name, RestType.valueOf(method.toUpperCase()), Optional.ofNullable(returnType), params, comment);
-    }
-
-    private static String getAttr(PsiAnnotation mapping, String attrVal) {
-        PsiAnnotationMemberValue attributeValue = mapping.findAttributeValue(attrVal);
-        String retVal = (attributeValue != null) ? attributeValue.getText() : "";
-        retVal = fixText(retVal);
-        return retVal;
-    }
-
-    private static String getAttr(PsiAnnotation mapping, String attrVal, String theDefault) {
-        PsiAnnotationMemberValue attributeValue = mapping.findAttributeValue(attrVal);
-        String retVal = (attributeValue != null) ? attributeValue.getText() : "";
-        retVal = fixText(retVal);
-        retVal = Strings.isNullOrEmpty(retVal) ? theDefault : retVal;
-        retVal = fixText(retVal);
-        return retVal;
-    }
-
-    private static String fixText(String retVal) {
-        if(retVal.indexOf("/{") != -1) {
-            retVal = retVal.substring(0, retVal.indexOf("/{"));
-        }
-        retVal = retVal.replaceAll("[\\\"\\{\\}]+", "");
-        return retVal;
-    }
-
-
     public static List<RestVar> getRestVars(PsiMethod m) {
         return Arrays.stream(m.getParameterList().getParameters())
-                .filter(p -> isPresent(p, PathVariable.class, RequestBody.class, RequestParam.class))
+                .filter(p -> PsiAnnotationUtils.isPresent(p, PathVariable.class, RequestBody.class, RequestParam.class))
                 .map(p -> getRestVar(m, p)).collect(Collectors.toList());
 
     }
 
     @NotNull
     private static RestVar getRestVar(PsiMethod m, PsiParameter p) {
-        PsiAnnotation ann = getAnn(p, PathVariable.class, RequestBody.class, RequestParam.class);
+        PsiAnnotation ann = PsiAnnotationUtils.getAnn(p, PathVariable.class, RequestBody.class, RequestParam.class);
         RestVarType restVarType = null;
         String restName = "";
         String name = p.getName();
@@ -161,7 +99,7 @@ public class IntellijSpringRestReflector {
             restVarType = RestVarType.PathVariable;
         } else if (ann.getQualifiedName().endsWith(RestVarType.RequestParam.name())) {
             restVarType = RestVarType.RequestParam;
-            restName = getAttr(ann, "value");
+            restName = PsiAnnotationUtils.getAttr(ann, "value");
         } else {
             restVarType = RestVarType.RequestBody;
         }
@@ -171,25 +109,32 @@ public class IntellijSpringRestReflector {
 
     private static boolean isRestMethod(PsiMethod m) {
         return Arrays.stream(m.getModifierList().getAnnotations())
-                .anyMatch(ann -> isPresent(ann, RequestMapping.class));
+                .anyMatch(ann -> PsiAnnotationUtils.isPresent(ann, RequestMapping.class));
     }
 
 
-    private static boolean isPresent(PsiModifierListOwner ownwer, Class... annotation) {
-        return Arrays.stream(ownwer.getModifierList().getAnnotations())
-                .anyMatch(ann -> isPresent(ann, annotation));
-    }
+    static RestMethod mapMethod(PsiMethod m, boolean flattenResult, int returnValueNestingDepth) {
+        String name = m.getName();
+        PsiAnnotation mapping = PsiAnnotationUtils.getAnn(m, RequestMapping.class);
+        String path = PsiAnnotationUtils.getAttr(mapping, "value");
 
-    private static PsiAnnotation getAnn(PsiModifierListOwner owner, Class... annotation) {
-        return Arrays.stream(owner.getModifierList().getAnnotations())
-                .filter(ann -> isPresent(ann, annotation))
-                .findFirst().get();
-    }
+        //TODO multiple methods possible
+        String method = PsiAnnotationUtils.getAttr(mapping, "method");
+        //TODO multiple consumes possible
+        if(method.contains(".")) {
+            method = method.substring(method.lastIndexOf(".")+1);
+        }
 
-    private static boolean isPresent(PsiAnnotation ann, Class... annotation) {
-        return Arrays.asList(annotation).stream().map(ann2 -> ann2.getName())
-                .anyMatch(name -> name.contains(ann.getQualifiedName()));
-    }
+        String comment = m.getDocComment() != null ? m.getDocComment().getText(): "";
+        String consumes = PsiAnnotationUtils.getAttr(mapping, "consumes");
+        List<RestVar> params = getRestVars(m);
 
+        RestVar returnType = PsiAnnotationUtils.getRestReturnType(m, returnValueNestingDepth);
+
+        if(Strings.isNullOrEmpty(method)) {
+            method = RestType.GET.name();
+        }
+        return new RestMethod(path, name, RestType.valueOf(method.toUpperCase()), Optional.ofNullable(returnType), params, comment);
+    }
 
 }

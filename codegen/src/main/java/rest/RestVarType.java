@@ -26,7 +26,10 @@ package rest;
  */
 public enum RestVarType {
 
-    PathVariable, RequestParam, RequestBody, RequestRetval;
+    /*Spring types*/
+    PathVariable, RequestParam, RequestBody, RequestRetval,
+    /*JaxRS Types*/
+    PathParam, QueryParam;
 
     public boolean isPathVariable() {
         return this == PathVariable;
@@ -43,4 +46,13 @@ public enum RestVarType {
     public boolean isRequestRetVal() {
         return this == RequestRetval;
     }
+
+    public boolean isPathParam() {
+        return this == PathParam;
+    }
+
+    public boolean isQueryParam() {
+        return this == QueryParam;
+    }
+
 }

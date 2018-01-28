@@ -39,6 +39,7 @@ subprojects {
         compile group: 'org.freemarker', name: 'freemarker', version: '2.3.23'
         compile group: 'com.thoughtworks.paranamer', name: 'paranamer', version: '2.4'
         compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
+        compile group: 'org.jboss.resteasy', name: 'jaxrs-api', version: '3.0.12.Final'
 
         testCompile group: 'junit', name: 'junit', version: '4.12'
     }
