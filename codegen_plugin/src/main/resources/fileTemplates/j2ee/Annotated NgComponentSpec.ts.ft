@@ -1,0 +1,25 @@
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { ${CLASS_NAME} } from './${FILE_NAME}';
+
+describe('${CLASS_NAME}', () => {
+    let component: ${CLASS_NAME};
+    let fixture: ComponentFixture<${CLASS_NAME}>;
+
+    beforeEach(async(() => {
+        TestBed.configureTestingModule({
+            declarations: [ ${CLASS_NAME} ]
+        })
+            .compileComponents();
+    }));
+
+    beforeEach(() => {
+        fixture = TestBed.createComponent(${CLASS_NAME});
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
+
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
+});

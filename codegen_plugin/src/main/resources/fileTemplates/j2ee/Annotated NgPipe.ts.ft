@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({name:'${NAME}'})
-export class CapitalizePipe implements PipeTransform {
+export class ${CLASS_NAME} implements PipeTransform {
 
     transform(value: any, ...args: any[]): any {
 
