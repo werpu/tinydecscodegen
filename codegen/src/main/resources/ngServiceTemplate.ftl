@@ -11,7 +11,11 @@ import { User } from "app/models/user";
 @Injectable()
 export class ${service.serviceName} {
 
-    restRoot: string = ""; // fill in your rest request root here
+<#if service.serviceRootUrl?has_content>
+    restRoot: string = "${service.serviceRootUrl}"; // fill in your rest request root here
+<#else>
+    restRoot: string = "";
+</#if>
 
     constructor(private http: HttpClient) {
     }
