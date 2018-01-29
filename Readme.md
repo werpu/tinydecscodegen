@@ -30,7 +30,7 @@ a successful code generation
 * Integrates seamlessly into angular-cli for Angular 5+ projects
 
 
-## Is this plugin usable already
+## Is this plugin usable already?
 
 ### Honest Answer
 
@@ -47,11 +47,9 @@ So feel free to use it I am happy about it, but never mind, that I will keep it 
 
 The project simply was created because I was in the need of such tools
 and hence developed it on my own for my needs. If you think something is missing or if you want to donate
-code feel free to send me a code drop/pull request or add a feature request in the projects list.
+code, feel free to send me a code drop/pull request or add a feature request in the projects list.
 
-Hence there is no offical drop of the plugin into the Jetbrains repository.
-
-More info on how to use it fill follow soon, depending on my time
+Hence there is no offical drop of the plugin into the Jetbrains repository at the moment.
 
 
 ## Links
