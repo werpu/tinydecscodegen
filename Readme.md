@@ -38,12 +38,14 @@ Yes definitely, I use it together with TinyDecorations and Angular 5+ in a bigge
 so I am eating my own dogfood here. However the ui is bound to change, since it is very basic atm.
 Also smaller bugs can be expected. 
 
-However since I currently develop
+However, since I currently develop
 this project alone in my limited sparetime without any payment on it, I am glad that I do not have to many
 users for this project atm, although I love people using my stuff, there is always support involved with it 
 and this costs time I have to cut off from my family and implementation time. 
 
-So feel free to use it I am happy about it, but I will keep it a little bit under the radar for the time being. The project simply was created because I was in the needs of such tools
+So feel free to use it I am happy about it, but I will keep it a little bit under the radar for the time being. 
+
+The project simply was created because I was in the need of such tools
 and hence developed it on my own for my needs. If you think something is missing or if you want to donate
 code feel free to send me a code drop or add a feature request in the projects list.
 
