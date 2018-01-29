@@ -51,6 +51,10 @@ public class CreateTnDecComponent {
     private JScrollPane pnEditorHolder;
     private JLabel lblExport;
     private JCheckBox cbExport;
+    private JCheckBox cbCreateDir;
+    private JCheckBox cbCreateStructure;
+    private JLabel lblCreateDir;
+    private JLabel lblCreateStructue;
 
     boolean selectorValid = false;
     boolean controllerAsValid = false;
@@ -153,6 +157,22 @@ public class CreateTnDecComponent {
 
     public JLabel getLblExport() {
         return lblExport;
+    }
+
+    public JCheckBox getCbCreateDir() {
+        return cbCreateDir;
+    }
+
+    public JCheckBox getCbCreateStructure() {
+        return cbCreateStructure;
+    }
+
+    public JLabel getLblCreateDir() {
+        return lblCreateDir;
+    }
+
+    public JLabel getLblCreateStructue() {
+        return lblCreateStructue;
     }
 
     /**

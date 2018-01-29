@@ -16,11 +16,14 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.ui.popup.util.PopupUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.encoding.EncodingRegistry;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
+import configuration.ConfigSerializer;
 import dtos.ComponentAttribute;
 import dtos.ComponentJson;
 import factories.TnDecGroupFactory;
@@ -90,6 +93,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
 
 
         mainForm.getTxtTemplate().setVisible(false);
+        mainForm.getCbExport().setSelected(ConfigSerializer.getInstance().getState().isComponentExport());
         Editor editor = SwingUtils.createHtmlEditor(project, document);
         WriteCommandAction.runWriteCommandAction(project, () -> {
             editor.getDocument().setText("  ");
@@ -144,7 +148,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
                     List<ComponentAttribute> attrs = getCompAttrs(editor, mainForm);
                     boolean export = mainForm.getCbExport().isSelected();
                     ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder, export));
-
+                    ConfigSerializer.getInstance().getState().setComponentExport(mainForm.getCbExport().isSelected());
                 });
                 super.doOKAction();
             }
@@ -198,7 +202,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
             }
 
             generate(project, folder, className, vslTemplate, attrs);
-
+            PopupUtil.showBalloonForActiveFrame("The Component has been generated", MessageType.INFO);
         });
 
 

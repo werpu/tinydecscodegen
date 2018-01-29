@@ -12,7 +12,9 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.ui.popup.util.PopupUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
@@ -108,6 +110,7 @@ public class CreateTnDecRun extends AnAction implements DumbAware {
         if (dialogWrapper.isOK()) {
             ControllerJson model = new ControllerJson(mainForm.getName(), mainForm.getTemplate(), mainForm.getControllerAs());
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
+            PopupUtil.showBalloonForActiveFrame("The Run Config has been generated", MessageType.INFO);
         }
     }
 

@@ -12,8 +12,11 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.ui.popup.util.PopupUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import configuration.ConfigSerializer;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.NotNull;
@@ -61,6 +64,7 @@ public class CreateTnDecFilter extends AnAction implements DumbAware {
 
         mainForm.getTxtTemplate().setVisible(false);
         mainForm.getTxtControllerAs().setVisible(false);
+        mainForm.getCbExport().setSelected(ConfigSerializer.getInstance().getState().isFilterExport());
 
         DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
 
@@ -111,6 +115,8 @@ public class CreateTnDecFilter extends AnAction implements DumbAware {
         if (dialogWrapper.isOK()) {
             ControllerJson model = new ControllerJson(mainForm.getName(), mainForm.getTemplate(), mainForm.getControllerAs());
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
+            PopupUtil.showBalloonForActiveFrame("The Filter/Pipe has been generated", MessageType.INFO);
+            ConfigSerializer.getInstance().getState().setDirectiveExport(mainForm.getCbExport().isSelected());
         }
     }
 

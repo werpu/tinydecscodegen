@@ -38,7 +38,8 @@ public class ServiceGenConfiguration implements Configurable {
     private TinyDecsConfiguration getCurrentlySetupConfig() {
         return new TinyDecsConfiguration((Integer) configPanel.getReturnValueLevel().getValue(),
                 (String) configPanel.getSourceFramework().getSelectedItem(),
-                (String) configPanel.getTargetFramework().getSelectedItem());
+                (String) configPanel.getTargetFramework().getSelectedItem(), false, false,
+                false, false, false, false);
     }
 
     @Override

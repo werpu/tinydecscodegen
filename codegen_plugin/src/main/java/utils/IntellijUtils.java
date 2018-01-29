@@ -46,7 +46,9 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.popup.util.PopupUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
@@ -430,6 +432,12 @@ public class IntellijUtils {
     public static VirtualFile getFolderOrFile(AnActionEvent event) {
         VirtualFile file = event.getDataContext().getData(CommonDataKeys.VIRTUAL_FILE);
         return file;
+    }
+
+    public static void handleEx(IOException e) {
+        PopupUtil.showBalloonForActiveFrame(e.getMessage(), MessageType.ERROR);
+        e.printStackTrace();
+        throw new RuntimeException(e);
     }
 
 
