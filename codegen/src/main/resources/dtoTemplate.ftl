@@ -36,6 +36,11 @@ export class ${clazz.name}<#if clazz.parentClass??> extends ${clazz.parentClass.
 </#sep></#list>
 */})
 export class ${clazz.name}Impl <#if clazz.parentClass??> extends ${clazz.parentClass.name}Impl</#if> implements I${clazz.name} {
+
+<#list clazz.properties as prop>
+    ${prop.name}: ${prop.classType.toTypeScript()};
+</#list>
+
     constructor(data: ${clazz.name}) {<#if clazz.parentClass??>
 
         super(data);</#if>

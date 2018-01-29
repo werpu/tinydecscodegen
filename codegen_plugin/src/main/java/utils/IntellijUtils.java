@@ -102,52 +102,59 @@ public class IntellijUtils {
         final Collection<PsiFile> alreadyExisting = IntellijUtils.searchRefs(project, className, "ts");
         ApplicationManager.getApplication().runWriteAction(() -> {
             moveFileToGeneratedDir(file, project, module);
+            boolean diffed = false;
             if (alreadyExisting != null && alreadyExisting.size() > 0) {
+
                 for (PsiFile origFile : alreadyExisting) {
 
-                    showDiff(project, file, origFile, javaFile, alreadyExisting.size() == 1);
+                    diffed = diffed || showDiff(project, file, origFile, javaFile, alreadyExisting.size() == 1);
                 }
+            }
+            if(!diffed) {
+                writeTarget(className, project, module, artifactType, file);
+            }
+        });
+    }
+
+    private static void writeTarget(String className, Project project, Module module, ArtifactType artifactType, PsiFile file) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+
+            String oldPath = PropertiesComponent.getInstance(project).getValue("__lastSelTarget__" + artifactType.name());
+            VirtualFile vfile1 = null;
+            FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
+            descriptor.setTitle("Select Generation Target Directory");
+            descriptor.setDescription("Please choose a target directory");
+
+
+            if (!Strings.isNullOrEmpty(oldPath)) {
+                VirtualFile storedPath = LocalFileSystem.getInstance().findFileByPath(oldPath);
+                vfile1 = FileChooser.chooseFile(descriptor, project, storedPath);
             } else {
-                ApplicationManager.getApplication().invokeLater(() -> {
+                vfile1 = FileChooser.chooseFile(descriptor, project, module.getModuleFile());
+            }
+            final VirtualFile vfile = vfile1;
 
-                    String oldPath = PropertiesComponent.getInstance(project).getValue("__lastSelTarget__" + artifactType.name());
-                    VirtualFile vfile1 = null;
-                    FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
-                    descriptor.setTitle("Select Generation Target Directory");
-                    descriptor.setDescription("Please choose a target directory");
+            //todo ng2 filename handling
+            if (vfile != null) {
+                WriteCommandAction.runWriteCommandAction(project, () -> {
+                    PropertiesComponent.getInstance(project).setValue("__lastSelTarget__" + artifactType.name(), vfile.getPath());
+                    PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(vfile);
+                    dir.add(file);
 
+                    FileEditorManager.getInstance(project).openFile(dir.findFile(file.getName()).getVirtualFile(), true);
+                    if (artifactType.isService()) {
+                        IntellijFileContext fileContext = new IntellijFileContext(project, dir.getVirtualFile());
 
-                    if (!Strings.isNullOrEmpty(oldPath)) {
-                        VirtualFile storedPath = LocalFileSystem.getInstance().findFileByPath(oldPath);
-                        vfile1 = FileChooser.chooseFile(descriptor, project, storedPath);
-                    } else {
-                        vfile1 = FileChooser.chooseFile(descriptor, project, module.getModuleFile());
-                    }
-                    final VirtualFile vfile = vfile1;
+                        try {
+                            IntellijRefactor.appendDeclarationToModule(fileContext, ModuleElementScope.DECLARATIONS, className, className);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
-                    //todo ng2 filename handling
-                    if (vfile != null) {
-                        WriteCommandAction.runWriteCommandAction(project, () -> {
-                            PropertiesComponent.getInstance(project).setValue("__lastSelTarget__" + artifactType.name(), vfile.getPath());
-                            PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(vfile);
-                            dir.add(file);
-
-                            FileEditorManager.getInstance(project).openFile(dir.findFile(file.getName()).getVirtualFile(), true);
-                            if (artifactType.isService()) {
-                                IntellijFileContext fileContext = new IntellijFileContext(project, dir.getVirtualFile());
-
-                                try {
-                                    IntellijRefactor.appendDeclarationToModule(fileContext, ModuleElementScope.DECLARATIONS, className, className);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-                        });
-                    } else {
-                        FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
                     }
                 });
+            } else {
+                FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true);
             }
         });
     }
@@ -160,10 +167,10 @@ public class IntellijUtils {
      * @param origFile the original file
      * @param javaFile the root java file for the diff
      */
-    public static void showDiff(Project project, PsiFile file, PsiFile origFile, PsiFile javaFile, boolean showTemp) {
+    public static boolean showDiff(Project project, PsiFile file, PsiFile origFile, PsiFile javaFile, boolean showTemp) {
         //we do not show the diffs of target files
         if (!showTemp && origFile.getVirtualFile().getPath().contains("target/generated-sources")) {
-            return;
+            return false;
         }
         SimpleDiffRequest request = new SimpleDiffRequest(
                 "Reference already exists",
@@ -176,6 +183,7 @@ public class IntellijUtils {
 
 
         DiffManager.getInstance().showDiff(project, request);
+        return true;
     }
 
     /**

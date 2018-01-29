@@ -98,15 +98,20 @@ public class IntellijJaxRsReflector {
     private static RestMethod mapMethod(PsiMethod m, boolean flattenResult, int returnValueNestingDepth) {
         String name = m.getName();
         PsiAnnotation mapping = PsiAnnotationUtils.getAnn(m, Path.class);
-        String path = PsiAnnotationUtils.getAttr(mapping, "value");
+        String path = (mapping == null)? "" : PsiAnnotationUtils.getAttr(mapping, "value");
+
 
         int firstParam = path.indexOf("/{");
         if (firstParam == -1) {
             firstParam = path.length();
+
         }
         String comment = m.getDocComment() != null ? m.getDocComment().getText() : "";
 
         path = path.substring(0, firstParam);
+        if(!path.isEmpty() && !path.startsWith("/")) {
+            path = "/" + path;
+        }
 
         List<RestVar> params = getRestVars(m);
 

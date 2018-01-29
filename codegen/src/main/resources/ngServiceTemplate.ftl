@@ -41,14 +41,15 @@ export class ${service.serviceName} {
     </#list>
 
     <#if mType = "post" || mType = "put"|| mType = "patch">
-        return <Observable<<#if !method.returnValue.isPresent()>any<#else>${method.returnValue.get().toTypeScript()}></#if>> this.http.${mType?lower_case}(this.restRoot + "<#if service.serviceRootUrl?has_content>${service.serviceRootUrl}</#if>${method.url}<#list method.params as param><#if param.paramType.name() = "PathVariable">/<#noparse>${</#noparse>${param.restName}<#noparse>}</#noparse></#if></#list>", body, {
+        let retVal = this.http.${mType?lower_case}(this.restRoot + "<#if service.serviceRootUrl?has_content></#if>${method.url}<#list method.params as param><#if param.paramType.name() = "PathVariable">/<#noparse>${</#noparse>${param.restName}<#noparse>}</#noparse></#if></#list>", body, {
             params: params
         });
     <#else>
-        return <Observable<<#if !method.returnValue.isPresent()>any<#else>${method.returnValue.get().toTypeScript()}></#if>> this.http.${mType?lower_case}(this.restRoot + "<#if service.serviceRootUrl?has_content>${service.serviceRootUrl}</#if>${method.url}<#list method.params as param><#if param.paramType.name() = "PathVariable">/<#noparse>${</#noparse>${param.restName}<#noparse>}</#noparse></#if></#list>", {
+        let retVal =  this.http.${mType?lower_case}(this.restRoot + "<#if service.serviceRootUrl?has_content></#if>${method.url}<#list method.params as param><#if param.paramType.name() = "PathVariable">/<#noparse>${</#noparse>${param.restName}<#noparse>}</#noparse></#if></#list>", {
             params: params
         });
     </#if>
+        return <Observable<<#if !method.returnValue.isPresent()>any<#else>${method.returnValue.get().toTypeScript()}></#if>> retVal;
     }
 </#list>
 
