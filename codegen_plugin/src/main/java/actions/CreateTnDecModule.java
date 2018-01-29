@@ -144,7 +144,7 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
             if (createDir) {
 
                 try {
-                    finalFolder = folder.createChildDirectory(project, className.toLowerCase().replaceAll("module$", ""));
+                    finalFolder = folder.createChildDirectory(project, getModuleName(className));
 
                 } catch (IOException e) {
                     IntellijUtils.handleEx(e);
@@ -175,6 +175,10 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
 
             generate(project, finalFolder, className, vslTemplate, attrs);
         });
+    }
+
+    protected String getModuleName(String className) {
+        return className.toLowerCase().replaceAll("module$", "");
     }
 
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {

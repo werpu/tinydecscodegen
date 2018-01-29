@@ -3,7 +3,6 @@ package actions_ng;
 import actions.CreateTnDecModule;
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.NgFileNameTransformer;
-import actions.shared.SimpleFileNameTransformer;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.project.Project;
@@ -27,5 +26,16 @@ public class CreateNgModule extends CreateTnDecModule {
     @Override
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
         new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new NgFileNameTransformer("module"), ModuleElementScope.IMPORT).run();
+    }
+
+    @Override
+    protected String getModuleName(String className) {
+        NgFileNameTransformer transformer = new NgFileNameTransformer("");
+
+        String transformed = transformer.transform(className).replaceAll("\\.\\.ts", "");
+        if(!transformed.endsWith("-module")) {
+            transformed = transformed+"-module";
+        }
+        return transformed.toLowerCase();
     }
 }
