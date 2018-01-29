@@ -53,3 +53,9 @@ Hence there is no offical drop of the plugin into the Jetbrains repository.
 
 More info on how to use it fill follow soon, depending on my time
 
+
+## Links
+
+* [Wiki](https://github.com/werpu/tinydecscodegen/wiki)
+* [ts-ng-tinydecorations](https://github.com/werpu/ts-ng-tinydecorations) 
+* [Angular 5+](https://angular.io/)
