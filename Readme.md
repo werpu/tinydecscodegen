@@ -33,8 +33,8 @@ a successful code generation
 ## Is this plugin usable already
 
 Yes definitely, I use it together with TinyDecorations and Angular 5+ in a bigger projects, 
-so I am eating my own dogfood here. However the ui is bound to change, since it is very basic atm,
-and smaller bugs can be expected. 
+so I am eating my own dogfood here. However the ui is bound to change, since it is very basic atm.
+Also smaller bugs can be expected. 
 
 However since I currently develop
 this project alone in my limited sparetime without any payment on it, I am glad that I do not have to many
