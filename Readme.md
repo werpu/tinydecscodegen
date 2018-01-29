@@ -25,7 +25,7 @@ functionality of your Jetbrains ide.
 a successful code generation
 * Generate Rest Clients from Spring and JaxRS Rest Endpoints
 * Wizards for most of the Angular Artifacts supported by the Tiny Decorations project and Angular 5+
-* Auto updating of associated mdules if a new artifact is generated
+* Auto updating of associated modules if a new artifact is generated
 * Fallback option to use angular-cli for Angular 5+ projects
 * Integrates seamlessly into angular-cli for Angular 5+ projects
 
