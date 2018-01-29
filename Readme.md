@@ -34,8 +34,8 @@ a successful code generation
 
 ### Honest Answer
 
-Yes definitely, I use it together with TinyDecorations and Angular 5+ in a bigger projects, 
-so I am eating my own dogfood here. However the ui is bound to change, since it is very basic atm.
+Yes definitely, I use it together with TinyDecorations and/or Angular 5+ in a bigger projects. 
+So I am eating my own dogfood here. However the ui is bound to change, since it is very basic atm.
 Also smaller bugs can be expected. 
 
 However, since I currently develop
