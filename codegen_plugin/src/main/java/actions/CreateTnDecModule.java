@@ -2,6 +2,7 @@ package actions;
 
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.SimpleFileNameTransformer;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -40,6 +41,8 @@ import static actions.FormAssertions.*;
  */
 public class CreateTnDecModule extends AnAction implements DumbAware {
 
+
+    public static final String EXPORT = "___EXPORT___";
 
     public CreateTnDecModule() {
         //super("TDecs Angular ComponentJson", "Creates a Tiny Decorations Angular ComponentJson", null);
@@ -124,18 +127,20 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
         if (dialogWrapper.isOK()) {
             boolean generateFolder = mainForm.getCbCreateDir().isSelected();
             boolean generateStructure = mainForm.getCbCreateStructure().isSelected();
+            boolean exportModule = mainForm.getCbExport().isSelected();
 
             ControllerJson model = new ControllerJson(mainForm.getName(), mainForm.getTemplate(), mainForm.getControllerAs());
-            ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder, generateFolder, generateStructure));
+
+            ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder, exportModule, generateFolder, generateStructure));
             PopupUtil.showBalloonForActiveFrame("The Module has been generated", MessageType.INFO);
 
-            ConfigSerializer.getInstance().getState().setModuleExport(mainForm.getCbExport().isSelected());
-            ConfigSerializer.getInstance().getState().setModuleGenerateFolder(mainForm.getCbCreateDir().isSelected());
-            ConfigSerializer.getInstance().getState().setModuleGenerateStructure(mainForm.getCbCreateStructure().isSelected());
+            ConfigSerializer.getInstance().getState().setModuleExport(exportModule);
+            ConfigSerializer.getInstance().getState().setModuleGenerateFolder(generateFolder);
+            ConfigSerializer.getInstance().getState().setModuleGenerateStructure(generateStructure);
         }
     }
 
-    void buildFile(Project project, ControllerJson model, final VirtualFile folder, boolean createDir, boolean createStructure) {
+    void buildFile(Project project, ControllerJson model, final VirtualFile folder, boolean export, boolean createDir, boolean createStructure) {
 
         WriteCommandAction.runWriteCommandAction(project, () -> {
             VirtualFile finalFolder = folder;
@@ -172,6 +177,9 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
             attrs.put("CLASS_NAME", className);
             attrs.put("NAME", name);
 
+            if(export) {
+                attrs.put(EXPORT, export);
+            }
 
             generate(project, finalFolder, className, vslTemplate, attrs);
         });
@@ -182,7 +190,14 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
     }
 
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
-        new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new SimpleFileNameTransformer(), ModuleElementScope.IMPORT).run();
+        List<ModuleElementScope> scope = Lists.newArrayList();
+        scope.add(ModuleElementScope.IMPORT);
+        if(attrs.containsKey(EXPORT)) {
+            scope.add(ModuleElementScope.EXPORT);
+        }
+        ModuleElementScope[] scopes = scope.stream().toArray(size -> new ModuleElementScope[size]);
+
+        new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new SimpleFileNameTransformer(), scopes).run();
     }
 
     protected FileTemplate getJ2eeTemplate(Project project) {
