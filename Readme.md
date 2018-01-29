@@ -47,7 +47,7 @@ So feel free to use it I am happy about it, but I will keep it a little bit unde
 
 The project simply was created because I was in the need of such tools
 and hence developed it on my own for my needs. If you think something is missing or if you want to donate
-code feel free to send me a code drop or add a feature request in the projects list.
+code feel free to send me a code drop/merge request or add a feature request in the projects list.
 
 Hence there is no offical drop of the plugin into the Jetbrains repository.
 
