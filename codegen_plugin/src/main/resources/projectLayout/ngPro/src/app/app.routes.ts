@@ -23,7 +23,7 @@ export let rootRoutesProvider = UIRouterModule.forRoot(
     states: [defaultPageState, mainPageState, aboutState], //the currently implemented main routes
     useHash: true,                //use the hashbang for old browser support
     deferInitialRender: true,     //defer the initial rendering until the init code is done
-    otherwise: defaultPageState   //default state if there is no match
+    otherwise: ""   //default state if there is no match
   }
 );
 
