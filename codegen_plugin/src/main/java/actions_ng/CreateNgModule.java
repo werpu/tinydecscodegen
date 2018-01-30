@@ -41,10 +41,12 @@ public class CreateNgModule extends CreateTnDecModule {
     protected String getModuleName(String className) {
         NgFileNameTransformer transformer = new NgFileNameTransformer("");
 
-        String transformed = transformer.transform(className).replaceAll("\\.\\.ts", "");
-        if(!transformed.endsWith("-module")) {
-            transformed = transformed+"-module";
+        String transformed = transformer.transform(className).replaceAll("\\.\\.ts$", "");
+        if(transformed.endsWith("-module")) {
+            transformed = transformed.replaceAll("\\-module$", "");
         }
         return transformed.toLowerCase();
     }
+
+
 }
