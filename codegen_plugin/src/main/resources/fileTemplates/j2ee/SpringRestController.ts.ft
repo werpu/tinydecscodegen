@@ -1,0 +1,11 @@
+package ${PACKAGE_NAME};
+
+
+import org.springframework.web.bind.annotation.*;
+
+
+@RestController
+@RequestMapping("${REQUEST_MAPPING})
+class ${CLASS_NAME} {
+
+}

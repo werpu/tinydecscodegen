@@ -30,28 +30,8 @@ public class CreateNgProject extends CreateTnDecProject {
         return "projectLayout/ngPro/";
     }
 
-    @Override
-    public void actionPerformed(AnActionEvent anActionEvent) {
-//       anActionEvent.getProject().getBaseDir().refresh(true, true);
-//        RunManager  manager = RunManager.getInstance(anActionEvent.getProject());
 
-//        Optional<ConfigurationType> ct = manager.getConfigurationFactoriesWithoutUnknown().parallelStream().filter(c -> c.getId().equals("js.build_tools.npm")).findFirst();
-
-//        RunnerAndConfigurationSettings selectedConfiguration = manager.createRunConfiguration("Run Angular NG App", ct.get().getConfigurationFactories()[0]);
-
-        //ProgramRunnerUtil.
-        //RunCon
-
-//        NpmRunConfiguration conf = selectedConfiguration.getConfiguration().
-//        return;
-        super.actionPerformed(anActionEvent);
-    }
-
-    protected void addRunConfig(Project project) {
-
-
-            //RunnerAndConfigurationSettings selectedConfiguration = manager.createRunConfiguration("Run Angular NG App",);
-            //TestNGConfiguration configuration = (TestNGConfiguration) selectedConfiguration.getConfiguration();
-            //configuration.setVMParameters("-ea");
+    protected boolean isAngular1() {
+        return false;
     }
 }

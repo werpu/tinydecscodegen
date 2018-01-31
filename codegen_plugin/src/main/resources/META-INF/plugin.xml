@@ -22,8 +22,9 @@
          on how to target different products -->
 
     <depends>com.intellij.modules.lang</depends>
-
-
+    <!--
+    <depends>com.intellij.modules.javascript</depends>
+    -->
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <fileTemplateGroup implementation="factories.TnDecGroupFactory"/>

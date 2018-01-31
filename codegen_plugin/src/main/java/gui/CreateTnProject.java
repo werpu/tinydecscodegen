@@ -41,7 +41,10 @@ public class CreateTnProject {
 
                 final VirtualFile vfile = FileChooser.chooseFile(descriptor, project, null);
 
-                projectDir.setText(vfile.getPath());
+                if(vfile == null) {
+                    return;
+                }
+                projectDir.setText(Strings.nullToEmpty(vfile.getPath()));
             }
         });
         btTargetDir.addActionListener(new ActionListener() {
@@ -53,7 +56,10 @@ public class CreateTnProject {
 
                 final VirtualFile vfile = FileChooser.chooseFile(descriptor, project, null);
 
-                targetDir.setText(vfile.getPath());
+                if(vfile == null) {
+                    return;
+                }
+                targetDir.setText(Strings.nullToEmpty(vfile.getPath()));
             }
         });
     }

@@ -404,10 +404,15 @@ public class IntellijUtils {
         return true;
     }
 
-    public static void createAndOpen(Project project, VirtualFile folder, String str, String fileNmae) throws IOException {
-        VirtualFile generated = folder.createChildData(project, fileNmae);
-        generated.setBinaryContent(str.getBytes(generated.getCharset()));
+    public static void createAndOpen(Project project, VirtualFile folder, String str, String fileName) throws IOException {
+        VirtualFile generated = create(project, folder, str, fileName);
         FileEditorManager.getInstance(project).openFile(generated, true);
+    }
+
+    public static VirtualFile create(Project project, VirtualFile folder, String str, String fileName) throws IOException {
+        VirtualFile generated = folder.createChildData(project, fileName);
+        generated.setBinaryContent(str.getBytes(generated.getCharset()));
+        return  generated;
     }
 
     //https://stackoverflow.com/questions/1086123/string-conversion-to-title-case

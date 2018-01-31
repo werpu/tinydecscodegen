@@ -1,6 +1,10 @@
 package actions;
 
+import com.google.common.collect.Maps;
 import com.intellij.ide.SaveAndSyncHandlerImpl;
+import com.intellij.ide.fileTemplates.FileTemplate;
+import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataConstants;
@@ -14,8 +18,10 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.ui.popup.util.PopupUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.IntellijResourceDir;
@@ -31,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import com.intellij.openapi.ui.Messages;
 
@@ -111,8 +118,10 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
         dialogWrapper.show();
 
         if (dialogWrapper.isOK()) {
+            final String projectDir = mainForm.projectDir.getText();
+
             try {
-                boolean targetPresent = Files.list(Paths.get(mainForm.projectDir.getText())).findAny().isPresent();
+                boolean targetPresent = Files.list(Paths.get(projectDir)).findAny().isPresent();
                 if(targetPresent) {
                     int result = Messages.showYesNoDialog("The project target directory already contains files some of the files might be overwritten, do you like to proceed?", "Overwrite Warning", null);
                     if(result == Messages.NO) {
@@ -132,12 +141,12 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
                     IntellijResourceDir resources = new IntellijResourceDir(getResourcePath(), getSubPath());
 
 
-                    resources.copyTo(new File(mainForm.projectDir.getText()), new TextTransformer() {
+                    resources.copyTo(new File(projectDir), new TextTransformer() {
                         @Override
                         public String transform(String out, String data) {
                             String relPath = Paths.get(out).relativize(Paths.get(mainForm.targetDir.getText().replaceAll("\\\\", "/"))).toString();
                             relPath = relPath.replaceAll("\\\\", "/");
-                            String projRelPath = Paths.get(out).relativize(Paths.get(mainForm.projectDir.getText().replaceAll("\\\\", "/"))).toString();
+                            String projRelPath = Paths.get(out).relativize(Paths.get(projectDir.replaceAll("\\\\", "/"))).toString();
                             projRelPath = projRelPath.replaceAll("\\\\", "/");
 
 
@@ -147,9 +156,13 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
                             return data;
                         }
                     });
+                    createRunner(project, TnDecGroupFactory.TPL_RUN_CONFIG, projectDir);
                     SaveAndSyncHandlerImpl.getInstance().refreshOpenFiles();
                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
 
+                } catch (IOException e) {
+                    PopupUtil.showBalloonForActiveFrame(e.getMessage(), MessageType.ERROR);
+                    e.printStackTrace();
                 } finally {
                     ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
                 }
@@ -161,6 +174,29 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
 
     }
 
+
+    protected void createRunner(Project project, String template, String projectFolder) throws IOException {
+        Path rootProjectPath = Paths.get(project.getBaseDir().getPath());
+        Path runConfigPath = Paths.get(project.getBaseDir().getPath()+"/.idea/runConfigurations");
+        Path angDir = Paths.get(projectFolder);
+
+        Path rel =  rootProjectPath.relativize(angDir);
+
+        Map<String, String> attrs = Maps.newHashMap();
+        String angularType = isAngular1() ? "TinyDec" : "Angular NG";
+        attrs.put("ANGULAR_TYPE", angularType);
+        attrs.put("PKG_JSON_PATH", rel + "/package.json".replaceAll("\\\\","/") );
+
+        FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(template);
+        String str = FileTemplateUtil.mergeTemplate(attrs, vslTemplate.getText(), false);
+        String fileName = ("Client Development Server Start ["+angularType+"].xml").replaceAll("\\s", "_");
+        runConfigPath.toFile().mkdirs();
+        SaveAndSyncHandlerImpl.getInstance().refreshOpenFiles();
+        VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
+
+        IntellijUtils.create(project, LocalFileSystem.getInstance().findFileByPath(runConfigPath.toFile().getPath()), str, fileName);
+    }
+
     @NotNull
     protected String getSubPath() {
         return "projectLayout/tnDec/";
@@ -169,5 +205,9 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
     @NotNull
     protected String getResourcePath() {
         return TN_PROJECT_LAYOUT;
+    }
+
+    protected boolean isAngular1() {
+        return true;
     }
 }
