@@ -138,6 +138,12 @@
                         description="Generate a Angular Ng typescript service">
                 </action>
 
+                <separator/>
+                <action id="NG_SprinRest" class="actions.CreateSpringRestController"
+                        text="Generate a Spring Rest Controller"
+                        description="Generate a Spring Rest Controller">
+                </action>
+
                 <!--
                 <separator />
                 <action id="TD_Service" class="actions.ServiceGenerateActionWithoutCompile" text="Service Generation"
