@@ -41,7 +41,7 @@
         <!-- Add your actions here -->
 
         <group id="TD_TinyDecsMenu" text="_Tiny Decorations" description="Tiny decorations actions">
-            <add-to-group group-id="MainMenu" anchor="last"/>
+            <add-to-group group-id="MainMenu" anchor="after" relative-to-action="ToolsMenu"/>
 
 
             <group id="TD_TinyDecsContextMenu1" text="_Tiny Decorations" popup="true"
@@ -168,8 +168,12 @@
 
         <group id="TD_TinyDecsContextMenu" text="_Tiny Decorations" popup="true"
                description="Tiny decorations context actions" icon="/images/tt.png">
-            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewHtmlFile"/>
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
+            <action id="TD_CreateProject" class="actions.CreateTnDecProject" text="Create Tiny Decorations Project"
+                    description="Create a an Angular Tiny Decorations Project" icon="/images/tt.png">
+            </action>
 
+            <separator/>
 
             <action id="TD_CreateComponent" class="actions.CreateTnDecComponent" text="Create Component"
                     description="Create a an Angular Tiny Decorations Component" icon="/images/tt.png">
@@ -204,8 +208,12 @@
 
         <group id="NG_TinyDecsContextMenu" text="_Angular NG" popup="true" description="Angular NG Actions" icon="/images/tt.png">
 
-            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewHtmlFile"/>
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
+            <action id="NG_CreateProject2" class="actions_ng.CreateNgProject" text="Create Angular Ng Project"
+                    description="Create a an Angular Ng Project" icon="/images/tt.png">
+            </action>
 
+            <separator/>
 
             <action id="TD_CreateModule2" class="actions_ng.CreateNgModule" text="Create Module"
                     description="Create a an Angular Angular NG Module">

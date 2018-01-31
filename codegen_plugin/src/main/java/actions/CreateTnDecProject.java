@@ -1,14 +1,21 @@
 package actions;
 
+import com.intellij.ide.SaveAndSyncHandlerImpl;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataConstants;
+import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.ui.popup.util.PopupUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.IntellijResourceDir;
@@ -38,12 +45,23 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
 
         final Project project = IntellijUtils.getProject(anActionEvent);
 
-        createDialog(project);
+        VirtualFile file = (VirtualFile) anActionEvent.getDataContext().getData(DataKeys.VIRTUAL_FILE);
+        //VirtualFile folder = file.getParent();
+
+
+
+        String path = file.isDirectory() ? file.getPath() : file.getParent().getPath();
+
+        String outputPath = path+"/../target";
+        Path output = Paths.get(outputPath);
+        output = output.normalize();
+
+        createDialog(project, path, output.toFile().getPath());
 
 
     }
 
-    private void createDialog(Project project) {
+    private void createDialog(Project project,String projectFolder, String targetFolder) {
         final gui.CreateTnProject mainForm = new gui.CreateTnProject();
         DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
 
@@ -83,10 +101,12 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
         };
 
         mainForm.setProject(project);
-
+        mainForm.projectDir.setText(projectFolder);
+        mainForm.targetDir.setText(targetFolder);
 
         dialogWrapper.setTitle("Create Project");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
+
 
         dialogWrapper.show();
 
@@ -105,28 +125,38 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
                 throw new RuntimeException(e);
             }
 
-
-            IntellijResourceDir resources = new IntellijResourceDir(getResourcePath(), getSubPath());
-
-
-
-            resources.copyTo(new File(mainForm.projectDir.getText()), new TextTransformer() {
-                @Override
-                public String transform(String out, String data) {
-                    String relPath = Paths.get(out).relativize(Paths.get(mainForm.targetDir.getText().replaceAll("\\\\","/"))).toString();
-                    relPath = relPath.replaceAll("\\\\","/");
-                    String projRelPath = Paths.get(out).relativize(Paths.get(mainForm.projectDir.getText().replaceAll("\\\\","/"))).toString();
-                    projRelPath = projRelPath.replaceAll("\\\\","/");
+            WriteCommandAction.runWriteCommandAction(project, () -> {
+                try {
+                    FileDocumentManager.getInstance().saveAllDocuments();
+                    ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
+                    IntellijResourceDir resources = new IntellijResourceDir(getResourcePath(), getSubPath());
 
 
-                    data = data.replaceAll("\\$\\{deployment_root_rel\\}", relPath);
-                    data = data.replaceAll("\\$\\{proj_root_rel\\}", projRelPath);
+                    resources.copyTo(new File(mainForm.projectDir.getText()), new TextTransformer() {
+                        @Override
+                        public String transform(String out, String data) {
+                            String relPath = Paths.get(out).relativize(Paths.get(mainForm.targetDir.getText().replaceAll("\\\\", "/"))).toString();
+                            relPath = relPath.replaceAll("\\\\", "/");
+                            String projRelPath = Paths.get(out).relativize(Paths.get(mainForm.projectDir.getText().replaceAll("\\\\", "/"))).toString();
+                            projRelPath = projRelPath.replaceAll("\\\\", "/");
 
-                    return data;
+
+                            data = data.replaceAll("\\$\\{deployment_root_rel\\}", relPath);
+                            data = data.replaceAll("\\$\\{proj_root_rel\\}", projRelPath);
+
+                            return data;
+                        }
+                    });
+                    SaveAndSyncHandlerImpl.getInstance().refreshOpenFiles();
+                    VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
+
+                } finally {
+                    ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
                 }
+
+
+                PopupUtil.showBalloonForActiveFrame("The project as been generated, please run npm install to load all needed dependencies", MessageType.INFO);
             });
-            project.getBaseDir().refresh(true, true);
-            PopupUtil.showBalloonForActiveFrame("The project as been generated, please run npm install to load all needed dependencies", MessageType.INFO);
         }
 
     }
