@@ -71,6 +71,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -415,25 +417,6 @@ public class IntellijUtils {
         return  generated;
     }
 
-    //https://stackoverflow.com/questions/1086123/string-conversion-to-title-case
-    public static String toCamelCase(String s) {
-
-        final String ACTIONABLE_DELIMITERS = " '-/\\."; // these cause the character following
-        // to be capitalized
-
-        StringBuilder sb = new StringBuilder();
-        boolean capNext = true;
-
-        for (char c : s.toCharArray()) {
-            c = (capNext)
-                    ? Character.toUpperCase(c)
-                    : c;
-            sb.append(c);
-            capNext = (ACTIONABLE_DELIMITERS.indexOf((int) c) >= 0); // explicit cast not needed
-        }
-        return sb.toString().replaceAll("[-/\\.]", "");
-    }
-
     public static VirtualFile getFolderOrFile(AnActionEvent event) {
         VirtualFile file = event.getDataContext().getData(CommonDataKeys.VIRTUAL_FILE);
         return file;
@@ -443,6 +426,15 @@ public class IntellijUtils {
         PopupUtil.showBalloonForActiveFrame(e.getMessage(), MessageType.ERROR);
         e.printStackTrace();
         throw new RuntimeException(e);
+    }
+
+    public static String calculatePackageName(IntellijFileContext ctx, VirtualFile srcRoot) {
+        Path targetPath = Paths.get(ctx.getFolderPath());
+        Path srcRootPath = Paths.get(srcRoot.getPath());
+
+        return srcRootPath.relativize(targetPath).toString()
+                .replaceAll("[/\\\\]+", ".")
+                .replaceAll("^\\.(.*)\\.$", "$1" );
     }
 
 

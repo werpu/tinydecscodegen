@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.IntellijUtils;
 import utils.ModuleElementScope;
+import utils.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -120,7 +121,7 @@ public class CreateTnDecConfig extends AnAction implements DumbAware {
 
         WriteCommandAction.runWriteCommandAction(project, () -> {
             String name = model.getName();
-            String className = IntellijUtils.toCamelCase(name);
+            String className = StringUtils.toCamelCase(name);
 
 
             FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_CONFIG);

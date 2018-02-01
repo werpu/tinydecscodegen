@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.IntellijUtils;
 import utils.ModuleElementScope;
+import utils.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -145,7 +146,7 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
         WriteCommandAction.runWriteCommandAction(project, () -> {
             VirtualFile finalFolder = folder;
             String name = model.getName();
-            String className = IntellijUtils.toCamelCase(name);
+            String className = StringUtils.toCamelCase(name);
             if (createDir) {
 
                 try {

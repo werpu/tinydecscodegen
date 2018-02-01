@@ -1,20 +1,70 @@
 package actions;
 
+import actions.shared.GenerateFileAndAddRef;
+import actions.shared.JavaFileNameTransformer;
+import actions.shared.SimpleFileNameTransformer;
+import com.intellij.ide.fileTemplates.FileTemplate;
+import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.MessageType;
+import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.ui.popup.util.PopupUtil;
+import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiManager;
+import factories.TnDecGroupFactory;
 import org.fest.util.Maps;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import utils.IntellijFileContext;
 import utils.IntellijUtils;
+import utils.ModuleElementScope;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import javax.swing.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static actions.FormAssertions.assertNotNullOrEmpty;
 
 public class CreateSpringRestController extends AnAction implements DumbAware {
+
+    public class  CONDITION implements Condition {
+
+        boolean value = true;
+
+        public CONDITION() {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    value = false;
+                }
+            });
+
+        }
+
+        @Override
+        public boolean value(Object o) {
+            return value;
+        }
+    };
+
     @Override
     public void actionPerformed(AnActionEvent event) {
         final Project project = IntellijUtils.getProject(event);
@@ -23,23 +73,105 @@ public class CreateSpringRestController extends AnAction implements DumbAware {
 
 
         VirtualFile srcRoot = ProjectFileIndex.getInstance(project).getSourceRootForFile(folder);
-        if(srcRoot != null) {//we are in a source root
-            Path targetPath = Paths.get(ctx.getFolderPath());
-            Path srcRootPath = Paths.get(srcRoot.getPath());
+        if (srcRoot != null) {//we are in a source root
 
-            String packageName = srcRootPath.relativize(targetPath).toString()
-                    .replaceAll("[/\\\\]+", ".")
-                    .replaceAll("^\\.(.*)\\.$", "$1" );
-
-            Map<String, String> attrs = Maps.newHashMap();
-            attrs.put("PACKAGE_NAME", packageName);
+            final gui.CreateRestController mainForm = new gui.CreateRestController();
 
 
+            DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
 
+                @Nullable
+                @Override
+                protected JComponent createCenterPanel() {
+                    return mainForm.getRootPanel();
+                }
+
+                @Nullable
+                @Override
+                protected String getDimensionServiceKey() {
+                    return "AnnComponent";
+                }
+
+
+                @Nullable
+                @NotNull
+                protected List<ValidationInfo> doValidateAll() {
+                    return Arrays.asList(
+                            assertNotNullOrEmpty(mainForm.getTxtServiceName().getText(), Messages.ERR_NAME_VALUE, mainForm.getTxtServiceName())
+                    ).stream().filter(s -> s != null).collect(Collectors.toList());
+                }
+
+
+                @Override
+                public void init() {
+                    super.init();
+                }
+
+                public void show() {
+
+                    this.init();
+                    this.setModal(true);
+                    this.pack();
+                    super.show();
+                }
+            };
+
+            dialogWrapper.show();
+            if (dialogWrapper.isOK()) {
+                String packageName = IntellijUtils.calculatePackageName(ctx, srcRoot);
+
+                Map<String, Object> attrs = Maps.newHashMap();
+                attrs.put("PACKAGE_NAME", packageName);
+
+                String className = mainForm.getTxtServiceName().getText();
+                attrs.put("CLASS_NAME", className);
+                attrs.put("REQUEST_MAPPING", mainForm.getTxtRestPath().getText());
+
+                buildFile(project, folder, className, attrs, event);
+
+                ApplicationManager.getApplication().executeOnPooledThread(() -> {
+
+                    WriteCommandAction.runWriteCommandAction(project, () -> {
+
+                        IntellijUtils.fileNameTransformer = new SimpleFileNameTransformer();
+
+                        PsiJavaFile jav = (PsiJavaFile) PsiManager.getInstance(project).findFile(ctx.getVirtualFile().findFileByRelativePath("./"+className+".java"));
+
+                        if(mainForm.getCbCreate().isSelected()) {
+                            try {
+                                IntellijUtils.generateService(project, ctx.getModule(),jav, mainForm.getCbNg().isSelected());
+                            } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                });
+            }
         }
+
         //dtermine the package
 
         //event.getProject().getWorkspaceFile().is
 
     }
+
+    void buildFile(Project project, VirtualFile folder, String className, Map<String, Object> attrs, AnActionEvent event) {
+
+        WriteCommandAction.runWriteCommandAction(project, () -> {
+
+            FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_SPRING_REST);
+
+
+            generate(project, folder, className, vslTemplate, attrs);
+            PopupUtil.showBalloonForActiveFrame("The Rest Controller has been generated", MessageType.INFO);
+
+        });
+
+
+    }
+
+    protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
+        new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new JavaFileNameTransformer(), ModuleElementScope.DECLARATIONS).run();
+    }
+
 }

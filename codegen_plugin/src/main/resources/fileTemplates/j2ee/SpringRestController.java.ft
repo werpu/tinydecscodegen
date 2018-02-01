@@ -1,0 +1,12 @@
+package ${PACKAGE_NAME};
+
+
+import org.springframework.web.bind.annotation.*;
+
+
+@RestController
+#if( ${REQUEST_MAPPING} != "" )
+@RequestMapping("${REQUEST_MAPPING}")#end
+public class ${CLASS_NAME} {
+
+}

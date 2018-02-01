@@ -31,10 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reflector.ComponentAttributesReflector;
 import reflector.TransclusionReflector;
-import utils.IntellijFileContext;
-import utils.IntellijUtils;
-import utils.ModuleElementScope;
-import utils.SwingUtils;
+import utils.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -178,7 +175,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
     void buildFile(Project project, ComponentJson model, List<ComponentAttribute> cAttrs, VirtualFile folder, boolean export) {
 
         WriteCommandAction.runWriteCommandAction(project, () -> {
-            String className = IntellijUtils.toCamelCase(model.getSelector());
+            String className = StringUtils.toCamelCase(model.getSelector());
 
             FileTemplate vslTemplate = getTemplate(project);
 

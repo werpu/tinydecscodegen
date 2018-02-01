@@ -47,11 +47,7 @@
 
             <group id="TD_TinyDecsContextMenu1" text="_Tiny Decorations" popup="true"
                    description="Tiny decorations context actions" icon="/images/tt.png">
-                <action id="TD_CreateProject1" class="actions.CreateTnDecProject" text="Create Tiny Decorations Project"
-                        description="Create a an Angular Tiny Decorations Project" icon="/images/tt.png">
-                </action>
 
-                <separator/>
                 <action id="TD_CreateModule1" class="actions.CreateTnDecModule" text="Create Module"
                         description="Create a an Angular Tiny Decorations Module" icon="/images/tt.png">
                 </action>
@@ -85,11 +81,7 @@
             </group>
 
             <group id="Angular_2_Plus" text="_Angular NG" popup="true" description="Actions for Angular NG">
-                <action id="NG_CreateProject1" class="actions_ng.CreateNgProject" text="Create Angular Ng Project"
-                        description="Create a an Angular Ng Project" icon="/images/tt.png">
-                </action>
 
-                <separator/>
 
                 <action id="NG_CreateModule1" class="actions_ng.CreateNgModule" text="Create Angular Ng Module"
                         description="Create a an Angular NG Module">
@@ -138,11 +130,6 @@
                         description="Generate a Angular Ng typescript service">
                 </action>
 
-                <separator/>
-                <action id="NG_SprinRest" class="actions.CreateSpringRestController"
-                        text="Generate a Spring Rest Controller"
-                        description="Generate a Spring Rest Controller">
-                </action>
 
                 <!--
                 <separator />
@@ -246,6 +233,16 @@
 
 
         </group>
+
+        <group id="TNNG_Create_Rest" text="_Create Rest" popup="true" description="Creation Actions" icon="/images/tt.png">
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
+
+            <action id="NG_SprinRest2" class="actions.CreateSpringRestController"
+                    text="Generate a Spring Rest Controller"
+                    description="Generate a Spring Rest Controller">
+            </action>
+        </group>
+
 
     </actions>
     <application-components>
