@@ -19,6 +19,12 @@ public class TinyDecsConfiguration implements Serializable {
     private boolean directiveExport = false;
     private boolean filterExport = false;
 
+    private boolean ngRest = false;
+    private String restType = "GET";
+    private boolean calcRest = true;
+    private boolean syncTs = true;
+
+    private boolean calcRestService = true;
 
     public TinyDecsConfiguration() {
     }
@@ -93,5 +99,45 @@ public class TinyDecsConfiguration implements Serializable {
 
     public void setFilterExport(boolean filterExport) {
         this.filterExport = filterExport;
+    }
+
+    public boolean isNgRest() {
+        return ngRest;
+    }
+
+    public void setNgRest(boolean ngRest) {
+        this.ngRest = ngRest;
+    }
+
+    public String getRestType() {
+        return restType;
+    }
+
+    public void setRestType(String restType) {
+        this.restType = restType;
+    }
+
+    public boolean isCalcRest() {
+        return calcRest;
+    }
+
+    public void setCalcRest(boolean calcRest) {
+        this.calcRest = calcRest;
+    }
+
+    public boolean isSyncTs() {
+        return syncTs;
+    }
+
+    public void setSyncTs(boolean syncTs) {
+        this.syncTs = syncTs;
+    }
+
+    public boolean isCalcRestService() {
+        return calcRestService;
+    }
+
+    public void setCalcRestService(boolean calcRestService) {
+        this.calcRestService = calcRestService;
     }
 }

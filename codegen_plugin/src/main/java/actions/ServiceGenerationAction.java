@@ -24,15 +24,21 @@ import actions.shared.JavaFileContext;
 import actions.shared.SimpleFileNameTransformer;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import utils.IntellijFileContext;
 import utils.IntellijUtils;
 
 import java.io.IOException;
+
+import static actions.shared.VisibleAssertions.assertNotJava;
+import static actions.shared.VisibleAssertions.assertNotJavaRest;
 
 
 /**
@@ -43,6 +49,18 @@ import java.io.IOException;
 public class ServiceGenerationAction extends AnAction {
 
     private static final Logger log = Logger.getInstance(ServiceGenerationAction.class);
+
+    @Override
+    public void update(AnActionEvent anActionEvent) {
+
+        IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
+        if (assertNotJava(ctx) || assertNotJavaRest(ctx)) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
+
+        anActionEvent.getPresentation().setEnabledAndVisible(true);
+    }
 
     @Override
     public void actionPerformed(AnActionEvent event) {

@@ -22,7 +22,11 @@ import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
+import configuration.ConfigSerializer;
+import configuration.TinyDecsConfiguration;
 import factories.TnDecGroupFactory;
+import gui.CreateRequestMapping;
+import gui.CreateRestController;
 import org.fest.util.Maps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,33 +41,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static actions.FormAssertions.assertNotNullOrEmpty;
+import static actions.shared.VisibleAssertions.assertNotJava;
+import static actions.shared.VisibleAssertions.assertNotJavaRest;
 
 public class CreateSpringRestController extends AnAction implements DumbAware {
 
-    public class  CONDITION implements Condition {
 
-        boolean value = true;
+    @Override
+    public void update(AnActionEvent event) {
 
-        public CONDITION() {
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    value = false;
-                }
-            });
+        final Project project = IntellijUtils.getProject(event);
+        VirtualFile folder = IntellijUtils.getFolderOrFile(event);
+        VirtualFile srcRoot = ProjectFileIndex.getInstance(project).getSourceRootForFile(folder);
 
-        }
-
-        @Override
-        public boolean value(Object o) {
-            return value;
-        }
-    };
+        event.getPresentation().setEnabledAndVisible(srcRoot != null);
+    }
 
     @Override
     public void actionPerformed(AnActionEvent event) {
@@ -77,7 +69,7 @@ public class CreateSpringRestController extends AnAction implements DumbAware {
 
             final gui.CreateRestController mainForm = new gui.CreateRestController();
 
-
+            restore(mainForm);
             DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
 
                 @Nullable
@@ -146,6 +138,7 @@ public class CreateSpringRestController extends AnAction implements DumbAware {
                         }
                     });
                 });
+                apply(mainForm);
             }
         }
 
@@ -154,6 +147,24 @@ public class CreateSpringRestController extends AnAction implements DumbAware {
         //event.getProject().getWorkspaceFile().is
 
     }
+
+
+    public void apply(CreateRestController mainForm) {
+        TinyDecsConfiguration state = ConfigSerializer.getInstance().getState();
+        state.setNgRest(mainForm.getCbNg().isSelected());
+
+        state.setSyncTs(mainForm.getCbCreate().isSelected());
+        state.setCalcRestService(mainForm.getCbCalcRest().isSelected());
+    }
+
+    public void restore(CreateRestController mainForm) {
+        TinyDecsConfiguration state = ConfigSerializer.getInstance().getState();
+        mainForm.getCbNg().setSelected(state.isNgRest());
+
+        mainForm.getCbCreate().setSelected(state.isSyncTs());
+        mainForm.getCbCalcRest().setSelected(state.isCalcRestService());
+    }
+
 
     void buildFile(Project project, VirtualFile folder, String className, Map<String, Object> attrs, AnActionEvent event) {
 

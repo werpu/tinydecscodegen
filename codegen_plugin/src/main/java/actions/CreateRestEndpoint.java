@@ -1,25 +1,27 @@
 package actions;
 
 import actions.shared.JavaFileContext;
-import com.github.rjeschke.txtmark.Run;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.ui.popup.util.PopupUtil;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
 import com.jgoodies.common.base.Strings;
+import configuration.ConfigSerializer;
+import configuration.TinyDecsConfiguration;
 import factories.TnDecGroupFactory;
 import gui.CreateRequestMapping;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +39,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static actions.FormAssertions.assertNotNullOrEmpty;
+import static actions.shared.VisibleAssertions.assertNotJavaRest;
+import static actions.shared.VisibleAssertions.assertNotSprinRest;
 
 enum SupportedRestMethod {
     PUT, GET, DELETE, POST
@@ -44,6 +48,20 @@ enum SupportedRestMethod {
 
 
 public class CreateRestEndpoint extends AnAction implements DumbAware {
+
+    //visibility
+    @Override
+    public void update(AnActionEvent anActionEvent) {
+        final Project project = anActionEvent.getData(CommonDataKeys.PROJECT);
+        IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
+        if (assertNotJavaRest(ctx) && assertNotSprinRest(ctx)) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
+
+        anActionEvent.getPresentation().setEnabledAndVisible(true);
+    }
+
     @Override
     public void actionPerformed(AnActionEvent event) {
 
@@ -57,6 +75,7 @@ public class CreateRestEndpoint extends AnAction implements DumbAware {
 
         final gui.CreateRequestMapping mainForm = new gui.CreateRequestMapping();
 
+        restore(mainForm);
 
         DialogWrapper dialogWrapper = new DialogWrapper(event.getProject(), true, DialogWrapper.IdeModalityType.PROJECT) {
 
@@ -138,7 +157,7 @@ public class CreateRestEndpoint extends AnAction implements DumbAware {
                 if (mainForm.getCbTypeScript().isSelected()) {
                     try {
 
-                        IntellijUtils.generateService(event.getProject(), ctx.getModule(), (PsiJavaFile) ctx.getPsiFile(), false /*mainForm.getCbNg().isSelected()*/);
+                        IntellijUtils.generateService(event.getProject(), ctx.getModule(), (PsiJavaFile) ctx.getPsiFile(), mainForm.getRbAngNg().isSelected());
                     } catch (ClassNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -147,10 +166,45 @@ public class CreateRestEndpoint extends AnAction implements DumbAware {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+            apply(mainForm);
 
         }
 
+    }
+
+    public void apply(CreateRequestMapping mainForm) {
+        TinyDecsConfiguration state = ConfigSerializer.getInstance().getState();
+        state.setNgRest(mainForm.getRbAngNg().isSelected());
+        SupportedRestMethod defaultRestMethod = mainForm.getRbGet().isSelected() ? SupportedRestMethod.GET :
+                mainForm.getRbPost().isSelected() ? SupportedRestMethod.POST :
+                        mainForm.getRbPut().isSelected() ? SupportedRestMethod.PUT :
+                                SupportedRestMethod.DELETE;
+        state.setRestType(defaultRestMethod.name());
+        state.setSyncTs(mainForm.getCbTypeScript().isSelected());
+        state.setCalcRest(mainForm.getCbCalcRest().isSelected());
+    }
+
+    public void restore(CreateRequestMapping mainForm) {
+        TinyDecsConfiguration state = ConfigSerializer.getInstance().getState();
+        mainForm.getRbAngNg().setSelected(state.isNgRest());
+        SupportedRestMethod defaultRestMethod = SupportedRestMethod.valueOf(state.getRestType());
+
+        switch (defaultRestMethod) {
+            case GET:
+                mainForm.getRbGet().setSelected(true);
+                break;
+            case POST:
+                mainForm.getRbPost().setSelected(true);
+                break;
+            case PUT:
+                mainForm.getRbPut().setSelected(true);
+                break;
+            case DELETE:
+                mainForm.getRbDelete().setSelected(true);
+                break;
+        }
+        mainForm.getCbTypeScript().setSelected(state.isSyncTs());
+        mainForm.getCbCalcRest().setSelected(state.isCalcRest());
     }
 
     public void reformat(String javaMethodName, IntellijFileContext ctx) {

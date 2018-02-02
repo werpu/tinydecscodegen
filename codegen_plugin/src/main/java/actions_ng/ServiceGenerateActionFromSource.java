@@ -5,17 +5,35 @@ import actions.shared.JavaFileContext;
 import actions.shared.NgFileNameTransformer;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.popup.util.PopupUtil;
 import com.intellij.psi.PsiJavaFile;
+import utils.IntellijFileContext;
 import utils.IntellijUtils;
+
+import static actions.shared.VisibleAssertions.assertNotJava;
+import static actions.shared.VisibleAssertions.assertNotJavaRest;
 
 public class ServiceGenerateActionFromSource extends AnAction {
 
     private static final Logger log = Logger.getInstance(ServiceGenerationAction.class);
+
+    @Override
+    public void update(AnActionEvent anActionEvent) {
+        IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
+        if (assertNotJava(ctx) || assertNotJavaRest(ctx)) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
+
+        anActionEvent.getPresentation().setEnabledAndVisible(true);
+    }
+
 
     @Override
     public void actionPerformed(AnActionEvent event) {

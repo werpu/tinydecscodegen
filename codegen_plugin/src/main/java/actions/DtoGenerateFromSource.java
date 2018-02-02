@@ -1,27 +1,46 @@
 package actions;
 
 import actions.shared.JavaFileContext;
-import actions.shared.NgFileNameTransformer;
 import actions.shared.SimpleFileNameTransformer;
+import actions.shared.VisibleAssertions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.popup.util.PopupUtil;
 import com.intellij.psi.PsiJavaFile;
+import utils.IntellijFileContext;
 import utils.IntellijUtils;
 
-import java.io.IOException;
+import static actions.shared.VisibleAssertions.assertNotJava;
+import static actions.shared.VisibleAssertions.assertNotJavaRest;
 
 public class DtoGenerateFromSource extends AnAction {
 
     private static final Logger log = Logger.getInstance(ServiceGenerationAction.class);
 
+
+    public void update(AnActionEvent anActionEvent) {
+        final Project project = anActionEvent.getData(CommonDataKeys.PROJECT);
+        if (project == null)
+            return;
+        IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
+        if (assertNotJava(ctx) ||
+                !assertNotJavaRest(ctx)) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
+
+        anActionEvent.getPresentation().setEnabledAndVisible(true);
+    }
+
     @Override
     public void actionPerformed(AnActionEvent event) {
-        if(event.getData(PlatformDataKeys.EDITOR) == null) {
+        if (event.getData(PlatformDataKeys.EDITOR) == null) {
             PopupUtil.showBalloonForActiveFrame("No editor found, please focus on an open source file", MessageType.ERROR);
             return;
         }

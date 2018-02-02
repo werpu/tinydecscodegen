@@ -23,6 +23,8 @@ public class CreateRequestMapping {
     private JCheckBox cbCalcRest;
     private JPanel rootPanel;
     private JTextField txtReturnType;
+    private JRadioButton rbTnDec;
+    private JRadioButton rbAngNg;
 
     public CreateRequestMapping() {
         txtMethodName.getDocument().addDocumentListener(new DocumentListener() {
@@ -101,5 +103,13 @@ public class CreateRequestMapping {
 
     public JTextField getTxtReturnType() {
         return txtReturnType;
+    }
+
+    public JRadioButton getRbTnDec() {
+        return rbTnDec;
+    }
+
+    public JRadioButton getRbAngNg() {
+        return rbAngNg;
     }
 }

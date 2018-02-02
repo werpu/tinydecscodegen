@@ -21,9 +21,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package actions;
 
+import actions.shared.VisibleAssertions;
 import com.intellij.lang.html.HTMLLanguage;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.command.impl.UndoManagerImpl;
 import com.intellij.openapi.command.undo.UndoManager;
@@ -34,11 +36,13 @@ import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import org.jetbrains.annotations.NotNull;
 import utils.ComponentFileContext;
+import utils.IntellijFileContext;
 import utils.IntellijUtils;
 
 import javax.swing.*;
@@ -47,14 +51,19 @@ import static utils.SwingUtils.createHtmlEditor;
 
 
 public class EditTemplate extends AnAction implements EditorCallback {
-    //static EditorTypingHandler handler = new EditorTypingHandler();
-    //static {
-    //    final EditorActionManager actionManager = EditorActionManager.getInstance();
-    //    final TypedAction typedAction = actionManager.getTypedAction();
-    //    handler = new EditorTypingHandler();
-    //    typedAction.setupHandler(handler);
-    //}
 
+
+    public void update(AnActionEvent anActionEvent) {
+        IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
+        if (VisibleAssertions.assertNotTs(ctx) ||
+                !VisibleAssertions.assertTemplated(ctx)) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
+
+
+         anActionEvent.getPresentation().setEnabledAndVisible(true);
+    }
 
     @Override
     public void hasTyped(Editor editor) {
@@ -123,7 +132,7 @@ public class EditTemplate extends AnAction implements EditorCallback {
 
                     WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
                         UndoManager undoManager = UndoManagerImpl.getInstance(fileContext.getProject());
-                        if(undoManager.isUndoInProgress() || undoManager.isRedoInProgress()) {
+                        if (undoManager.isUndoInProgress() || undoManager.isRedoInProgress()) {
                             return;
                         }
                         fileContext.directUpdateTemplate(event.getDocument().getText());
@@ -144,9 +153,6 @@ public class EditTemplate extends AnAction implements EditorCallback {
         doubleBuffer.setText(fileContext.getTemplateTextAsStr().get());
         return doubleBuffer;
     }
-
-
-
 
 
 }

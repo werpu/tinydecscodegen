@@ -136,35 +136,18 @@
                         description="Create a Rest Endpoint">
                 </action>
 
-                <!--
-                <separator />
-                <action id="TD_Service" class="actions.ServiceGenerateActionWithoutCompile" text="Service Generation"
-                        description="Generate a typescript service">
-
-                </action>
-                <action id="TD_CompileService" class="actions.ServiceGenerationAction" text="Compilation and Service Generation"
-                        description="Generate a typescript service">
-
-                </action>
-                <separator />
-                <action id="TD_Dto" class="actions.DtoGenerateWithoutCompile" text="Dto Generation"
-                        description="Generate a typescript dto">
-
-                </action>
-
-                <action id="TD_DtoCompile" class="actions.DtoGeneration" text="Compilation and Dto Generation"
-                        description="Generate a typescript dto">
-
-                </action>
-                -->
             </group>
 
             <separator/>
-            <action id="TD_TD_EditTemplate" class="actions.EditTemplate" text="Edit HTML Template">
+            <action id="TD_GoToTypescript" class="actions.GoToTs" text="Go To Typescript"
+                    icon="/images/tt.png"></action>
+            <action id="TD_GoToJava" class="actions.GoToJava" text="Go To Java" icon="/images/tt.png"></action>
+            <action id="TD_TD_EditTemplate" class="actions.EditTemplate" text="Edit HTML Template"></action>
 
-            </action>
+
         </group>
 
+        <!-- File Menu -->
         <group id="TD_TinyDecsContextMenu" text="_Tiny Decorations" popup="true"
                description="Tiny decorations context actions" icon="/images/tt.png">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
@@ -205,7 +188,8 @@
             </action>
         </group>
 
-        <group id="NG_TinyDecsContextMenu" text="_Angular NG" popup="true" description="Angular NG Actions" icon="/images/tt.png">
+        <group id="NG_TinyDecsContextMenu" text="_Angular NG" popup="true" description="Angular NG Actions"
+               icon="/images/tt.png">
 
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
             <action id="NG_CreateProject2" class="actions_ng.CreateNgProject" text="Create Angular Ng Project"
@@ -236,16 +220,34 @@
             </action>
 
 
-
         </group>
 
-        <group id="TNNG_Create_Rest" text="_Create Rest" popup="true" description="Creation Actions" icon="/images/tt.png">
+        <group id="TNNG_Create_Rest" text="_Create Rest" popup="true" description="Creation Actions"
+               icon="/images/tt.png">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
 
             <action id="NG_SprinRest2" class="actions.CreateSpringRestController"
                     text="Generate a Spring Rest Controller"
                     description="Generate a Spring Rest Controller">
             </action>
+        </group>
+
+        <!-- editor -->
+        <group>
+            <action id="TTNG_CreateRestEndpoint3" class="actions.CreateRestEndpoint" text="Create Rest Endpoint"
+                    description="Create Rest Endpoint" icon="/images/tt.png"/>
+            <action id="TD_DtoSrc3" class="actions.DtoGenerateFromSource" text="Dto Generation from source"
+                    description="Generate a typescript dto from the current editor window" icon="/images/tt.png">
+            </action>
+            <separator/>
+
+            <action id="TD_GoToTypescript3" class="actions.GoToTs" text="Go To Typescript"
+                    icon="/images/tt.png"></action>
+            <action id="TD_GoToJava3" class="actions.GoToJava" text="Go To Java" icon="/images/tt.png"></action>
+            <action id="TD_TD_EditTemplate3" class="actions.EditTemplate" text="Edit HTML Template"
+                    icon="/images/tt.png"></action>
+            <separator/>
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </group>
 
 
