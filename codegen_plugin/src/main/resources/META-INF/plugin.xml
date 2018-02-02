@@ -130,6 +130,11 @@
                         description="Generate a Angular Ng typescript service">
                 </action>
 
+                <separator/>
+                <action id="NGRestEndpoint" class="actions.CreateRestEndpoint"
+                        text="Create a Rest Endpoint"
+                        description="Create a Rest Endpoint">
+                </action>
 
                 <!--
                 <separator />

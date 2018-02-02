@@ -22,6 +22,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package utils;
 
+import com.google.common.base.Strings;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -82,5 +83,29 @@ public class SwingUtils {
         editorSettings.setSmartHome(true);
 
         return editor;
+    }
+
+    public static void update(JTextField target, JTextField source) {
+
+        String txt = source.getText();
+
+        StringUtils.toLowerDash(txt);
+        //Transform text
+
+        String txtBase = Strings.nullToEmpty(target.getText());
+        String[] args = txtBase.split("\\/");
+        String base = "";
+        String name = "";
+
+        if (args.length > 1) {
+            base = txtBase.substring(0, txtBase.lastIndexOf("/"));
+            //name = args[args.length - 1];
+        } else if (args.length == 1) {
+            //name = args[0];
+        }
+        name = StringUtils.toLowerDash(txt);
+
+
+        target.setText(base + "/" + name);
     }
 }

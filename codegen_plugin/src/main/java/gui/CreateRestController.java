@@ -1,7 +1,6 @@
 package gui;
 
-import com.google.common.base.Strings;
-import utils.StringUtils;
+import utils.SwingUtils;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -47,6 +46,13 @@ public class CreateRestController {
         });
     }
 
+    public void update() {
+        if (!cbCalcRest.isSelected()) {
+            return;
+        }
+        SwingUtils.update(txtRestPath, txtServiceName);
+    }
+
     public JTextField getTxtServiceName() {
         return txtServiceName;
     }
@@ -75,29 +81,4 @@ public class CreateRestController {
         return cbNg;
     }
 
-    protected void update() {
-        if (!cbCalcRest.isSelected()) {
-            return;
-        }
-        String txt = txtServiceName.getText();
-
-        StringUtils.toLowerDash(txt);
-        //Transform text
-
-        String txtBase = Strings.nullToEmpty(txtRestPath.getText());
-        String[] args = txtBase.split("\\/");
-        String base = "";
-        String name = "";
-
-        if (args.length > 1) {
-            base = txtBase.substring(0, txtBase.lastIndexOf("/"));
-            //name = args[args.length - 1];
-        } else if (args.length == 1) {
-            //name = args[0];
-        }
-        name = StringUtils.toLowerDash(txt);
-
-
-        txtRestPath.setText(base + "/" + name);
-    }
 }

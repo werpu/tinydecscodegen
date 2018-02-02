@@ -42,6 +42,14 @@ public class PsiWalkFunctions {
         return element != null && element.toString().equals("ES6ImportDeclaration");
     }
 
+    public static boolean isMethod(PsiElement element) {
+        return element != null && element.toString().startsWith("PsiMethod:");
+    }
+
+    public static boolean isClass(PsiElement element) {
+        return element != null && element.toString().startsWith("PsiClass:");
+    }
+
     /**
      * detect a temmplate in the psi treee
      * <p>
