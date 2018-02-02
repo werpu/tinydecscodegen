@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static actions.FormAssertions.assertNotNullOrEmpty;
+import static actions.shared.FormAssertions.assertNotNullOrEmpty;
 import static actions.shared.VisibleAssertions.assertNotJavaRest;
 import static actions.shared.VisibleAssertions.assertNotSprinRest;
 

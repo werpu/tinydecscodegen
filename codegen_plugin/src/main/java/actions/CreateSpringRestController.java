@@ -9,8 +9,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
@@ -18,14 +16,12 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.ui.popup.util.PopupUtil;
-import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import configuration.ConfigSerializer;
 import configuration.TinyDecsConfiguration;
 import factories.TnDecGroupFactory;
-import gui.CreateRequestMapping;
 import gui.CreateRestController;
 import org.fest.util.Maps;
 import org.jetbrains.annotations.NotNull;
@@ -40,9 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static actions.FormAssertions.assertNotNullOrEmpty;
-import static actions.shared.VisibleAssertions.assertNotJava;
-import static actions.shared.VisibleAssertions.assertNotJavaRest;
+import static actions.shared.FormAssertions.assertNotNullOrEmpty;
 
 public class CreateSpringRestController extends AnAction implements DumbAware {
 

@@ -2,7 +2,6 @@ package actions;
 
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.SimpleFileNameTransformer;
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -31,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static actions.FormAssertions.*;
+import static actions.shared.FormAssertions.*;
 
 /**
  * Create a Tiny Decs artefact.

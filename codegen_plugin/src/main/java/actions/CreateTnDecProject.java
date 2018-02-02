@@ -7,7 +7,6 @@ import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataConstants;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -41,7 +40,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import com.intellij.openapi.ui.Messages;
 
-import static actions.FormAssertions.assertNotNullOrEmpty;
+import static actions.shared.FormAssertions.assertNotNullOrEmpty;
 
 public class CreateTnDecProject extends AnAction implements DumbAware {
 

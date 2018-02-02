@@ -1,5 +1,6 @@
 package actions;
 
+import actions.shared.FormAssertions;
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.SimpleFileNameTransformer;
 import com.google.common.collect.Lists;
@@ -40,8 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static actions.FormAssertions.assertNotNullOrEmpty;
-import static actions.FormAssertions.assertPattern;
+import static actions.shared.FormAssertions.assertNotNullOrEmpty;
+import static actions.shared.FormAssertions.assertPattern;
 import static actions.Messages.ERR_ELTYPE_SEL;
 import static reflector.TransclusionReflector.getPossibleTransclusionSlots;
 import static reflector.TransclusionReflector.hasTransclude;

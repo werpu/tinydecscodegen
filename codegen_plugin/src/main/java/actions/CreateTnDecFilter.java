@@ -31,9 +31,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static actions.FormAssertions.VALID_NAME;
-import static actions.FormAssertions.assertNotNullOrEmpty;
-import static actions.FormAssertions.assertPattern;
+import static actions.shared.FormAssertions.VALID_NAME;
+import static actions.shared.FormAssertions.assertNotNullOrEmpty;
+import static actions.shared.FormAssertions.assertPattern;
 
 /**
  * Create a Tiny Decs filter artifact.

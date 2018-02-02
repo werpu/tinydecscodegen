@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static actions.FormAssertions.*;
+import static actions.shared.FormAssertions.*;
 
 /**
  * Create a Tiny Decs artefact.
