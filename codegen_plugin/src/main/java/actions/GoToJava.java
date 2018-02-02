@@ -13,10 +13,8 @@ import static actions.shared.VisibleAssertions.assertNotTs;
 public class GoToJava extends AnAction {
 
     public void update(AnActionEvent anActionEvent) {
-        JavaFileContext javaFileContext = new JavaFileContext(anActionEvent);
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
-        if (assertNotTs(ctx) ||
-                javaFileContext.isError()) {
+        if (assertNotTs(ctx) || assertNotTs(ctx)) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
@@ -27,6 +25,9 @@ public class GoToJava extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
         JavaFileContext javaFileContext = new JavaFileContext(anActionEvent);
+        if(javaFileContext.isError()) {
+            return;
+        }
         FileEditorManager.getInstance(javaFileContext.getProject()).openFile(javaFileContext.getJavaFile().getVirtualFile(), true);
     }
 }
