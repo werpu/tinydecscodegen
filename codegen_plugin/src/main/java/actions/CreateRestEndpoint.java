@@ -1,6 +1,11 @@
 package actions;
 
 import actions.shared.JavaFileContext;
+import com.github.rjeschke.txtmark.Run;
+import com.google.common.collect.Maps;
+import com.intellij.ide.fileTemplates.FileTemplate;
+import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -11,8 +16,11 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.ui.popup.util.PopupUtil;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiJavaFile;
 import com.jgoodies.common.base.Strings;
+import factories.TnDecGroupFactory;
 import gui.CreateRequestMapping;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,8 +29,10 @@ import utils.IntellijUtils;
 import utils.PsiWalkFunctions;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -31,6 +41,7 @@ import static actions.FormAssertions.assertNotNullOrEmpty;
 enum SupportedRestMethod {
     PUT, GET, DELETE, POST
 }
+
 
 public class CreateRestEndpoint extends AnAction implements DumbAware {
     @Override
@@ -94,48 +105,99 @@ public class CreateRestEndpoint extends AnAction implements DumbAware {
             String javaMethodName = mainForm.getTxtMethodName().getText();
             String restPath = mainForm.getTxtRestPath().getText();
 
-            String returnType = (String) mainForm.getCbReturnType().getSelectedItem();
+            String returnType = mainForm.getTxtReturnType().getText();
             returnType = (Strings.isBlank(returnType)) ? "void" : returnType;
             boolean isList = mainForm.getCbList().isSelected();
+            if (isList) {
+                returnType = "List<" + returnType + ">";
+            }
             boolean createMapping = mainForm.getCbTypeScript().isSelected();
 
-            //now lets insert the code first
 
-            Editor editor = IntellijUtils.getEditor(event);
-            IntellijFileContext editorFile = new IntellijFileContext(event);
-            final int cursorPos = editor.getCaretModel().getOffset();
-
-            Optional<PsiElement> after = editorFile.findPsiElements(PsiWalkFunctions::isMethod)
-                    .stream()
-                    .filter(el -> el.getTextOffset() >= cursorPos).findFirst();
-            List<PsiElement> before = editorFile.findPsiElements(PsiWalkFunctions::isMethod)
-                    .stream()
-                    .filter(el -> el.getTextOffset() <= cursorPos).collect(Collectors.toList());
-
-            PsiElement beforeElement = (before.size() > 0) ? before.get(before.size() - 1) : null;
+            //Lets generate the needed text from the template
+            //with the given meta data params
 
 
-            WriteCommandAction.runWriteCommandAction(editorFile.getProject(), () -> {
+            Map<String, String> params = Maps.newHashMap();
 
-                if (after.isPresent() && beforeElement != null &&
-                        beforeElement.getTextRange().getEndOffset() <= cursorPos &&
-                        after.get().getTextRange().getStartOffset() >= cursorPos
-                        ) {
-                    editor.getDocument().insertString(cursorPos, "Hello world from me pos");
-                } else if (after.isPresent()) {
-                    editor.getDocument().insertString(after.get().getTextRange().getStartOffset(), "Hello world from me");
-                } else if (beforeElement != null) {
 
-                    editor.getDocument().insertString(beforeElement.getTextRange().getEndOffset() + 1, "Hello world from me after");
-                } else {
-                    editor.getDocument().insertString(cursorPos, "Hello world from me other");
+            params.put("REQUEST_METHOD", method.name());
+            params.put("METHOD_NAME", javaMethodName);
+            params.put("RETURN_TYPE", returnType);
+            params.put("REST_PATH", restPath);
 
+
+            FileTemplate vslTemplate = FileTemplateManager.getInstance(event.getProject()).getJ2eeTemplate(TnDecGroupFactory.TPL_SPRING_REST_METHOD);
+            try {
+                String insertText = FileTemplateUtil.mergeTemplate(params, vslTemplate.getText(), false);
+
+                //insert the text into the active java editor
+                insertIntoEditor(event, insertText);
+                IntellijFileContext ctx = new IntellijFileContext(event);
+                reformat(javaMethodName, ctx);
+                if (mainForm.getCbTypeScript().isSelected()) {
+                    try {
+
+                        IntellijUtils.generateService(event.getProject(), ctx.getModule(), (PsiJavaFile) ctx.getPsiFile(), false /*mainForm.getCbNg().isSelected()*/);
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
-            });
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
 
         }
 
+    }
+
+    public void reformat(String javaMethodName, IntellijFileContext ctx) {
+
+        WriteCommandAction.runWriteCommandAction(ctx.getProject(), () -> {
+            ctx.reformat();
+        });
+    }
+
+    public void insertIntoEditor(AnActionEvent event, String insertText) {
+        Editor editor = IntellijUtils.getEditor(event);
+        final int cursorPos = editor.getCaretModel().getOffset();
+        IntellijFileContext editorFile = new IntellijFileContext(event);
+        Optional<PsiElement> after = editorFile.findPsiElements(PsiWalkFunctions::isMethod)
+                .stream()
+                .filter(el -> el.getTextOffset() >= cursorPos).findFirst();
+        List<PsiElement> before = editorFile.findPsiElements(PsiWalkFunctions::isMethod)
+                .stream()
+                .filter(el -> el.getTextOffset() <= cursorPos).collect(Collectors.toList());
+
+        PsiElement beforeElement = (before.size() > 0) ? before.get(before.size() - 1) : null;
+
+
+        WriteCommandAction.runWriteCommandAction(editorFile.getProject(), () -> {
+
+            if (after.isPresent() && beforeElement != null &&
+                    beforeElement.getTextRange().getEndOffset() <= cursorPos &&
+                    after.get().getTextRange().getStartOffset() >= cursorPos
+                    ) {
+
+                editor.getDocument().insertString(cursorPos, insertText);
+            } else if (after.isPresent()) {
+                editor.getDocument().insertString(after.get().getTextRange().getStartOffset(), insertText);
+            } else if (beforeElement != null) {
+
+                editor.getDocument().insertString(beforeElement.getTextRange().getEndOffset() + 1, insertText);
+            } else {
+                editor.getDocument().insertString(cursorPos, insertText);
+
+            }
+            try {
+                editorFile.commit();
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @NotNull

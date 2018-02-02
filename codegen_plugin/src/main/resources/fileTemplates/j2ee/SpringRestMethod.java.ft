@@ -1,0 +1,6 @@
+
+@RequestMapping(value = "${REST_PATH}", method = RequestMethod.${REQUEST_METHOD})
+public ${RETURN_TYPE} ${METHOD_NAME}() {
+ //fill in your implementation here
+}
+

@@ -8,18 +8,21 @@ import javax.swing.event.DocumentListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
 public class CreateRequestMapping {
+
     private JTextField txtRestPath;
     private JRadioButton rbGet;
     private JRadioButton rbPost;
     private JRadioButton rbPut;
     private JRadioButton rbDelete;
     private JCheckBox cbTypeScript;
-    private JComboBox cbReturnType;
+
     private JCheckBox cbList;
     private JTextField txtMethodName;
     private JCheckBox cbCalcRest;
     private JPanel rootPanel;
+    private JTextField txtReturnType;
 
     public CreateRequestMapping() {
         txtMethodName.getDocument().addDocumentListener(new DocumentListener() {
@@ -75,9 +78,6 @@ public class CreateRequestMapping {
         return cbTypeScript;
     }
 
-    public JComboBox getCbReturnType() {
-        return cbReturnType;
-    }
 
     public JCheckBox getCbList() {
         return cbList;
@@ -97,5 +97,9 @@ public class CreateRequestMapping {
 
     public JPanel getRootPanel() {
         return rootPanel;
+    }
+
+    public JTextField getTxtReturnType() {
+        return txtReturnType;
     }
 }
