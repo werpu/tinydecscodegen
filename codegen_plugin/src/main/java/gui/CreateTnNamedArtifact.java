@@ -24,6 +24,7 @@ package gui;
 import com.google.common.base.Strings;
 import dtos.ComponentJson;
 import gui.support.RequiredListener;
+import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,6 +34,7 @@ import java.util.function.Function;
 /**
  * A simple named artifact
  */
+@Getter
 public class CreateTnNamedArtifact {
     private JTextField name;
 
@@ -144,26 +146,6 @@ public class CreateTnNamedArtifact {
         this.titlePane.setText(title);
     }
 
-    public JTextField getName() {
-        return name;
-    }
 
-    public JTextField getControllerAs() {
-        return controllerAs;
-    }
 
-    /**
-     * a helper main for debugging purposes
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        JDialog frame = new JDialog();
-
-        frame.setContentPane(new CreateTnNamedArtifact("Booga Artifact").rootPanel);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.pack();
-
-        frame.setVisible(true);
-    }
 }

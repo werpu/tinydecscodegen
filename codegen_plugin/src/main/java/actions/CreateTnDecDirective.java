@@ -31,8 +31,10 @@ import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reflector.ComponentAttributesReflector;
-import utils.*;
-import utils.fs.IntellijFileContext;
+import supportive.dtos.ModuleElementScope;
+import supportive.fs.IntellijFileContext;
+import supportive.utils.StringUtils;
+import supportive.utils.SwingUtils;
 
 import javax.swing.*;
 import java.awt.*;

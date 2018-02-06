@@ -25,6 +25,7 @@ import com.google.common.base.Strings;
 import dtos.ComponentJson;
 import gui.support.RegexpFormatter;
 import gui.support.RequiredListener;
+import lombok.Getter;
 
 import javax.swing.*;
 import java.util.function.Function;
@@ -36,6 +37,7 @@ import static reflector.TransclusionReflector.hasTransclude;
  * Create Component data form,
  * for the new Tiny Decs Create component dialog
  */
+@Getter
 public class CreateTnDecDirective {
     private JFormattedTextField txtName;
     private JTextArea txtTemplate;
@@ -60,7 +62,6 @@ public class CreateTnDecDirective {
     Function<ComponentJson, Boolean> okFunc;
     Function<ComponentJson, Boolean> cancelFunc;
 
-
     private JComponent txtTemplate2;
 
     public CreateTnDecDirective() {
@@ -83,31 +84,6 @@ public class CreateTnDecDirective {
     }
 
 
-    public String getName() {
-        return txtName.getText();
-    }
-
-    public String getTemplate() {
-        return Strings.nullToEmpty(txtTemplate.getText());
-    }
-
-    public String getControllerAs() {
-        return txtControllerAs.getText();
-    }
-
-
-    public JFormattedTextField getTxtName() {
-        return txtName;
-    }
-
-    public JTextField getTxtControllerAs() {
-        return txtControllerAs;
-    }
-
-    public JLabel getLblTitle() {
-        return lblTitle;
-    }
-
     /**
      * We have some special behavior like required fields and formatted inputs
      */
@@ -123,64 +99,21 @@ public class CreateTnDecDirective {
             return submittable;
         });
         txtControllerAs.setText("ctrl");
-
-
-
     }
 
 
-    public JLabel getLblSelector() {
-        return lblSelector;
+    public String getName() {
+        return txtName.getText();
     }
 
-    public JLabel getLblTemplate() {
-        return lblTemplate;
+    public String getTemplate() {
+        return Strings.nullToEmpty(txtTemplate.getText());
     }
 
-    public JLabel getLblControllerAs() {
-        return lblControllerAs;
+    public String getControllerAs() {
+        return txtControllerAs.getText();
     }
 
-    public JTextArea getTxtTemplate() {
-        return txtTemplate;
-    }
 
-    public JScrollPane getPnEditorHolder() {
-        return pnEditorHolder;
-    }
 
-    public JCheckBox getElementCheckBox() {
-        return elementCheckBox;
-    }
-
-    public JCheckBox getAttributeCheckBox() {
-        return attributeCheckBox;
-    }
-
-    public JCheckBox getClassCheckBox() {
-        return classCheckBox;
-    }
-
-    public JCheckBox getCommentCheckBox() {
-        return commentCheckBox;
-    }
-
-    public JCheckBox getCbExport() {
-        return cbExport;
-    }
-
-    /**
-     * a helper main for debugging purposes
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        JDialog frame = new JDialog();
-
-        frame.setContentPane(new CreateTnDecDirective().rootPanel);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.pack();
-
-        frame.setVisible(true);
-    }
 }

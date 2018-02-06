@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.NotNull;
-import utils.ModuleElementScope;
+import supportive.dtos.ModuleElementScope;
 
 import java.util.Map;
 

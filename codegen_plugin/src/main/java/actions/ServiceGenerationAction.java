@@ -30,8 +30,8 @@ import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
-import utils.fs.IntellijFileContext;
-import utils.IntellijUtils;
+import supportive.fs.IntellijFileContext;
+import supportive.utils.IntellijUtils;
 
 import java.io.IOException;
 

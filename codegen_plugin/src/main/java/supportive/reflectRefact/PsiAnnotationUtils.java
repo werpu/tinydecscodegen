@@ -1,4 +1,4 @@
-package utils;
+package supportive.reflectRefact;
 
 import com.google.common.base.Strings;
 import com.intellij.psi.PsiAnnotation;

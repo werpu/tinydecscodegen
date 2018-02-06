@@ -1,4 +1,4 @@
-package utils;
+package supportive.dtos;
 
 public class Offset {
     int start;

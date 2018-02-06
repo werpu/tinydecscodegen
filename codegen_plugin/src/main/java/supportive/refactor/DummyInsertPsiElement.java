@@ -1,4 +1,4 @@
-package utils;
+package supportive.refactor;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;

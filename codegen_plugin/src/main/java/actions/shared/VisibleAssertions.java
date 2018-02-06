@@ -1,6 +1,6 @@
 package actions.shared;
 
-import utils.fs.IntellijFileContext;
+import supportive.fs.IntellijFileContext;
 
 public class VisibleAssertions {
     public static boolean assertNotJavaRest(IntellijFileContext ctx) {

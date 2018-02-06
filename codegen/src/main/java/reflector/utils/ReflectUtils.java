@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * a set of utils classes to help with reflection
+ * a set of supportive classes to help with reflection
  */
 public class ReflectUtils {
 

@@ -1,17 +1,15 @@
 import com.intellij.psi.*;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.junit.Test;
-import probes.TestProbeController;
-import reflector.SpringJavaRestReflector;
 import reflector.utils.ReflectUtils;
 import reflector.utils.TypescriptTypeMapper;
 import rest.GenericClass;
 import rest.RestMethod;
 import rest.RestService;
 import rest.RestVar;
-import utils.IntellijDtoReflector;
-import utils.IntellijJaxRsReflector;
-import utils.IntellijSpringRestReflector;
+import supportive.reflectRefact.IntellijDtoReflector;
+import supportive.reflectRefact.IntellijJaxRsReflector;
+import supportive.reflectRefact.IntellijSpringRestReflector;
 
 import java.util.*;
 

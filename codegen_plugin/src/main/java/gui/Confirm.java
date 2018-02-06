@@ -22,6 +22,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package gui;
 
+import lombok.Getter;
+
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -29,6 +31,7 @@ import java.awt.event.WindowEvent;
 import java.util.List;
 import java.util.function.Function;
 
+@Getter
 public class Confirm extends JDialog {
     public static final String CURRENT = " (Current)";
     public static final String LAST_PARENT = " (Last Parent)";
@@ -108,10 +111,5 @@ public class Confirm extends JDialog {
 
     }
 
-    public static void main(String[] args) {
-        Confirm dialog = new Confirm();
-        dialog.pack();
-        dialog.setVisible(true);
-        System.exit(0);
-    }
+
 }

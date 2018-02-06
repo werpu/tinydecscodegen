@@ -3,13 +3,12 @@ package actions_ng;
 import actions.CreateTnDecService;
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.NgFileNameTransformer;
-import actions.shared.SimpleFileNameTransformer;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import factories.TnDecGroupFactory;
-import utils.ModuleElementScope;
+import supportive.dtos.ModuleElementScope;
 
 import java.util.Map;
 

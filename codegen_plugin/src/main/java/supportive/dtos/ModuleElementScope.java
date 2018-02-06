@@ -1,4 +1,4 @@
-package utils;
+package supportive.dtos;
 
 /**
  * Module Element Scope

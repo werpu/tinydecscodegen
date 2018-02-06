@@ -10,8 +10,8 @@ import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.popup.util.PopupUtil;
 import com.intellij.psi.PsiJavaFile;
-import utils.fs.IntellijFileContext;
-import utils.IntellijUtils;
+import supportive.fs.IntellijFileContext;
+import supportive.utils.IntellijUtils;
 
 import static actions.shared.VisibleAssertions.assertNotJava;
 import static actions.shared.VisibleAssertions.assertNotJavaRest;

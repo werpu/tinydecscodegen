@@ -1,33 +1,33 @@
-package utils.fs;
+package supportive.fs;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
-import utils.DummyInsertPsiElement;
-import utils.PsiElementContext;
-import utils.RefactorUnit;
+import org.jetbrains.annotations.Nullable;
+import supportive.refactor.DummyInsertPsiElement;
+import supportive.refactor.RefactorUnit;
 
 import java.util.List;
 import java.util.Optional;
 
-import static utils.StringUtils.elVis;
+import static supportive.utils.StringUtils.elVis;
 
 /**
  * helper context to deal with routes and subroutes
  * in a single file
  */
-public class IdeaRoutesFileContext extends TypescriptFileContext {
+public class UIRoutesRoutesFileContext extends TypescriptFileContext {
 
     PsiElementContext routesDeclaration;
     PsiElementContext routesArr;
 
 
-    public IdeaRoutesFileContext(Project project, PsiFile psiFile) {
+    public UIRoutesRoutesFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
     }
 
-    public IdeaRoutesFileContext(IntellijFileContext fileContext) {
+    public UIRoutesRoutesFileContext(IntellijFileContext fileContext) {
         super(fileContext);
     }
 
@@ -44,7 +44,7 @@ public class IdeaRoutesFileContext extends TypescriptFileContext {
 
 
     @NotNull
-    private Optional<PsiElementContext> getNavigationalArray() {
+    public Optional<PsiElementContext> getNavigationalArray() {
 
         List<PsiElement> els = findPsiElements(el -> {
             return (el.toString().equals("JSCallExpression")) && el.getText().startsWith("UIRouterModule.forRoot");
@@ -54,15 +54,20 @@ public class IdeaRoutesFileContext extends TypescriptFileContext {
                 .map(elc -> elc.findPsiElement(el -> el.toString().equals("JSArrayLiteralExpression"))).findFirst().get();
     }
 
-    private void addNavVar(String varName) {
+    public void addNavVar(String varName) {
+        Optional<PsiElementContext> closingBracket = getEndOfNavArr();
+        if(closingBracket.isPresent()) {
+            addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(closingBracket.get().getElement().getTextOffset()), ", " + varName));
+        }
+    }
+
+    @Nullable
+    public Optional<PsiElementContext> getEndOfNavArr() {
         PsiElementContext navArr = getNavigationalArray().get();
 
         //find the last closing bracket
-        PsiElementContext closingBracket = navArr
+        return Optional.ofNullable(navArr
                 .findPsiElements(el -> el.toString().equals("PsiElement(JS:RBRACKET)")).stream() //TODO type check once debugged out
-                .reduce((first, second) -> second).orElse(null);
-        if(closingBracket != null) {
-            addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(closingBracket.getElement().getTextOffset()), ", " + varName));
-        }
+                .reduce((first, second) -> second).orElse(null));
     }
 }

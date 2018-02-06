@@ -2,13 +2,8 @@ import com.intellij.psi.*;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.junit.Test;
 import probes.EnumProbe;
-import probes.TestProbeController;
-import reflector.SpringJavaRestReflector;
-import reflector.utils.ReflectUtils;
-import reflector.utils.TypescriptTypeMapper;
 import rest.*;
-import utils.IntellijDtoReflector;
-import utils.IntellijSpringRestReflector;
+import supportive.reflectRefact.IntellijDtoReflector;
 
 import java.util.*;
 import java.util.stream.Collectors;

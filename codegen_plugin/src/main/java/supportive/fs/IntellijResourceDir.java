@@ -1,8 +1,6 @@
-package utils;
+package supportive.fs;
 
 import com.google.common.io.ByteStreams;
-import com.intellij.openapi.ui.MessageType;
-import com.intellij.openapi.ui.popup.util.PopupUtil;
 
 import java.io.*;
 import java.net.URLDecoder;

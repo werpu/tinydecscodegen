@@ -26,13 +26,14 @@ import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
-import utils.*;
-import utils.fs.IntellijFileContext;
+import supportive.dtos.ModuleElementScope;
+import supportive.fs.IntellijFileContext;
+import supportive.utils.IntellijUtils;
 
 import java.io.IOException;
 import java.util.Map;
 
-import static utils.IntellijRefactor.*;
+import static supportive.reflectRefact.IntellijRefactor.*;
 
 /**
  * A reusable runnable which generates the final file
@@ -45,7 +46,7 @@ public class GenerateFileAndAddRef implements Runnable {
     String className;
     FileTemplate vslTemplate;
     Map<String, Object> attrs;
-    ModuleElementScope [] scope;
+    ModuleElementScope[] scope;
 
     FileNameTransformer fileNameTransformer;
 

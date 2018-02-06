@@ -1,6 +1,6 @@
 package gui;
 
-import utils.SwingUtils;
+import supportive.utils.SwingUtils;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

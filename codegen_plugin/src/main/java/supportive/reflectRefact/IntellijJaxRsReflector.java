@@ -1,4 +1,4 @@
-package utils;
+package supportive.reflectRefact;
 
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
@@ -12,7 +12,7 @@ import javax.ws.rs.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static utils.PsiAnnotationUtils.*;
+import static supportive.reflectRefact.PsiAnnotationUtils.*;
 
 /**
  * placeholder for the jaxrs reflector

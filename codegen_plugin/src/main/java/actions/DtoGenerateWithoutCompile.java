@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
-import utils.IntellijUtils;
+import supportive.utils.IntellijUtils;
 
 import java.io.IOException;
 

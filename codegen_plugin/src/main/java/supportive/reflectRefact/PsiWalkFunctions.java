@@ -1,11 +1,17 @@
-package utils;
+package supportive.reflectRefact;
 
 import com.google.common.base.Strings;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import com.intellij.psi.impl.source.tree.CompositeElement;
 import org.jetbrains.annotations.NotNull;
 
-import static utils.IntellijRefactor.NG_MODULE;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Function;
+
+import static supportive.reflectRefact.IntellijRefactor.NG_MODULE;
 
 public class PsiWalkFunctions {
 
@@ -42,12 +48,14 @@ public class PsiWalkFunctions {
         return element != null && element.toString().equals("ES6ImportDeclaration");
     }
 
+
+
     public static boolean isMethod(PsiElement element) {
         return element != null && element.toString().startsWith("PsiMethod:");
     }
 
     public static boolean isClass(PsiElement element) {
-        return element != null && element.toString().startsWith("PsiClass:");
+        return element != null && element.toString().startsWith("TypeScriptClass");
     }
 
     /**
@@ -79,6 +87,16 @@ public class PsiWalkFunctions {
         return element != null && getName(element).equals(JS_STRING_TYPE);
     }
 
+    public static boolean isComponent(PsiElement element) {
+        return element != null &&
+                element.toString().startsWith("ES6Decorator") &&
+                element.getText().startsWith("@Component");
+    }
+
+    public static boolean isTypeScriptClass(PsiElement element) {
+        return element != null && element.toString().startsWith("TypeScriptClass");
+    }
+
     @NotNull
     private static String getText(PsiElement element) {
         return ((CompositeElement) element.getNode()).getFirstChildNode().getText();
@@ -100,5 +118,40 @@ public class PsiWalkFunctions {
             return false;
         }
         return (((CompositeElement) element.getNode())).getFirstChildNode().getText().equals(type);
+    }
+
+    public static List<PsiElement> walkPsiTree(PsiFile elem, Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly) {
+        final List<PsiElement> retVal = new LinkedList<>();
+        PsiRecursiveElementWalkingVisitor myElementVisitor = createPsiVisitor(psiElementVisitor, firstOnly, retVal);
+        myElementVisitor.visitFile(elem);
+
+        return retVal;
+    }
+
+    public static List<PsiElement> walkPsiTree(PsiElement elem, Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly) {
+        final List<PsiElement> retVal = new LinkedList<>();
+        PsiRecursiveElementWalkingVisitor myElementVisitor = createPsiVisitor(psiElementVisitor, firstOnly, retVal);
+        myElementVisitor.visitElement(elem);
+
+        return retVal;
+    }
+
+    @NotNull
+    public static PsiRecursiveElementWalkingVisitor createPsiVisitor(Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly, List<PsiElement> retVal) {
+        return new PsiRecursiveElementWalkingVisitor() {
+
+                public void visitElement(PsiElement element) {
+
+
+                    if (psiElementVisitor.apply(element)) {
+                        retVal.add(element);
+                        if(firstOnly) {
+                            stopWalking();
+                        }
+                        return;
+                    }
+                    super.visitElement(element);
+                }
+            };
     }
 }

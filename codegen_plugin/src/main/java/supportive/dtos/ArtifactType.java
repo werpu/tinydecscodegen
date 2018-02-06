@@ -1,4 +1,4 @@
-package utils;
+package supportive.dtos;
 
 public enum ArtifactType {
     SERVICE, DTO;

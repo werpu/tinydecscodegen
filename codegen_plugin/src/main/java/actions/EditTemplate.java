@@ -39,13 +39,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import org.jetbrains.annotations.NotNull;
-import utils.ComponentFileContext;
-import utils.fs.IntellijFileContext;
-import utils.IntellijUtils;
+import supportive.fs.ComponentFileContext;
+import supportive.fs.IntellijFileContext;
+import supportive.utils.IntellijUtils;
 
 import javax.swing.*;
 
-import static utils.SwingUtils.createHtmlEditor;
+import static supportive.utils.SwingUtils.createHtmlEditor;
 
 
 public class EditTemplate extends AnAction implements EditorCallback {

@@ -19,7 +19,7 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package utils.fs;
+package supportive.fs;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -33,13 +33,15 @@ import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import lombok.Getter;
-import utils.IRefactorUnit;
-import utils.IntellijUtils;
+import supportive.refactor.IRefactorUnit;
+import supportive.utils.IntellijUtils;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
 
 /**
  * intellij deals with two levels of files
@@ -192,32 +194,19 @@ public class IntellijFileContext {
     }
 
     protected List<PsiElement> findPsiElements(Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly) {
-        final List<PsiElement> retVal = new LinkedList<>();
+
+
+
         if(psiFile == null) {//not parseable
             return Collections.emptyList();
         }
 
-        PsiRecursiveElementWalkingVisitor myElementVisitor = new PsiRecursiveElementWalkingVisitor() {
 
-            public void visitElement(PsiElement element) {
-
-
-                if (psiElementVisitor.apply(element)) {
-                    retVal.add(element);
-                    if(firstOnly) {
-                        stopWalking();
-                    }
-                    return;
-                }
-                super.visitElement(element);
-            }
-        };
-
-        myElementVisitor.visitFile(psiFile);
+        return walkPsiTree(psiFile, psiElementVisitor, firstOnly);
 
 
-        return retVal;
     }
+
 
     public boolean isPsiFile() {
         return psiFile != null;

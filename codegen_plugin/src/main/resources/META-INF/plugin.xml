@@ -105,6 +105,10 @@
                         description="Create a an Angular NG Component">
                 </action>
 
+                <action id="NG_CreateRoute1" class="actions_ng.CreateNgRoute" text="Create UI-Routes Route"
+                        description="Create a new Route">
+                </action>
+
                 <action id="NG_CreatePipe1" class="actions_ng.CreateNgPipe" text="Create Angular Ng Pipe"
                         description="Create a an Angular NG Pipe">
                 </action>
@@ -172,6 +176,9 @@
             <action id="TD_CreateController" class="actions.CreateTnDecController" text="Create Controller"
                     description="Create a an Angular Tiny Decorations Controller" icon="/images/tt.png">
             </action>
+
+          
+
             <action id="TD_CreateService" class="actions.CreateTnDecService" text="Create Service"
                     description="Create a an Angular Tiny Decorations Service" icon="/images/tt.png">
             </action>
@@ -217,6 +224,11 @@
                     description="Create a an Angular NG Component">
             </action>
 
+
+            <action id="NG_CreateRoute2" class="actions_ng.CreateNgRoute" text="Create UI-Routes Route"
+                    description="Create a new Route">
+            </action>
+
             <action id="NG_CreateService2" class="actions_ng.CreateNgService" text="Create Service"
                     description="Create a an Angular NG Service">
             </action>
@@ -227,6 +239,7 @@
             <action id="NG_CreateDirective2" class="actions_ng.CreateNgDirective" text="Create Directive"
                     description="Create a an Angular NG Directive">
             </action>
+
 
 
         </group>
@@ -266,6 +279,7 @@
             <separator/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </group>
+
 
 
     </actions>

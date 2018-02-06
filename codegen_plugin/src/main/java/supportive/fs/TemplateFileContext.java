@@ -1,4 +1,4 @@
-package utils.fs;
+package supportive.fs;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.RangeMarker;
@@ -6,8 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import utils.RefactorUnit;
-import utils.fs.TypescriptFileContext;
+import supportive.refactor.RefactorUnit;
 
 import java.util.Optional;
 

@@ -19,7 +19,7 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package utils;
+package supportive.utils;
 
 import actions.shared.FileNameTransformer;
 import actions.shared.SimpleFileNameTransformer;
@@ -65,7 +65,13 @@ import reflector.TypescriptRestGenerator;
 import reflector.utils.ReflectUtils;
 import rest.GenericClass;
 import rest.RestService;
-import utils.fs.IntellijFileContext;
+import supportive.dtos.ArtifactType;
+import supportive.dtos.ModuleElementScope;
+import supportive.fs.IntellijFileContext;
+import supportive.reflectRefact.IntellijDtoReflector;
+import supportive.reflectRefact.IntellijJaxRsReflector;
+import supportive.reflectRefact.IntellijRefactor;
+import supportive.reflectRefact.IntellijSpringRestReflector;
 
 import java.awt.*;
 import java.io.IOException;
@@ -81,7 +87,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
- * utils class to simplify some of the intelli openapi apis
+ * supportive class to simplify some of the intelli openapi apis
  */
 public class IntellijUtils {
 

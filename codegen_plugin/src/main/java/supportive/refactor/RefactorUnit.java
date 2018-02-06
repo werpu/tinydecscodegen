@@ -1,8 +1,9 @@
-package utils;
+package supportive.refactor;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
+import supportive.refactor.IRefactorUnit;
 
 @Getter
 public class RefactorUnit implements IRefactorUnit {

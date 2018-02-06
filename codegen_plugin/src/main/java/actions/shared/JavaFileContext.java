@@ -36,7 +36,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import utils.IntellijUtils;
+import supportive.utils.IntellijUtils;
 
 import java.net.MalformedURLException;
 import java.net.URLClassLoader;

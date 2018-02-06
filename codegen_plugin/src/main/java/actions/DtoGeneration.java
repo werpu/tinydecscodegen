@@ -10,7 +10,7 @@ import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
-import utils.IntellijUtils;
+import supportive.utils.IntellijUtils;
 
 import java.io.IOException;
 

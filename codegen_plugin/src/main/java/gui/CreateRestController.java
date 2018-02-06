@@ -1,6 +1,7 @@
 package gui;
 
-import utils.SwingUtils;
+import lombok.Getter;
+import supportive.utils.SwingUtils;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -8,6 +9,7 @@ import javax.swing.event.DocumentListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+@Getter
 public class CreateRestController {
     private JTextField txtServiceName;
     private JTextField txtRestPath;
@@ -53,32 +55,5 @@ public class CreateRestController {
         SwingUtils.update(txtRestPath, txtServiceName);
     }
 
-    public JTextField getTxtServiceName() {
-        return txtServiceName;
-    }
-
-    public JTextField getTxtRestPath() {
-        return txtRestPath;
-    }
-
-    public JPanel getRootPanel() {
-        return rootPanel;
-    }
-
-    public JCheckBox getCbCalcRest() {
-        return cbCalcRest;
-    }
-
-    public JCheckBox getCbCreate() {
-        return cbCreate;
-    }
-
-    public JRadioButton getCbTnDec() {
-        return cbTnDec;
-    }
-
-    public JRadioButton getCbNg() {
-        return cbNg;
-    }
 
 }

@@ -23,9 +23,9 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.IntellijResourceDir;
-import utils.IntellijUtils;
-import utils.TextTransformer;
+import supportive.fs.IntellijResourceDir;
+import supportive.utils.IntellijUtils;
+import supportive.fs.TextTransformer;
 
 import javax.swing.*;
 import java.awt.*;

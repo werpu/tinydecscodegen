@@ -19,12 +19,11 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package utils;
+package supportive.reflectRefact;
 
 import com.google.common.collect.Lists;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.psi.*;
-import com.intellij.psi.impl.source.PsiEnumConstantImpl;
 import org.jetbrains.annotations.NotNull;
 import reflector.utils.ReflectUtils;
 import rest.GenericClass;

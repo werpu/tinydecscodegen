@@ -19,7 +19,7 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package utils.fs;
+package supportive.fs;
 
 import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -27,10 +27,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import reflector.utils.ReflectUtils;
-import utils.DummyInsertPsiElement;
-import utils.IRefactorUnit;
-import utils.IntellijUtils;
-import utils.RefactorUnit;
+import supportive.refactor.DummyInsertPsiElement;
+import supportive.refactor.IRefactorUnit;
+import supportive.utils.IntellijUtils;
+import supportive.refactor.RefactorUnit;
 
 import java.io.IOException;
 import java.util.Comparator;

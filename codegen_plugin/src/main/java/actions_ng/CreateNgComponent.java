@@ -3,7 +3,6 @@ package actions_ng;
 import actions.CreateTnDecComponent;
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.NgFileNameTransformer;
-import actions.shared.SimpleFileNameTransformer;
 import com.google.common.collect.Lists;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -14,7 +13,7 @@ import dtos.ComponentAttribute;
 import factories.TnDecGroupFactory;
 import reflector.NgComponentAttributesReflector;
 import reflector.NgTransclusionReflector;
-import utils.ModuleElementScope;
+import supportive.dtos.ModuleElementScope;
 
 import java.util.List;
 import java.util.Map;

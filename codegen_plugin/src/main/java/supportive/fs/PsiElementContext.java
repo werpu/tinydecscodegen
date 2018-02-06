@@ -1,7 +1,6 @@
-package utils;
+package supportive.fs;
 
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
 
 @AllArgsConstructor
 public class PsiElementContext {
@@ -58,30 +59,12 @@ public class PsiElementContext {
     }
 
     protected List<PsiElementContext> findPsiElements(Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly) {
-        final List<PsiElement> retVal = new LinkedList<>();
+        final List<PsiElement> retVal;
         if(element == null) {//not parseable
             return Collections.emptyList();
         }
 
-        PsiRecursiveElementWalkingVisitor myElementVisitor = new PsiRecursiveElementWalkingVisitor() {
-
-            public void visitElement(PsiElement element) {
-
-
-                if (psiElementVisitor.apply(element)) {
-                    retVal.add(element);
-                    if(firstOnly) {
-                        stopWalking();
-                    }
-                    return;
-                }
-                super.visitElement(element);
-            }
-        };
-
-        myElementVisitor.visitElement(element);
-
-
+        retVal =  walkPsiTree(element, psiElementVisitor, firstOnly);
         return retVal.stream().map(el -> new PsiElementContext(el)).collect(Collectors.toList());
     }
 

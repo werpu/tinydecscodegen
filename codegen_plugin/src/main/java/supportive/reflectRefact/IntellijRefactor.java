@@ -1,4 +1,4 @@
-package utils;
+package supportive.reflectRefact;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -9,7 +9,11 @@ import dtos.NgRootModuleJson;
 import org.jetbrains.annotations.NotNull;
 import refactor.TinyRefactoringUtils;
 import reflector.utils.ReflectUtils;
-import utils.fs.IntellijFileContext;
+import supportive.dtos.ModuleElementScope;
+import supportive.fs.IntellijFileContext;
+import supportive.refactor.DummyInsertPsiElement;
+import supportive.refactor.IRefactorUnit;
+import supportive.refactor.RefactorUnit;
 
 import java.io.IOException;
 import java.util.List;

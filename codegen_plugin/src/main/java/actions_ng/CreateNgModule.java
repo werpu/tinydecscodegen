@@ -9,7 +9,7 @@ import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import factories.TnDecGroupFactory;
-import utils.ModuleElementScope;
+import supportive.dtos.ModuleElementScope;
 
 import java.util.List;
 import java.util.Map;

@@ -26,6 +26,7 @@ import com.intellij.openapi.editor.EditorFactory;
 import dtos.ComponentJson;
 import gui.support.RegexpFormatter;
 import gui.support.RequiredListener;
+import lombok.Getter;
 
 import javax.swing.*;
 import java.util.function.Function;
@@ -37,6 +38,7 @@ import static reflector.TransclusionReflector.hasTransclude;
  * Create Component data form,
  * for the new Tiny Decs Create component dialog
  */
+@Getter
 public class CreateTnDecComponent {
     private JFormattedTextField txtName;
     private JTextArea txtTemplate;
@@ -98,18 +100,6 @@ public class CreateTnDecComponent {
     }
 
 
-    public JFormattedTextField getTxtName() {
-        return txtName;
-    }
-
-    public JTextField getTxtControllerAs() {
-        return txtControllerAs;
-    }
-
-    public JLabel getLblTitle() {
-        return lblTitle;
-    }
-
     /**
      * We have some special behavior like required fields and formatted inputs
      */
@@ -127,66 +117,8 @@ public class CreateTnDecComponent {
         txtControllerAs.setText("ctrl");
 
 
-
     }
 
 
-    public JLabel getLblSelector() {
-        return lblSelector;
-    }
 
-    public JLabel getLblTemplate() {
-        return lblTemplate;
-    }
-
-    public JLabel getLblControllerAs() {
-        return lblControllerAs;
-    }
-
-    public JTextArea getTxtTemplate() {
-        return txtTemplate;
-    }
-
-    public JScrollPane getPnEditorHolder() {
-        return pnEditorHolder;
-    }
-
-    public JCheckBox getCbExport() {
-        return cbExport;
-    }
-
-    public JLabel getLblExport() {
-        return lblExport;
-    }
-
-    public JCheckBox getCbCreateDir() {
-        return cbCreateDir;
-    }
-
-    public JCheckBox getCbCreateStructure() {
-        return cbCreateStructure;
-    }
-
-    public JLabel getLblCreateDir() {
-        return lblCreateDir;
-    }
-
-    public JLabel getLblCreateStructue() {
-        return lblCreateStructue;
-    }
-
-    /**
-     * a helper main for debugging purposes
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        JDialog frame = new JDialog();
-
-        frame.setContentPane(new CreateTnDecComponent().rootPanel);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.pack();
-
-        frame.setVisible(true);
-    }
 }

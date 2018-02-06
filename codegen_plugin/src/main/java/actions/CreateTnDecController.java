@@ -20,8 +20,8 @@ import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.IntellijUtils;
-import utils.ModuleElementScope;
+import supportive.utils.IntellijUtils;
+import supportive.dtos.ModuleElementScope;
 
 import javax.swing.*;
 import java.awt.*;

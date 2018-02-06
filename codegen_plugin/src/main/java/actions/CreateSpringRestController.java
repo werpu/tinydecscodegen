@@ -26,9 +26,9 @@ import gui.CreateRestController;
 import org.fest.util.Maps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.fs.IntellijFileContext;
-import utils.IntellijUtils;
-import utils.ModuleElementScope;
+import supportive.fs.IntellijFileContext;
+import supportive.utils.IntellijUtils;
+import supportive.dtos.ModuleElementScope;
 
 import javax.swing.*;
 import java.util.Arrays;

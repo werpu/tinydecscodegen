@@ -26,9 +26,9 @@ import factories.TnDecGroupFactory;
 import gui.CreateRequestMapping;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.fs.IntellijFileContext;
-import utils.IntellijUtils;
-import utils.PsiWalkFunctions;
+import supportive.fs.IntellijFileContext;
+import supportive.utils.IntellijUtils;
+import supportive.reflectRefact.PsiWalkFunctions;
 
 import javax.swing.*;
 import java.io.IOException;

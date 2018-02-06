@@ -1,4 +1,4 @@
-package utils;
+package supportive.refactor;
 
 public interface IRefactorUnit {
     int getStartOffset();
