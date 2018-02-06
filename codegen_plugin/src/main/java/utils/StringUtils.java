@@ -1,5 +1,8 @@
 package utils;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +24,10 @@ public class StringUtils {
             capNext = (ACTIONABLE_DELIMITERS.indexOf((int) c) >= 0); // explicit cast not needed
         }
         return sb.toString().replaceAll("[-/\\.]", "");
+    }
+
+    public static String makeGet(String in) {
+        return "get"+in.substring(0, 1).toUpperCase()+in.substring(1);
     }
 
     public static String toLowerDash(String s) {
@@ -53,5 +60,20 @@ public class StringUtils {
             return matcher.start();
         }
         return -1;
+    }
+
+    public static <T> Optional<T> elVis(Object root, String... accessors) {
+        for (String accessor : accessors) {
+            try {
+                Method m = root.getClass().getMethod(makeGet(accessor), new Class[0]);
+                root = m.invoke(root);
+                if (root == null) {
+                    return Optional.empty();
+                }
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                return Optional.empty();
+            }
+        }
+        return Optional.ofNullable((T) root);
     }
 }

@@ -22,6 +22,13 @@
          on how to target different products -->
 
     <depends>com.intellij.modules.lang</depends>
+
+    <depends optional="true">JavaScript</depends>
+
+
+    <!--
+    <depends optional="true" config-file="css-support.xml">com.intellij.css</depends>
+    -->
     <!--
     <depends>com.intellij.modules.javascript</depends>
     -->

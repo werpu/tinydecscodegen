@@ -21,3 +21,4 @@ out/
 !codegen_plugin/build/distributions/
 .gradle
 gradle
+codegen_plugin/libs/transient/*.jar

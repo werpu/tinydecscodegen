@@ -8,6 +8,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
+import utils.fs.IntellijFileContext;
+import utils.fs.TemplateFileContext;
+import utils.fs.TypescriptFileContext;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -54,7 +57,7 @@ public class ComponentFileContext extends TypescriptFileContext {
             return;
         }
         if(this.rangeMarker.isPresent()) {
-           rangeMarker = Optional.of(replaceText(document, rangeMarker.get(), text));
+           rangeMarker = Optional.of(replaceText(getDocument(), rangeMarker.get(), text));
         }
     }
 
@@ -65,7 +68,7 @@ public class ComponentFileContext extends TypescriptFileContext {
                     .filter(el -> PsiWalkFunctions.isTemplateString(el)).findFirst();
             if (templateString.isPresent()) {
                 this.templateText = templateString;
-                this.rangeMarker = Optional.of(document.createRangeMarker(templateString.get().getTextRange()));
+                this.rangeMarker = Optional.of(getDocument().createRangeMarker(templateString.get().getTextRange()));
             } else {
                 templateRef = getTemplateRef(template.get());
             }
@@ -116,7 +119,7 @@ public class ComponentFileContext extends TypescriptFileContext {
 
 
             //now we have an import string lets open a file on that one
-            TemplateFileContext ref = new TemplateFileContext(templateVarName, project, virtualFile.getParent().findFileByRelativePath(importstr));
+            TemplateFileContext ref = new TemplateFileContext(templateVarName, getProject(), getVirtualFile().getParent().findFileByRelativePath(importstr));
             if(!ref.getVirtualFile().exists()) {
                 return Optional.empty();
             }
@@ -159,7 +162,7 @@ public class ComponentFileContext extends TypescriptFileContext {
             templateRef.get().setTemplateText(newText);
             return;
         }
-        super.addRefactoring(new RefactorUnit(psiFile, this.templateText.get(), "`" + newText + "`"));
+        super.addRefactoring(new RefactorUnit(getPsiFile(), this.templateText.get(), "`" + newText + "`"));
     }
 
     @Override

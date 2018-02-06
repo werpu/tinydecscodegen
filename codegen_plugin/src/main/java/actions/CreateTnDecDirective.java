@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reflector.ComponentAttributesReflector;
 import utils.*;
+import utils.fs.IntellijFileContext;
 
 import javax.swing.*;
 import java.awt.*;

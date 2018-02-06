@@ -1,4 +1,4 @@
-package utils;
+package utils.fs;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.RangeMarker;
@@ -6,6 +6,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import utils.RefactorUnit;
+import utils.fs.TypescriptFileContext;
 
 import java.util.Optional;
 
@@ -31,7 +33,13 @@ JSFile:Dummy.ts(0,37)
 
  */
 
-public class TemplateFileContext extends TypescriptFileContext  {
+/**
+ * a file context pointing to a
+ * template.ts file
+ * which is a file which follows the structure
+ * export let template = '&lt;template text&gt;';
+ */
+public class TemplateFileContext extends TypescriptFileContext {
 
     private String refName;
 

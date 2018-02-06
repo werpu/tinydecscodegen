@@ -2,8 +2,10 @@ package utils;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import lombok.Getter;
 
-public class RefactorUnit {
+@Getter
+public class RefactorUnit implements IRefactorUnit {
 
     PsiFile file;
     PsiElement psiElement;
@@ -15,22 +17,12 @@ public class RefactorUnit {
         this.refactoredText = refactoredText;
     }
 
-    public PsiFile getFile() {
-        return file;
-    }
-
-    public PsiElement getPsiElement() {
-        return psiElement;
-    }
-
-    public String getRefactoredText() {
-        return refactoredText;
-    }
-
+    @Override
     public int getStartOffset() {
         return psiElement.getTextRange().getStartOffset();
     }
 
+    @Override
     public int getEndOffset() {
         return psiElement.getTextRange().getEndOffset();
     }

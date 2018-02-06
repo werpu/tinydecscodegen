@@ -33,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import reflector.ComponentAttributesReflector;
 import reflector.TransclusionReflector;
 import utils.*;
+import utils.fs.IntellijFileContext;
 
 import javax.swing.*;
 import java.awt.*;

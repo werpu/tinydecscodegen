@@ -19,7 +19,7 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package utils;
+package utils.fs;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -29,11 +29,12 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.encoding.EncodingRegistry;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import lombok.Getter;
+import utils.IRefactorUnit;
+import utils.IntellijUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -166,7 +167,7 @@ public class IntellijFileContext {
         return retVal;
     }
 
-    public void refactorContent(List<RefactorUnit> refactorings) throws IOException {
+    public void refactorContent(List<IRefactorUnit> refactorings) throws IOException {
         if(refactorings.isEmpty()) {
             return;
         }
@@ -176,12 +177,12 @@ public class IntellijFileContext {
         int end = 0;
         List<String> retVal = Lists.newArrayListWithCapacity(refactorings.size() * 2);
 
-        for (RefactorUnit refactoring : refactorings) {
+        for (IRefactorUnit refactoring : refactorings) {
             if (refactoring.getStartOffset() > 0 && end < refactoring.getStartOffset()) {
                 retVal.add(toSplit.substring(start, refactoring.getStartOffset()));
                 start = refactoring.getEndOffset();
             }
-            retVal.add(refactoring.refactoredText);
+            retVal.add(refactoring.getRefactoredText());
             end = refactoring.getEndOffset();
         }
         if(end < toSplit.length()) {
@@ -227,7 +228,7 @@ public class IntellijFileContext {
     }
 
 
-    public RefactorUnit refactorIn(Function<PsiFile, RefactorUnit> refactorHandler) {
+    public IRefactorUnit refactorIn(Function<PsiFile, IRefactorUnit> refactorHandler) {
         return refactorHandler.apply(this.psiFile);
     }
 

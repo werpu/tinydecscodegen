@@ -10,4 +10,13 @@ intellij {
 
 dependencies {
     compile project(':codegen')
+
+    testCompile fileTree(dir: 'libs/transient', include: '**/*.jar')
+    /*
+
+    for version 1.1, I plan to do a navigation visualisation on the supported frameworks
+    without running the app in a browser engine
+
+    compile group: 'org.jgrapht', name: 'jgrapht-core', version: '1.1.0'
+    */
 }

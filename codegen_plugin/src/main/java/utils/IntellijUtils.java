@@ -65,6 +65,7 @@ import reflector.TypescriptRestGenerator;
 import reflector.utils.ReflectUtils;
 import rest.GenericClass;
 import rest.RestService;
+import utils.fs.IntellijFileContext;
 
 import java.awt.*;
 import java.io.IOException;
@@ -556,7 +557,12 @@ public class IntellijUtils {
     @NotNull
     public static Collection<PsiFile> searchRefs(Project project, String refName, String extension) {
 
-        final Collection<PsiFile> foundFiles = Arrays.asList(PsiSearchHelper.SERVICE.getInstance(project).findCommentsContainingIdentifier("@ref: " + refName, GlobalSearchScope.everythingScope(project)))
+        String searchStr = "@ref: " + refName;
+        return searchFiles(project, extension, searchStr);
+    }
+
+    public static Collection<PsiFile> searchFiles(Project project, String extension, String searchStr) {
+        final Collection<PsiFile> foundFiles = Arrays.asList(PsiSearchHelper.SERVICE.getInstance(project).findCommentsContainingIdentifier(searchStr, GlobalSearchScope.everythingScope(project)))
                 .stream()
                 .filter(item -> item.getContainingFile().getFileType().getDefaultExtension().equalsIgnoreCase(extension))
                 .map(item -> item.getContainingFile())

@@ -1,7 +1,6 @@
 package actions.shared;
 
-import com.intellij.openapi.project.Project;
-import utils.IntellijFileContext;
+import utils.fs.IntellijFileContext;
 
 public class VisibleAssertions {
     public static boolean assertNotJavaRest(IntellijFileContext ctx) {

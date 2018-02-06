@@ -22,12 +22,13 @@ const aboutState: any = {name: 'firstpage', url: '/firstpage', component: FirstP
  * Main routes provider in this application
  */
 export let rootRoutesProvider = UIRouterModule.forRoot(
-  {
-    states: [defaultPageState, mainPageState, aboutState], //the currently implemented main routes
-    useHash: true,                //use the hashbang for old browser support
-    deferInitialRender: true,     //defer the initial rendering until the init code is done
-    otherwise: ""   //default state if there is no match
-  }
+    {
+        states: [defaultPageState, mainPageState, aboutState, {booga: aboutState}, "booga",
+            /*jgjggj*/ defaultPageState], //the currently implemented main routes
+        useHash: true,                //use the hashbang for old browser support
+        deferInitialRender: true,     //defer the initial rendering until the init code is done
+        otherwise: ""   //default state if there is no match
+    }
 );
 
 /**
@@ -39,9 +40,9 @@ export let rootRoutesProvider = UIRouterModule.forRoot(
  * @returns {ModuleWithProviders}
  */
 export function localRoutesProvider(routes ?: StatesModule): ModuleWithProviders {
-  if(!routes) {
-    return UIRouterModule.forChild({});
-  }
-  return UIRouterModule.forChild(routes);
+    if(!routes) {
+        return UIRouterModule.forChild({});
+    }
+    return UIRouterModule.forChild(routes);
 }
 

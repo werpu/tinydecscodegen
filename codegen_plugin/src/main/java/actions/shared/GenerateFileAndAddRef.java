@@ -27,6 +27,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import utils.*;
+import utils.fs.IntellijFileContext;
 
 import java.io.IOException;
 import java.util.Map;

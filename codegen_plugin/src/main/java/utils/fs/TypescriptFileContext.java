@@ -19,7 +19,7 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package utils;
+package utils.fs;
 
 import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -27,6 +27,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import reflector.utils.ReflectUtils;
+import utils.DummyInsertPsiElement;
+import utils.IRefactorUnit;
+import utils.IntellijUtils;
+import utils.RefactorUnit;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -41,7 +45,7 @@ import java.util.stream.Collectors;
  */
 public class TypescriptFileContext extends IntellijFileContext {
 
-    private List<RefactorUnit> refactorUnits = Lists.newArrayList();
+    private List<IRefactorUnit> refactorUnits = Lists.newArrayList();
 
     public TypescriptFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);

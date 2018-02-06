@@ -3,10 +3,8 @@ package actions;
 import actions.shared.JavaFileContext;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.project.Project;
-import utils.IntellijFileContext;
+import utils.fs.IntellijFileContext;
 
 import static actions.shared.VisibleAssertions.assertNotTs;
 

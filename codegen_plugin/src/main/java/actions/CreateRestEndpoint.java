@@ -26,7 +26,7 @@ import factories.TnDecGroupFactory;
 import gui.CreateRequestMapping;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.IntellijFileContext;
+import utils.fs.IntellijFileContext;
 import utils.IntellijUtils;
 import utils.PsiWalkFunctions;
 

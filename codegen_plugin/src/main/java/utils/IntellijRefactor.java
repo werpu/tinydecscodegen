@@ -1,26 +1,18 @@
 package utils;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import com.intellij.psi.codeStyle.CodeStyleManager;
-import dtos.NgModuleJson;
 import dtos.NgRootModuleJson;
 import org.jetbrains.annotations.NotNull;
 import refactor.TinyRefactoringUtils;
 import reflector.utils.ReflectUtils;
+import utils.fs.IntellijFileContext;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +27,7 @@ public class IntellijRefactor {
 
 
 
-    public static RefactorUnit generateAppendAfterImport(PsiFile origFile, String newImport) {
+    public static IRefactorUnit generateAppendAfterImport(PsiFile origFile, String newImport) {
         Pattern p = Pattern.compile("((import[^\\n\\;]+)\\s+[=from]+\\s+[^\\n\\;]+[\\n\\;])");
         Matcher m = p.matcher(origFile.getText());
         int end = 0;
@@ -50,7 +42,7 @@ public class IntellijRefactor {
 
 
     @NotNull
-    public static RefactorUnit refactorAddExport(String className, PsiFile module, PsiElement element) {
+    public static IRefactorUnit refactorAddExport(String className, PsiFile module, PsiElement element) {
         String elementText = element.getText();
         String rawData = elementText.substring(elementText.indexOf("(") + 1, elementText.lastIndexOf(")"));
         String refactoredData = NG_MODULE + "(" + appendExport(rawData, className) + ")";
@@ -59,7 +51,7 @@ public class IntellijRefactor {
     }
 
     @NotNull
-    public static RefactorUnit refactorAddImport(String className, PsiFile module, PsiElement element) {
+    public static IRefactorUnit refactorAddImport(String className, PsiFile module, PsiElement element) {
         String elementText = element.getText();
         String rawData = elementText.substring(elementText.indexOf("(") + 1, elementText.lastIndexOf(")"));
         String refactoredData = NG_MODULE + "(" + appendImport(rawData, className) + ")";
@@ -68,7 +60,7 @@ public class IntellijRefactor {
     }
 
     @NotNull
-    public static  RefactorUnit refactorAddDeclarations(String className, PsiFile module, PsiElement element) {
+    public static IRefactorUnit refactorAddDeclarations(String className, PsiFile module, PsiElement element) {
         String elementText = element.getText();
         String rawData = elementText.substring(elementText.indexOf("(") + 1, elementText.lastIndexOf(")"));
         String refactoredData = NG_MODULE + "(" + appendDeclare(rawData, className) + ")";
@@ -78,7 +70,7 @@ public class IntellijRefactor {
 
 
     @NotNull
-    public static  RefactorUnit refactorAddProvides(String className, PsiFile module, PsiElement element) {
+    public static IRefactorUnit refactorAddProvides(String className, PsiFile module, PsiElement element) {
         String elementText = element.getText();
         String rawData = elementText.substring(elementText.indexOf("(") + 1, elementText.lastIndexOf(")"));
         String refactoredData = NG_MODULE + "(" + appendProvides(rawData, className) + ")";
@@ -87,7 +79,7 @@ public class IntellijRefactor {
     }
 
 
-    public static RefactorUnit generateImport(String className, PsiFile module, String relativePath,String fileName) {
+    public static IRefactorUnit generateImport(String className, PsiFile module, String relativePath, String fileName) {
         if(fileName.endsWith(".ts")) {
             fileName = fileName.substring(0, fileName.length() - 3);
         }
@@ -168,11 +160,11 @@ public class IntellijRefactor {
         for (IntellijFileContext angularModule : annotatedModules) {
             String relativePath = fileContext.getVirtualFile().getPath().replaceAll(angularModule.getParent().get().getVirtualFile().getPath(), ".");
 
-            List<RefactorUnit> refactoringsToProcess = angularModule
+            List<IRefactorUnit> refactoringsToProcess = angularModule
                     .findPsiElements(PsiWalkFunctions::isNgModule)
                     .stream().map(refactorModuleDeclarations(angularModule, scope, className)).collect(Collectors.toList());
 
-            List<RefactorUnit> finalRefactorings = Lists.newArrayList();
+            List<IRefactorUnit> finalRefactorings = Lists.newArrayList();
 
 
             finalRefactorings.add(angularModule.refactorIn(psiFile -> IntellijRefactor.generateImport(className, psiFile, relativePath, fileName)));
@@ -189,7 +181,7 @@ public class IntellijRefactor {
     }
 
     @NotNull
-    public static Function<PsiElement, RefactorUnit> refactorModuleDeclarations(IntellijFileContext angularModule, ModuleElementScope scope, String className) {
+    public static Function<PsiElement, IRefactorUnit> refactorModuleDeclarations(IntellijFileContext angularModule, ModuleElementScope scope, String className) {
         return element -> {
             switch (scope) {
                 case EXPORT:
