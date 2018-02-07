@@ -46,7 +46,7 @@ public class RoutingTest extends LightCodeInsightFixtureTestCase {
 
         //TODO move this code to our main action
 
-        //Collection<PsiFile> psiFiles = IntellijUtils.searchFiles(myFixture.getProject(), "ts", "UIRouterModule.forRoot");
+        //Collection<PsiFile> psiFiles = IntellijUtils.searchComments(myFixture.getProject(), "ts", "UIRouterModule.forRoot");
 
 
         UIRoutesRoutesFileContext routesFileContext = new UIRoutesRoutesFileContext(prj, fs);

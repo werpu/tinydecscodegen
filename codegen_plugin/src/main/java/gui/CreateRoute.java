@@ -11,7 +11,7 @@ public class CreateRoute {
     private JTextField txtRouteName;
     private JTextField textField1;
     private JCheckBox cbSyncHref;
-    private JComboBox comboBox1;
+    private JComboBox cbComponent;
     private JPanel rootPanel;
 
     public CreateRoute() {

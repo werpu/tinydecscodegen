@@ -26,6 +26,7 @@
     <depends optional="true">JavaScript</depends>
 
 
+
     <!--
     <depends optional="true" config-file="css-support.xml">com.intellij.css</depends>
     -->
@@ -42,6 +43,9 @@
 
         <applicationService serviceInterface="configuration.ConfigSerializer"
                             serviceImplementation="configuration.ConfigSerializer"/>
+
+        <fileBasedIndex implementation="indexes.ComponentIndex" />
+        <fileBasedIndex implementation="indexes.ControllerIndex" />
 
     </extensions>
 

@@ -53,8 +53,8 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.PsiSearchHelper;
+import com.intellij.psi.search.*;
+import com.intellij.util.Processor;
 import configuration.ConfigSerializer;
 import gui.Confirm;
 import org.jetbrains.annotations.NotNull;
@@ -564,15 +564,42 @@ public class IntellijUtils {
     public static Collection<PsiFile> searchRefs(Project project, String refName, String extension) {
 
         String searchStr = "@ref: " + refName;
-        return searchFiles(project, extension, searchStr);
+        return searchComments(project, extension, searchStr);
     }
 
-    public static Collection<PsiFile> searchFiles(Project project, String extension, String searchStr) {
+    /**
+     * limit the search to files with comments
+     *
+     * @param project
+     * @param extension
+     * @param searchStr
+     * @return
+     */
+    public static Collection<PsiFile> searchComments(Project project, String extension, String searchStr) {
         final Collection<PsiFile> foundFiles = Arrays.asList(PsiSearchHelper.SERVICE.getInstance(project).findCommentsContainingIdentifier(searchStr, GlobalSearchScope.everythingScope(project)))
                 .stream()
-                .filter(item -> item.getContainingFile().getFileType().getDefaultExtension().equalsIgnoreCase(extension))
+                .filter(item -> item.getContainingFile().getFileType().getDefaultExtension().equals(extension))
                 .map(item -> item.getContainingFile())
                 .collect(Collectors.toSet());
+        return foundFiles;
+    }
+
+
+    public static Collection<PsiFile> searchFiles(Project project, String extension, String searchStr) {
+        List<PsiFile> foundFiles = Lists.newLinkedList();
+
+        PsiSearchHelper.SERVICE.getInstance(project).processAllFilesWithWord("", GlobalSearchScope.everythingScope(project),
+
+                (psiFile) -> {
+                    if(psiFile.getText().contains("@Component")) {
+                        foundFiles.add(psiFile);
+
+                    }
+                    return false;
+                }, true);
+
+
+
         return foundFiles;
     }
 }
