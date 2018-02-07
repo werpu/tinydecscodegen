@@ -135,32 +135,26 @@ public class CreateNgRoute extends AnAction {
 
         dialogWrapper.setTitle("Create Route");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
-        
+
         dialogWrapper.show();
 
 
         if (dialogWrapper.isOK()) {
-            //TODO perform refactoring operation here
-
-
             Route route = getRoute(mainForm);
             ComponentFileContext compContext = components[mainForm.getCbComponent().getSelectedIndex()];
-
 
             getRoutesFiles(fileContext)
                     .forEach(rContext -> {
                         //calculate the component include relative from the file
-                        Path routesFilePath = Paths.get(rContext.getVirtualFile().getParent().getPath());
-                        Path componentFilePath = Paths.get(compContext.getVirtualFile().getPath());
-                        Path relPath = routesFilePath.relativize(componentFilePath);
-                        route.setComponentPath("./" + relPath.toString());
-
+                        route.setComponentPath(compContext.calculateRelPathTo(rContext));
                         rContext.addRoute(route);
+
                         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
                             try {
                                 rContext.commit();
+                                PopupUtil.showBalloonForActiveFrame("The new route has been added", MessageType.INFO);
                             } catch (IOException e) {
-                                //TODO error handling
+                                PopupUtil.showBalloonForActiveFrame(e.getMessage(), MessageType.ERROR);
                                 e.printStackTrace();
                             }
                         });

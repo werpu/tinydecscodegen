@@ -37,6 +37,8 @@ import supportive.refactor.IRefactorUnit;
 import supportive.utils.IntellijUtils;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -84,6 +86,15 @@ public class IntellijFileContext {
 
     public String getModuleRelativePath() {
         return virtualFile.getPath().replaceAll(module.getModuleFile().getParent().getPath(), ".");
+    }
+
+    public String calculateRelPathTo(IntellijFileContext root) {
+        Path routesFilePath = Paths.get(root.getVirtualFile().isDirectory() ?
+                root.getVirtualFile().getPath():
+                root.getVirtualFile().getParent().getPath());
+        Path componentFilePath = Paths.get(getVirtualFile().getPath());
+        Path relPath = routesFilePath.relativize(componentFilePath);
+        return "./" + relPath.toString();
     }
 
 
