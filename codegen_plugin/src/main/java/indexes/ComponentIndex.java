@@ -10,6 +10,7 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import org.jetbrains.annotations.NotNull;
+import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,8 +28,8 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            //TODO full psi class detection
-            if (inputData.getContentAsText().toString().contains(COMPONENT)) {
+            if (inputData.getContentAsText().toString().contains(COMPONENT) &&
+                    PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isComponent, true).size() > 0) {
                 return Collections.singletonMap(COMPONENT, null);
             }
             return Collections.emptyMap();

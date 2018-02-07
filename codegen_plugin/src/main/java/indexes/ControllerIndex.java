@@ -10,10 +10,14 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import org.jetbrains.annotations.NotNull;
+import supportive.fs.ComponentFileContext;
+import supportive.fs.IntellijFileContext;
+import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ControllerIndex extends ScalarIndexExtension<String> {
@@ -28,12 +32,16 @@ public class ControllerIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            //TODO full psi class detection
             if ((inputData.getContentAsText().toString().contains(COMPONENT) &&
                     inputData.getFile().getPath().replaceAll("\\\\","/" ).contains("/pages/"))
                     || inputData.getContentAsText().toString().contains(CONTROLLER)) {
 
-                return Collections.singletonMap(CONTROLLER, null);
+
+                if(PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isComponent, true).size() > 0 ||
+                        PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isController, true).size() > 0) {
+                    return Collections.singletonMap(CONTROLLER, null);
+                }
+
             }
             return Collections.emptyMap();
 
@@ -83,4 +91,5 @@ public class ControllerIndex extends ScalarIndexExtension<String> {
                 .filter(vFile -> vFile != null)
                 .collect(Collectors.toList());
     }
+
 }

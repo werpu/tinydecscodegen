@@ -6,12 +6,14 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import com.intellij.psi.impl.source.tree.CompositeElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 
 import static supportive.reflectRefact.IntellijRefactor.NG_MODULE;
+import static supportive.utils.StringUtils.elVis;
 
 public class PsiWalkFunctions {
 
@@ -32,6 +34,13 @@ public class PsiWalkFunctions {
     public static final String NG_TYPE_COMPONENT = "Component";
     public static final String NG_TYPE_DIRECTIVE = "Directive";
     public static final String NG_TYPE_CONTROLLER = "Controller";
+    public static final String JS_REFERENCE_EXPRESSION = "JSReferenceExpression";
+    public static final String JS_ES_6_DECORATOR = "ES6Decorator";
+    public static final String NG_COMPONENT = "@Component";
+    public static final String TN_CONTROLLER = "@Controller";
+    public static final String TYPE_SCRIPT_CLASS = "TypeScriptClass";
+    public static final String PSI_METHOD = "PsiMethod:";
+    public static final String JS_ES_6_IMPORT_DECLARATION = "ES6ImportDeclaration";
 
 
     public static boolean isNgModule(PsiElement element) {
@@ -45,21 +54,20 @@ public class PsiWalkFunctions {
     }
 
     public static boolean isImport(PsiElement element) {
-        return element != null && element.toString().equals("ES6ImportDeclaration");
+        return element != null && element.toString().equals(JS_ES_6_IMPORT_DECLARATION);
     }
-
 
 
     public static boolean isMethod(PsiElement element) {
-        return element != null && element.toString().startsWith("PsiMethod:");
+        return element != null && element.toString().startsWith(PSI_METHOD);
     }
 
     public static boolean isClass(PsiElement element) {
-        return element != null && element.toString().startsWith("TypeScriptClass");
+        return element != null && element.toString().startsWith(TYPE_SCRIPT_CLASS);
     }
 
     /**
-     * detect a temmplate in the psi treee
+     * detect a template in the psi treee
      * <p>
      * a template is an element which has the js property template
      * and is embedded in a component or directive annotation
@@ -68,19 +76,16 @@ public class PsiWalkFunctions {
      * @return true if the element is a template element
      */
     public static boolean isTemplate(PsiElement element) {
-
-        if (element != null && getName(element).equals(JS_PROP_TYPE)
+        return (element != null
+                && getName(element).equals(JS_PROP_TYPE)
                 && getText(element).equals(JS_PROP_TEMPLATE)
-                && (isIn(element, NG_TYPE_COMPONENT) ||
-                isIn(element, NG_TYPE_DIRECTIVE) ||
-                isIn(element, NG_TYPE_CONTROLLER))) {
-            return true;
-        }
-        return false;
+                && (isIn(element, NG_TYPE_COMPONENT)
+                || isIn(element, NG_TYPE_DIRECTIVE)
+                || isIn(element, NG_TYPE_CONTROLLER)));
     }
 
     public static boolean isTemplateRef(PsiElement element) {
-        return element != null && element.toString().equals("JSReferenceExpression");
+        return element != null && element.toString().equals(JS_REFERENCE_EXPRESSION);
     }
 
     public static boolean isTemplateString(PsiElement element) {
@@ -89,23 +94,38 @@ public class PsiWalkFunctions {
 
     public static boolean isComponent(PsiElement element) {
         return element != null &&
-                element.toString().startsWith("ES6Decorator") &&
-                element.getText().startsWith("@Component");
+                element.toString().startsWith(JS_ES_6_DECORATOR) &&
+                element.getText().startsWith(NG_COMPONENT);
+    }
+
+    public static boolean isController(PsiElement element) {
+        return element != null &&
+                element.toString().startsWith(JS_ES_6_DECORATOR) &&
+                element.getText().startsWith(TN_CONTROLLER);
     }
 
     public static boolean isTypeScriptClass(PsiElement element) {
-        return element != null && element.toString().startsWith("TypeScriptClass");
+        return element != null && element.toString().startsWith(TYPE_SCRIPT_CLASS);
     }
 
     @NotNull
     private static String getText(PsiElement element) {
-        return ((CompositeElement) element.getNode()).getFirstChildNode().getText();
+        return (String) elVis(element, "node", "firstChildNode", "text").get();
     }
 
+
+    @Nullable
     private static String getName(PsiElement element) {
-        return element.getNode().getElementType().getClass().getName();
+        return (String) elVis(element, "node", "elementType", "class", "name").orElseGet(null);
     }
 
+    /**
+     * checks whether a certain string one of the psi elements
+     *
+     * @param element
+     * @param type
+     * @return
+     */
     private static boolean isIn(PsiElement element, String type) {
 
         for (int cnt = 0; cnt < 3; cnt++) {
@@ -120,6 +140,15 @@ public class PsiWalkFunctions {
         return (((CompositeElement) element.getNode())).getFirstChildNode().getText().equals(type);
     }
 
+    /**
+     * Psi file walker
+     * does the same as the other walkPsiTree method
+     *
+     * @param elem
+     * @param psiElementVisitor
+     * @param firstOnly
+     * @return
+     */
     public static List<PsiElement> walkPsiTree(PsiFile elem, Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly) {
         final List<PsiElement> retVal = new LinkedList<>();
         PsiRecursiveElementWalkingVisitor myElementVisitor = createPsiVisitor(psiElementVisitor, firstOnly, retVal);
@@ -128,6 +157,16 @@ public class PsiWalkFunctions {
         return retVal;
     }
 
+    /**
+     * standardized walk the tree function which takes
+     * a filter to prefilter the psi elements
+     * which then get processed from the outside
+     *
+     * @param elem
+     * @param psiElementVisitor
+     * @param firstOnly
+     * @return
+     */
     public static List<PsiElement> walkPsiTree(PsiElement elem, Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly) {
         final List<PsiElement> retVal = new LinkedList<>();
         PsiRecursiveElementWalkingVisitor myElementVisitor = createPsiVisitor(psiElementVisitor, firstOnly, retVal);
@@ -136,22 +175,31 @@ public class PsiWalkFunctions {
         return retVal;
     }
 
+    /**
+     * Standardized psi tree visitor
+     * used literally by all psi streams to walk the tree
+     *
+     * @param psiElementVisitor
+     * @param firstOnly
+     * @param retVal
+     * @return
+     */
     @NotNull
     public static PsiRecursiveElementWalkingVisitor createPsiVisitor(Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly, List<PsiElement> retVal) {
         return new PsiRecursiveElementWalkingVisitor() {
 
-                public void visitElement(PsiElement element) {
+            public void visitElement(PsiElement element) {
 
 
-                    if (psiElementVisitor.apply(element)) {
-                        retVal.add(element);
-                        if(firstOnly) {
-                            stopWalking();
-                        }
-                        return;
+                if (psiElementVisitor.apply(element)) {
+                    retVal.add(element);
+                    if (firstOnly) {
+                        stopWalking();
                     }
-                    super.visitElement(element);
+                    return;
                 }
-            };
+                super.visitElement(element);
+            }
+        };
     }
 }

@@ -2,6 +2,7 @@ package actions_ng;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.ValidationInfo;
@@ -110,6 +111,11 @@ public class CreateNgRoute extends AnAction {
 
         mainForm.getCbComponent().setModel(new ListComboBoxModel(Arrays.asList(selectorModel.getContextNames())));
 
+        List<ComponentFileContext> editorControllers = getControllers(fileContext);
+        if(editorControllers.size() > 0) {
+            mainForm.getCbComponent().setSelectedItem(editorControllers.stream().findFirst().get().getComponentClassName());
+        }
+
         dialogWrapper.setTitle("Create Route");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
         dialogWrapper.show();
@@ -129,6 +135,12 @@ public class CreateNgRoute extends AnAction {
         return foundFiles.stream().flatMap(psiFile -> ComponentFileContext.getInstances(new IntellijFileContext(rootContext.getProject(), psiFile)).stream())
                 .toArray(size -> new ComponentFileContext[size]);
 
+    }
+
+
+    //TODO element nearest
+    public static List<ComponentFileContext> getControllers(IntellijFileContext ctx) {
+        return ComponentFileContext.getInstances(ctx);
     }
 
     //List<IntellijFileContext> getPossibleComponentCandidates(IntellijFileContext rootContext) {
