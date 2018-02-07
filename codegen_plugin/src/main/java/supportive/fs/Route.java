@@ -1,27 +1,39 @@
 package supportive.fs;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Getter
-@AllArgsConstructor
-@RequiredArgsConstructor
 public class Route {
 
     @NonNull
     private String routeKey;
+
     @NonNull
+    @Setter
     private String url;
     @NonNull
     private String component;
 
-    String componentInclude;
+    @Setter
+    private String routeVarName;
 
+    String componentPath;
 
-    public String getRouteVarName() {
-        return routeKey.replaceAll("\\.", "_");
+    public Route(String routeKey, String url, String component) {
+        setRouteKey(routeKey);
+        this.url = url;
+        this.component = component;
+    }
+
+    public Route(String routeKey, String url, String component, String routeVarName, String componentPath) {
+        this(routeKey, url, component);
+        this.routeVarName = routeVarName;
+        this.componentPath = componentPath;
+    }
+
+    public void setRouteKey(String routeKey) {
+        this.routeKey = routeKey;
+        this.routeVarName = routeKey.replaceAll("\\.", "_");
     }
 
     public String toStringNg1() {
@@ -38,5 +50,23 @@ public class Route {
             return String.format(routeTemplatesSimple, getRouteVarName(), routeKey, url);
         }
 
+    }
+
+    public String toUrlDcl() {
+
+
+        String routeTemplatesSimple = "'%s'";
+        return String.format(routeTemplatesSimple,  url);
+
+    }
+
+    public void setComponentPath(String componentPath) {
+        this.componentPath = componentPath
+                .replaceAll("\\\\", "/")
+                .replaceAll("^(.*)\\.ts$", "$1");
+    }
+
+    public String getInclude() {
+        return String.format("import {%s} from \"%s\";", component, componentPath);
     }
 }

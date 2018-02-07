@@ -23,9 +23,10 @@ public class PsiElementContext {
 
     public PsiElementContext getRootElement() {
         PsiElement oldElement = null;
-        while(!element.toString().equals("JSFile")) {
-            oldElement = element;
-            element = element.getParent();
+        PsiElement currElement = element;
+        while(!currElement.toString().startsWith("JSFile")) {
+            oldElement = currElement;
+            currElement = currElement.getParent();
         }
         return new PsiElementContext(oldElement);
     }

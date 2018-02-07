@@ -41,6 +41,12 @@ public class PsiWalkFunctions {
     public static final String TYPE_SCRIPT_CLASS = "TypeScriptClass";
     public static final String PSI_METHOD = "PsiMethod:";
     public static final String JS_ES_6_IMPORT_DECLARATION = "ES6ImportDeclaration";
+    public static final String JS_CALL_EXPRESSION = "JSCallExpression";
+    public static final String JS_UIROUTER_MODULE_FOR_ROOT = "UIRouterModule.forRoot";
+    public static final String PSI_ELEMENT_JS_RBRACKET = "PsiElement(JS:RBRACKET)";
+    public static final String PSI_ELEMENT_JS_IDENTIFIER = "PsiElement(JS:IDENTIFIER)";
+    public static final String JS_PROPERTY = "JSProperty";
+    public static final String JS_ARRAY_LITERAL_EXPRESSION = "JSArrayLiteralExpression";
 
 
     public static boolean isNgModule(PsiElement element) {
@@ -55,6 +61,10 @@ public class PsiWalkFunctions {
 
     public static boolean isImport(PsiElement element) {
         return element != null && element.toString().equals(JS_ES_6_IMPORT_DECLARATION);
+    }
+
+    public static boolean isIdentifier(PsiElement element) {
+        return element != null && element.toString().startsWith(PSI_ELEMENT_JS_IDENTIFIER);
     }
 
 
@@ -201,5 +211,9 @@ public class PsiWalkFunctions {
                 super.visitElement(element);
             }
         };
+    }
+
+    public static boolean isRootNav(PsiElement el) {
+        return (el.toString().equals(JS_CALL_EXPRESSION)) && el.getText().startsWith(JS_UIROUTER_MODULE_FOR_ROOT);
     }
 }

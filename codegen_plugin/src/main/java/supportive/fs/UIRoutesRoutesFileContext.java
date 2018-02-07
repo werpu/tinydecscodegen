@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.RefactorUnit;
+import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,7 @@ import static supportive.utils.StringUtils.elVis;
  */
 public class UIRoutesRoutesFileContext extends TypescriptFileContext {
 
-    PsiElementContext routesDeclaration;
+
     PsiElementContext routesArr;
 
 
@@ -31,6 +32,7 @@ public class UIRoutesRoutesFileContext extends TypescriptFileContext {
         super(fileContext);
     }
 
+
     /**
      * adds a new route to the existing file
      * TODO also add the include if possible
@@ -38,25 +40,74 @@ public class UIRoutesRoutesFileContext extends TypescriptFileContext {
      * @param routeData
      */
     public void addRoute(Route routeData) {
-        addRefactoring(new RefactorUnit(super.getPsiFile(), new DummyInsertPsiElement(routesDeclaration.getElement().getTextOffset()), routeData.toStringNg2()));
+
+        //todo check if navvar already exists:
+        String origRouteVarName = routeData.getRouteVarName();
+        int cnt = 1;
+        while (isRouteVarNameUsed(routeData)) {
+            routeData.setRouteVarName(origRouteVarName + "_" + cnt);
+            cnt++;
+        }
+
+        cnt = 1;
+        String origUrl = routeData.getUrl();
+
+               
+        while (isUrlInUse(routeData)) {
+            routeData.setUrl(origUrl + "_" + cnt);
+            cnt++;
+        }
+
+        if (!getPsiFile().getText().contains(routeData.getInclude())) {
+            appendImport("\n" + routeData.getInclude());
+        }
+        addRefactoring(new RefactorUnit(super.getPsiFile(), new DummyInsertPsiElement(getRoutesDeclration().get().getRootElement().getElement().getTextOffset()), routeData.toStringNg2()));
         addNavVar(routeData.getRouteVarName());
+    }
+
+    public boolean isUrlInUse(Route routeData) {
+        return urlCheck(routeData, getPsiFile().getText());
+    }
+
+    public boolean isRouteVarNameUsed(Route routeData) {
+        return getNavigationalArray().get().findPsiElements(PsiWalkFunctions::isIdentifier).stream()
+                .filter(psiElementContext -> {
+                    return psiElementContext.getElement().getText().equals(routeData.getRouteVarName());
+                }).findAny().isPresent();
+    }
+
+    public boolean isRouteNameUsed(Route routeData) {
+        return getPsiFile().getText().contains("name: '"+routeData.getRouteKey()+"'");
+    }
+
+    public boolean urlCheck(Route routeData, String fullText) {
+        return fullText.contains(
+                //TODO more lenient space, or psi
+                routeData.toUrlDcl()) ||
+                fullText.contains(routeData.toUrlDcl()
+                        .replaceAll("'", "\""));
+    }
+
+    @NotNull
+    public Optional<PsiElementContext> getRoutesDeclration() {
+
+        List<PsiElement> els = findPsiElements(PsiWalkFunctions::isRootNav);
+        return els.stream().map(el -> new PsiElementContext(el)).findFirst();
     }
 
 
     @NotNull
     public Optional<PsiElementContext> getNavigationalArray() {
 
-        List<PsiElement> els = findPsiElements(el -> {
-            return (el.toString().equals("JSCallExpression")) && el.getText().startsWith("UIRouterModule.forRoot");
-        });
+        List<PsiElement> els = findPsiElements(PsiWalkFunctions::isRootNav);
         return els.stream().map(el -> new PsiElementContext(el))
-                .flatMap(elc -> elc.findPsiElements(el -> el.toString().equals("JSProperty") && elVis(el, "nameIdentifier", "text").isPresent() && elVis(el, "nameIdentifier", "text").get().equals("states")).stream())
-                .map(elc -> elc.findPsiElement(el -> el.toString().equals("JSArrayLiteralExpression"))).findFirst().get();
+                .flatMap(elc -> elc.findPsiElements(el -> el.toString().startsWith(PsiWalkFunctions.JS_PROPERTY) && elVis(el, "nameIdentifier", "text").isPresent() && elVis(el, "nameIdentifier", "text").get().equals("states")).stream())
+                .map(elc -> elc.findPsiElement(el -> el.toString().startsWith(PsiWalkFunctions.JS_ARRAY_LITERAL_EXPRESSION))).findFirst().get();
     }
 
     public void addNavVar(String varName) {
         Optional<PsiElementContext> closingBracket = getEndOfNavArr();
-        if(closingBracket.isPresent()) {
+        if (closingBracket.isPresent()) {
             addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(closingBracket.get().getElement().getTextOffset()), ", " + varName));
         }
     }
@@ -67,7 +118,10 @@ public class UIRoutesRoutesFileContext extends TypescriptFileContext {
 
         //find the last closing bracket
         return Optional.ofNullable(navArr
-                .findPsiElements(el -> el.toString().equals("PsiElement(JS:RBRACKET)")).stream() //TODO type check once debugged out
+                .findPsiElements(el -> el.toString().equals(PsiWalkFunctions.PSI_ELEMENT_JS_RBRACKET)).stream() //TODO type check once debugged out
                 .reduce((first, second) -> second).orElse(null));
     }
+
+
+    //only one route el per file allowed atm
 }

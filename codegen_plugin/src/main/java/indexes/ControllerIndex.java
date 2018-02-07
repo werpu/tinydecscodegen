@@ -88,7 +88,7 @@ public class ControllerIndex extends ScalarIndexExtension<String> {
                 GlobalSearchScope.projectScope(project)).stream()
                 .filter(VirtualFile::isValid)
                 .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
-                .filter(vFile -> vFile != null)
+                .filter(psiFile -> psiFile != null)
                 .collect(Collectors.toList());
     }
 
