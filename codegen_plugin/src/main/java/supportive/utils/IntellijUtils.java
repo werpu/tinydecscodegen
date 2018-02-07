@@ -429,8 +429,8 @@ public class IntellijUtils {
         return file;
     }
 
-    public static void handleEx(IOException e) {
-        PopupUtil.showBalloonForActiveFrame(e.getMessage(), MessageType.ERROR);
+    public static void handleEx(Project prj, IOException e) {
+        com.intellij.openapi.ui.Messages.showErrorDialog(prj,"Error", e.getMessage());
         e.printStackTrace();
         throw new RuntimeException(e);
     }

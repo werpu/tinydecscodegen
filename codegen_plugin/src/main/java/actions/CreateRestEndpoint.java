@@ -66,7 +66,7 @@ public class CreateRestEndpoint extends AnAction implements DumbAware {
     public void actionPerformed(AnActionEvent event) {
 
         if (event.getData(PlatformDataKeys.EDITOR) == null) {
-            PopupUtil.showBalloonForActiveFrame("No editor found, please focus on an open source file", MessageType.ERROR);
+            com.intellij.openapi.ui.Messages.showErrorDialog(event.getProject(),"Error", "No editor found, please focus on an open source file");
             return;
         }
         JavaFileContext javaData = new JavaFileContext(event);

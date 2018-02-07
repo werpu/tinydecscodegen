@@ -7,9 +7,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.ui.popup.util.PopupUtil;
 import com.intellij.psi.PsiJavaFile;
 import supportive.fs.IntellijFileContext;
 import supportive.utils.IntellijUtils;
@@ -35,8 +33,8 @@ public class ServiceGenerateActionFromSource extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        if(event.getData(PlatformDataKeys.EDITOR) == null) {
-            PopupUtil.showBalloonForActiveFrame("No editor found, please focus on an open source file", MessageType.ERROR);
+        if (event.getData(PlatformDataKeys.EDITOR) == null) {
+            com.intellij.openapi.ui.Messages.showErrorDialog(event.getProject(), "Error", "No editor found, please focus on an open source file");
             return;
         }
 
@@ -45,8 +43,8 @@ public class ServiceGenerateActionFromSource extends AnAction {
 
         try {
             IntellijUtils.fileNameTransformer = new NgFileNameTransformer("service");
-            IntellijUtils.generateService(javaData.getProject(), javaData.getModule(),(PsiJavaFile) javaData.getJavaFile(), true);
-        } catch (RuntimeException |  ClassNotFoundException e) {
+            IntellijUtils.generateService(javaData.getProject(), javaData.getModule(), (PsiJavaFile) javaData.getJavaFile(), true);
+        } catch (RuntimeException | ClassNotFoundException e) {
             log.error(e);
             Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions.Messages.ERR_OCCURRED);
         }

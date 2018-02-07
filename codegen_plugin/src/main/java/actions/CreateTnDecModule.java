@@ -153,7 +153,7 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
                     finalFolder = folder.createChildDirectory(project, getModuleName(className));
 
                 } catch (IOException e) {
-                    IntellijUtils.handleEx(e);
+                    IntellijUtils.handleEx(project, e);
                     return;
                 }
             }
@@ -166,7 +166,7 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
                     finalFolder.createChildDirectory(project, "components");
                     finalFolder.createChildDirectory(project, "shared");
                 } catch (IOException e) {
-                    IntellijUtils.handleEx(e);
+                    IntellijUtils.handleEx(project, e);
                     return;
                 }
 

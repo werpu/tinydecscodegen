@@ -117,7 +117,7 @@ public class CreateNgRoute extends AnAction {
         if (components.length == 0) {
 
             String message = "There was no component found, cannot create route automatically, please create it manually";
-            PopupUtil.showBalloonForActiveFrame(message, MessageType.ERROR);
+            com.intellij.openapi.ui.Messages.showErrorDialog(fileContext.getProject(), "Error",message);
             return;
         }
 
@@ -154,7 +154,7 @@ public class CreateNgRoute extends AnAction {
                                 rContext.commit();
                                 PopupUtil.showBalloonForActiveFrame("The new route has been added", MessageType.INFO);
                             } catch (IOException e) {
-                                PopupUtil.showBalloonForActiveFrame(e.getMessage(), MessageType.ERROR);
+                                com.intellij.openapi.ui.Messages.showErrorDialog(fileContext.getProject(), "Error", e.getMessage());
                                 e.printStackTrace();
                             }
                         });

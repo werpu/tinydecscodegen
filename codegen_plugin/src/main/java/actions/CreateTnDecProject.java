@@ -160,7 +160,7 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
 
                 } catch (IOException e) {
-                    PopupUtil.showBalloonForActiveFrame(e.getMessage(), MessageType.ERROR);
+                    com.intellij.openapi.ui.Messages.showErrorDialog(project,"Error", e.getMessage());
                     e.printStackTrace();
                 } finally {
                     ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
