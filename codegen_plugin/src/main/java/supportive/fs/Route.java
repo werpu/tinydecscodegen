@@ -52,14 +52,6 @@ public class Route {
 
     }
 
-    public String toUrlDcl() {
-
-
-        String routeTemplatesSimple = "'%s'";
-        return String.format(routeTemplatesSimple,  url);
-
-    }
-
     public void setComponentPath(String componentPath) {
         this.componentPath = componentPath
                 .replaceAll("\\\\", "/")

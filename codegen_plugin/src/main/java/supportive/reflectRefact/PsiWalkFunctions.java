@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static supportive.reflectRefact.IntellijRefactor.NG_MODULE;
@@ -23,6 +24,7 @@ public class PsiWalkFunctions {
     public static final String JS_DECORATOR_IMPL = "com.intellij.lang.typescript.psi.impl.ES6DecoratorImpl";
     public static final String JS_STRING_TYPE = "com.intellij.lang.javascript.types.JSStringTemplateExpressionElementType";
 
+
     //under investigation
     public static final String JS_IMPORT_DCL = "com.intellij.lang.typescript.psi.impl.ES6ImportDeclaration";
     public static final String JS_IMPORT_SPEC = "com.intellij.lang.typescript.psi.impl.ES6ImportSpecifier";
@@ -35,18 +37,27 @@ public class PsiWalkFunctions {
     public static final String NG_TYPE_DIRECTIVE = "Directive";
     public static final String NG_TYPE_CONTROLLER = "Controller";
     public static final String JS_REFERENCE_EXPRESSION = "JSReferenceExpression";
+    public static final String JS_EXPRESSION_STATEMENT = "JSExpressionStatement";
+    public static final String JS_BLOCK_ELEMENT = "JSBlockElement";
     public static final String JS_ES_6_DECORATOR = "ES6Decorator";
     public static final String NG_COMPONENT = "@Component";
+    public static final String NG_INJECT = "@Inject";
+    public static final String TN_CONFIG = "@Config";
     public static final String TN_CONTROLLER = "@Controller";
     public static final String TYPE_SCRIPT_CLASS = "TypeScriptClass";
+    public static final String TYPE_SCRIPT_PARAM = "TypeScriptParameter";
+    public static final String TYPE_SCRIPT_FUNC = "TypeScriptFunction";
     public static final String PSI_METHOD = "PsiMethod:";
     public static final String JS_ES_6_IMPORT_DECLARATION = "ES6ImportDeclaration";
     public static final String JS_CALL_EXPRESSION = "JSCallExpression";
     public static final String JS_UIROUTER_MODULE_FOR_ROOT = "UIRouterModule.forRoot";
+    public static final String TN_UIROUTER_MODULE_FOR_ROOT = "TN_RootRouter";
     public static final String PSI_ELEMENT_JS_RBRACKET = "PsiElement(JS:RBRACKET)";
     public static final String PSI_ELEMENT_JS_IDENTIFIER = "PsiElement(JS:IDENTIFIER)";
+    public static final String PSI_ELEMENT_JS_STRING_LITERAL = "PsiElement(JS:STRING_LITERAL)";
     public static final String JS_PROPERTY = "JSProperty";
     public static final String JS_ARRAY_LITERAL_EXPRESSION = "JSArrayLiteralExpression";
+    public static final String JS_ARGUMENTS_LIST = "JSArgumentsList";
 
 
     public static boolean isNgModule(PsiElement element) {
@@ -67,6 +78,10 @@ public class PsiWalkFunctions {
         return element != null && element.toString().startsWith(PSI_ELEMENT_JS_IDENTIFIER);
     }
 
+    public static boolean isStringLiteral(PsiElement element) {
+        return element != null && element.toString().startsWith(PSI_ELEMENT_JS_STRING_LITERAL);
+    }
+
 
     public static boolean isMethod(PsiElement element) {
         return element != null && element.toString().startsWith(PSI_METHOD);
@@ -74,6 +89,18 @@ public class PsiWalkFunctions {
 
     public static boolean isClass(PsiElement element) {
         return element != null && element.toString().startsWith(TYPE_SCRIPT_CLASS);
+    }
+
+    public static boolean isTypeScriptFunc(PsiElement element) {
+        return element != null && element.toString().startsWith(TYPE_SCRIPT_FUNC);
+    }
+
+    public static boolean isJSExpressionStatement(PsiElement element) {
+        return element != null && element.toString().startsWith(JS_EXPRESSION_STATEMENT);
+    }
+
+    public static boolean isJSArgumentsList(PsiElement element) {
+        return element != null && element.toString().startsWith(JS_ARGUMENTS_LIST);
     }
 
     /**
@@ -108,14 +135,36 @@ public class PsiWalkFunctions {
                 element.getText().startsWith(NG_COMPONENT);
     }
 
+    public static boolean isTnConfig(PsiElement element) {
+        return element != null &&
+                element.toString().startsWith(JS_ES_6_DECORATOR) &&
+                element.getText().startsWith(TN_CONFIG);
+    }
+
     public static boolean isController(PsiElement element) {
         return element != null &&
                 element.toString().startsWith(JS_ES_6_DECORATOR) &&
                 element.getText().startsWith(TN_CONTROLLER);
     }
 
+
+    public static boolean isInject(PsiElement element) {
+        return element != null &&
+                element.toString().startsWith(JS_ES_6_DECORATOR) &&
+                element.getText().startsWith(NG_INJECT);
+    }
+
+
     public static boolean isTypeScriptClass(PsiElement element) {
         return element != null && element.toString().startsWith(TYPE_SCRIPT_CLASS);
+    }
+
+    public static boolean isTypeScriptParam(PsiElement element) {
+        return element != null && element.toString().startsWith(TYPE_SCRIPT_PARAM);
+    }
+
+    public static boolean isJSBlock(PsiElement element) {
+        return element != null && element.toString().startsWith(JS_BLOCK_ELEMENT);
     }
 
     @NotNull
@@ -163,6 +212,31 @@ public class PsiWalkFunctions {
         final List<PsiElement> retVal = new LinkedList<>();
         PsiRecursiveElementWalkingVisitor myElementVisitor = createPsiVisitor(psiElementVisitor, firstOnly, retVal);
         myElementVisitor.visitFile(elem);
+
+        return retVal;
+    }
+
+    public static Optional<PsiElement> walkParent(PsiElement element, Function<PsiElement, Boolean> psiElementVisitor) {
+        PsiElement walkElem = element;
+        do {
+            if (psiElementVisitor.apply(walkElem)) {
+                return Optional.of(walkElem);
+            }
+            walkElem = walkElem.getParent();
+        } while (walkElem != null);
+
+        return Optional.empty();
+    }
+
+    public static List<PsiElement> walkParents(PsiElement element, Function<PsiElement, Boolean> psiElementVisitor) {
+        PsiElement walkElem = element;
+        List<PsiElement> retVal = new LinkedList<>();
+        do {
+            if (psiElementVisitor.apply(walkElem)) {
+                retVal.add(walkElem);
+            }
+            walkElem = walkElem.getParent();
+        } while (walkElem != null);
 
         return retVal;
     }

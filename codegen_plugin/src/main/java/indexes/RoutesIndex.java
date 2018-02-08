@@ -22,7 +22,7 @@ import static supportive.reflectRefact.PsiWalkFunctions.JS_UIROUTER_MODULE_FOR_R
 
 public class RoutesIndex extends ScalarIndexExtension<String> {
 
-    public static final ID<String, Void> NAME = ID.create("MainRoutesIndex");
+    public static final ID<String, Void> NAME = ID.create("TN_NG_MainRoutesIndex");
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 
     private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {

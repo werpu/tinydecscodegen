@@ -43,6 +43,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static supportive.fs.AngularVersion.NG;
+import static supportive.fs.AngularVersion.TN_DEC;
 import static supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
 
 /**
@@ -54,6 +56,7 @@ import static supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
  * often it is overly convoluted to juggle both levels
  * Hence we are going to introduce a context wich does most of the juggling
  */
+
 
 @Getter
 public class IntellijFileContext {
@@ -241,5 +244,36 @@ public class IntellijFileContext {
          }
 
          PsiDirectoryFactory.getInstance(project).createDirectory(newDir.getVirtualFile()).add(this.psiFile);
+    }
+
+    /**
+     * dectecs thr angular version with a package.json in its root
+     * @return
+     */
+    public Optional<AngularVersion> getAngularVersion() {
+        Optional<IntellijFileContext> fileContext = findFirstUpwards(psiFile -> psiFile.getVirtualFile().getName().equals("package.json")).stream().findFirst();
+
+        if(!fileContext.isPresent()) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(fileContext.get().getPsiFile().getText().contains("\"@angular/core\"") ?  NG : TN_DEC);
+    }
+
+    public Optional<IntellijFileContext> getAngularRoot() {
+        Optional<IntellijFileContext> fileContext = findFirstUpwards(psiFile -> psiFile.getVirtualFile().getName().equals("package.json")).stream().findFirst();
+
+        if(!fileContext.isPresent()) {
+            return Optional.empty();
+        }
+
+        return fileContext.get().getParent();
+    }
+
+    public boolean isChildOf(IntellijFileContext ctx) {
+        Path child =  Paths.get(getVirtualFile().isDirectory() ? this.getVirtualFile().getPath() : this.getVirtualFile().getParent().getPath());
+        Path parent = Paths.get(ctx.getVirtualFile().isDirectory() ? ctx.getVirtualFile().getPath() : ctx.getVirtualFile().getParent().getPath());
+
+        return child.startsWith(parent);
     }
 }

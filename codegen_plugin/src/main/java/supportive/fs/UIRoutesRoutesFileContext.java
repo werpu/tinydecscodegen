@@ -13,12 +13,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static supportive.utils.StringUtils.elVis;
+import static supportive.utils.StringUtils.literalContains;
 
 /**
  * helper context to deal with routes and subroutes
  * in a single file
  */
-public class UIRoutesRoutesFileContext extends TypescriptFileContext {
+public class UIRoutesRoutesFileContext extends TypescriptFileContext implements IUIRoutesRoutesFileContext {
 
 
     PsiElementContext routesArr;
@@ -39,6 +40,7 @@ public class UIRoutesRoutesFileContext extends TypescriptFileContext {
      *
      * @param routeData
      */
+    @Override
     public void addRoute(Route routeData) {
 
         //todo check if navvar already exists:
@@ -65,27 +67,24 @@ public class UIRoutesRoutesFileContext extends TypescriptFileContext {
         addNavVar(routeData.getRouteVarName());
     }
 
+    @Override
     public boolean isUrlInUse(Route routeData) {
         return urlCheck(routeData, getPsiFile().getText());
     }
 
+    @Override
     public boolean isRouteVarNameUsed(Route routeData) {
         return getNavigationalArray().get().findPsiElements(PsiWalkFunctions::isIdentifier).stream()
-                .filter(psiElementContext -> {
-                    return psiElementContext.getElement().getText().equals(routeData.getRouteVarName());
-                }).findAny().isPresent();
+                .filter(psiElementContext -> psiElementContext.getElement().getText().equals(routeData.getRouteVarName())).findAny().isPresent();
     }
 
+    @Override
     public boolean isRouteNameUsed(Route routeData) {
         return getPsiFile().getText().contains("name: '"+routeData.getRouteKey()+"'");
     }
 
     public boolean urlCheck(Route routeData, String fullText) {
-        return fullText.contains(
-                //TODO more lenient space, or psi
-                routeData.toUrlDcl()) ||
-                fullText.contains(routeData.toUrlDcl()
-                        .replaceAll("'", "\""));
+        return literalContains(fullText, routeData.getUrl());
     }
 
     @NotNull

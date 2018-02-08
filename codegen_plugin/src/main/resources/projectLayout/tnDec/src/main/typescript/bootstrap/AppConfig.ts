@@ -6,10 +6,8 @@ import {ILocationProvider} from "angular";
 
 @Config()
 export class AppConfig {
-    constructor(@Inject("$locationProvider") private $locationProvider: ILocationProvider,
-                @Inject("$routeProvider") private $routeProvider: any) {
+    constructor(@Inject("$locationProvider") private $locationProvider: ILocationProvider) {
         $locationProvider.hashPrefix('!');
-        $routeProvider.otherwise({redirectTo: '/view1'});
-        console.log("config called");
+        //place your application config here
     }
 }

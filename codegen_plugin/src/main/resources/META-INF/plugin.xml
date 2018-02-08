@@ -47,6 +47,7 @@
         <fileBasedIndex implementation="indexes.ComponentIndex" />
         <fileBasedIndex implementation="indexes.ControllerIndex" />
         <fileBasedIndex implementation="indexes.RoutesIndex" />
+        <fileBasedIndex implementation="indexes.TNRoutesIndex" />
 
     </extensions>
 

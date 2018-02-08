@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 public class ControllerIndex extends ScalarIndexExtension<String> {
 
-    public static final ID<String, Void> NAME = ID.create("ControllerIndex");
+    public static final ID<String, Void> NAME = ID.create("TN_NG_ControllerIndex");
     public static final String COMPONENT = "@Component";
     public static final String CONTROLLER = "@Controller";
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();

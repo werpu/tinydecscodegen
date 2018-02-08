@@ -2,6 +2,7 @@ package supportive.utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,5 +76,21 @@ public class StringUtils {
             }
         }
         return Optional.ofNullable((T) root);
+    }
+
+    public static boolean literalEquals(String literal, String contentToCompare) {
+        return ("\""+contentToCompare+"\"").equals(literal) || ("'"+contentToCompare+"'").equals(literal);
+    }
+
+    public static boolean literalContains(String literal, String contentToCompare) {
+        return literal.contains("\""+contentToCompare+"\"") || literal.contains("'"+contentToCompare+"'");
+    }
+
+    public static boolean findWithSpaces(String probe, String ...params) {
+
+        String rexp = Arrays.asList(params).stream().map(s -> s.replaceAll("([^A-Za-z0-9])+", "\\\\$1")).reduce((s1, s2) -> s1+"\\s*"+s2).get();
+
+        Matcher m = Pattern.compile(rexp).matcher(probe);
+        return m.find();
     }
 }

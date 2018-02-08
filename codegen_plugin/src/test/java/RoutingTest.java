@@ -2,10 +2,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.junit.Test;
-import supportive.fs.PsiElementContext;
-import supportive.fs.ComponentFileContext;
-import supportive.fs.UIRoutesRoutesFileContext;
-import supportive.fs.Route;
+import supportive.fs.*;
 
 import java.util.Optional;
 
@@ -67,6 +64,25 @@ public class RoutingTest extends LightCodeInsightFixtureTestCase {
         Route route = new Route("my.route", "/myroute", "MyComponent");
 
         assertTrue(route.toStringNg2().replaceAll("\\s", "").startsWith("letmy_route={name:'my.route',url:'/myroute',component:MyComponent}"));
+    }
+
+
+    @Test
+    public void testTNRouting() throws Exception {
+        if (!assertTestable()) {
+            return;
+        }
+        PsiFile fs = myFixture.configureByFile("TN_Routes.ts");
+        Project prj = myFixture.getProject();
+
+        TNUIRoutesRoutesFileContext fileContext = new TNUIRoutesRoutesFileContext(prj, fs);
+
+        Route route = new Route("my.route", "/myroute", "MyComponent");
+
+
+        fileContext.addRoute(route);
+
+        //assertTrue(route.toStringNg2().replaceAll("\\s", "").startsWith("letmy_route={name:'my.route',url:'/myroute',component:MyComponent}"));
     }
 
 
