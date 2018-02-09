@@ -22,8 +22,8 @@ import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import supportive.utils.IntellijUtils;
 import supportive.dtos.ModuleElementScope;
+import supportive.utils.IntellijUtils;
 import supportive.utils.StringUtils;
 
 import javax.swing.*;

@@ -1,6 +1,8 @@
 package supportive.fs.common;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 
 import java.io.Serializable;
 

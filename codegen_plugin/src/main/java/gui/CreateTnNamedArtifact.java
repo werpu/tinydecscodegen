@@ -21,7 +21,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package gui;
 
-import com.google.common.base.Strings;
 import dtos.ComponentJson;
 import gui.support.RequiredListener;
 import lombok.Getter;

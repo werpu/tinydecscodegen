@@ -25,8 +25,8 @@ import gui.CreateRequestMapping;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.IntellijFileContext;
-import supportive.utils.IntellijUtils;
 import supportive.reflectRefact.PsiWalkFunctions;
+import supportive.utils.IntellijUtils;
 
 import javax.swing.*;
 import java.io.IOException;

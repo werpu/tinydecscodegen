@@ -81,6 +81,7 @@ public class ControllerIndex extends ScalarIndexExtension<String> {
     }
 
     public static List<PsiFile> getAllControllerFiles(Project project) {
+        //Todo filter accordinf to the root dir od the subproject
         return FileBasedIndex.getInstance().getContainingFiles(NAME, CONTROLLER,
                 GlobalSearchScope.projectScope(project)).stream()
                 .filter(VirtualFile::isValid)

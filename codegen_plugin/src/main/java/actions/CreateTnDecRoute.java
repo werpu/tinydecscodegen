@@ -1,7 +1,7 @@
-package actions_ng;
+package actions;
 
-import actions.Messages;
 import actions.shared.ComponentSelectorModel;
+import actions_ng.CreateNgRoute;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -13,6 +13,7 @@ import com.intellij.psi.PsiFile;
 import gui.CreateRoute;
 import indexes.ControllerIndex;
 import indexes.RoutesIndex;
+import indexes.TNRoutesIndex;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,15 +33,13 @@ import java.util.stream.Stream;
 
 import static actions.shared.FormAssertions.*;
 
-public class CreateNgRoute extends AnAction {
-
-
+public class CreateTnDecRoute extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
-
         IntellijFileContext fileContext = new IntellijFileContext(event);
         final gui.CreateRoute mainForm = new gui.CreateRoute();
         ComponentSelectorModel selectorModel = null;
+
 
         DialogWrapper dialogWrapper = new DialogWrapper(fileContext.getProject(), true, DialogWrapper.IdeModalityType.PROJECT) {
 
@@ -64,7 +63,8 @@ public class CreateNgRoute extends AnAction {
                 UIRoutesRoutesFileContext ctx = RoutesIndex.getAllMainRoutes(fileContext.getProject()).stream()
                         .map(psiFile -> new UIRoutesRoutesFileContext(fileContext.getProject(), psiFile)).findAny().get();
 
-                return CreateNgRoute.this.validate(route, ctx, mainForm);
+
+                return CreateTnDecRoute.this.validate(route, ctx, mainForm);
             }
 
 
@@ -86,7 +86,7 @@ public class CreateNgRoute extends AnAction {
         if (components.length == 0) {
 
             String message = "There was no component found, cannot create route automatically, please create it manually";
-            com.intellij.openapi.ui.Messages.showErrorDialog(fileContext.getProject(), "Error",message);
+            com.intellij.openapi.ui.Messages.showErrorDialog(fileContext.getProject(), "Error", message);
             return;
         }
 
@@ -129,9 +129,10 @@ public class CreateNgRoute extends AnAction {
                         });
                     });
         }
-
     }
 
+
+    //dedup this code
     protected List<ValidationInfo> validate(Route route, UIRoutesRoutesFileContext ctx, CreateRoute mainForm) {
         return Arrays.asList(
                 assertNotNullOrEmpty(mainForm.getTxtRouteName().getText(), Messages.ERR_NAME_VALUE, mainForm.getTxtRouteName()),
@@ -142,27 +143,25 @@ public class CreateNgRoute extends AnAction {
     }
 
     public Stream<UIRoutesRoutesFileContext> getRoutesFiles(IntellijFileContext fileContext) {
-        return RoutesIndex.getAllMainRoutes(fileContext.getProject()).stream()
+        return TNRoutesIndex.getAllMainRoutes(fileContext.getProject()).stream()
                 .map(psiFile -> new UIRoutesRoutesFileContext(fileContext.getProject(), psiFile));
     }
 
     @NotNull
     public Route getRoute(CreateRoute mainForm) {
         return new Route(
-                        mainForm.getTxtRouteName().getText(),
-                        mainForm.getTxtHref().getText(),
-                        (String) mainForm.getCbComponent().getSelectedItem());
+                mainForm.getTxtRouteName().getText(),
+                mainForm.getTxtHref().getText(),
+                (String) mainForm.getCbComponent().getSelectedItem());
     }
-
 
     protected ComponentFileContext[] findAllPageComponents(IntellijFileContext rootContext) {
         List<PsiFile> foundFiles = ControllerIndex.getAllControllerFiles(rootContext.getProject());
 
-        return foundFiles.stream().flatMap(psiFile -> ComponentFileContext.getInstances(new IntellijFileContext(rootContext.getProject(), psiFile)).stream())
+        return foundFiles.stream().flatMap(psiFile -> supportive.fs.common.ComponentFileContext.getInstances(new IntellijFileContext(rootContext.getProject(), psiFile)).stream())
                 .toArray(size -> new ComponentFileContext[size]);
 
     }
-
 
     //TODO element nearest
     public static List<ComponentFileContext> getControllers(IntellijFileContext ctx) {

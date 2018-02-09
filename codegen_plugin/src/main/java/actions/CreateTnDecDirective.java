@@ -44,9 +44,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static actions.Messages.ERR_ELTYPE_SEL;
 import static actions.shared.FormAssertions.assertNotNullOrEmpty;
 import static actions.shared.FormAssertions.assertPattern;
-import static actions.Messages.ERR_ELTYPE_SEL;
 import static reflector.TransclusionReflector.getPossibleTransclusionSlots;
 import static reflector.TransclusionReflector.hasTransclude;
 

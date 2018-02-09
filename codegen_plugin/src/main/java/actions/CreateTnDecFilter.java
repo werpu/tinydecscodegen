@@ -21,8 +21,8 @@ import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import supportive.utils.IntellijUtils;
 import supportive.dtos.ModuleElementScope;
+import supportive.utils.IntellijUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,9 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static actions.shared.FormAssertions.VALID_NAME;
-import static actions.shared.FormAssertions.assertNotNullOrEmpty;
-import static actions.shared.FormAssertions.assertPattern;
+import static actions.shared.FormAssertions.*;
 
 /**
  * Create a Tiny Decs filter artifact.

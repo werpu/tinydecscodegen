@@ -8,8 +8,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
-import supportive.reflectRefact.PsiWalkFunctions;
 import supportive.refactor.RefactorUnit;
+import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.io.IOException;
 import java.util.Arrays;

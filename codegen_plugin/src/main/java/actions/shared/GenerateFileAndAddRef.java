@@ -33,7 +33,7 @@ import supportive.utils.IntellijUtils;
 import java.io.IOException;
 import java.util.Map;
 
-import static supportive.reflectRefact.IntellijRefactor.*;
+import static supportive.reflectRefact.IntellijRefactor.appendDeclarationToModule;
 
 /**
  * A reusable runnable which generates the final file

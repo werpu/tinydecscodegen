@@ -22,7 +22,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package gui;
 
 import com.google.common.base.Strings;
-import com.intellij.openapi.editor.EditorFactory;
 import dtos.ComponentJson;
 import gui.support.RegexpFormatter;
 import gui.support.RequiredListener;

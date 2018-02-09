@@ -15,6 +15,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.MessageType;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.ui.popup.util.PopupUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -24,8 +25,8 @@ import factories.TnDecGroupFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.IntellijResourceDir;
-import supportive.utils.IntellijUtils;
 import supportive.fs.common.TextTransformer;
+import supportive.utils.IntellijUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,7 +39,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import com.intellij.openapi.ui.Messages;
 
 import static actions.shared.FormAssertions.assertNotNullOrEmpty;
 
