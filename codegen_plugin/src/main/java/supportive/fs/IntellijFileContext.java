@@ -21,6 +21,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package supportive.fs;
 
+import clojure.lang.ArraySeq;
+import clojure.lang.Obj;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -34,14 +36,18 @@ import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import lombok.Getter;
 import supportive.refactor.IRefactorUnit;
+import supportive.reflectRefact.PsiWalkFunctions;
 import supportive.utils.IntellijUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static supportive.fs.AngularVersion.NG;
 import static supportive.fs.AngularVersion.TN_DEC;
@@ -275,5 +281,10 @@ public class IntellijFileContext {
         Path parent = Paths.get(ctx.getVirtualFile().isDirectory() ? ctx.getVirtualFile().getPath() : ctx.getVirtualFile().getParent().getPath());
 
         return child.startsWith(parent);
+    }
+
+
+    public Stream<PsiElementContext> queryContent(Object ... items) {
+        return PsiWalkFunctions.queryContent(this.getPsiFile(), items);
     }
 }

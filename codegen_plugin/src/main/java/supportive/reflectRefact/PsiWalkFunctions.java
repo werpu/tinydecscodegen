@@ -1,20 +1,28 @@
 package supportive.reflectRefact;
 
 import com.google.common.base.Strings;
+import com.intellij.openapi.externalSystem.service.execution.NotSupportedException;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import com.intellij.psi.impl.source.tree.CompositeElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import supportive.fs.PsiElementContext;
+import supportive.utils.StringUtils;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static supportive.reflectRefact.IntellijRefactor.NG_MODULE;
 import static supportive.utils.StringUtils.elVis;
+import static supportive.utils.StringUtils.listeralStartsWith;
+import static supportive.utils.StringUtils.literalEquals;
 
 public class PsiWalkFunctions {
 
@@ -39,6 +47,7 @@ public class PsiWalkFunctions {
     public static final String JS_REFERENCE_EXPRESSION = "JSReferenceExpression";
     public static final String JS_EXPRESSION_STATEMENT = "JSExpressionStatement";
     public static final String JS_BLOCK_ELEMENT = "JSBlockElement";
+    public static final String JS_BLOCK_STATEMENT = "JSBlockStatement";
     public static final String JS_ES_6_DECORATOR = "ES6Decorator";
     public static final String NG_COMPONENT = "@Component";
     public static final String NG_INJECT = "@Inject";
@@ -49,6 +58,8 @@ public class PsiWalkFunctions {
     public static final String TYPE_SCRIPT_FUNC = "TypeScriptFunction";
     public static final String PSI_METHOD = "PsiMethod:";
     public static final String JS_ES_6_IMPORT_DECLARATION = "ES6ImportDeclaration";
+    public static final String JS_ES_6_IMPORT_SPECIFIER = "ES6ImportSpecifier";
+
     public static final String JS_CALL_EXPRESSION = "JSCallExpression";
     public static final String JS_UIROUTER_MODULE_FOR_ROOT = "UIRouterModule.forRoot";
     public static final String TN_UIROUTER_MODULE_FOR_ROOT = "TN_RootRouter";
@@ -57,7 +68,7 @@ public class PsiWalkFunctions {
     public static final String PSI_ELEMENT_JS_STRING_LITERAL = "PsiElement(JS:STRING_LITERAL)";
     public static final String JS_PROPERTY = "JSProperty";
     public static final String JS_ARRAY_LITERAL_EXPRESSION = "JSArrayLiteralExpression";
-    public static final String JS_ARGUMENTS_LIST = "JSArgumentsList";
+    public static final String JS_ARGUMENTS_LIST = "JSArgumentList";
 
 
     public static boolean isNgModule(PsiElement element) {
@@ -164,7 +175,11 @@ public class PsiWalkFunctions {
     }
 
     public static boolean isJSBlock(PsiElement element) {
-        return element != null && element.toString().startsWith(JS_BLOCK_ELEMENT);
+        return element != null && element.toString().startsWith(JS_BLOCK_STATEMENT);
+    }
+
+    public static Predicate<PsiElement> P_JSBlock() {
+        return psiElement -> isJSBlock(psiElement);
     }
 
     @NotNull
@@ -241,6 +256,19 @@ public class PsiWalkFunctions {
         return retVal;
     }
 
+    public static List<PsiElementContext> walkParents(PsiElementContext element, Function<PsiElementContext, Boolean> psiElementVisitor) {
+        PsiElementContext walkElem = element;
+        List<PsiElementContext> retVal = new LinkedList<>();
+        do {
+            if (psiElementVisitor.apply(walkElem)) {
+                retVal.add(walkElem);
+            }
+            walkElem = new PsiElementContext(walkElem.getElement().getParent());
+        } while (walkElem.getElement() != null);
+
+        return retVal;
+    }
+
     /**
      * standardized walk the tree function which takes
      * a filter to prefilter the psi elements
@@ -289,5 +317,143 @@ public class PsiWalkFunctions {
 
     public static boolean isRootNav(PsiElement el) {
         return (el.toString().equals(JS_CALL_EXPRESSION)) && el.getText().startsWith(JS_UIROUTER_MODULE_FOR_ROOT);
+    }
+
+    public static Stream<PsiElementContext> queryContent(PsiFile file, Object... items) {
+        Stream<PsiElementContext> subItem = Arrays.asList(file).stream().map(item -> new PsiElementContext(item));
+        return _query(subItem, items);
+    }
+
+    public static Stream<PsiElementContext> queryContent(PsiElement element, Object... items) {
+        Stream<PsiElementContext> subItem = Arrays.asList(new PsiElementContext(element)).stream();
+        return _query(subItem, items);
+    }
+
+    /**
+     * A simple query facility to redude code
+     *
+     *
+     * Syntax
+     *
+     * query: command*
+     * command: ElementType | SIMPLE_COMMAND | CONSUMER | PREDICATE | FUNCTION
+     *
+     * ElementyType: char*
+     * SIMPLE_COMMAND: > | :FIRST | TEXT:(<char *>) | TEXT*:(<char *>)
+     * PREDICATE ...: Function as defined by Java
+     *
+     *
+     * @param subItem
+     * @param items
+     * @return
+     */
+    private static Stream<PsiElementContext> _query(Stream<PsiElementContext> subItem, Object[] items) {
+        boolean directChild = false;
+        for (Object item : items) {
+            //shortcut. we can skip  processing at empty subitems
+
+            if (item instanceof String) {
+                subItem = privateDistinctEl(subItem); //lets reduce mem consumption by distincting the subset results
+
+                final String text = (String) item;
+                String subCommand = (text).trim();
+                directChild = (text).startsWith(">");
+                if(item instanceof  String && (text).matches("^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$")) {
+                    Pattern p = Pattern.compile("^\\s*TEXTs*\\:\\s*\\((.*)\\)\\s*$");
+                    subItem = subItem.filter(psiElementContext -> {
+
+                        Matcher m = p.matcher(text);
+                        if (!m.find()) {
+                            return false;
+                        }
+                        String matchText = m.group(1);
+                        boolean literalEquals = false;
+                        if (matchText.matches("^[\\\"\\'](.*)[\\\"\\']$")) {
+                            matchText = matchText.substring(1, matchText.length() - 1);
+                            literalEquals = true;
+                        }
+
+                        return literalEquals ? literalEquals(psiElementContext.getText(), matchText) : matchText.equals(psiElementContext.getText());
+                    });
+                    break;
+                } else if(item instanceof  String && (text).matches("^\\s*TEXT\\*\\s*\\:\\s*\\((.*)\\)\\s*$")) {
+                        Pattern p = Pattern.compile("^\\s*TEXT\\*\\s*\\:\\s*\\((.*)\\)\\s*$");
+                        subItem = subItem.filter(psiElementContext -> {
+
+                            Matcher m = p.matcher(text);
+                            if(!m.find()) {
+                                return false;
+                            }
+                            String matchText = m.group(1);
+
+                            return listeralStartsWith(psiElementContext.getText(), matchText) || psiElementContext.getText().startsWith(matchText);
+                        });
+                        break;
+
+
+                } else if (directChild) {
+                    subCommand = subCommand.substring(1).trim();
+                    if (subCommand.trim().isEmpty()) {
+                        //issued in sep query
+                        continue;
+                    } else {
+                        directChild = false;
+                    }
+                }
+
+                final String finalSubCommand = subCommand;
+                if (subCommand.toLowerCase().equals(":first")) {
+                    PsiElementContext firstItem = subItem.findFirst().orElse(null);
+                    if (firstItem != null) {
+                        subItem = Arrays.asList(firstItem).stream();
+                    } else {
+                        subItem = emptyStream();
+                    }
+                } else if (subCommand.equals(":PARENTS")) {
+                    subItem = subItem.flatMap(theItem -> theItem.parents().stream());
+                } else if (subCommand.equals(":LAST")) {
+                    Optional<PsiElementContext> reduced = subItem.reduce((theItem, theItem2) -> theItem2);
+                    if(reduced.isPresent()) {
+                        subItem = Arrays.asList(reduced.get()).stream();
+                    } else {
+                        subItem = Collections.<PsiElementContext>emptyList().stream();
+                    }
+
+                } else if (directChild) {
+                    subItem = subItem.filter(psiItem -> psiItem.getName().startsWith(finalSubCommand));
+                } else {
+                    subItem = subItem.flatMap(psiItem -> psiItem.findPsiElements(psiElement -> psiElement.toString().startsWith(finalSubCommand)).stream());
+                }
+            } else if (item instanceof Consumer) {
+                subItem.forEach(elem -> {
+                    ((Consumer) item).accept(elem);
+                });
+                subItem = emptyStream();
+            } else if (item instanceof Predicate) {
+                subItem = subItem.filter(elem -> ((Predicate) item).test(elem));
+            } else if (item instanceof Function) {
+                subItem = subItem.map(elem -> ((Function<PsiElementContext, PsiElementContext>) item).apply(elem));
+            } else {
+                throw new RuntimeException("Undefined query mapping");
+            }
+        }
+
+        return privateDistinctEl(subItem);
+    }
+
+    static private Stream<PsiElementContext> privateDistinctEl(Stream<PsiElementContext> inStr) {
+        final Set<PsiElementContext> elIdx = new HashSet<>();
+        return inStr.filter(el -> {
+            if(elIdx.contains(el)) {
+                return false;
+            } else {
+                elIdx.add(el);
+                return true;
+            }
+        });
+    }
+
+    private static <T> Stream<T> emptyStream() {
+        return Collections.<T>emptyList().stream();
     }
 }

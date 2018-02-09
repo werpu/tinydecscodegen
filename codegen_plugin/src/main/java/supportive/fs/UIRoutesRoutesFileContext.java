@@ -43,26 +43,17 @@ public class UIRoutesRoutesFileContext extends TypescriptFileContext implements 
     @Override
     public void addRoute(Route routeData) {
 
-        //todo check if navvar already exists:
-        String origRouteVarName = routeData.getRouteVarName();
-        int cnt = 1;
-        while (isRouteVarNameUsed(routeData)) {
-            routeData.setRouteVarName(origRouteVarName + "_" + cnt);
-            cnt++;
-        }
+        routeData.setComponent(appendImport(routeData.getComponent(), routeData.getComponentPath()));
 
-        cnt = 1;
+        int cnt = 1;
         String origUrl = routeData.getUrl();
 
-               
         while (isUrlInUse(routeData)) {
             routeData.setUrl(origUrl + "_" + cnt);
             cnt++;
         }
 
-        if (!getPsiFile().getText().contains(routeData.getInclude())) {
-            appendImport("\n" + routeData.getInclude());
-        }
+
         addRefactoring(new RefactorUnit(super.getPsiFile(), new DummyInsertPsiElement(getRoutesDeclration().get().getRootElement().getElement().getTextOffset()), routeData.toStringNg2()));
         addNavVar(routeData.getRouteVarName());
     }

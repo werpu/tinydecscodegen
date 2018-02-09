@@ -2,8 +2,10 @@ package supportive.fs;
 
 import lombok.*;
 
+import java.io.Serializable;
+
 @Getter
-public class Route {
+public class Route implements Cloneable, Serializable{
 
     @NonNull
     private String routeKey;
@@ -11,7 +13,9 @@ public class Route {
     @NonNull
     @Setter
     private String url;
+
     @NonNull
+    @Setter
     private String component;
 
     @Setter

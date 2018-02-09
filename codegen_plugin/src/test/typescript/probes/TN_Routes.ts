@@ -4,7 +4,8 @@
 import {View1} from "../module1/View1";
 import {Config, Inject} from "TinyDecorations";
 import {MetaData} from "Routing";
-import {View2} from "../module2/View2";
+import {View2 as xxx} from "../module2/View2";
+
 
 /**
  * @meta: rootRouteConfig

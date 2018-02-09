@@ -77,12 +77,21 @@ public class RoutingTest extends LightCodeInsightFixtureTestCase {
 
         TNUIRoutesRoutesFileContext fileContext = new TNUIRoutesRoutesFileContext(prj, fs);
 
-        Route route = new Route("my.route", "/myroute", "MyComponent");
+        assertTrue(fileContext.getConstructors().size() > 0);
+
+        Route route = new Route("my.route",  "/MyComponent", "MyComponent", "MyComponentVar","./MyComponent.ts");
+        Route route2 = new Route("my.route2", "/view2", "MyComponent");
+
 
 
         fileContext.addRoute(route);
 
-        //assertTrue(route.toStringNg2().replaceAll("\\s", "").startsWith("letmy_route={name:'my.route',url:'/myroute',component:MyComponent}"));
+        assertFalse(fileContext.isRouteNameUsed(route));
+        assertTrue(fileContext.isUrlInUse(route2));
+
+        assertTrue(true);
+        assertTrue(fileContext.getRefactorUnits().size() == 2);
+
     }
 
 

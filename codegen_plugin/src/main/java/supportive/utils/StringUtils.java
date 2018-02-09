@@ -86,6 +86,10 @@ public class StringUtils {
         return literal.contains("\""+contentToCompare+"\"") || literal.contains("'"+contentToCompare+"'");
     }
 
+    public static boolean listeralStartsWith(String literal, String contentToCompare) {
+        return literal.startsWith("\""+contentToCompare) || literal.startsWith("'"+contentToCompare);
+    }
+
     public static boolean findWithSpaces(String probe, String ...params) {
 
         String rexp = Arrays.asList(params).stream().map(s -> s.replaceAll("([^A-Za-z0-9])+", "\\\\$1")).reduce((s1, s2) -> s1+"\\s*"+s2).get();
@@ -93,4 +97,6 @@ public class StringUtils {
         Matcher m = Pattern.compile(rexp).matcher(probe);
         return m.find();
     }
+
+
 }

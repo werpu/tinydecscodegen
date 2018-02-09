@@ -26,6 +26,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import reflector.utils.ReflectUtils;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.IRefactorUnit;
@@ -35,9 +37,13 @@ import supportive.refactor.RefactorUnit;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static supportive.reflectRefact.PsiWalkFunctions.*;
 
 /**
  * special file context for typescript files
@@ -45,6 +51,7 @@ import java.util.stream.Collectors;
  */
 public class TypescriptFileContext extends IntellijFileContext {
 
+    @Getter
     private List<IRefactorUnit> refactorUnits = Lists.newArrayList();
 
     public TypescriptFileContext(Project project, PsiFile psiFile) {
@@ -92,9 +99,68 @@ public class TypescriptFileContext extends IntellijFileContext {
     }
 
 
+    /**
+     * a more refined append import, which checks for an existing import and if it exists
+     * then stops the import otherwise it checks for an existing typescript variable
+     * and renames it if needed
+     *
+     * @param plannedVariable
+     * @param importPath
+     *
+     * @return the final name of the import variable
+     *
+     */
+    public String appendImport(String plannedVariable, String importPath) {
+        //case a check for the same pattern as our existing import
+        return appendImport(plannedVariable, "", importPath);
+    }
+
+    private String appendImport(String plannedVariable, String varPostfix, String importPath) {
+        String varToCheck = plannedVariable + varPostfix;
+        List<PsiElementContext> importIdentifiers  = this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:("+varToCheck+")").collect(Collectors.toList());
+        boolean varDefined = importIdentifiers.size() > 0;
+        boolean importFullyExists = importIdentifiers.stream()
+                .filter(importPathMatch(importPath))
+                .findFirst().isPresent();
+        if(importFullyExists) {
+            return plannedVariable;
+        }
+        else if(varDefined) {
+            varPostfix = varPostfix.replaceAll("[^0-9]+", "");
+            int currentPostFixIdx = varPostfix.isEmpty() ? 0 : Integer.parseInt(varPostfix);
+            currentPostFixIdx++;
+            appendImport(plannedVariable, "_"+currentPostFixIdx, importPath);
+
+        } else {
+            Optional<PsiElementContext> lastImport = this.queryContent(JS_ES_6_IMPORT_DECLARATION).reduce((import1, import2) -> import2);
+            int insertPos = 0;
+            if(lastImport.isPresent()) {
+                insertPos = lastImport.get().getTextOffset() + lastImport.get().getTextLength();
+            }
+
+            String insert = varPostfix.isEmpty() ?
+                    "\nimport {%s} from \"%s\";" :
+                    "\nimport {%s as %s} from \"%s\";" ;
+
+            insert = varPostfix.isEmpty() ? String.format(insert, plannedVariable,importPath) :
+                                            String.format(insert, plannedVariable, plannedVariable+ varPostfix, importPath);
+
+
+            addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(insertPos), insert));
+        }
+        return plannedVariable+varPostfix;
+    }
+
+    @NotNull
+    public Predicate<PsiElementContext> importPathMatch(String importPath) {
+        return importIdentifier -> importIdentifier.queryContent(":PARENTS", JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:('"+importPath+"')").findFirst().isPresent();
+    }
+
+
     public void addRefactoring(RefactorUnit unit) {
         this.refactorUnits.add(unit);
     }
+
 
 
     @Override

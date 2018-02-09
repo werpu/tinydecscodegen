@@ -7,12 +7,10 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import supportive.reflectRefact.PsiWalkFunctions;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
 import static supportive.utils.StringUtils.elVis;
@@ -25,7 +23,7 @@ public class PsiElementContext {
 
 
     public String getName() {
-        return (String) elVis(element,"element", "name").orElse("");
+        return (String) elVis(element,"name").orElse("");
     }
 
     public String getText() {
@@ -84,6 +82,10 @@ public class PsiElementContext {
         return retVal;
     }
 
+    public List<PsiElementContext> parents() {
+        return this.walkParents(el -> true);
+    }
+
     public List<PsiElementContext> walkParents(Function<PsiElement, Boolean> psiElementVisitor) {
         return PsiWalkFunctions.walkParents(getElement(), psiElementVisitor).stream()
                 .map(PsiElementContext::new)
@@ -108,4 +110,20 @@ public class PsiElementContext {
         return retVal.stream().map(el -> new PsiElementContext(el)).collect(Collectors.toList());
     }
 
+    public Stream<PsiElementContext> queryContent(Object ... items) {
+        return PsiWalkFunctions.queryContent(this.getElement(), items);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PsiElementContext that = (PsiElementContext) o;
+        return Objects.equals(element.getTextOffset(), that.element.getTextOffset()) && Objects.equals(element.getText(), that.element.getText());
+    }
+
+    @Override
+    public int hashCode() {
+        return element.getTextOffset()*100000+element.getText().hashCode();
+    }
 }
