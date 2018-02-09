@@ -27,7 +27,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import supportive.dtos.ModuleElementScope;
-import supportive.fs.IntellijFileContext;
+import supportive.fs.common.IntellijFileContext;
 import supportive.utils.IntellijUtils;
 
 import java.io.IOException;

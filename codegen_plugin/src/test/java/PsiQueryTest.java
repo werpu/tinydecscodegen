@@ -2,8 +2,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.junit.Test;
-import supportive.fs.IntellijFileContext;
-import supportive.fs.PsiElementContext;
+import supportive.fs.common.IntellijFileContext;
+import supportive.fs.common.PsiElementContext;
 
 import java.util.Optional;
 import java.util.stream.Collectors;

@@ -19,7 +19,7 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package supportive.fs;
+package supportive.fs.common;
 
 import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnActionEvent;

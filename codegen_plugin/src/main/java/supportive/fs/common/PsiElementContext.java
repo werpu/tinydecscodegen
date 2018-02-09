@@ -1,4 +1,4 @@
-package supportive.fs;
+package supportive.fs.common;
 
 import com.intellij.psi.PsiElement;
 import lombok.AllArgsConstructor;

@@ -32,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reflector.ComponentAttributesReflector;
 import supportive.dtos.ModuleElementScope;
-import supportive.fs.IntellijFileContext;
+import supportive.fs.common.IntellijFileContext;
 import supportive.utils.StringUtils;
 import supportive.utils.SwingUtils;
 

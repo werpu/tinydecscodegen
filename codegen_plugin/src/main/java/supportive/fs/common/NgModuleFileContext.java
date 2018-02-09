@@ -4,8 +4,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import supportive.fs.IntellijFileContext;
-import supportive.fs.TypescriptFileContext;
 
 /**
  * placeholder for a module file context

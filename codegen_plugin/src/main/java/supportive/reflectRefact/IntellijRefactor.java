@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import refactor.TinyRefactoringUtils;
 import reflector.utils.ReflectUtils;
 import supportive.dtos.ModuleElementScope;
-import supportive.fs.IntellijFileContext;
+import supportive.fs.common.IntellijFileContext;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.IRefactorUnit;
 import supportive.refactor.RefactorUnit;

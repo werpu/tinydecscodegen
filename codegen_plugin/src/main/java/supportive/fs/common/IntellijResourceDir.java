@@ -1,4 +1,4 @@
-package supportive.fs;
+package supportive.fs.common;
 
 import com.google.common.io.ByteStreams;
 

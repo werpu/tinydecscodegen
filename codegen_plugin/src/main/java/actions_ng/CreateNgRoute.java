@@ -19,8 +19,8 @@ import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.ComponentFileContext;
-import supportive.fs.IntellijFileContext;
-import supportive.fs.Route;
+import supportive.fs.common.IntellijFileContext;
+import supportive.fs.common.Route;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
 import supportive.utils.StringUtils;
 

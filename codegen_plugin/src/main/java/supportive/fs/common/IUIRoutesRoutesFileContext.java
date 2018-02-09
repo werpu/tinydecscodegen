@@ -1,7 +1,5 @@
 package supportive.fs.common;
 
-import supportive.fs.Route;
-
 /**
  * common interface for all route context classes
  */

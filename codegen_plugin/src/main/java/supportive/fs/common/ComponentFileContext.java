@@ -8,9 +8,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
-import supportive.fs.IntellijFileContext;
-import supportive.fs.TemplateFileContext;
-import supportive.fs.TypescriptFileContext;
 import supportive.reflectRefact.PsiWalkFunctions;
 import supportive.refactor.RefactorUnit;
 

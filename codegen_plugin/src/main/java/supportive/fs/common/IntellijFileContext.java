@@ -19,7 +19,7 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package supportive.fs;
+package supportive.fs.common;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -33,7 +33,6 @@ import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import lombok.Getter;
-import supportive.fs.common.AngularVersion;
 import supportive.refactor.IRefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
 import supportive.utils.IntellijUtils;

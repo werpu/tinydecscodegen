@@ -1,15 +1,13 @@
 package supportive.reflectRefact;
 
 import com.google.common.base.Strings;
-import com.intellij.openapi.externalSystem.service.execution.NotSupportedException;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import com.intellij.psi.impl.source.tree.CompositeElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import supportive.fs.PsiElementContext;
-import supportive.utils.StringUtils;
+import supportive.fs.common.PsiElementContext;
 
 import java.util.*;
 import java.util.function.Consumer;

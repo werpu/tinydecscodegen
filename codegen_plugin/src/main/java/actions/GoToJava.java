@@ -4,7 +4,7 @@ import actions.shared.JavaFileContext;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import supportive.fs.IntellijFileContext;
+import supportive.fs.common.IntellijFileContext;
 
 import static actions.shared.VisibleAssertions.assertNotTs;
 

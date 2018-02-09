@@ -14,9 +14,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.openapi.ui.popup.util.PopupUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
 import com.jgoodies.common.base.Strings;
@@ -26,7 +24,7 @@ import factories.TnDecGroupFactory;
 import gui.CreateRequestMapping;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import supportive.fs.IntellijFileContext;
+import supportive.fs.common.IntellijFileContext;
 import supportive.utils.IntellijUtils;
 import supportive.reflectRefact.PsiWalkFunctions;
 

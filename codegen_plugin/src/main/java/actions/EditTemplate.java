@@ -40,7 +40,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.ComponentFileContext;
-import supportive.fs.IntellijFileContext;
+import supportive.fs.common.IntellijFileContext;
 import supportive.utils.IntellijUtils;
 
 import javax.swing.*;

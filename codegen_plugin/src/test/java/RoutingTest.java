@@ -2,8 +2,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.junit.Test;
-import supportive.fs.*;
 import supportive.fs.common.ComponentFileContext;
+import supportive.fs.common.PsiElementContext;
+import supportive.fs.common.Route;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNUIRoutesRoutesFileContext;
 
