@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 import org.junit.Test;
 import probes.TestProbeController;
-import refactor.TinyRefactoringUtils;
 import reflector.SpringJavaRestReflector;
 import reflector.TypescriptRestGenerator;
 import rest.RestService;
@@ -85,8 +84,5 @@ public class TemplateTest {
         assertTrue(true);
     }
 
-    @Test
-    public void TestBasicRefaxctoring() {
-        assertTrue(TinyRefactoringUtils.ngModuleAddDeclare("Booga", probe).indexOf("Booga") > 0);
-    }
+
 }

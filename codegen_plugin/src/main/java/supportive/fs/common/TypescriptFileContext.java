@@ -28,19 +28,16 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import reflector.utils.ReflectUtils;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.IRefactorUnit;
-import supportive.utils.IntellijUtils;
 import supportive.refactor.RefactorUnit;
+import supportive.utils.IntellijUtils;
 
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static supportive.reflectRefact.PsiWalkFunctions.*;
@@ -48,6 +45,19 @@ import static supportive.reflectRefact.PsiWalkFunctions.*;
 /**
  * special file context for typescript files
  * which has typescript refactoring capabilities
+ *
+ * The idea is to have a context with parsing and refactoring capabilities.
+ * The refactoring is done by storing a chain of refactorings
+ * and once the chain is done we basically make a transactional commit
+ *
+ * The parsing originally was done via streams but that
+ * basically produced to much code which was hard to read.
+ * Hence I simplified 90% of all parsing cases by introducing
+ * a simple query api on top of the streams.
+ *
+ * Note this api will be refined and improved, this ia a first
+ * quick hack to get the job done for 1.0.
+ *
  */
 public class TypescriptFileContext extends IntellijFileContext {
 
@@ -73,32 +83,6 @@ public class TypescriptFileContext extends IntellijFileContext {
     }
 
 
-    public TypescriptFileContext generateImport(String className, PsiFile module, String relativePath) {
-        String reducedClassName = ReflectUtils.reduceClassName(className);
-        String importStatement = "\nimport {" + reducedClassName + "} from \"" + relativePath + "/" + reducedClassName + "\";";
-        if(module.getText().contains(importStatement)) { //skip if existing
-            refactorUnits.add(new RefactorUnit(module, new DummyInsertPsiElement(0), ""));
-            return this;
-        }
-        return appendImport(importStatement);
-    }
-
-
-    public TypescriptFileContext appendImport(String newImport) {
-        Pattern p = Pattern.compile("((import[^\\n\\;]+)\\s+[=from]+\\s+[^\\n\\;]+[\\n\\;])");
-        Matcher m = p.matcher(psiFile.getText());
-        int end = 0;
-
-        while (m.find())
-        {
-            end = m.end(1);
-        }
-
-        refactorUnits.add(new RefactorUnit(psiFile, new DummyInsertPsiElement(end), newImport));
-        return this;
-    }
-
-
     /**
      * a more refined append import, which checks for an existing import and if it exists
      * then stops the import otherwise it checks for an existing typescript variable
@@ -115,6 +99,16 @@ public class TypescriptFileContext extends IntellijFileContext {
         return appendImport(plannedVariable, "", importPath);
     }
 
+
+    /**
+     * recursive append import algorith, which tries to detect
+     * doubles or imports having the same import variable name but a different import
+     *
+     * @param plannedVariable
+     * @param varPostfix
+     * @param importPath
+     * @return
+     */
     private String appendImport(String plannedVariable, String varPostfix, String importPath) {
         String varToCheck = plannedVariable + varPostfix;
         List<PsiElementContext> importIdentifiers  = this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:("+varToCheck+")").collect(Collectors.toList());
@@ -162,7 +156,12 @@ public class TypescriptFileContext extends IntellijFileContext {
     }
 
 
-
+    /**
+     * central commit handler to perform all refactorings on the
+     * source base this context targets
+     *
+     * @throws IOException
+     */
     @Override
     public void commit() throws IOException {
 
@@ -172,12 +171,17 @@ public class TypescriptFileContext extends IntellijFileContext {
 
         super.refactorContent(refactorUnits);
         super.commit();
+        refactorUnits = Lists.newLinkedList();
     }
 
+    /**
+     * a pre commit rollback simply is a cleaning of our refactor
+     * unit list, there is no staged commit which can rollback a substage for
+     * the time being
+     *
+     */
     public void rollback() {
         this.refactorUnits = Lists.newLinkedList();
     }
 
-    //TODO a bunch of helper methods to detect artifact positions more
-    //quickly
 }
