@@ -10,7 +10,6 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import org.jetbrains.annotations.NotNull;
-import supportive.fs.UIRoutesRoutesFileContext;
 import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.util.Collections;

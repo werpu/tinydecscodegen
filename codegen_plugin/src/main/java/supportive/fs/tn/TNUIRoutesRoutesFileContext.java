@@ -1,14 +1,15 @@
-package supportive.fs;
+package supportive.fs.tn;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import indexes.ComponentIndex;
 import lombok.Getter;
 import org.fest.util.Lists;
 import org.jetbrains.annotations.NotNull;
+import supportive.fs.*;
+import supportive.fs.common.IUIRoutesRoutesFileContext;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.RefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
@@ -19,7 +20,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static supportive.reflectRefact.PsiWalkFunctions.*;
-import static supportive.utils.StringUtils.findWithSpaces;
 import static supportive.utils.StringUtils.literalEquals;
 
 /**

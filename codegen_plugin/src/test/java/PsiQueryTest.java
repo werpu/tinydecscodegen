@@ -4,9 +4,6 @@ import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.junit.Test;
 import supportive.fs.IntellijFileContext;
 import supportive.fs.PsiElementContext;
-import supportive.fs.Route;
-import supportive.fs.TNUIRoutesRoutesFileContext;
-import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.util.Optional;
 import java.util.stream.Collectors;

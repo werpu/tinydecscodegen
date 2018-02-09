@@ -39,7 +39,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import org.jetbrains.annotations.NotNull;
-import supportive.fs.ComponentFileContext;
+import supportive.fs.common.ComponentFileContext;
 import supportive.fs.IntellijFileContext;
 import supportive.utils.IntellijUtils;
 

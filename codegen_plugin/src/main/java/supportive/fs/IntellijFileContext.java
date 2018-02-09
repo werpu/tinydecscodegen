@@ -21,8 +21,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package supportive.fs;
 
-import clojure.lang.ArraySeq;
-import clojure.lang.Obj;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -35,6 +33,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import lombok.Getter;
+import supportive.fs.common.AngularVersion;
 import supportive.refactor.IRefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
 import supportive.utils.IntellijUtils;
@@ -43,14 +42,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static supportive.fs.AngularVersion.NG;
-import static supportive.fs.AngularVersion.TN_DEC;
+import static supportive.fs.common.AngularVersion.NG;
+import static supportive.fs.common.AngularVersion.TN_DEC;
 import static supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
 
 /**

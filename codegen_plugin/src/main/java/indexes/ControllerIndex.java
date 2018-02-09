@@ -10,14 +10,11 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import org.jetbrains.annotations.NotNull;
-import supportive.fs.ComponentFileContext;
-import supportive.fs.IntellijFileContext;
 import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ControllerIndex extends ScalarIndexExtension<String> {
