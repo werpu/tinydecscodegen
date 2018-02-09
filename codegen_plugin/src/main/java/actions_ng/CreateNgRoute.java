@@ -2,6 +2,7 @@ package actions_ng;
 
 import actions.Messages;
 import actions.shared.ComponentSelectorModel;
+import actions.shared.VisibleAssertions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -36,6 +37,11 @@ public class CreateNgRoute extends AnAction {
 
 
     @Override
+    public void update(AnActionEvent anActionEvent) {
+        VisibleAssertions.ngVisible(anActionEvent);
+    }
+
+    @Override
     public void actionPerformed(AnActionEvent event) {
 
         IntellijFileContext fileContext = new IntellijFileContext(event);
@@ -61,7 +67,7 @@ public class CreateNgRoute extends AnAction {
             protected List<ValidationInfo> doValidateAll() {
                 Route route = getRoute(mainForm);
 
-                UIRoutesRoutesFileContext ctx = RoutesIndex.getAllMainRoutes(fileContext.getProject()).stream()
+                UIRoutesRoutesFileContext ctx = RoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
                         .map(psiFile -> new UIRoutesRoutesFileContext(fileContext.getProject(), psiFile)).findAny().get();
 
                 return CreateNgRoute.this.validate(route, ctx, mainForm);
@@ -142,7 +148,7 @@ public class CreateNgRoute extends AnAction {
     }
 
     public Stream<UIRoutesRoutesFileContext> getRoutesFiles(IntellijFileContext fileContext) {
-        return RoutesIndex.getAllMainRoutes(fileContext.getProject()).stream()
+        return RoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
                 .map(psiFile -> new UIRoutesRoutesFileContext(fileContext.getProject(), psiFile));
     }
 
@@ -156,7 +162,7 @@ public class CreateNgRoute extends AnAction {
 
 
     protected ComponentFileContext[] findAllPageComponents(IntellijFileContext rootContext) {
-        List<PsiFile> foundFiles = ControllerIndex.getAllControllerFiles(rootContext.getProject());
+        List<PsiFile> foundFiles = ControllerIndex.getAllControllerFiles(rootContext.getProject(), rootContext.getAngularRoot().orElse(rootContext.getProjectDir()));
 
         return foundFiles.stream().flatMap(psiFile -> ComponentFileContext.getInstances(new IntellijFileContext(rootContext.getProject(), psiFile)).stream())
                 .toArray(size -> new ComponentFileContext[size]);

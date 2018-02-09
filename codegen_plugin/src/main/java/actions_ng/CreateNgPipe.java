@@ -3,8 +3,10 @@ package actions_ng;
 import actions.CreateTnDecFilter;
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.NgFileNameTransformer;
+import actions.shared.VisibleAssertions;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import factories.TnDecGroupFactory;
@@ -14,6 +16,11 @@ import supportive.dtos.ModuleElementScope;
 import java.util.Map;
 
 public class CreateNgPipe extends CreateTnDecFilter {
+
+    @Override
+    public void update(AnActionEvent anActionEvent) {
+        VisibleAssertions.ngVisible(anActionEvent);
+    }
 
     @NotNull
     @Override

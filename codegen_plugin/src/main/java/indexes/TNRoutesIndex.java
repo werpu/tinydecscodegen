@@ -10,6 +10,7 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import org.jetbrains.annotations.NotNull;
+import supportive.fs.common.IntellijFileContext;
 import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.util.Collections;
@@ -73,10 +74,11 @@ public class TNRoutesIndex extends ScalarIndexExtension<String> {
     }
 
 
-    public static List<PsiFile> getAllMainRoutes(Project project) {
+    public static List<PsiFile> getAllMainRoutes(Project project, IntellijFileContext angularRoot) {
         return FileBasedIndex.getInstance().getContainingFiles(NAME, TN_UIROUTER_MODULE_FOR_ROOT,
                 GlobalSearchScope.projectScope(project)).stream()
                 .filter(VirtualFile::isValid)
+                .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).startsWith("..")))
                 .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
                 .filter(psiFile -> psiFile != null && psiFile.getText().contains("@meta: rootRouteConfig"))
                 .collect(Collectors.toList());

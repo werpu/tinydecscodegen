@@ -1,6 +1,7 @@
 package actions;
 
 import actions.shared.ComponentSelectorModel;
+import actions.shared.VisibleAssertions;
 import actions_ng.CreateNgRoute;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -21,6 +22,7 @@ import supportive.fs.common.ComponentFileContext;
 import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.Route;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
+import supportive.fs.tn.TNUIRoutesRoutesFileContext;
 import supportive.utils.StringUtils;
 
 import javax.swing.*;
@@ -34,6 +36,12 @@ import java.util.stream.Stream;
 import static actions.shared.FormAssertions.*;
 
 public class CreateTnDecRoute extends AnAction {
+
+    @Override
+    public void update(AnActionEvent anActionEvent) {
+        VisibleAssertions.ngVisible(anActionEvent);
+    }
+
     @Override
     public void actionPerformed(AnActionEvent event) {
         IntellijFileContext fileContext = new IntellijFileContext(event);
@@ -60,7 +68,7 @@ public class CreateTnDecRoute extends AnAction {
             protected List<ValidationInfo> doValidateAll() {
                 Route route = getRoute(mainForm);
 
-                UIRoutesRoutesFileContext ctx = RoutesIndex.getAllMainRoutes(fileContext.getProject()).stream()
+                UIRoutesRoutesFileContext ctx = RoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
                         .map(psiFile -> new UIRoutesRoutesFileContext(fileContext.getProject(), psiFile)).findAny().get();
 
 
@@ -142,9 +150,9 @@ public class CreateTnDecRoute extends AnAction {
         ).stream().filter(s -> s != null).collect(Collectors.toList());
     }
 
-    public Stream<UIRoutesRoutesFileContext> getRoutesFiles(IntellijFileContext fileContext) {
-        return TNRoutesIndex.getAllMainRoutes(fileContext.getProject()).stream()
-                .map(psiFile -> new UIRoutesRoutesFileContext(fileContext.getProject(), psiFile));
+    public Stream<TNUIRoutesRoutesFileContext> getRoutesFiles(IntellijFileContext fileContext) {
+        return TNRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
+                .map(psiFile -> new TNUIRoutesRoutesFileContext(fileContext.getProject(), psiFile));
     }
 
     @NotNull
@@ -156,9 +164,11 @@ public class CreateTnDecRoute extends AnAction {
     }
 
     protected ComponentFileContext[] findAllPageComponents(IntellijFileContext rootContext) {
-        List<PsiFile> foundFiles = ControllerIndex.getAllControllerFiles(rootContext.getProject());
 
-        return foundFiles.stream().flatMap(psiFile -> supportive.fs.common.ComponentFileContext.getInstances(new IntellijFileContext(rootContext.getProject(), psiFile)).stream())
+        List<PsiFile> foundFiles = ControllerIndex.getAllControllerFiles(rootContext.getProject(), rootContext.getAngularRoot().orElse(rootContext.getProjectDir()));
+
+        return foundFiles.stream()
+                .flatMap(psiFile -> supportive.fs.common.ComponentFileContext.getControllerInstances(new IntellijFileContext(rootContext.getProject(), psiFile)).stream())
                 .toArray(size -> new ComponentFileContext[size]);
 
     }

@@ -21,7 +21,9 @@ public class IntellijRefactor {
         for (IntellijFileContext angularModule : annotatedModules) {
             NgModuleFileContext moduleFileContext = new NgModuleFileContext(angularModule);
 
-            String relativePath = fileContext.calculateRelPathTo(moduleFileContext)+"/"+fileName.replaceAll("\\.ts$", "");
+            String relativePath = (fileContext.calculateRelPathTo(moduleFileContext)+"/"+fileName)
+                    .replaceAll("\\.ts$", "")
+                    .replaceAll("\\/\\/", "/");
             String finalImportName = moduleFileContext.appendImport(ReflectUtils.reduceClassName(className), relativePath);
 
             switch (scope) {

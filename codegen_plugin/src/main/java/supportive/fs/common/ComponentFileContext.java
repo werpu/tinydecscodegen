@@ -235,6 +235,13 @@ public class ComponentFileContext extends TypescriptFileContext {
                 .collect(Collectors.toList());
     }
 
+    public static List<ComponentFileContext> getControllerInstances(IntellijFileContext fileContext) {
+        List<PsiElement> componentElements = walkPsiTree(fileContext.getPsiFile(), PsiWalkFunctions::isController, false);
+        return componentElements.stream()
+                .map(el -> new ComponentFileContext(fileContext, el))
+                .collect(Collectors.toList());
+    }
+
     @Override
     public void commit() throws IOException {
         if (templateRef.isPresent()) {

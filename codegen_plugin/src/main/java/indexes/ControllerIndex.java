@@ -10,6 +10,7 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import org.jetbrains.annotations.NotNull;
+import supportive.fs.common.IntellijFileContext;
 import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.util.Collections;
@@ -80,11 +81,14 @@ public class ControllerIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
-    public static List<PsiFile> getAllControllerFiles(Project project) {
+    public static List<PsiFile> getAllControllerFiles(Project project, IntellijFileContext angularRoot) {
         //Todo filter accordinf to the root dir od the subproject
         return FileBasedIndex.getInstance().getContainingFiles(NAME, CONTROLLER,
                 GlobalSearchScope.projectScope(project)).stream()
                 .filter(VirtualFile::isValid)
+
+                //only relative to angular root files
+                .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).contains("../")))
                 .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
                 .filter(psiFile -> psiFile != null)
                 .collect(Collectors.toList());

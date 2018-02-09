@@ -3,9 +3,11 @@ package actions_ng;
 import actions.CreateTnDecModule;
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.NgFileNameTransformer;
+import actions.shared.VisibleAssertions;
 import com.google.common.collect.Lists;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import factories.TnDecGroupFactory;
@@ -19,6 +21,11 @@ import java.util.Map;
  * Create an Angular 2 module
  */
 public class CreateNgModule extends CreateTnDecModule {
+
+    @Override
+    public void update(AnActionEvent anActionEvent) {
+        VisibleAssertions.ngVisible(anActionEvent);
+    }
 
     @Override
     protected FileTemplate getJ2eeTemplate(Project project) {

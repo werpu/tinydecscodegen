@@ -1,5 +1,6 @@
 package actions;
 
+import actions.shared.VisibleAssertions;
 import com.google.common.collect.Maps;
 import com.intellij.ide.SaveAndSyncHandlerImpl;
 import com.intellij.ide.fileTemplates.FileTemplate;
@@ -45,6 +46,11 @@ import static actions.shared.FormAssertions.assertNotNullOrEmpty;
 public class CreateTnDecProject extends AnAction implements DumbAware {
 
     public static final String TN_PROJECT_LAYOUT = "/resources/projectLayout/tnDec";
+
+    @Override
+    public void update(AnActionEvent anActionEvent) {
+        VisibleAssertions.tnNoProject(anActionEvent);
+    }
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {

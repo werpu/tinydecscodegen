@@ -105,9 +105,14 @@ public class IntellijFileContext {
                 root.getVirtualFile().getParent().getPath());
         Path componentFilePath = Paths.get(getVirtualFile().getPath());
         Path relPath = routesFilePath.relativize(componentFilePath);
-        return "./" + relPath.toString();
+        return ("./" + relPath.toString())
+                .replaceAll("\\\\/", "/")
+                .replaceAll("//", "/");
     }
 
+    public IntellijFileContext getProjectDir() {
+        return new IntellijFileContext(getProject(), getProject().getBaseDir());
+    }
 
 
     public List<PsiElement> findPsiElements(Function<PsiElement, Boolean> psiElementVisitor) {

@@ -3,9 +3,11 @@ package actions_ng;
 import actions.CreateTnDecComponent;
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.NgFileNameTransformer;
+import actions.shared.VisibleAssertions;
 import com.google.common.collect.Lists;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -19,6 +21,11 @@ import java.util.List;
 import java.util.Map;
 
 public class CreateNgComponent extends CreateTnDecComponent {
+
+    @Override
+    public void update(AnActionEvent anActionEvent) {
+        VisibleAssertions.ngVisible(anActionEvent);
+    }
 
     @Override
     protected List<String> getPossibleTransclusionSlots(String templateText) {

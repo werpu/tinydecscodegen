@@ -72,6 +72,12 @@
                 <action id="TD_CreateController1" class="actions.CreateTnDecController" text="Create Controller"
                         description="Create a an Angular Tiny Decorations Controller" icon="/images/tt.png">
                 </action>
+
+                <action id="TD_CreateRoute1" class="actions.CreateTnDecRoute" text="Create Route"
+                        icon="/images/tt.png"
+                        description="Create a new Route">
+                </action>
+
                 <action id="TD_CreateService1" class="actions.CreateTnDecService" text="Create Service"
                         description="Create a an Angular Tiny Decorations Service" icon="/images/tt.png">
                 </action>
@@ -181,6 +187,10 @@
             </action>
             <action id="TD_CreateController" class="actions.CreateTnDecController" text="Create Controller"
                     description="Create a an Angular Tiny Decorations Controller" icon="/images/tt.png">
+            </action>
+            <action id="TD_CreateRoute" class="actions.CreateTnDecRoute" text="Create Route"
+                    icon="/images/tt.png"
+                    description="Create a new Route">
             </action>
 
           

@@ -3,9 +3,11 @@ package actions_ng;
 import actions.CreateTnDecDirective;
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.NgFileNameTransformer;
+import actions.shared.VisibleAssertions;
 import com.google.common.collect.Lists;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import factories.TnDecGroupFactory;
@@ -15,6 +17,11 @@ import java.util.List;
 import java.util.Map;
 
 public class CreateNgDirective extends CreateTnDecDirective {
+
+    @Override
+    public void update(AnActionEvent anActionEvent) {
+        VisibleAssertions.ngVisible(anActionEvent);
+    }
 
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
         List<ModuleElementScope> scope = Lists.newArrayList();

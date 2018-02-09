@@ -2,6 +2,7 @@ package actions;
 
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.SimpleFileNameTransformer;
+import actions.shared.VisibleAssertions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
@@ -50,6 +51,10 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
         super();
     }
 
+    @Override
+    public void update(AnActionEvent anActionEvent) {
+        VisibleAssertions.tnVisible(anActionEvent);
+    }
 
     @Override
     public void actionPerformed(AnActionEvent event) {

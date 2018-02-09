@@ -55,12 +55,6 @@ public class TNUIRoutesRoutesFileContext extends TypescriptFileContext implement
 
         constructors = this.queryContent(">" + TYPE_SCRIPT_FUNC, p_isConstructor(), p_isRouteProviderPresent()
         ).collect(Collectors.toList());
-        
-        /*constructors = new PsiElementContext(getPsiFile().getOriginalElement()).findPsiElements(PsiWalkFunctions::isTypeScriptFunc)
-                .stream()
-                .filter(el -> el.getName().equals("constructor"))
-                .filter(el -> getRouteProviderDef(el).isPresent())
-                .collect(Collectors.toList());*/
     }
 
     @NotNull
@@ -102,15 +96,15 @@ public class TNUIRoutesRoutesFileContext extends TypescriptFileContext implement
     private String toRoute(String provider, Route data) {
         String url = data.getUrl();
         if (isStateProvider(provider)) {
-            String tpl = "\n$stateProvider.state('%s','%s', MetaData.routeData(%s));";
+            String tpl = (url.isEmpty()) ? "\n$stateProvider.state('%s','%s', MetaData.routeData(%s));" :
+                    "\n$stateProvider.state('%s','%s', MetaData.routeData(%s), {url: '" + url + "'});";
 
-            return String.format(tpl, url, data.getComponent());
+
+            return String.format(tpl, url, data.getRouteKey(), data.getComponent());
         } else {
-            String tpl = (url.isEmpty()) ?
-                    "\n$routeProvider.route('%s', MetaData.routeData(%s));" :
-                    "\n$routeProvider.route('%s', MetaData.routeData(%s, {url: '" + url + "'}));";
+            String tpl = "\n$routeProvider.when('%s', MetaData.routeData(%s));";
 
-            return String.format(tpl, data.getRouteKey(), data.getComponent());
+            return String.format(tpl, data.getUrl(), data.getComponent());
         }
     }
 
@@ -176,7 +170,7 @@ public class TNUIRoutesRoutesFileContext extends TypescriptFileContext implement
                 JS_EXPRESSION_STATEMENT,
                 p_isRouteCall(routeProviderName))
                 .collect(Collectors.toList());
-                
+
 
     }
 
@@ -219,8 +213,8 @@ public class TNUIRoutesRoutesFileContext extends TypescriptFileContext implement
 
     @NotNull
     public Boolean urlMatch(Route routeData, PsiElementContext constructor, String routeProviderName) {
-            //TODO also url match against the linked components, but for now this suffices
-            return constructor.queryContent(JS_ARGUMENTS_LIST, ":PARENTS", JS_EXPRESSION_STATEMENT, "TEXT*:("+routeProviderName+")", PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:('"+ routeData.getRouteKey()+"')").findFirst().isPresent();
+        //TODO also url match against the linked components, but for now this suffices
+        return constructor.queryContent(JS_ARGUMENTS_LIST, ":PARENTS", JS_EXPRESSION_STATEMENT, "TEXT*:(" + routeProviderName + ")", PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:('" + routeData.getUrl() + "')").findFirst().isPresent();
     }
 
 

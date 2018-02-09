@@ -3,8 +3,10 @@ package actions_ng;
 import actions.CreateTnDecService;
 import actions.shared.GenerateFileAndAddRef;
 import actions.shared.NgFileNameTransformer;
+import actions.shared.VisibleAssertions;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import factories.TnDecGroupFactory;
@@ -16,6 +18,11 @@ import java.util.Map;
  * Service generation for Angular2
  */
 public class CreateNgService extends CreateTnDecService {
+
+    @Override
+    public void update(AnActionEvent anActionEvent) {
+        VisibleAssertions.ngVisible(anActionEvent);
+    }
 
     @Override
     protected FileTemplate getJ2eeTemplate(Project project) {

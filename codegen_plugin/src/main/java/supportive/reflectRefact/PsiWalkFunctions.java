@@ -143,6 +143,7 @@ public class PsiWalkFunctions {
                 element.getText().startsWith(NG_COMPONENT);
     }
 
+
     public static boolean isTnConfig(PsiElement element) {
         return element != null &&
                 element.toString().startsWith(JS_ES_6_DECORATOR) &&
@@ -152,7 +153,10 @@ public class PsiWalkFunctions {
     public static boolean isController(PsiElement element) {
         return element != null &&
                 element.toString().startsWith(JS_ES_6_DECORATOR) &&
-                element.getText().startsWith(TN_CONTROLLER);
+                (
+                        element.getText().startsWith(TN_CONTROLLER) ||
+                                element.getText().startsWith(NG_COMPONENT)
+                );
     }
 
 
@@ -328,17 +332,16 @@ public class PsiWalkFunctions {
 
     /**
      * A simple query facility to redude code
-     *
-     *
+     * <p>
+     * <p>
      * Syntax
-     *
+     * <p>
      * query: command*
      * command: ElementType | SIMPLE_COMMAND | CONSUMER | PREDICATE | FUNCTION
-     *
+     * <p>
      * ElementyType: char*
      * SIMPLE_COMMAND: > | :FIRST | TEXT:(<char *>) | TEXT*:(<char *>)
      * PREDICATE ...: Function as defined by Java
-     *
      *
      * @param subItem
      * @param items
@@ -355,7 +358,7 @@ public class PsiWalkFunctions {
                 final String text = (String) item;
                 String subCommand = (text).trim();
                 directChild = (text).startsWith(">");
-                if(item instanceof  String && (text).matches("^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$")) {
+                if (item instanceof String && (text).matches("^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$")) {
                     Pattern p = Pattern.compile("^\\s*TEXTs*\\:\\s*\\((.*)\\)\\s*$");
                     subItem = subItem.filter(psiElementContext -> {
 
@@ -372,8 +375,8 @@ public class PsiWalkFunctions {
 
                         return literalEquals ? literalEquals(psiElementContext.getText(), matchText) : matchText.equals(psiElementContext.getText());
                     });
-                    break;
-                } else if(item instanceof  String && (text).matches("^\\s*TEXT\\*\\s*\\:\\s*\\((.*)\\)\\s*$")) {
+                    continue;
+                } else if (item instanceof String && (text).matches("^\\s*TEXT\\*\\s*\\:\\s*\\((.*)\\)\\s*$")) {
                     Pattern p = Pattern.compile("^\\s*TEXT\\*\\s*\\:\\s*\\((.*)\\)\\s*$");
                     subItem = subItem.filter(psiElementContext -> {
 
@@ -385,40 +388,40 @@ public class PsiWalkFunctions {
 
                         return listeralStartsWith(psiElementContext.getText(), matchText) || psiElementContext.getText().startsWith(matchText);
                     });
-                    break;
+                    continue;
 
 
-                } else if(item instanceof  String && (text).matches("^\\s*NAME\\s*\\:\\s*\\((.*)\\)\\s*$")) {
-                        Pattern p = Pattern.compile("^\\s*NAME*\\:\\s*\\((.*)\\)\\s*$");
-                        subItem = subItem.filter(psiElementContext -> {
+                } else if (item instanceof String && (text).matches("^\\s*NAME\\s*\\:\\s*\\((.*)\\)\\s*$")) {
+                    Pattern p = Pattern.compile("^\\s*NAME*\\:\\s*\\((.*)\\)\\s*$");
+                    subItem = subItem.filter(psiElementContext -> {
 
-                            Matcher m = p.matcher(text);
-                            if (!m.find()) {
-                                return false;
-                            }
-                            String matchText = m.group(1);
-                            boolean literalEquals = false;
-                            if (matchText.matches("^[\\\"\\'](.*)[\\\"\\']$")) {
-                                matchText = matchText.substring(1, matchText.length() - 1);
-                                literalEquals = true;
-                            }
+                        Matcher m = p.matcher(text);
+                        if (!m.find()) {
+                            return false;
+                        }
+                        String matchText = m.group(1);
+                        boolean literalEquals = false;
+                        if (matchText.matches("^[\\\"\\'](.*)[\\\"\\']$")) {
+                            matchText = matchText.substring(1, matchText.length() - 1);
+                            literalEquals = true;
+                        }
 
-                            return literalEquals ? literalEquals(psiElementContext.getName(), matchText) : matchText.equals(psiElementContext.getName());
-                        });
-                        break;
-                    } else if(item instanceof  String && (text).matches("^\\s*NAME\\*\\s*\\:\\s*\\((.*)\\)\\s*$")) {
-                        Pattern p = Pattern.compile("^\\s*NAME\\*\\s*\\:\\s*\\((.*)\\)\\s*$");
-                        subItem = subItem.filter(psiElementContext -> {
+                        return literalEquals ? literalEquals(psiElementContext.getName(), matchText) : matchText.equals(psiElementContext.getName());
+                    });
+                    continue;
+                } else if (item instanceof String && (text).matches("^\\s*NAME\\*\\s*\\:\\s*\\((.*)\\)\\s*$")) {
+                    Pattern p = Pattern.compile("^\\s*NAME\\*\\s*\\:\\s*\\((.*)\\)\\s*$");
+                    subItem = subItem.filter(psiElementContext -> {
 
-                            Matcher m = p.matcher(text);
-                            if(!m.find()) {
-                                return false;
-                            }
-                            String matchText = m.group(1);
+                        Matcher m = p.matcher(text);
+                        if (!m.find()) {
+                            return false;
+                        }
+                        String matchText = m.group(1);
 
-                            return listeralStartsWith(psiElementContext.getName(), matchText) || psiElementContext.getName().startsWith(matchText);
-                        });
-                        break;
+                        return listeralStartsWith(psiElementContext.getName(), matchText) || psiElementContext.getName().startsWith(matchText);
+                    });
+                    continue;
 
 
                 } else if (directChild) {
@@ -443,7 +446,7 @@ public class PsiWalkFunctions {
                     subItem = subItem.flatMap(theItem -> theItem.parents().stream());
                 } else if (subCommand.equals(":LAST")) {
                     Optional<PsiElementContext> reduced = subItem.reduce((theItem, theItem2) -> theItem2);
-                    if(reduced.isPresent()) {
+                    if (reduced.isPresent()) {
                         subItem = Arrays.asList(reduced.get()).stream();
                     } else {
                         subItem = Collections.<PsiElementContext>emptyList().stream();
@@ -474,7 +477,7 @@ public class PsiWalkFunctions {
     static private Stream<PsiElementContext> privateDistinctEl(Stream<PsiElementContext> inStr) {
         final Set<PsiElementContext> elIdx = new HashSet<>();
         return inStr.filter(el -> {
-            if(elIdx.contains(el)) {
+            if (elIdx.contains(el)) {
                 return false;
             } else {
                 elIdx.add(el);

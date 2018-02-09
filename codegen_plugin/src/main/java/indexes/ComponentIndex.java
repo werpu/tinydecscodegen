@@ -10,6 +10,7 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import org.jetbrains.annotations.NotNull;
+import supportive.fs.common.IntellijFileContext;
 import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.util.Collections;
@@ -73,10 +74,12 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
-    public static List<PsiFile> getAllComponentFiles(Project project) {
+    public static List<PsiFile> getAllComponentFiles(Project project, IntellijFileContext angularRoot) {
         return FileBasedIndex.getInstance().getContainingFiles(NAME, COMPONENT,
                 GlobalSearchScope.projectScope(project)).stream()
                 .filter(VirtualFile::isValid)
+                //only relative to angular root files
+                .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).startsWith("..")))
                 .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
                 .filter(psiFile -> psiFile != null)
                 //.map(psiFile -> new ComponentFileContext(project, psiFile))

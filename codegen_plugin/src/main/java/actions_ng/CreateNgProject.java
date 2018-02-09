@@ -1,12 +1,19 @@
 package actions_ng;
 
 import actions.CreateTnDecProject;
+import actions.shared.VisibleAssertions;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Create an Angular 2 project
  */
 public class CreateNgProject extends CreateTnDecProject {
+
+    @Override
+    public void update(AnActionEvent anActionEvent) {
+        VisibleAssertions.tnNoProject(anActionEvent);
+    }
 
     public static final String NG_PROJECT_LAYOUT = "/resources/projectLayout/ngPro";
 
