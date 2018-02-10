@@ -141,13 +141,13 @@ public class IntellijUtils {
             } else {
                 vfile1 = FileChooser.chooseFile(descriptor, project, module.getModuleFile());
             }
-            final VirtualFile vfile = vfile1;
+            final VirtualFile targetDir = vfile1;
 
             //todo ng2 filename handling
-            if (vfile != null) {
+            if (targetDir != null) {
                 WriteCommandAction.runWriteCommandAction(project, () -> {
-                    PropertiesComponent.getInstance(project).setValue("__lastSelTarget__" + artifactType.name(), vfile.getPath());
-                    PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(vfile);
+                    PropertiesComponent.getInstance(project).setValue("__lastSelTarget__" + artifactType.name(), targetDir.getPath());
+                    PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(targetDir);
                     dir.add(file);
 
                     FileEditorManager.getInstance(project).openFile(dir.findFile(file.getName()).getVirtualFile(), true);
@@ -155,7 +155,7 @@ public class IntellijUtils {
                         IntellijFileContext fileContext = new IntellijFileContext(project, dir.getVirtualFile());
 
                         try {
-                            IntellijRefactor.appendDeclarationToModule(fileContext, ModuleElementScope.DECLARATIONS, className, className);
+                            IntellijRefactor.appendDeclarationToModule(fileContext, ModuleElementScope.DECLARATIONS, className, file.getName());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -411,9 +411,10 @@ public class IntellijUtils {
         return true;
     }
 
-    public static void createAndOpen(Project project, VirtualFile folder, String str, String fileName) throws IOException {
+    public static IntellijFileContext createAndOpen(Project project, VirtualFile folder, String str, String fileName) throws IOException {
         VirtualFile generated = create(project, folder, str, fileName);
         FileEditorManager.getInstance(project).openFile(generated, true);
+        return new IntellijFileContext(project, generated);
     }
 
     public static VirtualFile create(Project project, VirtualFile folder, String str, String fileName) throws IOException {

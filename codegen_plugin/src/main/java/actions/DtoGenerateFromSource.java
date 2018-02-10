@@ -15,6 +15,7 @@ import supportive.utils.IntellijUtils;
 
 import static actions.shared.VisibleAssertions.assertNotJava;
 import static actions.shared.VisibleAssertions.assertNotJavaRest;
+import static actions.shared.VisibleAssertions.assertNotSpringRest;
 
 public class DtoGenerateFromSource extends AnAction {
 
@@ -27,7 +28,7 @@ public class DtoGenerateFromSource extends AnAction {
             return;
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         if (assertNotJava(ctx) ||
-                !assertNotJavaRest(ctx)) {
+                !assertNotJavaRest(ctx) || !assertNotSpringRest(ctx)) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }

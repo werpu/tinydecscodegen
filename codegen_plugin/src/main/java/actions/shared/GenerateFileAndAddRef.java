@@ -76,13 +76,14 @@ public class GenerateFileAndAddRef implements Runnable {
             String str = FileTemplateUtil.mergeTemplate(attrs, vslTemplate.getText(), false);
             String fileName = getFileName();
 
-            IntellijFileContext fileContext = new IntellijFileContext(project, folder);
+
+            IntellijFileContext ctx = IntellijUtils.createAndOpen(project, folder, str, fileName);
 
             for(ModuleElementScope singleScope: scope) {
-                appendDeclarationToModule(fileContext, singleScope, className, getFileName());
+                appendDeclarationToModule(ctx, singleScope, className, getFileName());
             }
 
-            IntellijUtils.createAndOpen(project, folder, str, fileName);
+
 
         } catch (IOException e) {
             throw new RuntimeException(e);

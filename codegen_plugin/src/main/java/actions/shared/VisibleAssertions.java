@@ -12,10 +12,10 @@ public class VisibleAssertions {
                 ctx.getPsiFile() == null ||
                 ctx.getPsiFile().getVirtualFile() == null ||
                 !ctx.getPsiFile().getVirtualFile().getPath().endsWith(".java") ||
-                ctx.getDocument().getText().indexOf("@Path") == -1);
+                ctx.getDocument().getText().indexOf("@Path") == -1;
     }
 
-    public static boolean assertNotSprinRest(IntellijFileContext ctx) {
+    public static boolean assertNotSpringRest(IntellijFileContext ctx) {
         return ctx.getDocument() == null || ctx.getDocument().getText().indexOf("@RestController") == -1;
     }
 

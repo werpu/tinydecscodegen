@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 import static actions.shared.FormAssertions.assertNotNullOrEmpty;
 import static actions.shared.VisibleAssertions.assertNotJavaRest;
-import static actions.shared.VisibleAssertions.assertNotSprinRest;
+import static actions.shared.VisibleAssertions.assertNotSpringRest;
 
 enum SupportedRestMethod {
     PUT, GET, DELETE, POST
@@ -52,7 +52,7 @@ public class CreateRestEndpoint extends AnAction implements DumbAware {
     public void update(AnActionEvent anActionEvent) {
         final Project project = anActionEvent.getData(CommonDataKeys.PROJECT);
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
-        if (assertNotJavaRest(ctx) && assertNotSprinRest(ctx)) {
+        if (assertNotJavaRest(ctx) && assertNotSpringRest(ctx)) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
