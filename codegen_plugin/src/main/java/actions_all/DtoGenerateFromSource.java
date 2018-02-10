@@ -1,7 +1,8 @@
-package actions;
+package actions_all;
 
-import actions.shared.JavaFileContext;
-import actions.shared.SimpleFileNameTransformer;
+import actions.ServiceGenerationAction;
+import actions_all.shared.JavaFileContext;
+import actions_all.shared.SimpleFileNameTransformer;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -13,9 +14,9 @@ import com.intellij.psi.PsiJavaFile;
 import supportive.fs.common.IntellijFileContext;
 import supportive.utils.IntellijUtils;
 
-import static actions.shared.VisibleAssertions.assertNotJava;
-import static actions.shared.VisibleAssertions.assertNotJavaRest;
-import static actions.shared.VisibleAssertions.assertNotSpringRest;
+import static actions_all.shared.VisibleAssertions.assertNotJava;
+import static actions_all.shared.VisibleAssertions.assertNotJavaRest;
+import static actions_all.shared.VisibleAssertions.assertNotSpringRest;
 
 public class DtoGenerateFromSource extends AnAction {
 
@@ -51,7 +52,7 @@ public class DtoGenerateFromSource extends AnAction {
 
         } catch (RuntimeException | ClassNotFoundException e) {
             log.error(e);
-            Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions.Messages.ERR_OCCURRED);
+            Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions_all.shared.Messages.ERR_OCCURRED);
         }
 
     }

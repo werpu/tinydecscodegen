@@ -1,6 +1,7 @@
-package actions;
+package actions_all;
 
-import actions.shared.JavaFileContext;
+import actions_all.shared.Messages;
+import actions_all.shared.JavaFileContext;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -36,9 +37,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static actions.shared.FormAssertions.assertNotNullOrEmpty;
-import static actions.shared.VisibleAssertions.assertNotJavaRest;
-import static actions.shared.VisibleAssertions.assertNotSpringRest;
+import static actions_all.shared.FormAssertions.assertNotNullOrEmpty;
+import static actions_all.shared.VisibleAssertions.assertNotJavaRest;
+import static actions_all.shared.VisibleAssertions.assertNotSpringRest;
 
 enum SupportedRestMethod {
     PUT, GET, DELETE, POST

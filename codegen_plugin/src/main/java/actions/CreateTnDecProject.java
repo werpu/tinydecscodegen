@@ -1,6 +1,6 @@
 package actions;
 
-import actions.shared.VisibleAssertions;
+import actions_all.shared.VisibleAssertions;
 import com.google.common.collect.Maps;
 import com.intellij.ide.SaveAndSyncHandlerImpl;
 import com.intellij.ide.fileTemplates.FileTemplate;
@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static actions.shared.FormAssertions.assertNotNullOrEmpty;
+import static actions_all.shared.FormAssertions.assertNotNullOrEmpty;
 
 public class CreateTnDecProject extends AnAction implements DumbAware {
 
@@ -98,8 +98,8 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
             @NotNull
             protected List<ValidationInfo> doValidateAll() {
                 return Arrays.asList(
-                        assertNotNullOrEmpty(mainForm.projectDir.getText(), actions.Messages.ERR_PROJECT_DIR_CHOSEN, mainForm.projectDir),
-                        assertNotNullOrEmpty(mainForm.targetDir.getText(), actions.Messages.ERR_TARGET_DIR_CHOSEN, mainForm.targetDir))
+                        assertNotNullOrEmpty(mainForm.projectDir.getText(), actions_all.shared.Messages.ERR_PROJECT_DIR_CHOSEN, mainForm.projectDir),
+                        assertNotNullOrEmpty(mainForm.targetDir.getText(), actions_all.shared.Messages.ERR_TARGET_DIR_CHOSEN, mainForm.targetDir))
                         .stream().filter(s -> s != null).collect(Collectors.toList());
             }
 

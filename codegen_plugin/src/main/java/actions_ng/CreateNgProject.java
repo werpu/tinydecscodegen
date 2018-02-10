@@ -1,7 +1,7 @@
 package actions_ng;
 
 import actions.CreateTnDecProject;
-import actions.shared.VisibleAssertions;
+import actions_all.shared.VisibleAssertions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 

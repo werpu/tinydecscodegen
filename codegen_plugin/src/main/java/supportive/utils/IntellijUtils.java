@@ -21,8 +21,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package supportive.utils;
 
-import actions.shared.FileNameTransformer;
-import actions.shared.SimpleFileNameTransformer;
+import actions_all.shared.FileNameTransformer;
+import actions_all.shared.SimpleFileNameTransformer;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.intellij.diff.DiffManager;

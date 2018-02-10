@@ -20,7 +20,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package actions.shared;
+package actions_all.shared;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.compiler.CompileContext;
@@ -150,21 +150,21 @@ public class JavaFileContext {
     }
 
     private boolean errInvalidRef() {
-        Messages.showErrorDialog(project, "", actions.Messages.ERR_INVALID_REF);
+        Messages.showErrorDialog(project, "", actions_all.shared.Messages.ERR_INVALID_REF);
         error = true;
         return true;
     }
 
     @NotNull
     private JavaFileContext errNoEditorFound() {
-        log.error(actions.Messages.ERR_NO_EDITOR);
+        log.error(actions_all.shared.Messages.ERR_NO_EDITOR);
         error = true;
         return this;
     }
 
     @NotNull
     private JavaFileContext errNoRef() {
-        Messages.showErrorDialog(project, "", actions.Messages.ERR_NO_REF);
+        Messages.showErrorDialog(project, "", actions_all.shared.Messages.ERR_NO_REF);
         error = true;
         return this;
     }

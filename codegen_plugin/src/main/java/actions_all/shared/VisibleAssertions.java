@@ -1,4 +1,4 @@
-package actions.shared;
+package actions_all.shared;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import supportive.fs.common.AngularVersion;
@@ -60,6 +60,16 @@ public class VisibleAssertions {
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         Optional<AngularVersion> angularVersion = ctx.getAngularVersion();
         if (angularVersion.isPresent()) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
+
+        anActionEvent.getPresentation().setEnabledAndVisible(true);
+    }
+
+    public static void tsOnlyVisible(AnActionEvent anActionEvent) {
+        IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
+        if (assertNotTs(ctx)) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }

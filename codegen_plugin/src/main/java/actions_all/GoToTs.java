@@ -1,6 +1,6 @@
-package actions;
+package actions_all;
 
-import actions.shared.JavaFileContext;
+import actions_all.shared.JavaFileContext;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -13,12 +13,11 @@ import supportive.utils.IntellijUtils;
 
 import java.util.Collection;
 
-import static actions.shared.VisibleAssertions.assertNotJava;
+import static actions_all.shared.VisibleAssertions.assertNotJava;
 
 public class GoToTs extends AnAction {
 
     public void update(AnActionEvent anActionEvent) {
-        final Project project = anActionEvent.getData(CommonDataKeys.PROJECT);
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         if (assertNotJava(ctx)) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);

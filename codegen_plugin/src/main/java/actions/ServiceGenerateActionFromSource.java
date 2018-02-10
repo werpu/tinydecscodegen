@@ -1,7 +1,7 @@
 package actions;
 
-import actions.shared.JavaFileContext;
-import actions.shared.SimpleFileNameTransformer;
+import actions_all.shared.JavaFileContext;
+import actions_all.shared.SimpleFileNameTransformer;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -11,8 +11,8 @@ import com.intellij.psi.PsiJavaFile;
 import supportive.fs.common.IntellijFileContext;
 import supportive.utils.IntellijUtils;
 
-import static actions.shared.VisibleAssertions.assertNotJava;
-import static actions.shared.VisibleAssertions.assertNotJavaRest;
+import static actions_all.shared.VisibleAssertions.assertNotJava;
+import static actions_all.shared.VisibleAssertions.assertNotJavaRest;
 
 public class ServiceGenerateActionFromSource extends AnAction {
 
@@ -45,7 +45,7 @@ public class ServiceGenerateActionFromSource extends AnAction {
             IntellijUtils.generateService(javaData.getProject(), javaData.getModule(),(PsiJavaFile) javaData.getJavaFile(), false);
         } catch (RuntimeException |  ClassNotFoundException e) {
             log.error(e);
-            Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions.Messages.ERR_OCCURRED);
+            Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions_all.shared.Messages.ERR_OCCURRED);
         }
 
     }

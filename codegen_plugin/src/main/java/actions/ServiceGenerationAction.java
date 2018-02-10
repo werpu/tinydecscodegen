@@ -20,8 +20,8 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import actions.shared.JavaFileContext;
-import actions.shared.SimpleFileNameTransformer;
+import actions_all.shared.JavaFileContext;
+import actions_all.shared.SimpleFileNameTransformer;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -35,8 +35,8 @@ import supportive.utils.IntellijUtils;
 
 import java.io.IOException;
 
-import static actions.shared.VisibleAssertions.assertNotJava;
-import static actions.shared.VisibleAssertions.assertNotJavaRest;
+import static actions_all.shared.VisibleAssertions.assertNotJava;
+import static actions_all.shared.VisibleAssertions.assertNotJavaRest;
 
 
 /**
@@ -79,7 +79,7 @@ public class ServiceGenerationAction extends AnAction {
                     IntellijUtils.generateService(javaData.getProject(), javaData.getModule(), javaData.getClassName(), javaData.getJavaFile(), javaData.getClassLoader(compileContext), isNg());
                 } catch (RuntimeException | IOException | ClassNotFoundException e) {
                     log.error(e);
-                    Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions.Messages.ERR_OCCURRED);
+                    Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions_all.shared.Messages.ERR_OCCURRED);
                 }
                 return false;
             }

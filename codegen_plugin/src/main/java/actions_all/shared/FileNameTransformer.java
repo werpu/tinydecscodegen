@@ -1,4 +1,4 @@
-package actions.shared;
+package actions_all.shared;
 
 public interface FileNameTransformer {
 

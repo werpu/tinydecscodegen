@@ -134,7 +134,7 @@
             <group id="TD_Generate" text="Generators" description="Tiny decorations generation" popup="true">
 
 
-                <action id="TD_DtoSrc" class="actions.DtoGenerateFromSource" text="Dto Generation from source"
+                <action id="TD_DtoSrc" class="actions_all.DtoGenerateFromSource" text="Dto Generation from source"
                         description="Generate a typescript dto from the current editor window">
                     <keyboard-shortcut first-keystroke="control alt T" second-keystroke="N" keymap="$default"/>
                 </action>
@@ -155,7 +155,7 @@
                 </action>
 
                 <separator/>
-                <action id="NGRestEndpoint" class="actions.CreateRestEndpoint"
+                <action id="NGRestEndpoint" class="actions_all.CreateRestEndpoint"
                         text="Create a Rest Endpoint"
                         description="Create a Rest Endpoint">
 
@@ -164,10 +164,11 @@
             </group>
 
             <separator/>
-            <action id="TD_GoToTypescript" class="actions.GoToTs" text="Go To Typescript"
+            <action id="TD_GoToTypescript" class="actions_all.GoToTs" text="Go To Typescript"
                     icon="/images/tt.png"></action>
-            <action id="TD_GoToJava" class="actions.GoToJava" text="Go To Java" icon="/images/tt.png"></action>
-            <action id="TD_TD_EditTemplate" class="actions.EditTemplate" text="Edit HTML Template"></action>
+            <action id="TD_GoToJava" class="actions_all.GoToJava" text="Go To Java" icon="/images/tt.png"></action>
+            <action id="TD_GoToModule" class="actions_all.GoToModule" text="Go To Module" icon="/images/tt.png"></action>
+            <action id="TD_TD_EditTemplate" class="actions_all.EditTemplate" text="Edit HTML Template"></action>
 
 
         </group>
@@ -264,7 +265,7 @@
                icon="/images/tt.png">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
 
-            <action id="NG_SprinRest2" class="actions.CreateSpringRestController"
+            <action id="NG_SprinRest2" class="actions_all.CreateSpringRestController"
                     text="Generate a Spring Rest Controller"
                     description="Generate a Spring Rest Controller">
             </action>
@@ -272,23 +273,26 @@
 
         <!-- editor -->
         <group>
-            <action id="TTNG_CreateRestEndpoint3" class="actions.CreateRestEndpoint" text="Create Rest Endpoint"
+            <action id="TTNG_CreateRestEndpoint3" class="actions_all.CreateRestEndpoint" text="Create Rest Endpoint"
                     description="Create Rest Endpoint" icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="R" keymap="$default"/>
             </action>
-            <action id="TD_DtoSrc3" class="actions.DtoGenerateFromSource" text="Dto Generation from source"
+            <action id="TD_DtoSrc3" class="actions_all.DtoGenerateFromSource" text="Dto Generation from source"
                     description="Generate a typescript dto from the current editor window" icon="/images/tt.png">
             </action>
             <separator/>
 
-            <action id="TD_GoToTypescript3" class="actions.GoToTs" text="Go To Typescript"
+            <action id="TD_GoToTypescript3" class="actions_all.GoToTs" text="Go To Typescript"
                     icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="G" keymap="$default"/>
             </action>
-            <action id="TD_GoToJava3" class="actions.GoToJava" text="Go To Java" icon="/images/tt.png">
+            <action id="TD_GoToJava3" class="actions_all.GoToJava" text="Go To Java" icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="G" keymap="$default"/>
             </action>
-            <action id="TD_TD_EditTemplate3" class="actions.EditTemplate" text="Edit HTML Template"
+            <action id="TD_GoToModule3" class="actions_all.GoToModule" text="Go To Module" icon="/images/tt.png">
+                <keyboard-shortcut first-keystroke="control alt T" second-keystroke="M" keymap="$default"/>
+            </action>
+            <action id="TD_TD_EditTemplate3" class="actions_all.EditTemplate" text="Edit HTML Template"
                     icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="H" keymap="$default"/>
             </action>

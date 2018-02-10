@@ -1,4 +1,4 @@
-package actions;
+package actions_all.shared;
 
 import com.intellij.openapi.editor.Editor;
 

@@ -1,23 +1,15 @@
-package actions;
+package actions_all;
 
-import actions.shared.JavaFileContext;
+import actions_all.shared.JavaFileContext;
+import actions_all.shared.VisibleAssertions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import supportive.fs.common.IntellijFileContext;
-
-import static actions.shared.VisibleAssertions.assertNotTs;
 
 public class GoToJava extends AnAction {
 
     public void update(AnActionEvent anActionEvent) {
-        IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
-        if (assertNotTs(ctx) || assertNotTs(ctx)) {
-            anActionEvent.getPresentation().setEnabledAndVisible(false);
-            return;
-        }
-
-        anActionEvent.getPresentation().setEnabledAndVisible(true);
+        VisibleAssertions.tsOnlyVisible(anActionEvent);
     }
 
     @Override

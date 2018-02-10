@@ -1,9 +1,9 @@
 package actions_ng;
 
 import actions.CreateTnDecService;
-import actions.shared.GenerateFileAndAddRef;
-import actions.shared.NgFileNameTransformer;
-import actions.shared.VisibleAssertions;
+import actions_all.shared.GenerateFileAndAddRef;
+import actions_all.shared.NgFileNameTransformer;
+import actions_all.shared.VisibleAssertions;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;

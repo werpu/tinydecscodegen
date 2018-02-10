@@ -1,8 +1,8 @@
 package actions;
 
-import actions.shared.ComponentSelectorModel;
-import actions.shared.VisibleAssertions;
-import actions_ng.CreateNgRoute;
+import actions_all.shared.ComponentSelectorModel;
+import actions_all.shared.Messages;
+import actions_all.shared.VisibleAssertions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static actions.shared.FormAssertions.*;
+import static actions_all.shared.FormAssertions.*;
 
 public class CreateTnDecRoute extends AnAction {
 

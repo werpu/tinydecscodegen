@@ -19,9 +19,11 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package actions;
+package actions_all;
 
-import actions.shared.VisibleAssertions;
+import actions_all.shared.EditorCallback;
+import actions_all.shared.Messages;
+import actions_all.shared.VisibleAssertions;
 import com.intellij.lang.html.HTMLLanguage;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -91,7 +93,7 @@ public class EditTemplate extends AnAction implements EditorCallback {
 
 
         if (!fileContext.getTemplateTextAsStr().isPresent()) {
-            com.intellij.openapi.ui.Messages.showErrorDialog(fileContext.getProject(), "No template string could be found", actions.Messages.ERR_OCCURRED);
+            com.intellij.openapi.ui.Messages.showErrorDialog(fileContext.getProject(), "No template string could be found", Messages.ERR_OCCURRED);
             return;
         }
         Editor ediOrig = IntellijUtils.getEditor(e);

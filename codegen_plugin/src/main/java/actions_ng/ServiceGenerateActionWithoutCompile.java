@@ -1,7 +1,7 @@
 package actions_ng;
 
 import actions.ServiceGenerationAction;
-import actions.shared.JavaFileContext;
+import actions_all.shared.JavaFileContext;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -24,7 +24,7 @@ public class ServiceGenerateActionWithoutCompile extends AnAction {
             IntellijUtils.generateService(javaData.getProject(), javaData.getModule(), javaData.getClassName(), javaData.getJavaFile(), javaData.getClassLoader(), true);
         } catch (RuntimeException | IOException | ClassNotFoundException e) {
             log.error(e);
-            Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions.Messages.ERR_OCCURRED);
+            Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions_all.shared.Messages.ERR_OCCURRED);
         }
 
     }
