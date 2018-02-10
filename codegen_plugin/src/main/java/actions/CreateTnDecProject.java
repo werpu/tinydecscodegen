@@ -112,6 +112,7 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
         };
 
         mainForm.setProject(project);
+        mainForm.getLblTitle().setText(getTitle());
         mainForm.projectDir.setText(projectFolder);
         mainForm.targetDir.setText(targetFolder);
 
@@ -199,6 +200,11 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
 
         }
 
+    }
+
+    @NotNull
+    protected String getTitle() {
+        return "Create Tiny Decorations Project";
     }
 
 

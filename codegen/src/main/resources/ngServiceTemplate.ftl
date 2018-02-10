@@ -21,7 +21,7 @@ export class ${service.serviceName} {
 <#list service.methods as method>
 
     ${method.name} (<#assign mType  = "${method.restType.name()?lower_case}"><#list method.params as param>${param.toTypeScript()}<#sep>,
-    </#sep></#list>): Observable<<#if !method.returnValue.isPresent()>any<#else>${method.returnValue.get().toTypeScript()}></#if> {
+    </#sep></#list>): Observable<<#if !method.returnValue.isPresent() || method.returnValue.get().toTypeScript() == 'void'>any<#else>${method.returnValue.get().toTypeScript()}></#if>> {
 
         let params:HttpParams = new HttpParams();
 
@@ -49,7 +49,7 @@ export class ${service.serviceName} {
             params: params
         });
     </#if>
-        return <Observable<<#if !method.returnValue.isPresent()>any<#else>${method.returnValue.get().toTypeScript()}></#if>> retVal;
+        return <Observable<<#if !method.returnValue.isPresent() || method.returnValue.get().toTypeScript() == 'void'>any<#else>${method.returnValue.get().toTypeScript()}></#if>>> retVal;
     }
 </#list>
 

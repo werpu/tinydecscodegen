@@ -6,17 +6,20 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+@Getter
 public class CreateTnProject {
     public JPanel rootPanel;
     public JTextField projectDir;
     private JButton btProjectDir;
     public JTextField targetDir;
     private JButton btTargetDir;
+    private JLabel lblTitle;
 
 
     Project project;

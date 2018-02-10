@@ -27,6 +27,11 @@ public class CreateNgProject extends CreateTnDecProject {
         return "projectLayout/ngPro/";
     }
 
+    @NotNull
+    @Override
+    protected String getTitle() {
+        return "Create Angular NG Project";
+    }
 
     protected boolean isAngular1() {
         return false;

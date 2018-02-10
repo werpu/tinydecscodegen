@@ -437,6 +437,10 @@ public class IntellijUtils {
     }
 
     public static VirtualFile create(Project project, VirtualFile folder, String str, String fileName) throws IOException {
+        //TODO create the content in a temp file
+        //and then move it over, this should avoid
+        //internal empty content errors
+
         VirtualFile generated = folder.createChildData(project, fileName);
         generated.setBinaryContent(str.getBytes(generated.getCharset()));
         return  generated;
@@ -628,6 +632,7 @@ public class IntellijUtils {
         final Collection<PsiFile> foundFiles = Arrays.asList(PsiSearchHelper.SERVICE.getInstance(project).findCommentsContainingIdentifier(searchStr, GlobalSearchScope.everythingScope(project)))
                 .stream()
                 .filter(item -> item.getContainingFile().getFileType().getDefaultExtension().equals(extension))
+                .filter(item -> !item.getContainingFile().getVirtualFile().getPath().replaceAll("\\\\", "/").contains("/generated-sources/"))
                 .map(item -> item.getContainingFile())
                 .collect(Collectors.toSet());
         return foundFiles;

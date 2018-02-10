@@ -9,6 +9,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 public class GoToJava extends AnAction {
 
     public void update(AnActionEvent anActionEvent) {
+        if (VisibleAssertions.refOnlyVisible(anActionEvent)) return;
         VisibleAssertions.tsOnlyVisible(anActionEvent);
     }
 

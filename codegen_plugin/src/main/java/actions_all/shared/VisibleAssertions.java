@@ -1,6 +1,7 @@
 package actions_all.shared;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import supportive.fs.common.AngularVersion;
 import supportive.fs.common.IntellijFileContext;
 
@@ -23,6 +24,13 @@ public class VisibleAssertions {
         return ctx.getPsiFile() == null ||
                 !ctx.getPsiFile().getVirtualFile().getPath().endsWith(".java");
     }
+
+
+    public static boolean assertNotRef(IntellijFileContext ctx) {
+        return ctx.getPsiFile() == null ||
+                !ctx.getPsiFile().getText().contains("@ref:");
+    }
+
 
     public static boolean assertNotTs(IntellijFileContext ctx) {
         return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getPath().endsWith(".ts");
@@ -69,11 +77,22 @@ public class VisibleAssertions {
 
     public static void tsOnlyVisible(AnActionEvent anActionEvent) {
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
-        if (assertNotTs(ctx)) {
+
+        Optional<AngularVersion> angularVersion = ctx.getAngularVersion();
+        if (assertNotTs(ctx) || !angularVersion.isPresent()) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
 
         anActionEvent.getPresentation().setEnabledAndVisible(true);
+    }
+
+
+    public static boolean refOnlyVisible(AnActionEvent anActionEvent) {
+        if(assertNotRef(new IntellijFileContext(anActionEvent))) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return true;
+        }
+        return false;
     }
 }

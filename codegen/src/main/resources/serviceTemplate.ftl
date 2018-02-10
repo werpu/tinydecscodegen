@@ -31,7 +31,7 @@ export class ${service.serviceName} {
     })
     ${method.name} (
         <#list method.params as param>@${param.paramType.name()}(<#if param.paramType.requestParam>"${param.restName}"</#if>) ${param.toTypeScript()}<#sep>,
-        </#sep></#list>): IPromise<<#if !method.returnValue.isPresent()>any<#else>${method.returnValue.get().toTypeScript()}></#if> {
+        </#sep></#list>): IPromise<<#if !method.returnValue.isPresent() || method.returnValue.get().toTypeScript() == 'void'>any<#else>${method.returnValue.get().toTypeScript()}></#if> {
         return null;
     }
     </#list>
