@@ -117,7 +117,7 @@ public class CreateTnDecRun extends AnAction implements DumbAware {
         if (dialogWrapper.isOK()) {
             ControllerJson model = new ControllerJson(mainForm.getName(), mainForm.getTemplate(), mainForm.getControllerAs());
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
-            PopupUtil.showBalloonForActiveFrame("The Run Config has been generated", MessageType.INFO);
+            supportive.utils.IntellijUtils.showInfoMessage("The Run Config has been generated", "Info");
         }
     }
 

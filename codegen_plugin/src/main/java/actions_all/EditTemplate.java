@@ -93,7 +93,7 @@ public class EditTemplate extends AnAction implements EditorCallback {
 
 
         if (!fileContext.getTemplateTextAsStr().isPresent()) {
-            com.intellij.openapi.ui.Messages.showErrorDialog(fileContext.getProject(), "No template string could be found", Messages.ERR_OCCURRED);
+            supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "No template string could be found", Messages.ERR_OCCURRED);
             return;
         }
         Editor ediOrig = IntellijUtils.getEditor(e);

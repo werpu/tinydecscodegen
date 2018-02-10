@@ -206,7 +206,7 @@ public class CreateTnDecComponent extends AnAction implements DumbAware {
             }
 
             generate(project, folder, className, vslTemplate, attrs);
-            PopupUtil.showBalloonForActiveFrame("The Component has been generated", MessageType.INFO);
+            supportive.utils.IntellijUtils.showInfoMessage("The Component has been generated", "Info");
         });
 
 

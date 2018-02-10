@@ -231,7 +231,7 @@ public class CreateTnDecDirective extends AnAction implements DumbAware {
                 attrs.put(EXPORT, export);
             }
             generate(project, folder, className, vslTemplate, attrs);
-            PopupUtil.showBalloonForActiveFrame("The Directive has been generated", MessageType.INFO);
+            supportive.utils.IntellijUtils.showInfoMessage("The Directive has been generated", "Info");
         });
 
 

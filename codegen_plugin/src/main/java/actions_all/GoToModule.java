@@ -34,7 +34,7 @@ public class GoToModule extends AnAction {
 
         List<IntellijFileContext> annotatedModules = tsContext.findFirstUpwards(psiFile -> psiFile.getContainingFile().getText().contains(NG_MODULE));
         if(annotatedModules.isEmpty()) {
-            PopupUtil.showBalloonForActiveFrame("No parent module could be found", MessageType.INFO);
+            supportive.utils.IntellijUtils.showInfoMessage("No parent module could be found", "Info");
         }
         FileEditorManager.getInstance(tsContext.getProject()).openFile(annotatedModules.get(0).getVirtualFile(), true);
     }

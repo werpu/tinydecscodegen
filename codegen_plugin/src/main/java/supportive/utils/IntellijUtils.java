@@ -28,6 +28,12 @@ import com.google.common.collect.Lists;
 import com.intellij.diff.DiffManager;
 import com.intellij.diff.contents.DocumentContentImpl;
 import com.intellij.diff.requests.SimpleDiffRequest;
+import com.intellij.execution.Executor;
+import com.intellij.execution.filters.HyperlinkInfo;
+import com.intellij.execution.filters.RegexpFilter;
+import com.intellij.execution.filters.TextConsoleBuilder;
+import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.ui.ConsoleView;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -43,18 +49,27 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.popup.util.PopupUtil;
+import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiSearchHelper;
+import components.Application;
 import configuration.ConfigSerializer;
 import gui.Confirm;
+import gui.CreateTnProject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reflector.SpringJavaRestReflector;
@@ -72,6 +87,7 @@ import supportive.reflectRefact.IntellijRefactor;
 import supportive.reflectRefact.IntellijSpringRestReflector;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -81,8 +97,11 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+
+import static com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil.createConsole;
 
 /**
  * supportive class to simplify some of the intelli openapi apis
@@ -429,7 +448,7 @@ public class IntellijUtils {
     }
 
     public static void handleEx(Project prj, IOException e) {
-        com.intellij.openapi.ui.Messages.showErrorDialog(prj,"Error", e.getMessage());
+        supportive.utils.IntellijUtils.showErrorDialog(prj,"Error", e.getMessage());
         e.printStackTrace();
         throw new RuntimeException(e);
     }
@@ -441,6 +460,37 @@ public class IntellijUtils {
         return srcRootPath.relativize(targetPath).toString()
                 .replaceAll("[/\\\\]+", ".")
                 .replaceAll("^\\.(.*)\\.$", "$1" );
+    }
+
+    public static void npmInstall(Project project, CreateTnProject mainForm, String doneMessage, String doneTitle) {
+        Task.Backgroundable myTask = new Task.Backgroundable(project, "calling npm install") {
+            @Override
+            public void run(@NotNull ProgressIndicator progressIndicator) {
+                progressIndicator.setIndeterminate(true);
+                ProcessBuilder pb = new ProcessBuilder("npm", "install");
+                Map<String, String> env = pb.environment();
+
+                pb.directory(new File(mainForm.projectDir.getText()));
+                try {
+                    Process p = pb.start();
+                    p.waitFor();
+
+
+                    supportive.utils.IntellijUtils.showInfoMessage(doneMessage, doneTitle);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    supportive.utils.IntellijUtils.showErrorDialog(project, e.getMessage(), "Error");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    supportive.utils.IntellijUtils.showErrorDialog(project, e.getMessage(), "Error");
+                }
+                progressIndicator.stop();
+            }
+        };
+
+        BackgroundableProcessIndicator myProcessIndicator = new BackgroundableProcessIndicator(myTask);
+
+        ProgressManager.getInstance().runProcessWithProgressAsynchronously(myTask, myProcessIndicator);
     }
 
 
@@ -601,4 +651,19 @@ public class IntellijUtils {
 
         return foundFiles;
     }
+
+    public static void showInfoMessage(String message, String title) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            com.intellij.openapi.ui.Messages.showInfoMessage(message, title);
+        });
+    }
+
+    public static void showErrorDialog(Project project, String message, String title) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            com.intellij.openapi.ui.Messages.showErrorDialog(project, message, title);
+        });
+    }
+
+
+
 }

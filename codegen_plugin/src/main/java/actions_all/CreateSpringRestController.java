@@ -169,7 +169,7 @@ public class CreateSpringRestController extends AnAction implements DumbAware {
 
 
             generate(project, folder, className, vslTemplate, attrs);
-            PopupUtil.showBalloonForActiveFrame("The Rest Controller has been generated", MessageType.INFO);
+            supportive.utils.IntellijUtils.showInfoMessage("The Rest Controller has been generated", "Info");
 
         });
 

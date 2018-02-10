@@ -61,10 +61,9 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
         //VirtualFile folder = file.getParent();
 
 
-
         String path = file.isDirectory() ? file.getPath() : file.getParent().getPath();
 
-        String outputPath = path+"/../target";
+        String outputPath = path + "/../target";
         Path output = Paths.get(outputPath);
         output = output.normalize();
 
@@ -73,7 +72,7 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
 
     }
 
-    private void createDialog(Project project,String projectFolder, String targetFolder) {
+    private void createDialog(Project project, String projectFolder, String targetFolder) {
         final gui.CreateTnProject mainForm = new gui.CreateTnProject();
         DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
 
@@ -127,10 +126,10 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
 
             try {
                 boolean targetPresent = Files.list(Paths.get(projectDir)).findAny().isPresent();
-                if(targetPresent) {
+                if (targetPresent) {
                     int result = Messages.showYesNoDialog("The project target directory already contains files some of the files might be overwritten, do you like to proceed?", "Overwrite Warning", null);
-                    if(result == Messages.NO) {
-                        PopupUtil.showBalloonForActiveFrame("Project generation was cancelled", MessageType.INFO);
+                    if (result == Messages.NO) {
+                        supportive.utils.IntellijUtils.showInfoMessage("Project generation was cancelled", "Info");
                         return;
                     }
                 }
@@ -161,20 +160,43 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
                             return data;
                         }
                     });
-                    createRunner(project, TnDecGroupFactory.TPL_RUN_CONFIG, projectDir);
+
                     SaveAndSyncHandlerImpl.getInstance().refreshOpenFiles();
                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
 
-                } catch (IOException e) {
-                    com.intellij.openapi.ui.Messages.showErrorDialog(project,"Error", e.getMessage());
-                    e.printStackTrace();
+
                 } finally {
                     ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
                 }
 
+                supportive.utils.IntellijUtils.showInfoMessage("Project setup done, now starting npm to install all needed dependencies", "Info");
 
-                PopupUtil.showBalloonForActiveFrame("The project as been generated, please run npm install to load all needed dependencies", MessageType.INFO);
+                IntellijUtils.npmInstall(project, mainForm, "The project has been generated successfully", "Success");
             });
+
+            WriteCommandAction.runWriteCommandAction(project, () -> {
+                try {
+                    FileDocumentManager.getInstance().saveAllDocuments();
+                    ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
+                    createRunner(project, TnDecGroupFactory.TPL_RUN_CONFIG, projectDir);
+                } catch (IOException e) {
+                    supportive.utils.IntellijUtils.showErrorDialog(project, "Error", e.getMessage());
+                    e.printStackTrace();
+                } finally {
+                    ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
+                }
+            });
+            WriteCommandAction.runWriteCommandAction(project, () -> {
+                try {
+                    FileDocumentManager.getInstance().saveAllDocuments();
+                    ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
+                    VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
+                } finally {
+                    ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
+                }
+            });
+
+
         }
 
     }
@@ -182,24 +204,30 @@ public class CreateTnDecProject extends AnAction implements DumbAware {
 
     protected void createRunner(Project project, String template, String projectFolder) throws IOException {
         Path rootProjectPath = Paths.get(project.getBaseDir().getPath());
-        Path runConfigPath = Paths.get(project.getBaseDir().getPath()+"/.idea/runConfigurations");
+        Path runConfigPath = Paths.get(project.getBaseDir().getPath() + "/.idea/runConfigurations");
         Path angDir = Paths.get(projectFolder);
 
-        Path rel =  rootProjectPath.relativize(angDir);
+        Path rel = rootProjectPath.relativize(angDir);
 
         Map<String, String> attrs = Maps.newHashMap();
         String angularType = isAngular1() ? "TinyDec" : "Angular NG";
         attrs.put("ANGULAR_TYPE", angularType);
-        attrs.put("PKG_JSON_PATH", rel + "/package.json".replaceAll("\\\\","/") );
+        attrs.put("PKG_JSON_PATH", rel + "/package.json".replaceAll("\\\\", "/"));
 
         FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(template);
         String str = FileTemplateUtil.mergeTemplate(attrs, vslTemplate.getText(), false);
-        String fileName = ("Client Development Server Start ["+angularType+"].xml").replaceAll("\\s", "_");
+        String fileName = ("Client Development Server Start [" + angularType + "].xml").replaceAll("\\s", "_");
         runConfigPath.toFile().mkdirs();
         SaveAndSyncHandlerImpl.getInstance().refreshOpenFiles();
         VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
 
-        IntellijUtils.create(project, LocalFileSystem.getInstance().findFileByPath(runConfigPath.toFile().getPath()), str, fileName);
+        VirtualFile runConfig = LocalFileSystem.getInstance().findFileByPath(runConfigPath.toFile().getPath() + "/" + fileName);
+        if (runConfig != null && runConfig.exists()) {
+            supportive.utils.IntellijUtils.showInfoMessage("Run Config already exists, skipping run confi generation", "Info");
+        } else {
+            IntellijUtils.create(project, LocalFileSystem.getInstance().findFileByPath(runConfigPath.toFile().getPath()), str, fileName);
+        }
+
     }
 
     @NotNull

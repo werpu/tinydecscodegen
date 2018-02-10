@@ -94,7 +94,7 @@ public class CreateTnDecRoute extends AnAction {
         if (components.length == 0) {
 
             String message = "There was no component found, cannot create route automatically, please create it manually";
-            com.intellij.openapi.ui.Messages.showErrorDialog(fileContext.getProject(), "Error", message);
+            supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "Error", message);
             return;
         }
 
@@ -129,9 +129,9 @@ public class CreateTnDecRoute extends AnAction {
                         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
                             try {
                                 rContext.commit();
-                                PopupUtil.showBalloonForActiveFrame("The new route has been added", MessageType.INFO);
+                                supportive.utils.IntellijUtils.showInfoMessage("The new route has been added", "Info");
                             } catch (IOException e) {
-                                com.intellij.openapi.ui.Messages.showErrorDialog(fileContext.getProject(), "Error", e.getMessage());
+                                supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "Error", e.getMessage());
                                 e.printStackTrace();
                             }
                         });

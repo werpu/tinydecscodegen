@@ -119,7 +119,7 @@ public class CreateTnDecFilter extends AnAction implements DumbAware {
         if (dialogWrapper.isOK()) {
             ControllerJson model = new ControllerJson(mainForm.getName(), mainForm.getTemplate(), mainForm.getControllerAs());
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
-            PopupUtil.showBalloonForActiveFrame("The Filter/Pipe has been generated", MessageType.INFO);
+            supportive.utils.IntellijUtils.showInfoMessage("The Filter/Pipe has been generated", "Info");
             ConfigSerializer.getInstance().getState().setDirectiveExport(mainForm.getCbExport().isSelected());
         }
     }

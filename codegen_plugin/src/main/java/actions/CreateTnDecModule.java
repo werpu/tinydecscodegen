@@ -139,7 +139,7 @@ public class CreateTnDecModule extends AnAction implements DumbAware {
             ControllerJson model = new ControllerJson(mainForm.getName(), mainForm.getTemplate(), mainForm.getControllerAs());
 
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder, exportModule, generateFolder, generateStructure));
-            PopupUtil.showBalloonForActiveFrame("The Module has been generated", MessageType.INFO);
+            supportive.utils.IntellijUtils.showInfoMessage("The Module has been generated", "Info");
 
             ConfigSerializer.getInstance().getState().setModuleExport(exportModule);
             ConfigSerializer.getInstance().getState().setModuleGenerateFolder(generateFolder);
