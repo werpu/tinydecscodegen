@@ -10,9 +10,9 @@ public class VisibleAssertions {
     public static boolean assertNotJavaRest(IntellijFileContext ctx) {
         return ctx.getProject() == null ||
                 ctx.getPsiFile() == null ||
+                ctx.getPsiFile().getVirtualFile() == null ||
                 !ctx.getPsiFile().getVirtualFile().getPath().endsWith(".java") ||
-                (assertNotSprinRest(ctx) &&
-                ctx.getDocument().getText().indexOf("@Path") != -1);
+                ctx.getDocument().getText().indexOf("@Path") == -1);
     }
 
     public static boolean assertNotSprinRest(IntellijFileContext ctx) {
