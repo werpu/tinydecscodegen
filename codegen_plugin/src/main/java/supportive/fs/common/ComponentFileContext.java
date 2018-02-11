@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static supportive.reflectRefact.IntellijRefactor.NG_MODULE;
 import static supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
 import static supportive.utils.StringUtils.elVis;
 
@@ -42,6 +43,9 @@ public class ComponentFileContext extends TypescriptFileContext {
 
     private PsiElement componentAnnotation;
 
+    @Getter
+    private NgModuleFileContext ngModule;
+
     public ComponentFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
         init();
@@ -66,6 +70,11 @@ public class ComponentFileContext extends TypescriptFileContext {
         super(fileContext);
         this.componentAnnotation = componentAnnotation;
         init();
+    }
+
+
+    public String getDisplayName() {
+        return this.getComponentClassName() + ((ngModule == null) ? "" : "["+ngModule.getModuleName()+"]");
     }
 
 
@@ -104,6 +113,8 @@ public class ComponentFileContext extends TypescriptFileContext {
                 templateRef = getTemplateRef(template.get());
             }
         }
+        List<IntellijFileContext> modules = findFirstUpwards(psiFile -> psiFile.getContainingFile().getText().contains(NG_MODULE));
+        this.ngModule = modules.isEmpty() ? null :  new NgModuleFileContext(modules.get(0));
 
     }
 

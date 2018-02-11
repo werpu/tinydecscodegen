@@ -3,14 +3,18 @@ package supportive.fs.common;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.RefactorUnit;
+import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import static supportive.reflectRefact.PsiWalkFunctions.*;
+import static supportive.utils.StringUtils.elVis;
 
 
 /**
@@ -48,6 +52,26 @@ public class NgModuleFileContext extends TypescriptFileContext {
 
     }
 
+
+    public String getModuleName() {
+        Optional<String> moduleClassName = findClassName();
+        if(moduleClassName.isPresent()) {
+            return  moduleClassName.get();
+        }
+        return "";
+    }
+
+
+    public Optional<String> findClassName() {
+        PsiElement moduleAnnotation = walkPsiTree(getPsiFile(), PsiWalkFunctions::isNgModule, false).get(0);
+
+        List<PsiElement> classDefs = findPsiElements(PsiWalkFunctions::isClass);
+        Optional<String> moduleClassDef = classDefs.stream()
+                .filter(classDef -> moduleAnnotation.getTextOffset() < classDef.getTextOffset())
+                .map(el -> (String) elVis(el, "nameIdentifier", "text").get()).findFirst();
+
+        return moduleClassDef;
+    }
 
     public void appendDeclaration(String variableName) throws IOException {
         //First add the needed declarational part if missing

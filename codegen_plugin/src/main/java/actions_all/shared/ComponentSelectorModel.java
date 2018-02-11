@@ -21,7 +21,7 @@ public class ComponentSelectorModel {
 
     public String[] getContextNames() {
         return Arrays.stream(componentFileContexts)
-                .map(context -> context.getComponentClassName())
+                .map(context -> context.getDisplayName())
                 .toArray(size -> new String[size]);
     }
 }
