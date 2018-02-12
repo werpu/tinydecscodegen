@@ -1,5 +1,6 @@
 package supportive.fs.ng;
 
+import com.google.common.collect.Lists;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -10,9 +11,12 @@ import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.RefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static supportive.reflectRefact.PsiWalkFunctions.*;
 import static supportive.utils.StringUtils.elVis;
 import static supportive.utils.StringUtils.literalContains;
 
@@ -55,7 +59,7 @@ public class UIRoutesRoutesFileContext extends TypescriptFileContext implements 
         }
 
 
-        addRefactoring(new RefactorUnit(super.getPsiFile(), new DummyInsertPsiElement(getRoutesDeclration().get().getRootElement().getElement().getTextOffset()), routeData.toStringNg2()));
+        addRefactoring(new RefactorUnit(super.getPsiFile(), new DummyInsertPsiElement(getRoutesDeclaration().get().getRootElement().getElement().getTextOffset()), routeData.toStringNg2()));
         addNavVar(routeData.getRouteVarName());
     }
 
@@ -72,15 +76,17 @@ public class UIRoutesRoutesFileContext extends TypescriptFileContext implements 
 
     @Override
     public boolean isRouteNameUsed(Route routeData) {
-        return getPsiFile().getText().contains("name: '"+routeData.getRouteKey()+"'");
+        return getPsiFile().getText().contains("name: '" + routeData.getRouteKey() + "'");
     }
+
+
 
     public boolean urlCheck(Route routeData, String fullText) {
         return literalContains(fullText, routeData.getUrl());
     }
 
     @NotNull
-    public Optional<PsiElementContext> getRoutesDeclration() {
+    public Optional<PsiElementContext> getRoutesDeclaration() {
 
         List<PsiElement> els = findPsiElements(PsiWalkFunctions::isRootNav);
         return els.stream().map(el -> new PsiElementContext(el)).findFirst();
@@ -111,6 +117,34 @@ public class UIRoutesRoutesFileContext extends TypescriptFileContext implements 
         return Optional.ofNullable(navArr
                 .findPsiElements(el -> el.toString().equals(PsiWalkFunctions.PSI_ELEMENT_JS_RBRACKET)).stream() //TODO type check once debugged out
                 .reduce((first, second) -> second).orElse(null));
+    }
+
+
+    /**
+     * gets the flat list of routes in this context
+     *
+     * @return
+     */
+    public List<PsiRouteContext> getRoutes() {
+        List<PsiElementContext> foundIdentifiers = getNavigationalArray().get().queryContent(JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER).collect(Collectors.toList());
+        List<PsiElementContext> foundParseableBlocks = getNavigationalArray().get().queryContent(JS_OBJECT_LITERAL_EXPRESSION).collect(Collectors.toList());
+
+        //part a we try to resolve the variables locally
+        List<PsiRouteContext> retVal = Lists.newArrayList();
+
+
+        retVal.addAll(foundIdentifiers.stream().flatMap(identifier -> {
+            return queryContent(JS_VAR_STATEMENT, TYPE_SCRIPT_VARIABLE, "NAME:(" + identifier.getText() + ")");
+        })
+                .map(psiElementContext -> ContextFactory.createRouteContext(this, psiElementContext)).filter(found -> found != null)
+                .collect(Collectors.toList()));
+
+        retVal.addAll(foundParseableBlocks.stream()
+                .map(psiElementContext -> ContextFactory.createRouteContext(this, psiElementContext)).filter(found -> found != null)
+                .collect(Collectors.toList()));
+
+        return retVal;
+
     }
 
 

@@ -1,28 +1,36 @@
 package supportive.fs.common;
 
+import com.google.common.base.Strings;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-@Getter
-public class Route implements Cloneable, Serializable{
+
+
+public class Route implements Cloneable, Serializable, Comparable{
 
     @NonNull
     private String routeKey;
 
     @NonNull
     @Setter
+    @Getter
     private String url;
 
     @NonNull
     @Setter
+    @Getter
     private String component;
 
     @Setter
+    @Getter
     private String routeVarName;
 
+    @Getter
     String componentPath;
 
     public Route(String routeKey, String url, String component) {
@@ -41,6 +49,8 @@ public class Route implements Cloneable, Serializable{
         this.routeKey = routeKey;
         this.routeVarName = routeKey.replaceAll("\\.", "_");
     }
+
+
 
     public String toStringNg1() {
         return "//TODO yet to be implemented \n";
@@ -66,5 +76,28 @@ public class Route implements Cloneable, Serializable{
 
     public String getInclude() {
         return String.format("import {%s} from \"%s\";", component, componentPath);
+    }
+
+
+    public String getRouteKey() {
+        return (Strings.isNullOrEmpty(routeKey)) ? urlToRouteKey(url) : routeKey;
+    }
+
+    private String urlToRouteKey(String url) {
+        url = url.replaceAll("[\\/]*(.*)[\\/]*$", "$1");
+        return url.replaceAll("\\/", ".");
+    }
+
+    @Override
+    public int compareTo(@NotNull Object o) {
+        if(!(o instanceof Route)) {
+            return -1;
+        }
+        int routeKey = Strings.nullToEmpty(((Route) o).getRouteKey()).compareTo(Strings.nullToEmpty(getRouteKey()));
+        int url = Strings.nullToEmpty(((Route) o).getUrl()).compareTo(Strings.nullToEmpty(getUrl()));
+        int component = Strings.nullToEmpty(((Route) o).getComponent()).compareTo(Strings.nullToEmpty(getComponent()));
+
+        int weight = routeKey * 256 + url * 16 + component;
+        return (weight > 0) ? 1:  (weight == 0) ? 0 : -1;
     }
 }

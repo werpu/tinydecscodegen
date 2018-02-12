@@ -46,11 +46,13 @@ public class PsiWalkFunctions {
     public static final String JS_BLOCK_STATEMENT = "JSBlockStatement";
     public static final String JS_OBJECT_LITERAL_EXPRESSION = "JSObjectLiteralExpression";
     public static final String JS_ES_6_DECORATOR = "ES6Decorator";
+    public static final String JS_ES_6_FROM_CLAUSE = "ES6FromClause";
     public static final String NG_COMPONENT = "@Component";
     public static final String NG_INJECT = "@Inject";
     public static final String TN_CONFIG = "@Config";
     public static final String TN_CONTROLLER = "@Controller";
     public static final String TYPE_SCRIPT_CLASS = "TypeScriptClass";
+    public static final String TYPE_SCRIPT_VARIABLE = "TypeScriptVariable";
     public static final String TYPE_SCRIPT_PARAM = "TypeScriptParameter";
     public static final String TYPE_SCRIPT_FUNC = "TypeScriptFunction";
     public static final String PSI_METHOD = "PsiMethod:";
@@ -60,12 +62,14 @@ public class PsiWalkFunctions {
     public static final String JS_CALL_EXPRESSION = "JSCallExpression";
     public static final String JS_UIROUTER_MODULE_FOR_ROOT = "UIRouterModule.forRoot";
     public static final String TN_UIROUTER_MODULE_FOR_ROOT = "TN_RootRouter";
+    public static final String NPM_ROOT = "package.json";
     public static final String PSI_ELEMENT_JS_RBRACKET = "PsiElement(JS:RBRACKET)";
     public static final String PSI_ELEMENT_JS_IDENTIFIER = "PsiElement(JS:IDENTIFIER)";
     public static final String PSI_ELEMENT_JS_STRING_LITERAL = "PsiElement(JS:STRING_LITERAL)";
     public static final String JS_PROPERTY = "JSProperty";
     public static final String JS_ARRAY_LITERAL_EXPRESSION = "JSArrayLiteralExpression";
     public static final String JS_ARGUMENTS_LIST = "JSArgumentList";
+    public static final String JS_VAR_STATEMENT = "JSVarStatement";
 
 
     public static boolean isNgModule(PsiElement element) {

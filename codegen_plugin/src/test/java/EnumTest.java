@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static util.TestUtils.JAVA_TEST_PROBES_PATH;
 
 public class EnumTest extends LightCodeInsightFixtureTestCase {
 
@@ -20,7 +21,7 @@ public class EnumTest extends LightCodeInsightFixtureTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/java/probes";
+        return JAVA_TEST_PROBES_PATH;
     }
 
     @Test

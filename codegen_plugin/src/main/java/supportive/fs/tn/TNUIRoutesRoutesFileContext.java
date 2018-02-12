@@ -13,6 +13,7 @@ import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.RefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -249,5 +250,12 @@ public class TNUIRoutesRoutesFileContext extends TypescriptFileContext implement
         }
         return false;
     }
+
+    @Override
+    public List<PsiRouteContext> getRoutes() {
+        //todo implement this
+        return Collections.emptyList();
+    }
+
 
 }

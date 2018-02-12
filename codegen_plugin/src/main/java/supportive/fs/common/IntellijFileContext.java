@@ -178,14 +178,7 @@ public class IntellijFileContext {
             return Arrays.asList(this);
         }
 
-        List<IntellijFileContext> retVal = this.getChildren(vFile -> {
-            IntellijFileContext ctx = new IntellijFileContext(project, vFile);
-            if(ctx.getPsiFile() != null) {
-                return psiElementVisitor.apply(ctx.getPsiFile());
-            } else {
-                return false;
-            }
-        });
+        List<IntellijFileContext> retVal = findInCurrentDir(psiElementVisitor);
         if(retVal.isEmpty()) {
             Optional<IntellijFileContext> parent = getParent();
             if(!parent.isPresent()) {
@@ -196,7 +189,44 @@ public class IntellijFileContext {
         return retVal;
     }
 
-    public void refactorContent(List<IRefactorUnit> refactorings) throws IOException {
+    public List<IntellijFileContext> findInCurrentDir(Function<PsiFile, Boolean> psiElementVisitor) {
+        return this.getChildren(vFile -> {
+                IntellijFileContext ctx = new IntellijFileContext(project, vFile);
+                if(ctx.getPsiFile() != null) {
+                    return psiElementVisitor.apply(ctx.getPsiFile());
+                } else {
+                    return false;
+                }
+            });
+    }
+
+    /**
+     * goes an element tree upwards and finds all files/dirs triggered
+     * by the visitor
+     * @param psiElementVisitor an element visitor which returns true once it has found everything
+     *
+     * @param recurseOnceFound recurses deeper into the tree if set to true even if an element already is found
+     * @return
+     */
+    public List<IntellijFileContext> find(Function<PsiFile, Boolean> psiElementVisitor, boolean recurseOnceFound) {
+        if(psiFile != null && psiElementVisitor.apply(this.psiFile)) {
+            return Arrays.asList(this);
+        }
+        List<IntellijFileContext> retVal = findInCurrentDir(psiElementVisitor);
+        if(!recurseOnceFound && !retVal.isEmpty()) {
+            return retVal;
+        }
+        return getChildren(virtualFile1 -> {
+            return virtualFile1.isDirectory() && !virtualFile1.getName().startsWith(".");
+
+        }).stream().flatMap(intellijFileContext -> intellijFileContext.find(psiElementVisitor, recurseOnceFound).stream())
+                .collect(Collectors.toList());
+
+    }
+
+
+
+        public void refactorContent(List<IRefactorUnit> refactorings) throws IOException {
         if(refactorings.isEmpty()) {
             return;
         }
@@ -282,6 +312,7 @@ public class IntellijFileContext {
 
         return fileContext.get().getParent();
     }
+
 
     public boolean isChildOf(IntellijFileContext ctx) {
         Path child =  Paths.get(getVirtualFile().isDirectory() ? this.getVirtualFile().getPath() : this.getVirtualFile().getParent().getPath());

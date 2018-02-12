@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static supportive.reflectRefact.PsiWalkFunctions.PSI_ELEMENT_JS_IDENTIFIER;
+import static util.TestUtils.JS_TEST_PROBES_PATH;
 
 public class PsiQueryTest extends LightCodeInsightFixtureTestCase {
 
@@ -20,7 +21,7 @@ public class PsiQueryTest extends LightCodeInsightFixtureTestCase {
 
 
     protected String getTestDataPath() {
-        return "src/test/typescript/probes";
+        return JS_TEST_PROBES_PATH;
     }
 
 

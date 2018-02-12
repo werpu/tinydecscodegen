@@ -10,6 +10,7 @@ import rest.RestVar;
 import supportive.reflectRefact.IntellijDtoReflector;
 import supportive.reflectRefact.IntellijJaxRsReflector;
 import supportive.reflectRefact.IntellijSpringRestReflector;
+import util.TestUtils;
 
 import java.util.*;
 
@@ -25,7 +26,7 @@ public class BasicTest extends LightCodeInsightFixtureTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/java/probes";
+        return TestUtils.JAVA_TEST_PROBES_PATH;
     }
 
     @Test

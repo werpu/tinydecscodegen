@@ -48,6 +48,7 @@
         <fileBasedIndex implementation="indexes.ControllerIndex" />
         <fileBasedIndex implementation="indexes.RoutesIndex" />
         <fileBasedIndex implementation="indexes.TNRoutesIndex" />
+        <fileBasedIndex implementation="indexes.AngularIndex" />
 
     </extensions>
 

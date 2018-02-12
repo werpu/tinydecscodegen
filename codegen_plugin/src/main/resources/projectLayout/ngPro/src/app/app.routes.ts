@@ -15,6 +15,7 @@ import {StatesModule} from "@uirouter/angular/lib/uiRouterNgModule";
  */
 const defaultPageState: any = {name: 'default', url: '', component: MainPageComponent};
 const mainPageState: any = {name: 'mainpage', url: '/mainpage', component: MainPageComponent};
+const subRoute: any = {name: 'mainpage.sub', url: '/mainpage/sub', component: MainPageComponent};
 const aboutState: any = {name: 'firstpage', url: '/firstpage', component: FirstPageComponent};
 
 /**

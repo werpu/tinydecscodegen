@@ -1,37 +1,24 @@
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import org.junit.Before;
 import org.junit.Test;
 import supportive.fs.common.ComponentFileContext;
 import supportive.fs.common.PsiElementContext;
 import supportive.fs.common.Route;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNUIRoutesRoutesFileContext;
+import util.TestUtils;
 
 import java.util.Optional;
 
 
-public class RoutingTest extends LightCodeInsightFixtureTestCase {
+public class RoutingTest extends BaseTsTest {
 
-    @Override
+
+
     protected void setUp() throws Exception {
         super.setUp();
-    }
-
-
-    protected String getTestDataPath() {
-        return "src/test/typescript/probes";
-    }
-
-
-    //nothing else seems to work than the hard approach
-    private boolean assertTestable() {
-        try {
-            Class.forName("com.intellij.lang.typescript.psi.TypeScriptExternalModuleReference");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
     }
 
     @Test
@@ -39,15 +26,6 @@ public class RoutingTest extends LightCodeInsightFixtureTestCase {
         if (!assertTestable()) {
             return;
         }
-
-
-        myFixture.allowTreeAccessForAllFiles();
-        PsiFile fs = myFixture.configureByFile("Routes.ts");
-        Project prj = myFixture.getProject();
-
-        //TODO move this code to our main action
-
-        //Collection<PsiFile> psiFiles = IntellijUtils.searchComments(myFixture.getProject(), "ts", "UIRouterModule.forRoot");
 
 
         UIRoutesRoutesFileContext routesFileContext = new UIRoutesRoutesFileContext(prj, fs);

@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
+import static supportive.reflectRefact.PsiWalkFunctions.*;
 import static supportive.utils.StringUtils.elVis;
 
 @AllArgsConstructor
@@ -27,8 +27,12 @@ public class PsiElementContext {
     }
 
     public String getText() {
-        return element.getText();
+        String text = element.getText();
+        text = text.replaceAll("^[\\\"\\'](.*)[\\\"\\']$", "$1");
+        return text;
     }
+
+
 
     @Contract(
         pure = true
@@ -112,6 +116,14 @@ public class PsiElementContext {
 
     public Stream<PsiElementContext> queryContent(Object ... items) {
         return PsiWalkFunctions.queryContent(this.getElement(), items);
+    }
+
+    public List<PsiElementContext> getImportsWithIdentifier(String varToCheck) {
+        return getImportIdentifiers(varToCheck).stream().flatMap(item ->item.queryContent("PARENTS:", JS_ES_6_IMPORT_DECLARATION)).collect(Collectors.toList());
+    }
+
+    public List<PsiElementContext> getImportIdentifiers(String varToCheck) {
+        return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:("+varToCheck+")").collect(Collectors.toList());
     }
 
     @Override
