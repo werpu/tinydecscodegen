@@ -423,7 +423,9 @@ public class PsiWalkFunctions {
                         }
                         String matchText = m.group(1);
 
-                        return listeralStartsWith(psiElementContext.getName(), matchText) || psiElementContext.getName().startsWith(matchText);
+                        return listeralStartsWith(psiElementContext.getName(), matchText) ||
+
+                                psiElementContext.getName().startsWith(matchText);
                     });
                     continue;
 
@@ -446,6 +448,18 @@ public class PsiWalkFunctions {
                     } else {
                         subItem = emptyStream();
                     }
+                } else if (subCommand.startsWith("PARENTS:(")) {
+                    Pattern p = Pattern.compile("^\\s*PARENTS\\s*\\:\\s*\\((.*)\\)\\s*$");
+                    subItem = subItem.flatMap(theItem -> theItem.parents().stream().filter(psiElementContext -> {
+
+                        Matcher m = p.matcher(text);
+                        if (!m.find()) {
+                            return false;
+                        }
+                        String matchText = m.group(1);
+
+                        return listeralStartsWith(psiElementContext.getName(), matchText) || listeralStartsWith(psiElementContext.getElement().toString(), matchText);
+                    }));
                 } else if (subCommand.equals(":PARENTS")) {
                     subItem = subItem.flatMap(theItem -> theItem.parents().stream());
                 } else if (subCommand.equals(":LAST")) {
@@ -457,9 +471,9 @@ public class PsiWalkFunctions {
                     }
 
                 } else if (directChild) {
-                    subItem = subItem.filter(psiItem -> psiItem.getName().startsWith(finalSubCommand));
+                    subItem = subItem.filter(psiItem -> psiItem.toString().startsWith(finalSubCommand));
                 } else {
-                    subItem = subItem.flatMap(psiItem -> psiItem.findPsiElements(psiElement -> psiElement.toString().startsWith(finalSubCommand)).stream());
+                    subItem = subItem.flatMap(psiItem -> psiItem.findPsiElements(psiElement ->  psiElement.toString().startsWith(finalSubCommand)).stream());
                 }
             } else if (item instanceof Consumer) {
                 subItem.forEach(elem -> {

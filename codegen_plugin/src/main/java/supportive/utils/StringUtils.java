@@ -79,21 +79,25 @@ public class StringUtils {
     }
 
     public static boolean literalEquals(String literal, String contentToCompare) {
-        literal = literal.replaceAll("^[\\\"\\'](.*)[\\\"\\']$", "$1");
-        contentToCompare = contentToCompare.replaceAll("^[\\\"\\'](.*)[\\\"\\']$", "$1");
+        literal = stripQuotes(literal);
+        contentToCompare = stripQuotes(contentToCompare);
         return contentToCompare.equals(literal);
     }
 
     public static boolean literalContains(String literal, String contentToCompare) {
-        literal = literal.replaceAll("^[\\\"\\'](.*)[\\\"\\']$", "$1");
-        contentToCompare = contentToCompare.replaceAll("^[\\\"\\'](.*)[\\\"\\']$", "$1");
+        literal = stripQuotes(literal);
+        contentToCompare = stripQuotes(contentToCompare);
         return literal.contains(contentToCompare);
     }
 
     public static boolean listeralStartsWith(String literal, String contentToCompare) {
-        literal = literal.replaceAll("^[\\\"\\'](.*)[\\\"\\']$", "$1");
-        contentToCompare = contentToCompare.replaceAll("^[\\\"\\'](.*)[\\\"\\']$", "$1");
+        literal = stripQuotes(literal);
+        contentToCompare = stripQuotes(contentToCompare);
         return literal.startsWith(contentToCompare);
+    }
+
+    public static String stripQuotes(String literal) {
+        return literal.replaceAll("^[\\\"\\'](.*)[\\\"\\']$", "$1");
     }
 
     public static boolean findWithSpaces(String probe, String ...params) {

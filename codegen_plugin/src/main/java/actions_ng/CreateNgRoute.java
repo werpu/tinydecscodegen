@@ -46,7 +46,29 @@ public class CreateNgRoute extends AnAction {
 
         IntellijFileContext fileContext = new IntellijFileContext(event);
         final gui.CreateRoute mainForm = new gui.CreateRoute();
-        ComponentSelectorModel selectorModel = null;
+        final ComponentSelectorModel selectorModel;
+
+        ComponentFileContext[] components = findAllPageComponents(fileContext);
+        if (components.length == 0) {
+
+            String message = "There was no component found, cannot create route automatically, please create it manually";
+            supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "Error",message);
+            return;
+        }
+
+        List<ComponentFileContext> editorControllers = getControllers(fileContext);
+
+        selectorModel = new ComponentSelectorModel(components);
+        mainForm.getCbComponent().setModel(new ListComboBoxModel(Arrays.asList(selectorModel.getContextNames())));
+        if (editorControllers.size() > 0) {
+            ComponentFileContext componentFileContext = editorControllers.stream().findFirst().get();
+            String componentClassName = componentFileContext.getComponentClassName();
+            String displayName = componentFileContext.getDisplayName();
+            mainForm.getCbComponent().setSelectedItem(displayName);
+            mainForm.getTxtRouteName().setText(StringUtils.toLowerDash(componentClassName).replaceAll("_component", ""));
+        } else {
+            mainForm.updateRouteName(null);
+        }
 
         DialogWrapper dialogWrapper = new DialogWrapper(fileContext.getProject(), true, DialogWrapper.IdeModalityType.PROJECT) {
 
@@ -65,7 +87,7 @@ public class CreateNgRoute extends AnAction {
             @Nullable
             @NotNull
             protected List<ValidationInfo> doValidateAll() {
-                Route route = getRoute(mainForm);
+                Route route = getRoute(mainForm, selectorModel);
 
                 UIRoutesRoutesFileContext ctx = RoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
                         .map(psiFile -> new UIRoutesRoutesFileContext(fileContext.getProject(), psiFile)).findAny().get();
@@ -88,25 +110,7 @@ public class CreateNgRoute extends AnAction {
             }
         };
 
-        ComponentFileContext[] components = findAllPageComponents(fileContext);
-        if (components.length == 0) {
 
-            String message = "There was no component found, cannot create route automatically, please create it manually";
-            supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "Error",message);
-            return;
-        }
-
-        List<ComponentFileContext> editorControllers = getControllers(fileContext);
-
-        selectorModel = new ComponentSelectorModel(components);
-        mainForm.getCbComponent().setModel(new ListComboBoxModel(Arrays.asList(selectorModel.getContextNames())));
-        if (editorControllers.size() > 0) {
-            String componentClassName = editorControllers.stream().findFirst().get().getComponentClassName();
-            mainForm.getCbComponent().setSelectedItem(componentClassName);
-            mainForm.getTxtRouteName().setText(StringUtils.toLowerDash(componentClassName).replaceAll("_component", ""));
-        } else {
-            mainForm.updateRouteName(null);
-        }
 
         dialogWrapper.setTitle("Create Route");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
@@ -115,17 +119,18 @@ public class CreateNgRoute extends AnAction {
 
 
         if (dialogWrapper.isOK()) {
-            Route route = getRoute(mainForm);
+            Route route = getRoute(mainForm, selectorModel);
             ComponentFileContext compContext = components[mainForm.getCbComponent().getSelectedIndex()];
 
             getRoutesFiles(fileContext)
                     .forEach(rContext -> {
                         //calculate the component include relative from the file
-                        route.setComponentPath(compContext.calculateRelPathTo(rContext));
-                        rContext.addRoute(route);
 
                         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
                             try {
+                                route.setComponentPath(compContext.calculateRelPathTo(rContext));
+                                rContext.addRoute(route);
+
                                 rContext.commit();
                                 supportive.utils.IntellijUtils.showInfoMessage("The new route has been added", "Info");
                             } catch (IOException e) {
@@ -153,11 +158,13 @@ public class CreateNgRoute extends AnAction {
     }
 
     @NotNull
-    public Route getRoute(CreateRoute mainForm) {
+    public Route getRoute(CreateRoute mainForm, ComponentSelectorModel selectorModel) {
+
+
         return new Route(
                         mainForm.getTxtRouteName().getText(),
                         mainForm.getTxtHref().getText(),
-                        (String) mainForm.getCbComponent().getSelectedItem());
+                        selectorModel.getComponentFileContexts()[mainForm.getCbComponent().getSelectedIndex()].getComponentClassName());
     }
 
 

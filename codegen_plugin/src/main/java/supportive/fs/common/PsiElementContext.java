@@ -119,7 +119,7 @@ public class PsiElementContext {
     }
 
     public List<PsiElementContext> getImportsWithIdentifier(String varToCheck) {
-        return getImportIdentifiers(varToCheck).stream().flatMap(item ->item.queryContent("PARENTS:", JS_ES_6_IMPORT_DECLARATION)).collect(Collectors.toList());
+        return getImportIdentifiers(varToCheck).stream().flatMap(item ->item.queryContent("PARENTS:("+ JS_ES_6_IMPORT_DECLARATION+")")).collect(Collectors.toList());
     }
 
     public List<PsiElementContext> getImportIdentifiers(String varToCheck) {
