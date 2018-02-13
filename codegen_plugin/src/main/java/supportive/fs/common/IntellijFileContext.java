@@ -78,6 +78,10 @@ public class IntellijFileContext {
         this(event.getProject(), IntellijUtils.getFolderOrFile(event));
     }
 
+    public IntellijFileContext(Project project) {
+        this(project, project.getProjectFile());
+    }
+
     public IntellijFileContext(Project project, PsiFile psiFile) {
         this.project = project;
         this.psiFile = psiFile;

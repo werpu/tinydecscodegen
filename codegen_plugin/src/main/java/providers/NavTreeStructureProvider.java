@@ -3,16 +3,15 @@ package providers;
 import com.intellij.ide.projectView.TreeStructureProvider;
 import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
+import com.intellij.openapi.project.Project;
+import com.jgoodies.common.base.Strings;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.PsiRouteContext;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -27,8 +26,16 @@ public class NavTreeStructureProvider implements TreeStructureProvider {
     @Getter
     List<RouteTreeNode> treeNodes = new LinkedList<>();
 
+
+
     public NavTreeStructureProvider(UIRoutesRoutesFileContext ctx) {
         this.ctx = ctx;
+
+        makeRouteTreeNodes(ctx);
+    }
+
+    public void makeRouteTreeNodes(UIRoutesRoutesFileContext ctx) {
+        Map<String, RouteTreeNode> _routeIdx = new HashMap<>();
 
         //lets make the tree Nodes
         List<PsiRouteContext> sortedRoutes = (List<PsiRouteContext>) ctx.getRoutes().stream().sorted(Comparator.comparing(PsiRouteContext::getRoute)).collect(Collectors.toList());
@@ -36,12 +43,23 @@ public class NavTreeStructureProvider implements TreeStructureProvider {
         PsiRouteContext oldData = null;
         RouteTreeNode oldNode = null;
         for (PsiRouteContext route : sortedRoutes) {
-            if (oldNode == null || !oldNode.getValue().getName().startsWith(route.getName())) {
-                oldNode = new RouteTreeNode(ctx.getProject(), route);
-                treeNodes.add(oldNode);
-            } else {
-                oldNode.addSubRoute(route);
+
+            String routeKey = route.getRoute().getRouteKey();
+            String subKey = routeKey.contains(".") ? routeKey.substring(0,routeKey.lastIndexOf(".")) : "";
+            if(_routeIdx.containsKey(routeKey)) {
+                //route already processed
+                continue;
             }
+            RouteTreeNode newNode = new RouteTreeNode(ctx.getProject(), route);
+            if(!Strings.isBlank(subKey) && _routeIdx.containsKey(subKey)) {
+                _routeIdx.get(subKey).getChildren().add(newNode);
+                _routeIdx.put(routeKey, newNode);
+                continue;
+            }
+
+            treeNodes.add(newNode);
+            _routeIdx.put(routeKey, newNode);
+
         }
     }
 

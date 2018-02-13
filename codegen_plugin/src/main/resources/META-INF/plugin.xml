@@ -50,6 +50,9 @@
         <fileBasedIndex implementation="indexes.TNRoutesIndex" />
         <fileBasedIndex implementation="indexes.AngularIndex" />
 
+
+        <toolWindow id="Angular Navigations" icon="/images/tt.png" anchor="left" factoryClass="toolWindows.AngularStructureToolWindow"/>
+
     </extensions>
 
     <actions>

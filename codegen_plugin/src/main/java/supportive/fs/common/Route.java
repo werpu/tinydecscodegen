@@ -98,6 +98,6 @@ public class Route implements Cloneable, Serializable, Comparable{
         int component = Strings.nullToEmpty(((Route) o).getComponent()).compareTo(Strings.nullToEmpty(getComponent()));
 
         int weight = routeKey * 256 + url * 16 + component;
-        return (weight > 0) ? 1:  (weight == 0) ? 0 : -1;
+        return (weight > 0) ? -1:  (weight == 0) ? 0 : 1;
     }
 }

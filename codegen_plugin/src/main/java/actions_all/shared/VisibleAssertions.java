@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import supportive.fs.common.AngularVersion;
 import supportive.fs.common.IntellijFileContext;
+import supportive.utils.IntellijUtils;
 
 import java.util.Optional;
 
@@ -65,6 +66,10 @@ public class VisibleAssertions {
     }
 
     public static void tnNoProject(AnActionEvent anActionEvent) {
+        if(anActionEvent.getProject() == null  || IntellijUtils.getFolderOrFile(anActionEvent) == null) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         Optional<AngularVersion> angularVersion = ctx.getAngularVersion();
         if (angularVersion.isPresent()) {

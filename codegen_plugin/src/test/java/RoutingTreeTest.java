@@ -1,9 +1,12 @@
 import org.junit.Test;
+import providers.NavTreeStructureProvider;
+import providers.RouteTreeNode;
 import supportive.fs.common.PsiElementContext;
 import supportive.fs.common.PsiRouteContext;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Test for our routing tree definitions
@@ -38,6 +41,21 @@ public class RoutingTreeTest extends BaseTsTest {
 
         List<PsiRouteContext> routes = ctx.getRoutes();
         assertTrue(routes.size() > 2);
+
+        assertTrue(routes.stream().filter(route -> route.getRoute().getRouteKey().equals("mainpage.substate")).findFirst().isPresent());
+
+        NavTreeStructureProvider navTree = new NavTreeStructureProvider(ctx);
+
+        List<RouteTreeNode> treeNodes = navTree.getTreeNodes();
+        assertTrue(!treeNodes.isEmpty());
+        Optional<RouteTreeNode> subElem = treeNodes.stream()
+                .filter(item -> item.getValue().getRoute().getRouteKey().equals("mainpage"))
+                .findFirst()
+                .get().getChildren()
+                .stream().findFirst();
+        assertTrue(subElem.get().getValue().getRoute().getRouteKey().equals("mainpage.substate"));
+
+        assertTrue(treeNodes.stream().filter(item-> item.getValue().getRoute().getRouteKey().equals("firstpage")).findFirst().isPresent());
     }
 
 

@@ -3,7 +3,9 @@ package providers;
 import com.google.common.collect.Lists;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
+import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -29,23 +31,26 @@ public class RouteTreeNode extends AbstractTreeNode<PsiRouteContext> {
 
     public RouteTreeNode(Project project, PsiRouteContext value) {
         super(project, value);
-        RouteTreeNode treeNode = new RouteTreeNode(getProject(), value);
-        _routeIdx.put(value.getName(), treeNode);
-    }
 
-    public void addSubRoute(PsiRouteContext psiRouteContext) {
-        String parentRoute = psiRouteContext.getName();
-        if (parentRoute.contains(".")) {
-            parentRoute = parentRoute.substring(0, parentRoute.lastIndexOf("."));
-        }
-        if (_routeIdx.containsKey(parentRoute)) {
-            RouteTreeNode treeNode = new RouteTreeNode(getProject(), psiRouteContext);
-            _routeIdx.get(parentRoute).getChildren().add(treeNode);
-            _routeIdx.put(psiRouteContext.getName(), treeNode);
-        }
+        _routeIdx.put(value.getName(), this);
+        NodeDescriptor<PsiRouteContext> nodeDescriptor = new RouteNodeDescriptor(project, value);
+        applyFrom(nodeDescriptor);
 
     }
 
+
+
+
+    //TODO check how to handle go to component
+    @Override
+    protected VirtualFile getVirtualFile() {
+        return getValue().getElement().getContainingFile().getVirtualFile();
+    }
+
+    @Override
+    public boolean canNavigateToSource() {
+        return true;
+    }
 
     @NotNull
     @Override
@@ -57,4 +62,8 @@ public class RouteTreeNode extends AbstractTreeNode<PsiRouteContext> {
     protected void update(PresentationData presentationData) {
 
     }
+
+
+
+
 }

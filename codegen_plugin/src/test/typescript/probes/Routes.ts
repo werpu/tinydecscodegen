@@ -15,6 +15,7 @@ import {StatesModule} from "@uirouter/angular/lib/uiRouterNgModule";
  */
 const defaultPageState: any = {name: 'default', url: '', component: MainPageComponent};
 const mainPageState: any = {name: 'mainpage', url: '/mainpage', component: MainPageComponent};
+const substate: any = {name: 'mainpage.substate', url: '/mainpage/sub', component: FirstPageComponent};
 const aboutState: any = {name: 'firstpage', url: '/firstpage', component: FirstPageComponent};
 
 /**
@@ -24,7 +25,7 @@ const aboutState: any = {name: 'firstpage', url: '/firstpage', component: FirstP
 export let rootRoutesProvider = UIRouterModule.forRoot(
     {
         states: [defaultPageState, mainPageState, aboutState, {booga: aboutState}, "booga",
-            /*jgjggj*/ defaultPageState], //the currently implemented main routes
+            /*jgjggj*/ substate], //the currently implemented main routes
         useHash: true,                //use the hashbang for old browser support
         deferInitialRender: true,     //defer the initial rendering until the init code is done
         otherwise: ""   //default state if there is no match

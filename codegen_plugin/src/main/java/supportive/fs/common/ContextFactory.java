@@ -67,7 +67,7 @@ public class ContextFactory {
         return null;
     }
 
-    ContextFactory getInstance(IntellijFileContext project) {
+    public static ContextFactory getInstance(IntellijFileContext project) {
         return new ContextFactory(project);
     }
 
