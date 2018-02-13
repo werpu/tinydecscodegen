@@ -103,33 +103,33 @@
                 </action>
             </group>
 
-            <group id="Angular_2_Plus" text="_Angular NG" popup="true" description="Actions for Angular NG">
+            <group id="Angular_2_Plus" text="_Angular NG" popup="true" description="Actions for Angular NG" icon="/images/ng.png">
 
 
-                <action id="NG_CreateModule1" class="actions_ng.CreateNgModule" text="Create Angular Ng Module"
+                <action id="NG_CreateModule1" class="actions_ng.CreateNgModule" text="Create Angular Ng Module" icon="/images/ng.png"
                         description="Create a an Angular NG Module">
                 </action>
 
                 <separator/>
 
 
-                <action id="NG_CreateService1" class="actions_ng.CreateNgService" text="Create Angular Ng Service"
+                <action id="NG_CreateService1" class="actions_ng.CreateNgService" text="Create Angular Ng Service" icon="/images/ng.png"
                         description="Create a an Angular NG Service">
                 </action>
 
-                <action id="NG_CreateComponent1" class="actions_ng.CreateNgComponent" text="Create Angular Ng Component"
+                <action id="NG_CreateComponent1" class="actions_ng.CreateNgComponent" text="Create Angular Ng Component" icon="/images/ng.png"
                         description="Create a an Angular NG Component">
                 </action>
 
-                <action id="NG_CreateRoute1" class="actions_ng.CreateNgRoute" text="Create UI-Routes Route"
+                <action id="NG_CreateRoute1" class="actions_ng.CreateNgRoute" text="Create UI-Routes Route" icon="/images/ng.png"
                         description="Create a new Route">
                 </action>
 
-                <action id="NG_CreatePipe1" class="actions_ng.CreateNgPipe" text="Create Angular Ng Pipe"
+                <action id="NG_CreatePipe1" class="actions_ng.CreateNgPipe" text="Create Angular Ng Pipe" icon="/images/ng.png"
                         description="Create a an Angular NG Pipe">
                 </action>
 
-                <action id="NG_CreateDirective" class="actions_ng.CreateNgDirective" text="Create Angular Ng Directive"
+                <action id="NG_CreateDirective" class="actions_ng.CreateNgDirective" text="Create Angular Ng Directive" icon="/images/ng.png"
                         description="Create a an Angular NG Directive">
                 </action>
             </group>
@@ -226,7 +226,7 @@
         </group>
 
         <group id="NG_TinyDecsContextMenu" text="_Angular NG" popup="true" description="Angular NG Actions"
-               icon="/images/tt.png">
+               icon="/images/ng.png">
 
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
             <action id="NG_CreateProject2" class="actions_ng.CreateNgProject" text="Create Angular Ng Project"
@@ -236,29 +236,29 @@
             <separator/>
 
             <action id="TD_CreateModule2" class="actions_ng.CreateNgModule" text="Create Module"
-                    description="Create a an Angular Angular NG Module">
+                    description="Create a an Angular Angular NG Module" icon="/images/ng.png">
             </action>
 
             <separator/>
 
             <action id="NG_CreateComponent2" class="actions_ng.CreateNgComponent" text="Create Component"
-                    description="Create a an Angular NG Component">
+                    description="Create a an Angular NG Component" icon="/images/ng.png">
             </action>
 
 
-            <action id="NG_CreateRoute2" class="actions_ng.CreateNgRoute" text="Create UI-Routes Route"
+            <action id="NG_CreateRoute2" class="actions_ng.CreateNgRoute" text="Create UI-Routes Route" icon="/images/ng.png"
                     description="Create a new Route">
             </action>
 
             <action id="NG_CreateService2" class="actions_ng.CreateNgService" text="Create Service"
-                    description="Create a an Angular NG Service">
+                    description="Create a an Angular NG Service" icon="/images/ng.png">
             </action>
 
             <action id="NG_CreatePipe2" class="actions_ng.CreateNgPipe" text="Create Pipe"
-                    description="Create a an Angular NG Pipe">
+                    description="Create a an Angular NG Pipe" icon="/images/ng.png">
             </action>
             <action id="NG_CreateDirective2" class="actions_ng.CreateNgDirective" text="Create Directive"
-                    description="Create a an Angular NG Directive">
+                    description="Create a an Angular NG Directive" icon="/images/ng.png">
             </action>
 
 
@@ -285,6 +285,10 @@
                     description="Generate a typescript dto from the current editor window" icon="/images/tt.png">
             </action>
             <separator/>
+
+            <action id="NG_CreateRoute3" class="actions_ng.CreateNgRoute" text="Create UI-Routes Route" icon="/images/ng.png"
+                    description="Create a new Route">
+            </action>
 
             <action id="TD_GoToTypescript3" class="actions_all.GoToTs" text="Go To Typescript"
                     icon="/images/tt.png">

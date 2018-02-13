@@ -32,8 +32,6 @@ public class PsiElementContext {
         return text;
     }
 
-
-
     @Contract(
         pure = true
     )

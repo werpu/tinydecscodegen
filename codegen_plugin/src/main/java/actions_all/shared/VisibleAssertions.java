@@ -44,6 +44,10 @@ public class VisibleAssertions {
     }
 
     public static void tnVisible(AnActionEvent anActionEvent) {
+        if(IntellijUtils.getFolderOrFile(anActionEvent) == null) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         Optional<AngularVersion> angularVersion = ctx.getAngularVersion();
         if (!angularVersion.isPresent() || !angularVersion.get().equals(AngularVersion.TN_DEC)) {
@@ -55,6 +59,10 @@ public class VisibleAssertions {
     }
 
     public static void ngVisible(AnActionEvent anActionEvent) {
+        if(IntellijUtils.getFolderOrFile(anActionEvent) == null) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         Optional<AngularVersion> angularVersion = ctx.getAngularVersion();
         if (!angularVersion.isPresent() || !angularVersion.get().equals(AngularVersion.NG)) {
@@ -66,7 +74,7 @@ public class VisibleAssertions {
     }
 
     public static void tnNoProject(AnActionEvent anActionEvent) {
-        if(anActionEvent.getProject() == null  || IntellijUtils.getFolderOrFile(anActionEvent) == null) {
+        if(IntellijUtils.getFolderOrFile(anActionEvent) == null) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
@@ -81,6 +89,10 @@ public class VisibleAssertions {
     }
 
     public static void tsOnlyVisible(AnActionEvent anActionEvent) {
+        if(IntellijUtils.getFolderOrFile(anActionEvent) == null) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
 
         Optional<AngularVersion> angularVersion = ctx.getAngularVersion();
