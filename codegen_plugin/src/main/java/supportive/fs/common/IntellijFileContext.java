@@ -110,8 +110,9 @@ public class IntellijFileContext {
         Path componentFilePath = Paths.get(getVirtualFile().getPath());
         Path relPath = routesFilePath.relativize(componentFilePath);
         return ("./" + relPath.toString())
-                .replaceAll("\\\\/", "/")
-                .replaceAll("//", "/");
+                .replaceAll("\\\\", "/")
+                .replaceAll("" +
+                        "//", "/");
     }
 
     public IntellijFileContext getProjectDir() {

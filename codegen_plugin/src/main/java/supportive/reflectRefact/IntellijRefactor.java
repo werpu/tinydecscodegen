@@ -16,12 +16,14 @@ public class IntellijRefactor {
     public static void appendDeclarationToModule(IntellijFileContext fileContext, ModuleElementScope scope, String className, String fileName) throws IOException {
 
 
-        List<IntellijFileContext> annotatedModules = fileContext.findFirstUpwards(psiFile -> psiFile.getContainingFile().getText().contains(NG_MODULE));
+        List<IntellijFileContext> annotatedModules = fileContext.findFirstUpwards(psiFile -> psiFile.getContainingFile().getText()
+                .contains(NG_MODULE) && !psiFile.getVirtualFile().getPath()
+                .replaceAll("\\\\","/").equals(fileContext.getVirtualFile().getPath()));
 
         for (IntellijFileContext angularModule : annotatedModules) {
             NgModuleFileContext moduleFileContext = new NgModuleFileContext(angularModule);
 
-            String relativePath = (fileContext.calculateRelPathTo(moduleFileContext)+"/"+fileName)
+            String relativePath = (fileContext.calculateRelPathTo(moduleFileContext))
                     .replaceAll("\\.ts$", "")
                     .replaceAll("\\/\\/", "/");
             String finalImportName = moduleFileContext.appendImport(ReflectUtils.reduceClassName(className), relativePath);

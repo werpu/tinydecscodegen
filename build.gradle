@@ -28,6 +28,9 @@ subprojects {
         maven {
             url 'http://dl.bintray.com/jetbrains/intellij-plugin-service'
         }
+        maven {
+            url 'https://www.jetbrains.com/intellij-repository'
+        }
     }
 
 
