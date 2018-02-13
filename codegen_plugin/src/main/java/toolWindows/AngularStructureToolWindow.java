@@ -3,6 +3,8 @@ package toolWindows;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.NodeRenderer;
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.wm.ToolWindow;
@@ -17,7 +19,6 @@ import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.PsiRouteContext;
 import supportive.fs.common.Route;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
-import supportive.utils.SwingUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -37,6 +38,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     public AngularStructureToolWindow() {
         final Icon ng = IconLoader.getIcon("/images/ng.png");
         NodeRenderer renderer = (NodeRenderer) tree.getCellRenderer();
+
         tree.setCellRenderer(new NodeRenderer() {
             @Nullable
             @Override
@@ -51,8 +53,6 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         });
 
 
-
-
         contentPanel.getBtClose().addActionListener(e -> myToolWindow.hide(null));
         contentPanel.getBtRefresh().addActionListener(e -> {
             UIRoutesRoutesFileContext ctx = (UIRoutesRoutesFileContext) ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
@@ -61,17 +61,18 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
             tree.setModel(new DefaultTreeModel(SwingRouteTreeFactory.createRouteTrees(ctx)));
         });
 
+        tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Please Wait")));
     }
 
     public void doMouseClicked(MouseEvent ev) {
         TreePath tp = tree.getPathForLocation(ev.getX(), ev.getY());
-        Object selectedNode = ((DefaultMutableTreeNode)tp.getLastPathComponent()).getUserObject();
+        Object selectedNode = ((DefaultMutableTreeNode) tp.getLastPathComponent()).getUserObject();
 
-        if(selectedNode instanceof PsiRouteContext) {
-           PsiRouteContext foundContext = (PsiRouteContext) selectedNode;
+        if (selectedNode instanceof PsiRouteContext) {
+            PsiRouteContext foundContext = (PsiRouteContext) selectedNode;
             System.out.println("Debug");
         }
-        if(SwingUtilities.isRightMouseButton(ev)) {
+        if (SwingUtilities.isRightMouseButton(ev)) {
             JPopupMenu popupMenu = new JPopupMenu();
             JMenuItem go_to_route_declaration = new JMenuItem("Go to route declaration");
             go_to_route_declaration.addActionListener(actionEvent -> {
@@ -107,14 +108,21 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     }
 
     public void refreshContent(@NotNull Project project) {
-        projectRoot = new IntellijFileContext(project);
-        UIRoutesRoutesFileContext ctx = (UIRoutesRoutesFileContext) ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
-                .filter(item -> item instanceof UIRoutesRoutesFileContext).findFirst().get();
+        ApplicationManager.getApplication().invokeLater(() -> {
+            try {
 
-        tree.setModel(new DefaultTreeModel(SwingRouteTreeFactory.createRouteTrees(ctx)));
-        tree.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent me) {
-                doMouseClicked(me);
+                projectRoot = new IntellijFileContext(project);
+                UIRoutesRoutesFileContext ctx = (UIRoutesRoutesFileContext) ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
+                        .filter(item -> item instanceof UIRoutesRoutesFileContext).findFirst().get();
+
+                tree.setModel(new DefaultTreeModel(SwingRouteTreeFactory.createRouteTrees(ctx)));
+                tree.addMouseListener(new MouseAdapter() {
+                    public void mouseClicked(MouseEvent me) {
+                        doMouseClicked(me);
+                    }
+                });
+            } catch (IndexNotReadyException exception) {
+                refreshContent(project);
             }
         });
     }
