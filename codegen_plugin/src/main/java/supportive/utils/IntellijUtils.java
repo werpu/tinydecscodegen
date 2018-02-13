@@ -174,7 +174,7 @@ public class IntellijUtils {
                         IntellijFileContext fileContext = new IntellijFileContext(project, dir.getVirtualFile());
 
                         try {
-                            IntellijRefactor.appendDeclarationToModule(fileContext, ModuleElementScope.DECLARATIONS, className, file.getName());
+                            IntellijRefactor.appendDeclarationToModule(fileContext, ModuleElementScope.PROVIDERS, className, file.getName());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
