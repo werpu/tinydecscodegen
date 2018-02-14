@@ -94,10 +94,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -471,7 +469,23 @@ public class IntellijUtils {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 progressIndicator.setIndeterminate(true);
-                ProcessBuilder pb = new ProcessBuilder("npm", "install");
+                /*Optional<String> path = Arrays.asList(Strings.nullToEmpty(System.getenv("PATH")).split("[\\;]")).stream()
+                                              .map(singlePath -> singlePath.replaceAll("\\\\", "/"))
+                                              .filter(singlePath -> (
+                                                      singlePath.toLowerCase().endsWith("/node") ||
+                                                      singlePath.toLowerCase().endsWith("/node/") ||
+                                                      singlePath.toLowerCase().endsWith("/nodejs") ||
+                                                      singlePath.toLowerCase().endsWith("/nodejs/") ||
+                                                      singlePath.toLowerCase().endsWith("/npm") ||
+                                                      singlePath.toLowerCase().endsWith("/npm/")
+                                                     ) &&  !singlePath.toLowerCase().contains("/appdata"))
+                                              .findFirst();
+                if(path.isPresent() && !path.get().endsWith("/")) {
+                    path = Optional.of(path.get()+"/");
+                }*/
+
+
+                ProcessBuilder pb = System.getProperty("os.name").toLowerCase().contains("windows") ?  new ProcessBuilder("npm.cmd", "install") : new ProcessBuilder("npm", "install");
                 Map<String, String> env = pb.environment();
 
                 pb.directory(new File(mainForm.projectDir.getText()));
@@ -482,7 +496,7 @@ public class IntellijUtils {
 
                     supportive.utils.IntellijUtils.showInfoMessage(doneMessage, doneTitle);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                   e.printStackTrace();
                     supportive.utils.IntellijUtils.showErrorDialog(project, e.getMessage(), "Error");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
