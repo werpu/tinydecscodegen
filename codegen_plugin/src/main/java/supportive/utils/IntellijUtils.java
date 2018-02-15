@@ -124,6 +124,7 @@ public class IntellijUtils {
      * @param javaFile  the originating java file
      */
     protected static void generateOrDiffTsFile(String text, String fileName, String className, Project project, Module module, PsiFile javaFile, ArtifactType artifactType) {
+        text = text.replaceAll("\\r", "");
         PsiFile file = PsiFileFactory.getInstance(project).createFileFromText(fileName, Language.findLanguageByID("TypeScript"), text);
         final Collection<PsiFile> alreadyExisting = IntellijUtils.searchRefs(project, className, "ts");
         ApplicationManager.getApplication().runWriteAction(() -> {
