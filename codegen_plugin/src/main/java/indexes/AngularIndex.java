@@ -3,7 +3,6 @@ package indexes;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
@@ -12,7 +11,6 @@ import com.intellij.util.io.KeyDescriptor;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.AngularVersion;
 import supportive.fs.common.IntellijFileContext;
-import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +18,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static supportive.reflectRefact.PsiWalkFunctions.NPM_ROOT;
-import static supportive.reflectRefact.PsiWalkFunctions.TN_UIROUTER_MODULE_FOR_ROOT;
 
 /**
  * indexing the position of all angular subprojects

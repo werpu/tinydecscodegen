@@ -1,9 +1,7 @@
 package toolWindows;
 
-import com.google.common.base.Strings;
 import supportive.fs.common.PsiRouteContext;
 
-import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 public class SwingRouteTreeNode extends DefaultMutableTreeNode {

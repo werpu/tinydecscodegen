@@ -5,7 +5,10 @@ import supportive.fs.common.PsiRouteContext;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SwingRouteTreeFactory {

@@ -1,7 +1,6 @@
 package supportive.fs.common;
 
 import com.google.common.collect.Lists;
-import com.intellij.psi.PsiFile;
 import indexes.AngularIndex;
 import indexes.RoutesIndex;
 import indexes.TNRoutesIndex;
@@ -9,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNUIRoutesRoutesFileContext;
 
-import javax.naming.OperationNotSupportedException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

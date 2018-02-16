@@ -25,10 +25,16 @@ import supportive.fs.common.*;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
 
 import javax.swing.*;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 import static supportive.reflectRefact.PsiWalkFunctions.JS_ES_6_FROM_CLAUSE;

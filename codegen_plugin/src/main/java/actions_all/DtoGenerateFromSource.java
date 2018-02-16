@@ -14,9 +14,7 @@ import com.intellij.psi.PsiJavaFile;
 import supportive.fs.common.IntellijFileContext;
 import supportive.utils.IntellijUtils;
 
-import static actions_all.shared.VisibleAssertions.assertNotJava;
-import static actions_all.shared.VisibleAssertions.assertNotJavaRest;
-import static actions_all.shared.VisibleAssertions.assertNotSpringRest;
+import static actions_all.shared.VisibleAssertions.*;
 
 public class DtoGenerateFromSource extends AnAction {
 

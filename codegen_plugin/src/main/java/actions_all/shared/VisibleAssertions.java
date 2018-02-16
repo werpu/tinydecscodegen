@@ -1,7 +1,6 @@
 package actions_all.shared;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import supportive.fs.common.AngularVersion;
 import supportive.fs.common.IntellijFileContext;
 import supportive.utils.IntellijUtils;

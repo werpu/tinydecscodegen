@@ -12,12 +12,9 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.openapi.ui.popup.util.PopupUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.encoding.EncodingRegistry;
 import com.intellij.psi.PsiFile;
@@ -42,9 +39,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static actions_all.shared.Messages.ERR_ELTYPE_SEL;
 import static actions_all.shared.FormAssertions.assertNotNullOrEmpty;
 import static actions_all.shared.FormAssertions.assertPattern;
+import static actions_all.shared.Messages.ERR_ELTYPE_SEL;
 import static reflector.TransclusionReflector.getPossibleTransclusionSlots;
 import static reflector.TransclusionReflector.hasTransclude;
 
