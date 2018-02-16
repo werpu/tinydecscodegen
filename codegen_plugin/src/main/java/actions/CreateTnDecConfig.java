@@ -39,7 +39,7 @@ import static actions_all.shared.FormAssertions.*;
  * Create a Tiny Decs artefact.
  * The idea is that every created artifact should auto register if possible
  */
-public class CreateTnDecConfig extends AnAction implements DumbAware {
+public class CreateTnDecConfig extends AnAction  {
 
 
     public CreateTnDecConfig() {

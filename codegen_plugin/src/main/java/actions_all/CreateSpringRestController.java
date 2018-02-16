@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 
 import static actions_all.shared.FormAssertions.assertNotNullOrEmpty;
 
-public class CreateSpringRestController extends AnAction implements DumbAware {
+public class CreateSpringRestController extends AnAction  {
 
 
     @Override

@@ -48,7 +48,7 @@ import static actions_all.shared.FormAssertions.assertPattern;
 import static reflector.TransclusionReflector.getPossibleTransclusionSlots;
 import static reflector.TransclusionReflector.hasTransclude;
 
-public class CreateTnDecDirective extends AnAction implements DumbAware {
+public class CreateTnDecDirective extends AnAction  {
 
     public static final String EXPORT = "___export___";
 

@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 import static actions_all.shared.FormAssertions.assertNotNullOrEmpty;
 
-public class CreateTnDecProject extends AnAction implements DumbAware {
+public class CreateTnDecProject extends AnAction  {
 
     public static final String TN_PROJECT_LAYOUT = "/resources/projectLayout/tnDec";
 

@@ -50,7 +50,7 @@ import static actions_all.shared.FormAssertions.assertPattern;
  * Create a Tiny Decs artefact.
  * The idea is that every created artifact should auto register if possible
  */
-public class CreateTnDecComponent extends AnAction implements DumbAware {
+public class CreateTnDecComponent extends AnAction  {
 
 
     public static final String EXPORT = "___export___";

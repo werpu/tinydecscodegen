@@ -46,7 +46,7 @@ enum SupportedRestMethod {
 }
 
 
-public class CreateRestEndpoint extends AnAction implements DumbAware {
+public class CreateRestEndpoint extends AnAction  {
 
     //visibility
     @Override
