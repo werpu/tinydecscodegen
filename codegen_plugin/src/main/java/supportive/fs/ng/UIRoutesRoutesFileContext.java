@@ -147,6 +147,10 @@ public class UIRoutesRoutesFileContext extends TypescriptFileContext implements 
 
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 
     //only one route el per file allowed atm
 }

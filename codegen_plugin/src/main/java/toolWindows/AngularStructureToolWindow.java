@@ -7,10 +7,13 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileContentsChangedAdapter;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
@@ -22,13 +25,11 @@ import supportive.fs.common.*;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
+import javax.swing.tree.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 
 import static supportive.reflectRefact.PsiWalkFunctions.JS_ES_6_FROM_CLAUSE;
 import static supportive.reflectRefact.PsiWalkFunctions.PSI_ELEMENT_JS_STRING_LITERAL;
@@ -66,7 +67,8 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
             UIRoutesRoutesFileContext ctx = (UIRoutesRoutesFileContext) ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
                     .filter(item -> item instanceof UIRoutesRoutesFileContext).findFirst().get();
 
-            tree.setModel(new DefaultTreeModel(SwingRouteTreeFactory.createRouteTrees(ctx)));
+            //tree.setModel(new DefaultTreeModel(SwingRouteTreeFactory.createRouteTrees(ctx)));
+            refreshContent(projectRoot.getProject());
         });
 
         tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Please Wait")));
@@ -145,6 +147,32 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileContentsChangedAdapter() {
+            @Override
+            protected void onFileChange(@NotNull VirtualFile file) {
+                //TODO angular version dynamic depending on the project type
+                if(!file.getName().endsWith(".ts")) {
+                    return;
+                }
+                DumbService.getInstance(projectRoot.getProject()).smartInvokeLater(() -> {
+                    //List<IntellijFileContext> angularRoots = AngularIndex.getAllAngularRoots(project, NG);
+                    IntellijFileContext vFileContext = new IntellijFileContext(project, file);
+
+                    boolean routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
+                            .filter(routeFile -> routeFile.equals(vFileContext)).findFirst().isPresent();
+
+                    if (routeFileAffected) {
+                        refreshContent(projectRoot.getProject());
+                    }
+                });
+            }
+
+            @Override
+            protected void onBeforeFileChange(@NotNull VirtualFile file) {
+
+            }
+        });
+
         myToolWindow = toolWindow;
         refreshContent(project);
         contentPanel.getScollPanel().setViewportView(tree);
@@ -158,10 +186,23 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
             try {
 
                 projectRoot = new IntellijFileContext(project);
-                UIRoutesRoutesFileContext ctx = (UIRoutesRoutesFileContext) ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
+                List<IUIRoutesRoutesFileContext> routeFiles = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot);
+                if(routeFiles == null || routeFiles.isEmpty()) {
+                    tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("No route found")));
+                    return;
+                }
+                UIRoutesRoutesFileContext ctx = (UIRoutesRoutesFileContext) routeFiles.stream()
                         .filter(item -> item instanceof UIRoutesRoutesFileContext).findFirst().get();
 
-                tree.setModel(new DefaultTreeModel(SwingRouteTreeFactory.createRouteTrees(ctx)));
+                DefaultTreeModel oldModel = (DefaultTreeModel) tree.getModel();
+                Set<String> openState = fetchOpenState(oldModel);
+
+                DefaultTreeModel newModel = new DefaultTreeModel(SwingRouteTreeFactory.createRouteTrees(ctx));
+                tree.setModel(newModel);
+
+                //now we restore the expansion state
+                restoreOpenState(openState, (TreeNode) newModel.getRoot());
+
                 tree.addMouseListener(new MouseAdapter() {
                     public void mouseClicked(MouseEvent me) {
                         doMouseClicked(me);
@@ -172,4 +213,54 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
             }
         });
     }
+
+    public void restoreOpenState(Set<String> openIdx, TreeNode newModel) {
+        walkTree(newModel, node -> {
+            Object userObject = ((DefaultMutableTreeNode) node).getUserObject();
+            if(userObject instanceof PsiRouteContext) {
+                String routeKey = ((PsiRouteContext) userObject).getRoute().getRouteKey();
+                if (openIdx.contains(routeKey)) {
+                    tree.expandPath(new TreePath(((DefaultMutableTreeNode) node).getPath()));
+                }
+            }
+
+
+            return true;
+        });
+    }
+
+    @NotNull
+    public Set<String> fetchOpenState(DefaultTreeModel oldModel) {
+        Set<String> openIdx = new HashSet();
+        walkTree((TreeNode) oldModel.getRoot(), node -> {
+            Object userObject = ((DefaultMutableTreeNode) node).getUserObject();
+
+            if(userObject instanceof PsiRouteContext &&
+                    tree.isExpanded(new TreePath(((DefaultMutableTreeNode) node).getPath()))) {
+                String routeKey = ((PsiRouteContext) userObject).getRoute().getRouteKey();
+                openIdx.add(routeKey);
+            }
+            return true;
+        });
+        return openIdx;
+    }
+
+
+    boolean walkTree(TreeNode node, Function<TreeNode, Boolean> walkerFunction) {
+
+        boolean ret = walkerFunction.apply(node);
+        if(!ret) {
+            return false;
+        }
+        if(node.getChildCount() > 0) {
+            for(int cnt = 0; cnt < node.getChildCount(); cnt++) {
+                if(!walkTree(node.getChildAt(cnt), walkerFunction )) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
 }

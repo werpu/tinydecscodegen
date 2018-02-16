@@ -43,10 +43,7 @@ import supportive.utils.IntellijUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -175,6 +172,9 @@ public class IntellijFileContext {
         }
     }
 
+    public boolean isBelow(IntellijFileContext child) {
+        return child.getFolderPath().startsWith(this.getFolderPath());
+    }
 
 
     public List<IntellijFileContext> findFirstUpwards(Function<PsiFile, Boolean> psiElementVisitor) {
@@ -330,4 +330,18 @@ public class IntellijFileContext {
     public Stream<PsiElementContext> queryContent(Object ... items) {
         return PsiWalkFunctions.queryContent(this.getPsiFile(), items);
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || !(o instanceof IntellijFileContext)) return false;
+        IntellijFileContext that = (IntellijFileContext) o;
+        Path pThis = Paths.get(this.getVirtualFile().getPath());
+        Path pOther = Paths.get(that.getVirtualFile().getPath());
+
+        return pThis.relativize(pOther).toString().isEmpty();
+    }
+
+
 }
