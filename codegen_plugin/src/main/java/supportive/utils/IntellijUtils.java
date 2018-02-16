@@ -28,6 +28,11 @@ import com.google.common.collect.Lists;
 import com.intellij.diff.DiffManager;
 import com.intellij.diff.contents.DocumentContentImpl;
 import com.intellij.diff.requests.SimpleDiffRequest;
+import com.intellij.execution.filters.TextConsoleBuilder;
+import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.process.OSProcessHandler;
+import com.intellij.execution.ui.ConsoleView;
+import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -53,10 +58,15 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowAnchor;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiSearchHelper;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentFactory;
 import configuration.ConfigSerializer;
 import gui.Confirm;
 import gui.CreateTnProject;
@@ -77,8 +87,7 @@ import supportive.reflectRefact.IntellijRefactor;
 import supportive.reflectRefact.IntellijSpringRestReflector;
 
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -89,6 +98,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -97,6 +107,7 @@ import java.util.stream.Collectors;
 public class IntellijUtils {
 
     private static final Logger log = Logger.getInstance(IntellijUtils.class);
+    public static final String NPM_INSTALL_CONSOLE = "NPM Install Console";
 
     public static FileNameTransformer fileNameTransformer = new SimpleFileNameTransformer();
 
@@ -127,7 +138,7 @@ public class IntellijUtils {
                     diffed = diffed || showDiff(project, file, origFile, javaFile, alreadyExisting.size() == 1);
                 }
             }
-            if(!diffed) {
+            if (!diffed) {
                 writeTarget(className, project, module, artifactType, file);
             }
         });
@@ -309,7 +320,6 @@ public class IntellijUtils {
      * @param file
      * @param project
      * @param module
-     *
      * @return true if a new temp file was generated or just an old one recycled (case of a second generation as temp)
      */
     public static boolean moveFileToGeneratedDir(PsiFile file, Project project, Module module) {
@@ -325,7 +335,7 @@ public class IntellijUtils {
 
         PsiFile oldFile = rscDir.findFile(file.getName());
         boolean same = oldFile != null && !oldFile.getVirtualFile().getCanonicalPath().equals(file.getVirtualFile().getCanonicalPath());
-        if(oldFile == null) {
+        if (oldFile == null) {
             rscDir.add(file);
         }
 
@@ -374,7 +384,6 @@ public class IntellijUtils {
         final AtomicBoolean retVal = new AtomicBoolean(true);
 
 
-
         Arrays.stream(javaFile.getClasses()).forEach(javaClass -> {
             if (!javaClass.hasModifierProperty(PsiModifier.PUBLIC) || !retVal.get()) {
                 return;
@@ -382,7 +391,7 @@ public class IntellijUtils {
 
             List<PsiClass> toReflect = Arrays.asList(javaClass);
             List<RestService> restService = (IntellijSpringRestReflector.isRestService(toReflect)) ?
-                    IntellijSpringRestReflector.reflectRestService(toReflect, true, ConfigSerializer.getInstance().getState().getReturnValueStripLevel()):
+                    IntellijSpringRestReflector.reflectRestService(toReflect, true, ConfigSerializer.getInstance().getState().getReturnValueStripLevel()) :
                     IntellijJaxRsReflector.reflectRestService(toReflect, true, ConfigSerializer.getInstance().getState().getReturnValueStripLevel());
             if (restService == null || restService.isEmpty()) {
                 Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
@@ -399,7 +408,6 @@ public class IntellijUtils {
 
         return retVal.get();
     }
-
 
 
     public static boolean generateService(Project project, Module module, String className, PsiFile javaFile, URLClassLoader urlClassLoader, boolean ng) throws ClassNotFoundException {
@@ -432,7 +440,7 @@ public class IntellijUtils {
 
         VirtualFile generated = folder.createChildData(project, fileName);
         generated.setBinaryContent(str.getBytes(generated.getCharset()));
-        return  generated;
+        return generated;
     }
 
     public static VirtualFile getFolderOrFile(AnActionEvent event) {
@@ -441,7 +449,7 @@ public class IntellijUtils {
     }
 
     public static void handleEx(Project prj, IOException e) {
-        supportive.utils.IntellijUtils.showErrorDialog(prj,"Error", e.getMessage());
+        supportive.utils.IntellijUtils.showErrorDialog(prj, "Error", e.getMessage());
         e.printStackTrace();
         throw new RuntimeException(e);
     }
@@ -452,56 +460,87 @@ public class IntellijUtils {
 
         return srcRootPath.relativize(targetPath).toString()
                 .replaceAll("[/\\\\]+", ".")
-                .replaceAll("^\\.(.*)\\.$", "$1" );
+                .replaceAll("^\\.(.*)\\.$", "$1");
     }
 
     public static void npmInstall(Project project, CreateTnProject mainForm, String doneMessage, String doneTitle) {
-        Task.Backgroundable myTask = new Task.Backgroundable(project, "calling npm install") {
+        BackgroundableProcessIndicator myProcessIndicator = null;
+
+        ProcessBuilder pb = System.getProperty("os.name").toLowerCase().contains("windows") ? new ProcessBuilder("npm.cmd", "install", "--verbose") : new ProcessBuilder("npm", "install");
+        Map<String, String> env = pb.environment();
+        pb.directory(new File(mainForm.projectDir.getText()));
+        Process p2 = null;
+        try {
+            p2 = pb.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        final Process p = p2;
+        final ConsoleView console = openConsoleOnProcess(p, project);
+
+
+        final Task.Backgroundable myTask = new Task.Backgroundable(project, "calling npm install") {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
-                progressIndicator.setIndeterminate(true);
-                /*Optional<String> path = Arrays.asList(Strings.nullToEmpty(System.getenv("PATH")).split("[\\;]")).stream()
-                                              .map(singlePath -> singlePath.replaceAll("\\\\", "/"))
-                                              .filter(singlePath -> (
-                                                      singlePath.toLowerCase().endsWith("/node") ||
-                                                      singlePath.toLowerCase().endsWith("/node/") ||
-                                                      singlePath.toLowerCase().endsWith("/nodejs") ||
-                                                      singlePath.toLowerCase().endsWith("/nodejs/") ||
-                                                      singlePath.toLowerCase().endsWith("/npm") ||
-                                                      singlePath.toLowerCase().endsWith("/npm/")
-                                                     ) &&  !singlePath.toLowerCase().contains("/appdata"))
-                                              .findFirst();
-                if(path.isPresent() && !path.get().endsWith("/")) {
-                    path = Optional.of(path.get()+"/");
-                }*/
-
-
-                ProcessBuilder pb = System.getProperty("os.name").toLowerCase().contains("windows") ?  new ProcessBuilder("npm.cmd", "install") : new ProcessBuilder("npm", "install");
-                Map<String, String> env = pb.environment();
-
-                pb.directory(new File(mainForm.projectDir.getText()));
                 try {
-                    Process p = pb.start();
-                    p.waitFor();
-
-
+                    while(p.isAlive()) {
+                        Thread.sleep(1000);
+                        if(progressIndicator.isCanceled()) {
+                            supportive.utils.IntellijUtils.showInfoMessage("npm install has been cancelled", "");
+                            return;
+                        }
+                    }
                     supportive.utils.IntellijUtils.showInfoMessage(doneMessage, doneTitle);
-                } catch (IOException e) {
-                   e.printStackTrace();
-                    supportive.utils.IntellijUtils.showErrorDialog(project, e.getMessage(), "Error");
                 } catch (InterruptedException e) {
+                    supportive.utils.IntellijUtils.showErrorDialog(project,e.getMessage(), "Error");
                     e.printStackTrace();
-                    supportive.utils.IntellijUtils.showErrorDialog(project, e.getMessage(), "Error");
+                    p.destroy();
+                    return;
+                } finally {
+                    p.destroy();
                 }
-                progressIndicator.stop();
+
             }
         };
 
-        BackgroundableProcessIndicator myProcessIndicator = new BackgroundableProcessIndicator(myTask);
-
+        myProcessIndicator = new BackgroundableProcessIndicator(myTask);
+        myProcessIndicator.setText("Running npm install");
         ProgressManager.getInstance().runProcessWithProgressAsynchronously(myTask, myProcessIndicator);
+
     }
 
+    static ConsoleView openConsoleOnProcess(Process p, Project project) {
+        OSProcessHandler handler = new OSProcessHandler(p, "Run npm install");
+
+        ToolWindowManager manager = ToolWindowManager.getInstance(project);
+        String id = NPM_INSTALL_CONSOLE;
+        TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
+        TextConsoleBuilder builder = factory.createBuilder(project);
+        ConsoleView view = builder.getConsole();
+        view.setOutputPaused(false);
+
+        handler.startNotify();
+        view.attachToProcess(handler);
+
+        ToolWindow window = manager.getToolWindow(id);
+
+
+        if (window == null) {
+            window = manager.registerToolWindow(id, true, ToolWindowAnchor.BOTTOM);
+            final ContentFactory contentFactory = window.getContentManager().getFactory();
+            final Content content = contentFactory.createContent(view.getComponent(), "NPM Install Console", true);
+            window.setAutoHide(false);
+            window.getContentManager().addContent(content);
+            window.show(new Runnable() {
+                public void run() {
+                    System.out.println("Do something here");
+                }
+            });
+
+        }
+        return view;
+    }
 
     static class ClassHolder {
         public Class hierarchyEndpoint = null;
@@ -560,12 +599,12 @@ public class IntellijUtils {
     public static boolean generateDto(Project project, Module module, PsiJavaFile javaFile) throws ClassNotFoundException {
         final AtomicBoolean retVal = new AtomicBoolean(true);
         Arrays.stream(javaFile.getClasses()).forEach(javaClass -> {
-            if(!javaClass.hasModifierProperty(PsiModifier.PUBLIC) || !retVal.get()) {
+            if (!javaClass.hasModifierProperty(PsiModifier.PUBLIC) || !retVal.get()) {
                 return;
             }
             String className = javaClass.getQualifiedName();
 
-            if(javaClass.getSuperClass() != null
+            if (javaClass.getSuperClass() != null
                     && !javaClass.getSuperClass().getQualifiedName().equals("java.lang.Object")
                     && !javaClass.getSuperClass().getQualifiedName().equals("java.lang.Enum")) {
 
@@ -650,13 +689,12 @@ public class IntellijUtils {
         PsiSearchHelper.SERVICE.getInstance(project).processAllFilesWithWord("", GlobalSearchScope.everythingScope(project),
 
                 (psiFile) -> {
-                    if(psiFile.getText().contains("@Component")) {
+                    if (psiFile.getText().contains("@Component")) {
                         foundFiles.add(psiFile);
 
                     }
                     return false;
                 }, true);
-
 
 
         return foundFiles;
@@ -674,6 +712,19 @@ public class IntellijUtils {
         });
     }
 
+    //https://stackoverflow.com/questions/14165517/processbuilder-forwarding-stdout-and-stderr-of-started-processes-without-blocki
+    static class StreamGobbler implements Runnable {
+        private InputStream inputStream;
+        private Consumer<String> consumeInputLine;
 
+        public StreamGobbler(InputStream inputStream, Consumer<String> consumeInputLine) {
+            this.inputStream = inputStream;
+            this.consumeInputLine = consumeInputLine;
+        }
+
+        public void run() {
+            new BufferedReader(new InputStreamReader(inputStream)).lines().forEach(consumeInputLine);
+        }
+    }
 
 }
