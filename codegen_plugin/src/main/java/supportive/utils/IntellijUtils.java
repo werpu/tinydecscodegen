@@ -58,6 +58,7 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -434,13 +435,30 @@ public class IntellijUtils {
     }
 
     public static VirtualFile create(Project project, VirtualFile folder, String str, String fileName) throws IOException {
-        //TODO create the content in a temp file
-        //and then move it over, this should avoid
-        //internal empty content errors
+        VirtualFile virtualFile = createTempFile(fileName, str);
+        virtualFile.rename(project, fileName);
+        virtualFile.move(project, folder);
 
-        VirtualFile generated = folder.createChildData(project, fileName);
-        generated.setBinaryContent(str.getBytes(generated.getCharset()));
-        return generated;
+        return virtualFile;
+    }
+
+    /**
+     * creates a temp file
+     *
+     * @param fileName
+     * @param textContent
+     * @return
+     * @throws IOException
+     */
+    public static VirtualFile createTempFile(String fileName, String textContent) throws IOException {
+        VirtualFile virtualFile = createTempFile(fileName);
+        virtualFile.setBinaryContent(textContent.getBytes(virtualFile.getCharset()));
+        return virtualFile;
+    }
+
+    public static VirtualFile createTempFile(String fileName) throws IOException {
+        File tempFile = File.createTempFile(fileName, ".tmp");
+        return LocalFileSystem.getInstance().findFileByIoFile(tempFile);
     }
 
     public static VirtualFile getFolderOrFile(AnActionEvent event) {
@@ -477,7 +495,7 @@ public class IntellijUtils {
             return;
         }
         final Process p = p2;
-        final ConsoleView console = openConsoleOnProcess(p, project);
+        ConsoleFactory.getInstance(p, project, NPM_INSTALL_CONSOLE);
 
 
         final Task.Backgroundable myTask = new Task.Backgroundable(project, "calling npm install") {
@@ -510,38 +528,7 @@ public class IntellijUtils {
 
     }
 
-    static ConsoleView openConsoleOnProcess(Process p, Project project) {
-        OSProcessHandler handler = new OSProcessHandler(p, "Run npm install");
 
-        ToolWindowManager manager = ToolWindowManager.getInstance(project);
-        String id = NPM_INSTALL_CONSOLE;
-        TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
-        TextConsoleBuilder builder = factory.createBuilder(project);
-        ConsoleView view = builder.getConsole();
-        view.setOutputPaused(false);
-
-        handler.startNotify();
-        view.attachToProcess(handler);
-
-        ToolWindow window = manager.getToolWindow(id);
-
-
-        if (window == null) {
-            window = manager.registerToolWindow(id, true, ToolWindowAnchor.BOTTOM, view, true);
-
-            final ContentFactory contentFactory = window.getContentManager().getFactory();
-            final Content content = contentFactory.createContent(view.getComponent(), "NPM Install Console", true);
-            window.setAutoHide(false);
-            window.getContentManager().addContent(content);
-            window.show(new Runnable() {
-                public void run() {
-                    System.out.println("Do something here");
-                }
-            });
-
-        }
-        return view;
-    }
 
     static class ClassHolder {
         public Class hierarchyEndpoint = null;

@@ -205,6 +205,14 @@ public class CreateTnDecProject extends AnAction  {
     }
 
 
+    /**
+     * create a new run configuratin
+     *
+     * @param project
+     * @param template
+     * @param projectFolder
+     * @throws IOException
+     */
     protected void createRunner(Project project, String template, String projectFolder) throws IOException {
         Path rootProjectPath = Paths.get(project.getBaseDir().getPath());
         Path runConfigPath = Paths.get(project.getBaseDir().getPath() + "/.idea/runConfigurations");
@@ -226,7 +234,7 @@ public class CreateTnDecProject extends AnAction  {
 
         VirtualFile runConfig = LocalFileSystem.getInstance().findFileByPath(runConfigPath.toFile().getPath() + "/" + fileName);
         if (runConfig != null && runConfig.exists()) {
-            supportive.utils.IntellijUtils.showInfoMessage("Run Config already exists, skipping run confi generation", "Info");
+            supportive.utils.IntellijUtils.showInfoMessage("Run Config already exists, skipping run config generation", "Info");
         } else {
             IntellijUtils.create(project, LocalFileSystem.getInstance().findFileByPath(runConfigPath.toFile().getPath()), str, fileName);
         }
