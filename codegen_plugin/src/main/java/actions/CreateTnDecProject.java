@@ -223,7 +223,7 @@ public class CreateTnDecProject extends AnAction  {
         Map<String, String> attrs = Maps.newHashMap();
         String angularType = isAngular1() ? "TinyDec" : "Angular NG";
         attrs.put("ANGULAR_TYPE", angularType);
-        attrs.put("PKG_JSON_PATH", rel + "/package.json".replaceAll("\\\\", "/"));
+        attrs.put("PKG_JSON_PATH", (rel + "/package.json").replaceAll("\\\\", "/"));
 
         FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(template);
         String str = FileTemplateUtil.mergeTemplate(attrs, vslTemplate.getText(), false);
