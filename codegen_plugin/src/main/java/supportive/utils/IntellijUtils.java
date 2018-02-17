@@ -466,7 +466,7 @@ public class IntellijUtils {
     public static void npmInstall(Project project, CreateTnProject mainForm, String doneMessage, String doneTitle) {
         BackgroundableProcessIndicator myProcessIndicator = null;
 
-        ProcessBuilder pb = System.getProperty("os.name").toLowerCase().contains("windows") ? new ProcessBuilder("npm.cmd", "install", "--verbose") : new ProcessBuilder("npm", "install");
+        ProcessBuilder pb = System.getProperty("os.name").toLowerCase().contains("windows") ? new ProcessBuilder("npm.cmd", "install", "--verbose", "--no-progress") : new ProcessBuilder("npm", "install", "--verbose", "--no-progress");
         Map<String, String> env = pb.environment();
         pb.directory(new File(mainForm.projectDir.getText()));
         Process p2 = null;
@@ -527,7 +527,8 @@ public class IntellijUtils {
 
 
         if (window == null) {
-            window = manager.registerToolWindow(id, true, ToolWindowAnchor.BOTTOM);
+            window = manager.registerToolWindow(id, true, ToolWindowAnchor.BOTTOM, view, true);
+
             final ContentFactory contentFactory = window.getContentManager().getFactory();
             final Content content = contentFactory.createContent(view.getComponent(), "NPM Install Console", true);
             window.setAutoHide(false);
