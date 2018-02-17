@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 import static actions_all.shared.FormAssertions.assertNotNullOrEmpty;
 
-public class CreateTnDecProject extends AnAction  {
+public class CreateTnDecProject extends AnAction {
 
     public static final String TN_PROJECT_LAYOUT = "/resources/projectLayout/tnDec";
 
@@ -94,8 +94,9 @@ public class CreateTnDecProject extends AnAction  {
             @NotNull
             protected List<ValidationInfo> doValidateAll() {
                 return Arrays.asList(
-                        assertNotNullOrEmpty(mainForm.projectDir.getText(), actions_all.shared.Messages.ERR_PROJECT_DIR_CHOSEN, mainForm.projectDir),
-                        assertNotNullOrEmpty(mainForm.targetDir.getText(), actions_all.shared.Messages.ERR_TARGET_DIR_CHOSEN, mainForm.targetDir))
+                        assertNotNullOrEmpty(mainForm.getTxtProjectName().getText(), actions_all.shared.Messages.ERR_PROJECT_NO_NAME, mainForm.getTxtProjectName()),
+                        assertNotNullOrEmpty(mainForm.projectDir.getText(), actions_all.shared.Messages.ERR_PROJECT_DIR_CHOSEN, mainForm.getProjectDir()),
+                        assertNotNullOrEmpty(mainForm.targetDir.getText(), actions_all.shared.Messages.ERR_TARGET_DIR_CHOSEN, mainForm.getTargetDir()))
                         .stream().filter(s -> s != null).collect(Collectors.toList());
             }
 
@@ -120,10 +121,22 @@ public class CreateTnDecProject extends AnAction  {
         dialogWrapper.show();
 
         if (dialogWrapper.isOK()) {
-            final String projectDir = mainForm.projectDir.getText();
+            String projectName = mainForm.getTxtProjectName().getText();
+            String projectDir = mainForm.projectDir.getText();
+            boolean createDir = mainForm.getCbCreateDir().isSelected();
+
+            projectDir = projectDir.replaceAll("\\\\", "/");
+            if(createDir) {
+                if(!projectDir.endsWith("/")) {
+                    projectDir = projectDir + "/";
+                }
+                projectDir = projectDir + projectName;
+            }
+
 
             try {
-                boolean targetPresent = Files.list(Paths.get(projectDir)).findAny().isPresent();
+                Path pProjectDir = Paths.get(projectDir);
+                boolean targetPresent = Files.exists(pProjectDir) && Files.list(pProjectDir).findAny().isPresent();
                 if (targetPresent) {
                     int result = Messages.showYesNoDialog("The project target directory already contains files some of the files might be overwritten, do you like to proceed?", "Overwrite Warning", null);
                     if (result == Messages.NO) {
@@ -136,6 +149,7 @@ public class CreateTnDecProject extends AnAction  {
                 throw new RuntimeException(e);
             }
 
+            final String fProjectDir = projectDir;
             WriteCommandAction.runWriteCommandAction(project, () -> {
                 try {
                     FileDocumentManager.getInstance().saveAllDocuments();
@@ -143,13 +157,14 @@ public class CreateTnDecProject extends AnAction  {
                     IntellijResourceDir resources = new IntellijResourceDir(getResourcePath(), getSubPath());
 
 
-                    resources.copyTo(new File(projectDir), new TextTransformer() {
+                    resources.copyTo(new File(fProjectDir), new TextTransformer() {
                         @Override
                         public String transform(String out, String data) {
+
+
                             String relPath = Paths.get(out).relativize(Paths.get(mainForm.targetDir.getText().replaceAll("\\\\", "/"))).toString();
                             relPath = relPath.replaceAll("\\\\", "/");
-                            String projRelPath = Paths.get(out).relativize(Paths.get(projectDir.replaceAll("\\\\", "/"))).toString();
-                            projRelPath = projRelPath.replaceAll("\\\\", "/");
+                            String projRelPath = Paths.get(out).relativize(Paths.get(fProjectDir.replaceAll("\\\\", "/"))).toString();
 
 
                             data = data.replaceAll("\\$\\{deployment_root_rel\\}", relPath);
@@ -169,14 +184,14 @@ public class CreateTnDecProject extends AnAction  {
 
                 supportive.utils.IntellijUtils.showInfoMessage("Project setup done, now starting npm to install all needed dependencies", "Info");
 
-                IntellijUtils.npmInstall(project, mainForm, "The project has been generated successfully", "Success");
+                IntellijUtils.npmInstall(project, fProjectDir, "The project has been generated successfully", "Success");
             });
 
             WriteCommandAction.runWriteCommandAction(project, () -> {
                 try {
                     FileDocumentManager.getInstance().saveAllDocuments();
                     ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
-                    createRunner(project, TnDecGroupFactory.TPL_RUN_CONFIG, projectDir);
+                    createRunner(project, TnDecGroupFactory.TPL_RUN_CONFIG, projectName, fProjectDir);
                 } catch (IOException e) {
                     supportive.utils.IntellijUtils.showErrorDialog(project, "Error", e.getMessage());
                     e.printStackTrace();
@@ -213,7 +228,7 @@ public class CreateTnDecProject extends AnAction  {
      * @param projectFolder
      * @throws IOException
      */
-    protected void createRunner(Project project, String template, String projectFolder) throws IOException {
+    protected void createRunner(Project project, String template, String projectName, String projectFolder) throws IOException {
         Path rootProjectPath = Paths.get(project.getBaseDir().getPath());
         Path runConfigPath = Paths.get(project.getBaseDir().getPath() + "/.idea/runConfigurations");
         Path angDir = Paths.get(projectFolder);
@@ -224,10 +239,11 @@ public class CreateTnDecProject extends AnAction  {
         String angularType = isAngular1() ? "TinyDec" : "Angular NG";
         attrs.put("ANGULAR_TYPE", angularType);
         attrs.put("PKG_JSON_PATH", (rel + "/package.json").replaceAll("\\\\", "/"));
+        attrs.put("PROJECT_NAME", projectName);
 
         FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(template);
         String str = FileTemplateUtil.mergeTemplate(attrs, vslTemplate.getText(), false);
-        String fileName = ("Client Development Server Start [" + angularType + "].xml").replaceAll("\\s", "_");
+        String fileName = ("Client Start - "+projectName+" [" + angularType + "].xml").replaceAll("\\s", "_");
         runConfigPath.toFile().mkdirs();
         SaveAndSyncHandlerImpl.getInstance().refreshOpenFiles();
         VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);

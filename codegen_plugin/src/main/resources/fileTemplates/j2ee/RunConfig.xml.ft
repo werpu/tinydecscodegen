@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-    <configuration default="false" name="Client Development Server Start [${ANGULAR_TYPE}]" type="js.build_tools.npm"
+    <configuration default="false" name="Client Start - [${PROJECT_NAME}] [${ANGULAR_TYPE}]" type="js.build_tools.npm"
                    factoryName="npm">
         <package-json value="$PROJECT_DIR$/${PKG_JSON_PATH}"/>
         <command value="run"/>

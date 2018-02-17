@@ -481,12 +481,12 @@ public class IntellijUtils {
                 .replaceAll("^\\.(.*)\\.$", "$1");
     }
 
-    public static void npmInstall(Project project, CreateTnProject mainForm, String doneMessage, String doneTitle) {
+    public static void npmInstall(Project project, String projectDir, String doneMessage, String doneTitle) {
         BackgroundableProcessIndicator myProcessIndicator = null;
 
         ProcessBuilder pb = System.getProperty("os.name").toLowerCase().contains("windows") ? new ProcessBuilder("npm.cmd", "install", "--verbose", "--no-progress") : new ProcessBuilder("npm", "install", "--verbose", "--no-progress");
         Map<String, String> env = pb.environment();
-        pb.directory(new File(mainForm.projectDir.getText()));
+        pb.directory(new File(projectDir));
         Process p2 = null;
         try {
             p2 = pb.start();

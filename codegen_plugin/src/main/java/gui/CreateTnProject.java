@@ -20,6 +20,8 @@ public class CreateTnProject {
     public JTextField targetDir;
     private JButton btTargetDir;
     private JLabel lblTitle;
+    private JTextField txtProjectName;
+    private JCheckBox cbCreateDir;
 
 
     Project project;
@@ -43,7 +45,7 @@ public class CreateTnProject {
 
                 final VirtualFile vfile = FileChooser.chooseFile(descriptor, project, null);
 
-                if(vfile == null) {
+                if (vfile == null) {
                     return;
                 }
                 projectDir.setText(Strings.nullToEmpty(vfile.getPath()));
@@ -58,7 +60,7 @@ public class CreateTnProject {
 
                 final VirtualFile vfile = FileChooser.chooseFile(descriptor, project, null);
 
-                if(vfile == null) {
+                if (vfile == null) {
                     return;
                 }
                 targetDir.setText(Strings.nullToEmpty(vfile.getPath()));
