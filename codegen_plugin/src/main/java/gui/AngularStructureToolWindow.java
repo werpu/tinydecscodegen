@@ -10,9 +10,4 @@ public class AngularStructureToolWindow   {
     private JScrollPane scollPanel;
     private JButton btRefresh;
     private JButton btClose;
-
-
-
-
-
 }

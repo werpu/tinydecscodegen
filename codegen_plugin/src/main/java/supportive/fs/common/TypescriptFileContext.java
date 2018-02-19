@@ -25,15 +25,18 @@ import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.IRefactorUnit;
 import supportive.refactor.RefactorUnit;
+import supportive.reflectRefact.PsiWalkFunctions;
 import supportive.utils.IntellijUtils;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -163,6 +166,25 @@ public class TypescriptFileContext extends IntellijFileContext {
         this.refactorUnits.add(unit);
     }
 
+
+    protected Optional<PsiElement> findImportString(String templateVarName) {
+        Optional<PsiElement> theImport = super.findPsiElements(PsiWalkFunctions::isImport).stream()
+                .filter(
+                        el -> Arrays.stream(el.getChildren())
+                                .filter(el2 -> el2.getText().equals(templateVarName))
+                                .findAny()
+                                .isPresent()
+                ).findFirst();
+
+        return getPsiImportString(theImport);
+    }
+
+    protected Optional<PsiElement> getPsiImportString(Optional<PsiElement> theImport) {
+        return Arrays.asList(theImport.get().getChildren()).stream()
+                .filter(el -> el.toString().equals("ES6FromClause"))
+                .map(el -> el.getNode().getLastChildNode().getPsi())
+                .findFirst();
+    }
 
     /**
      * central commit handler to perform all refactorings on the

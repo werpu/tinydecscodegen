@@ -1,9 +1,11 @@
+import com.intellij.psi.PsiFile;
 import org.junit.Test;
 import providers.NavTreeStructureProvider;
 import providers.RouteTreeNode;
 import supportive.fs.common.PsiElementContext;
 import supportive.fs.common.PsiRouteContext;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
+import supportive.fs.tn.TNUIRoutesRoutesFileContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,5 +60,16 @@ public class RoutingTreeTest extends BaseTsTest {
         assertTrue(treeNodes.stream().filter(item-> item.getValue().getRoute().getRouteKey().equals("firstpage")).findFirst().isPresent());
     }
 
+    public void testTnTree() {
+        if(!assertTestable()) {
+            return;
+        }
+        PsiFile[] files = myFixture.configureByFiles("TN_Routes.ts", "module1/View1.ts", "module2/View2.ts");
+        fs = files[0];
+
+       TNUIRoutesRoutesFileContext ctx = new TNUIRoutesRoutesFileContext(prj, fs);
+       ctx.getRoutes();
+
+    }
 
 }

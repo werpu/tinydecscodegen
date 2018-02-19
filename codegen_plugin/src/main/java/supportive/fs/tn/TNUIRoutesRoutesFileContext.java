@@ -12,12 +12,15 @@ import supportive.fs.common.*;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.RefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
+import supportive.utils.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static supportive.reflectRefact.PsiWalkFunctions.*;
 import static supportive.utils.StringUtils.literalEquals;
@@ -116,18 +119,11 @@ public class TNUIRoutesRoutesFileContext extends TypescriptFileContext implement
     public Optional<PsiElementContext> getRouteProviderDef(PsiElementContext constructor) {
 
         Optional<PsiElementContext> retVal = constructor.queryContent(p_isInject(), p_isProvider()).findFirst();
-        
-       /* Optional<PsiElementContext> retVal = constructor.findPsiElements(PsiWalkFunctions::isInject).stream()
-                .flatMap(psiElementContext -> psiElementContext.findPsiElements(psiElement -> isProvider(psiElement)).stream()).findFirst();
-*/
-        //fallback we search for an identifier only with the name of $routeProvider
+
+
         if (!retVal.isPresent()) {
             retVal = constructor.queryContent(PSI_ELEMENT_JS_IDENTIFIER,
                     (Predicate<PsiElementContext>) ident -> isRouteProvider(ident.getText()) || isStateProvider(ident.getText())).findFirst();
-            
-            /*retVal = constructor.findPsiElements(PsiWalkFunctions::isIdentifier).stream()
-                    .filter(ident -> isRouteProvider(ident.getText()) || isStateProvider(ident.getText()))
-                    .findFirst();*/
         }
 
         return retVal;
@@ -167,7 +163,7 @@ public class TNUIRoutesRoutesFileContext extends TypescriptFileContext implement
 
     List<PsiElementContext> getWhenCalls(PsiElementContext constructor, String routeProviderName) {
 
-        return constructor.queryContent(JS_BLOCK_ELEMENT, ":FIRST",
+        return constructor.queryContent(JS_BLOCK_STATEMENT, ":FIRST",
                 JS_EXPRESSION_STATEMENT,
                 p_isRouteCall(routeProviderName))
                 .collect(Collectors.toList());
@@ -253,9 +249,105 @@ public class TNUIRoutesRoutesFileContext extends TypescriptFileContext implement
 
     @Override
     public List<PsiRouteContext> getRoutes() {
+        boolean routeProvider = constructors.stream().filter(p_isRouteProviderPresent()).findFirst().isPresent();
+
+        if (routeProvider) {
+            return mapRoutes();
+        }
+
+        //TODO state provider
+        //boolean stateProvider = constructors.stream().filter(p_is()).findFirst().isPresent();
+
+
         //todo implement this
         return Collections.emptyList();
     }
 
+    public List<PsiRouteContext> mapRoutes() {
+        PsiElementContext constr = constructors.stream().filter(p_isRouteProviderPresent()).findFirst().get();
+        String routeProviderName = getRouteProviderName(constr);
+        List<PsiElementContext> calls = getWhenCalls(constr, routeProviderName);
+
+        return calls.stream().flatMap(resolveArgs())
+                .filter(item -> item.isPresent())
+                .map(item -> item.get())
+                .collect(Collectors.toList());
+    }
+
+    @NotNull
+    public Function<PsiElementContext, Stream<Optional<PsiRouteContext>>> resolveArgs() {
+        return (PsiElementContext call) -> {//$provider.when
+            List<PsiElementContext> args = call.queryContent(JS_ARGUMENTS_LIST).collect(Collectors.toList());
+            return args.stream().map(arg -> mapArg(call, arg));
+        };
+    }
+
+    public Optional<PsiElementContext> resolveImportPath(Optional<String> classIdentifier) {
+        if (!classIdentifier.isPresent()) {
+            return Optional.empty();
+        }
+        return getImportsWithIdentifier(classIdentifier.get()).stream()
+                .flatMap(item -> item.queryContent(PSI_ELEMENT_JS_STRING_LITERAL))
+                .findFirst();
+    }
+
+    public Optional<String> resolveJsVar(PsiElementContext call) {
+        //$routeProvider.when("/view1", MetaData.routeData(View1));
+        return call.findPsiElements(psiElement -> psiElement.getText().startsWith("MetaData.routeData")).stream()
+                .map(item -> item.queryContent(PSI_ELEMENT_JS_IDENTIFIER).findFirst().get())
+                .map(item -> item.getName()).findFirst();
+
+    }
+
+    public Optional<PsiElementContext> refOrLiteral(Optional<PsiElementContext> args) {
+        Optional<PsiElementContext> refExpr = args.get().queryContent(JS_REFERENCE_EXPRESSION).findFirst();
+        Optional<PsiElementContext> litExpr = args.get().queryContent(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
+        if (!refExpr.isPresent()) {
+            return litExpr;
+        }
+        if (!litExpr.isPresent()) {
+            return refExpr;
+        }
+        if (refExpr.get().getTextOffset() < litExpr.get().getTextOffset()) {
+            return refExpr;
+        }
+        return litExpr;
+    }
+
+
+    public Optional<PsiRouteContext> mapArg(PsiElementContext call, PsiElementContext arg) {
+        Optional<PsiElementContext> oUrl = refOrLiteral(Optional.of(arg));
+        Optional<String> classIdentifier = resolveJsVar(call);
+        Optional<PsiElement> importPath = findImportString(classIdentifier.get()); //todo else handling
+        if (!importPath.isPresent()) {
+            return Optional.empty();
+        }
+        //load class file and fetch the missing meta info from there (namy only)
+
+        IntellijFileContext pageController = new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(StringUtils.stripQuotes(importPath.get().getText())));
+
+        Optional<PsiElementContext> controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, "TEXT*:(@Controller)", JS_PROPERTY, "NAME:(name)", PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+
+        if (!controllerDef.isPresent()) {
+            controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, "TEXT*:(@Component)", JS_PROPERTY, "NAME:(name)", PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+        }
+        if (!controllerDef.isPresent()) {
+            controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, "TEXT*:(@Component)", JS_PROPERTY, "NAME:(selector)", PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+        }
+
+        String name = "";
+        if (controllerDef.isPresent()) {
+            name = StringUtils.stripQuotes(controllerDef.get().getText());
+        }
+
+        //now we have resolved the name, we have enough data to build our routes object
+
+
+        String url = (oUrl.isPresent()) ? oUrl.get().getText() : "";
+        String component = classIdentifier.orElse("No Class");
+        Route route = new Route(name, url, component, "", pageController.getVirtualFile().getPath());
+
+        return Optional.of(new PsiRouteContext(call.getElement(), route));
+    }
 
 }

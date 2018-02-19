@@ -19,6 +19,7 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
+import indexes.AngularIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.*;
@@ -192,18 +193,26 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
             try {
 
                 projectRoot = new IntellijFileContext(project);
+
+
                 List<IUIRoutesRoutesFileContext> routeFiles = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot);
                 if(routeFiles == null || routeFiles.isEmpty()) {
                     tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("No route found")));
                     return;
                 }
-                UIRoutesRoutesFileContext ctx = (UIRoutesRoutesFileContext) routeFiles.stream()
-                        .filter(item -> item instanceof UIRoutesRoutesFileContext).findFirst().get();
 
                 DefaultTreeModel oldModel = (DefaultTreeModel) tree.getModel();
                 Set<String> openState = fetchOpenState(oldModel);
 
-                DefaultTreeModel newModel = new DefaultTreeModel(SwingRouteTreeFactory.createRouteTrees(ctx));
+                DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Routes");
+
+                DefaultTreeModel newModel = new DefaultTreeModel(rootNode);
+                routeFiles.stream()
+                        .forEach(ctx -> {
+                        DefaultMutableTreeNode routes = SwingRouteTreeFactory.createRouteTrees(ctx, ctx instanceof UIRoutesRoutesFileContext ? "Angluar NG" : "TN Dec");
+                        rootNode.add(routes);
+                });
+                tree.setRootVisible(false);
                 tree.setModel(newModel);
 
                 //now we restore the expansion state

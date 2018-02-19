@@ -28,11 +28,6 @@ import com.google.common.collect.Lists;
 import com.intellij.diff.DiffManager;
 import com.intellij.diff.contents.DocumentContentImpl;
 import com.intellij.diff.requests.SimpleDiffRequest;
-import com.intellij.execution.filters.TextConsoleBuilder;
-import com.intellij.execution.filters.TextConsoleBuilderFactory;
-import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.execution.ui.ConsoleView;
-import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -58,19 +53,12 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowAnchor;
-import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiSearchHelper;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentFactory;
 import configuration.ConfigSerializer;
 import gui.Confirm;
-import gui.CreateTnProject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reflector.SpringJavaRestReflector;
@@ -435,11 +423,14 @@ public class IntellijUtils {
     }
 
     public static VirtualFile create(Project project, VirtualFile folder, String str, String fileName) throws IOException {
-        VirtualFile virtualFile = createTempFile(fileName, str);
-        virtualFile.rename(project, fileName);
-        virtualFile.move(project, folder);
+       VirtualFile virtualFile = createTempFile(fileName, str);
+       virtualFile.rename(project, fileName);
+       virtualFile.move(project, folder);
 
-        return virtualFile;
+       return virtualFile;
+
+        //PsiFile psiFile = PsiFileFactory.getInstance(project).createFileFromText(folder.getPath()+"/"+fileName, Language.findLanguageByID("XML"), str);
+        //return psiFile.getVirtualFile();
     }
 
     /**

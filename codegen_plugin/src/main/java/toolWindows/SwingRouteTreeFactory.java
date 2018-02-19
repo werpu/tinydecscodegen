@@ -1,6 +1,7 @@
 package toolWindows;
 
 import com.jgoodies.common.base.Strings;
+import supportive.fs.common.IUIRoutesRoutesFileContext;
 import supportive.fs.common.PsiRouteContext;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
 
@@ -16,9 +17,9 @@ public class SwingRouteTreeFactory {
 
 
 
-    public static DefaultMutableTreeNode createRouteTrees(UIRoutesRoutesFileContext ctx) {
+    public static DefaultMutableTreeNode createRouteTrees(IUIRoutesRoutesFileContext ctx, String label) {
         Map<String, SwingRouteTreeNode> _routeIdx = new HashMap<>();
-        DefaultMutableTreeNode treeNodes = new DefaultMutableTreeNode("Routes");
+        DefaultMutableTreeNode treeNodes = new DefaultMutableTreeNode(label);
 
         //lets make the tree Nodes
         List<PsiRouteContext> sortedRoutes = (List<PsiRouteContext>) ctx.getRoutes().stream().sorted(Comparator.comparing(PsiRouteContext::getRoute)).collect(Collectors.toList());

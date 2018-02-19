@@ -202,28 +202,7 @@ public class ComponentFileContext extends TypescriptFileContext {
         }).map(el -> (String) elVis(el, "nameIdentifier", "text").get()).findFirst();
 
         return componentClassDef;
-    }
-
-    private Optional<PsiElement> findImportString(String templateVarName) {
-        Optional<PsiElement> theImport = super.findPsiElements(PsiWalkFunctions::isImport).stream()
-                .filter(
-                        el -> Arrays.stream(el.getChildren())
-                                .filter(el2 -> el2.getText().equals(templateVarName))
-                                .findAny()
-                                .isPresent()
-                ).findFirst();
-
-        return getPsiImportString(theImport);
-    }
-
-    private Optional<PsiElement> getPsiImportString(Optional<PsiElement> theImport) {
-        return Arrays.asList(theImport.get().getChildren()).stream()
-                .filter(el -> el.toString().equals("ES6FromClause"))
-                .map(el -> el.getNode().getLastChildNode().getPsi())
-                .findFirst();
-    }
-
-    private PsiElement fetchStringContentElement(Optional<PsiElement> retVal) {
+    }private PsiElement fetchStringContentElement(Optional<PsiElement> retVal) {
         return (PsiElement) retVal.get().getNode().getFirstChildNode().getTreeNext();
     }
 
