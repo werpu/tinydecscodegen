@@ -68,7 +68,7 @@ public class RoutingTreeTest extends BaseTsTest {
         fs = files[0];
 
        TNUIRoutesRoutesFileContext ctx = new TNUIRoutesRoutesFileContext(prj, fs);
-       ctx.getRoutes();
+       //ctx.getRoutes();
 
     }
 
