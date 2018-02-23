@@ -78,10 +78,11 @@ public class ContextFactory {
         List<IUIRoutesRoutesFileContext> routeFiles = Lists.newLinkedList();
 
         routeFiles.addAll(RoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
-                .map(psiFile -> new UIRoutesRoutesFileContext(projectRoot.getProject(), psiFile)).collect(Collectors.toList()));
+                .map(psiFile -> new UIRoutesRoutesFileContext(projectRoot.getProject(), psiFile)).distinct().collect(Collectors.toList()));
 
         routeFiles.addAll( TNRoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
                 .map(psiFile -> new TNUIRoutesRoutesFileContext(projectRoot.getProject(), psiFile))
+                .distinct()
                 .collect(Collectors.toList()));
         return routeFiles;
 
