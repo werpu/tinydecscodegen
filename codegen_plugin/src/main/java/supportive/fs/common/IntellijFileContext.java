@@ -308,7 +308,12 @@ public class IntellijFileContext {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(fileContext.get().getPsiFile().getText().contains("\"@angular/core\"") ?  NG : TN_DEC);
+        try {
+            return Optional.ofNullable(new String(fileContext.get().getVirtualFile().contentsToByteArray(),fileContext.get().getVirtualFile().getCharset()).contains("\"@angular/core\"") ?  NG : TN_DEC);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     public Optional<IntellijFileContext> getAngularRoot() {

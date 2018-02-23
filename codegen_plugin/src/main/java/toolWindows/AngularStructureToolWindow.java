@@ -224,7 +224,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                     }
                 });
             } catch (IndexNotReadyException exception) {
-                //refreshContent(project);
+                refreshContent(project);
             }
         });
     }
