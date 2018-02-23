@@ -6,9 +6,11 @@ import com.intellij.ide.SaveAndSyncHandlerImpl;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
@@ -177,15 +179,16 @@ public class CreateTnDecProject extends AnAction {
                     SaveAndSyncHandlerImpl.getInstance().refreshOpenFiles();
                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
 
+                    supportive.utils.IntellijUtils.showInfoMessage("Project setup done, now starting npm to install all needed dependencies", "Info");
 
                 } finally {
                     ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
                 }
 
-                supportive.utils.IntellijUtils.showInfoMessage("Project setup done, now starting npm to install all needed dependencies", "Info");
 
-                IntellijUtils.npmInstall(project, fProjectDir, "The project has been generated successfully", "Success");
             });
+
+
 
             WriteCommandAction.runWriteCommandAction(project, () -> {
                 try {
@@ -207,6 +210,11 @@ public class CreateTnDecProject extends AnAction {
                 } finally {
                     ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
                 }
+            });
+            ApplicationManager.getApplication().invokeLater(() -> {
+
+                    IntellijUtils.npmInstall(project, fProjectDir, "The project has been generated successfully", "Success");
+
             });
 
 

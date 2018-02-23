@@ -70,6 +70,9 @@ public class PsiWalkFunctions {
     public static final String JS_ARRAY_LITERAL_EXPRESSION = "JSArrayLiteralExpression";
     public static final String JS_ARGUMENTS_LIST = "JSArgumentList";
     public static final String JS_VAR_STATEMENT = "JSVarStatement";
+    public static final String P_PARENTS = ":PARENTS";
+    public static final String P_LAST = ":LAST";
+    public static final String P_FIRST = ":first";
 
 
     public static boolean isNgModule(PsiElement element) {
@@ -363,7 +366,7 @@ public class PsiWalkFunctions {
                 String subCommand = (text).trim();
                 directChild = (text).startsWith(">");
                 if (item instanceof String && (text).matches("^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$")) {
-                    Pattern p = Pattern.compile("^\\s*TEXTs*\\:\\s*\\((.*)\\)\\s*$");
+                    Pattern p = Pattern.compile("^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$");
                     subItem = subItem.filter(psiElementContext -> {
 
                         Matcher m = p.matcher(text);
@@ -441,7 +444,7 @@ public class PsiWalkFunctions {
                 }
 
                 final String finalSubCommand = subCommand;
-                if (subCommand.toLowerCase().equals(":first")) {
+                if (subCommand.toLowerCase().equals(P_FIRST)) {
                     PsiElementContext firstItem = subItem.findFirst().orElse(null);
                     if (firstItem != null) {
                         subItem = Arrays.asList(firstItem).stream();
@@ -460,9 +463,9 @@ public class PsiWalkFunctions {
 
                         return listeralStartsWith(psiElementContext.getName(), matchText) || listeralStartsWith(psiElementContext.getElement().toString(), matchText);
                     }));
-                } else if (subCommand.equals(":PARENTS")) {
+                } else if (subCommand.equals(P_PARENTS)) {
                     subItem = subItem.flatMap(theItem -> theItem.parents().stream());
-                } else if (subCommand.equals(":LAST")) {
+                } else if (subCommand.equals(P_LAST)) {
                     Optional<PsiElementContext> reduced = subItem.reduce((theItem, theItem2) -> theItem2);
                     if (reduced.isPresent()) {
                         subItem = Arrays.asList(reduced.get()).stream();

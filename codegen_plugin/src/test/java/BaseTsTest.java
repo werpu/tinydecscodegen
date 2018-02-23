@@ -21,6 +21,11 @@ public abstract class BaseTsTest extends LightCodeInsightFixtureTestCase {
         return TestUtils.JS_TEST_PROBES_PATH;
     }
 
+    @Override
+    protected String getBasePath() {
+        return TestUtils.JS_TEST_PROBES_PATH;
+    }
+
     //nothing else seems to work than the hard approach
     protected boolean assertTestable() {
         return TestUtils.isTsTestable();

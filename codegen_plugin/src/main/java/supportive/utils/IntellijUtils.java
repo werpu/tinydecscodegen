@@ -475,13 +475,17 @@ public class IntellijUtils {
     public static void npmInstall(Project project, String projectDir, String doneMessage, String doneTitle) {
         BackgroundableProcessIndicator myProcessIndicator = null;
 
-        ProcessBuilder pb = System.getProperty("os.name").toLowerCase().contains("windows") ? new ProcessBuilder("npm.cmd", "install", "--verbose", "--no-progress") : new ProcessBuilder("npm", "install", "--verbose", "--no-progress");
-        Map<String, String> env = pb.environment();
+        ProcessBuilder pb = System.getProperty("os.name").toLowerCase().contains("windows") ?
+                new ProcessBuilder("npm.cmd", "install", "--verbose", "--no-progress") :
+                new ProcessBuilder("npm", "install", "--verbose", "--no-progress");
+
         pb.directory(new File(projectDir));
         Process p2 = null;
         try {
             p2 = pb.start();
         } catch (IOException e) {
+            Messages.showErrorDialog(project, e.getMessage(), "Error calling npm install");
+
             e.printStackTrace();
             return;
         }

@@ -171,9 +171,7 @@ public class TypescriptFileContext extends IntellijFileContext {
         Optional<PsiElement> theImport = super.findPsiElements(PsiWalkFunctions::isImport).stream()
                 .filter(
                         el -> Arrays.stream(el.getChildren())
-                                .filter(el2 -> el2.getText().equals(templateVarName))
-                                .findAny()
-                                .isPresent()
+                                .anyMatch(el2 -> el2.getText().contains(templateVarName) && PsiWalkFunctions.queryContent(el2, PSI_ELEMENT_JS_IDENTIFIER,"TEXT:("+templateVarName+")").findFirst().isPresent())
                 ).findFirst();
 
         return getPsiImportString(theImport);

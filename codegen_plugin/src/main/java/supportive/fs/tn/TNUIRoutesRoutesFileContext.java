@@ -14,6 +14,7 @@ import supportive.refactor.RefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
 import supportive.utils.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +23,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.Integer.valueOf;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
+import static supportive.utils.StringUtils.elVis;
 import static supportive.utils.StringUtils.literalEquals;
 
 /**
@@ -150,10 +153,10 @@ public class TNUIRoutesRoutesFileContext extends TypescriptFileContext implement
 
     public int calculateRouteInsertPos(String routeProviderName, PsiElementContext constructor, Optional<PsiElementContext> body) {
         //now append the route to the contsructor after the last routprovider declaration or to the bottom
-        List<PsiElementContext> whenCalls = getWhenCalls(constructor, routeProviderName);
+        List<PsiElementContext> whenCallArgs = getWhenParams(constructor, routeProviderName);
         int insertPos = 0;
-        if (whenCalls.size() > 0) {
-            PsiElementContext elementContext = whenCalls.get(whenCalls.size() - 1);
+        if (whenCallArgs.size() > 0) {
+            PsiElementContext elementContext = whenCallArgs.get(whenCallArgs.size() - 1);
             insertPos = elementContext.getElement().getStartOffsetInParent() + elementContext.getElement().getTextLength();
         } else {
             insertPos = body.get().getTextOffset() + 1;
@@ -161,13 +164,20 @@ public class TNUIRoutesRoutesFileContext extends TypescriptFileContext implement
         return insertPos;
     }
 
-    List<PsiElementContext> getWhenCalls(PsiElementContext constructor, String routeProviderName) {
+    List<PsiElementContext> getWhenParams(PsiElementContext constructor, String routeProviderName) {
 
-        return constructor.queryContent(JS_BLOCK_STATEMENT, ":FIRST",
-                JS_EXPRESSION_STATEMENT,
-                p_isRouteCall(routeProviderName))
+        return constructor
+                .queryContent(PSI_ELEMENT_JS_IDENTIFIER, "TEXT:('when')")
+                .map(item -> item.walkParent(el -> {
+                    return literalEquals(el.toString(), JS_EXPRESSION_STATEMENT);
+                }))
+                .filter(item -> item.isPresent())
+                .flatMap(item -> item.get().queryContent(JS_ARGUMENTS_LIST))
+                .filter(item -> {
+                    Optional<PsiElement> prev = elVis(item, "element", "prevSibling");
+                    return prev.isPresent() && prev.get().getText().endsWith(".when");
+                })
                 .collect(Collectors.toList());
-
 
     }
 
@@ -266,9 +276,11 @@ public class TNUIRoutesRoutesFileContext extends TypescriptFileContext implement
     public List<PsiRouteContext> mapRoutes() {
         PsiElementContext constr = constructors.stream().filter(p_isRouteProviderPresent()).findFirst().get();
         String routeProviderName = getRouteProviderName(constr);
-        List<PsiElementContext> calls = getWhenCalls(constr, routeProviderName);
+        List<PsiElementContext> whenParams = getWhenParams(constr, routeProviderName);
 
-        return calls.stream().flatMap(resolveArgs())
+        return whenParams.stream()
+                .distinct()
+                .flatMap(resolveArgs())
                 .filter(item -> item.isPresent())
                 .map(item -> item.get())
                 .collect(Collectors.toList());
@@ -294,24 +306,25 @@ public class TNUIRoutesRoutesFileContext extends TypescriptFileContext implement
     public Optional<String> resolveJsVar(PsiElementContext call) {
         //$routeProvider.when("/view1", MetaData.routeData(View1));
         return call.findPsiElements(psiElement -> psiElement.getText().startsWith("MetaData.routeData")).stream()
-                .map(item -> item.queryContent(PSI_ELEMENT_JS_IDENTIFIER).findFirst().get())
-                .map(item -> item.getName()).findFirst();
+                .map(item -> item.queryContent(PSI_ELEMENT_JS_IDENTIFIER, P_LAST).findFirst().get())
+                .map(item -> item.getText()).findFirst();
 
     }
 
     public Optional<PsiElementContext> refOrLiteral(Optional<PsiElementContext> args) {
         Optional<PsiElementContext> refExpr = args.get().queryContent(JS_REFERENCE_EXPRESSION).findFirst();
         Optional<PsiElementContext> litExpr = args.get().queryContent(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
-        if (!refExpr.isPresent()) {
-            return litExpr;
-        }
-        if (!litExpr.isPresent()) {
-            return refExpr;
-        }
-        if (refExpr.get().getTextOffset() < litExpr.get().getTextOffset()) {
-            return refExpr;
-        }
-        return litExpr;
+        Optional<PsiElementContext> sLitExpr = args.get().queryContent(PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+
+        List<Optional<PsiElementContext>> calcModel = new ArrayList<>(3);
+        calcModel.add(refExpr);
+        calcModel.add(litExpr);
+        calcModel.add(sLitExpr);
+
+        return calcModel.stream()
+                .filter(o1 -> o1.isPresent())
+                .sorted((o1, o2) -> valueOf(o1.get().getTextOffset()).compareTo(o2.get().getTextOffset()))
+                .findFirst().orElse(Optional.empty());
     }
 
 
@@ -324,7 +337,7 @@ public class TNUIRoutesRoutesFileContext extends TypescriptFileContext implement
         }
         //load class file and fetch the missing meta info from there (namy only)
 
-        IntellijFileContext pageController = new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(StringUtils.stripQuotes(importPath.get().getText())));
+        IntellijFileContext pageController = new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(StringUtils.stripQuotes(importPath.get().getText()) + ".ts"));
 
         Optional<PsiElementContext> controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, "TEXT*:(@Controller)", JS_PROPERTY, "NAME:(name)", PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
 
