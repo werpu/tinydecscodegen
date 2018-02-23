@@ -13,11 +13,11 @@ public class VisibleAssertions {
                 ctx.getPsiFile() == null ||
                 ctx.getPsiFile().getVirtualFile() == null ||
                 !ctx.getPsiFile().getVirtualFile().getPath().endsWith(".java") ||
-                ctx.getDocument().getText().indexOf("@Path") == -1;
+                ctx.getText().indexOf("@Path") == -1;
     }
 
     public static boolean assertNotSpringRest(IntellijFileContext ctx) {
-        return ctx.getDocument() == null || ctx.getDocument().getText().indexOf("@RestController") == -1;
+        return ctx.getDocument() == null || ctx.getText().indexOf("@RestController") == -1;
     }
 
     public static boolean assertNotJava(IntellijFileContext ctx) {
@@ -37,9 +37,9 @@ public class VisibleAssertions {
     }
 
     public static boolean assertTemplated(IntellijFileContext ctx) {
-        return ctx.getDocument().getText().contains("@Component") ||
-                ctx.getDocument().getText().contains("@Directive") ||
-                ctx.getDocument().getText().contains("@Controller");
+        return ctx.getText().contains("@Component") ||
+                ctx.getText().contains("@Directive") ||
+                ctx.getText().contains("@Controller");
     }
 
     public static void tnVisible(AnActionEvent anActionEvent) {

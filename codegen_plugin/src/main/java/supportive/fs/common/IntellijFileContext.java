@@ -98,6 +98,15 @@ public class IntellijFileContext {
         this.module = ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(virtualFile);
     }
 
+    public String getText() {
+        try {
+            return new String(virtualFile.contentsToByteArray(), virtualFile.getCharset());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
 
     public String getModuleRelativePath() {
         return virtualFile.getPath().replaceAll(module.getModuleFile().getParent().getPath(), ".");
