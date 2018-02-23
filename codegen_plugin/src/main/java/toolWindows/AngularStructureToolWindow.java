@@ -154,7 +154,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        /*VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileContentsChangedAdapter() {
+        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileContentsChangedAdapter() {
             @Override
             protected void onFileChange(@NotNull VirtualFile file) {
                 //TODO angular version dynamic depending on the project type
@@ -178,7 +178,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
             protected void onBeforeFileChange(@NotNull VirtualFile file) {
 
             }
-        });*/
+        });
 
         myToolWindow = toolWindow;
         refreshContent(project);

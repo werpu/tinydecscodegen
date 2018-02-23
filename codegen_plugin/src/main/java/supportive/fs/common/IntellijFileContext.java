@@ -35,6 +35,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
+import indexes.AngularIndex;
 import lombok.Getter;
 import supportive.refactor.IRefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
@@ -311,18 +312,14 @@ public class IntellijFileContext {
      * @return
      */
     public Optional<AngularVersion> getAngularVersion() {
-        Optional<IntellijFileContext> fileContext = findFirstUpwards(psiFile -> psiFile.getVirtualFile().getName().equals("package.json")).stream().findFirst();
 
-        if(!fileContext.isPresent()) {
-            return Optional.empty();
+        if(AngularIndex.isAngularVersion(this, NG)) {
+            return Optional.of(NG);
+        } else if(AngularIndex.isAngularVersion(this, TN_DEC)) {
+            return Optional.of(TN_DEC);
         }
+        return Optional.empty();
 
-        try {
-            return Optional.ofNullable(new String(fileContext.get().getVirtualFile().contentsToByteArray(),fileContext.get().getVirtualFile().getCharset()).contains("\"@angular/core\"") ?  NG : TN_DEC);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return Optional.empty();
-        }
     }
 
     public Optional<IntellijFileContext> getAngularRoot() {

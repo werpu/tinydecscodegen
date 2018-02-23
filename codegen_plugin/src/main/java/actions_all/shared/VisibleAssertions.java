@@ -1,6 +1,7 @@
 package actions_all.shared;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import indexes.AngularIndex;
 import supportive.fs.common.AngularVersion;
 import supportive.fs.common.IntellijFileContext;
 import supportive.utils.IntellijUtils;
@@ -47,7 +48,12 @@ public class VisibleAssertions {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
+
+
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
+
+
+
         Optional<AngularVersion> angularVersion = ctx.getAngularVersion();
         if (!angularVersion.isPresent() || !angularVersion.get().equals(AngularVersion.TN_DEC)) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);

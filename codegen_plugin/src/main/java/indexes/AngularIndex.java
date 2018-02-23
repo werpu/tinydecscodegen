@@ -77,7 +77,7 @@ public class AngularIndex extends ScalarIndexExtension<String> {
     @NotNull
     @Override
     public FileBasedIndex.InputFilter getInputFilter() {
-        return new DefaultFileTypeSpecificInputFilter(FileTypeManager.getInstance().getStdFileType("TypeScript"));
+        return new DefaultFileTypeSpecificInputFilter(FileTypeManager.getInstance().getFileTypeByExtension(".json"));
     }
 
     @Override
@@ -85,6 +85,15 @@ public class AngularIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
+
+    public static boolean isAngularVersion(IntellijFileContext file, AngularVersion angularVersion) {
+        List<IntellijFileContext> angularRoots = getAllAngularRoots(file.getProject(), angularVersion);
+        if(angularRoots.isEmpty()) {
+            return false;
+        }
+
+        return angularRoots.stream().filter(angularRoot -> angularRoot.isBelow(file)).findFirst().isPresent();
+    }
 
     public static List<IntellijFileContext> getAllAngularRoots(Project project, AngularVersion angularVersion) {
         return FileBasedIndex.getInstance().getContainingFiles(NAME, NPM_ROOT,
