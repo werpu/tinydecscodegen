@@ -20,7 +20,7 @@ import supportive.fs.common.ComponentFileContext;
 import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.Route;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
-import supportive.fs.tn.TNUIRoutesRoutesFileContext;
+import supportive.fs.tn.TNAngularRoutesFileContext;
 import supportive.utils.StringUtils;
 
 import javax.swing.*;
@@ -148,9 +148,9 @@ public class CreateTnDecRoute extends AnAction {
         ).stream().filter(s -> s != null).collect(Collectors.toList());
     }
 
-    public Stream<TNUIRoutesRoutesFileContext> getRoutesFiles(IntellijFileContext fileContext) {
+    public Stream<TNAngularRoutesFileContext> getRoutesFiles(IntellijFileContext fileContext) {
         return TNRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
-                .map(psiFile -> new TNUIRoutesRoutesFileContext(fileContext.getProject(), psiFile));
+                .map(psiFile -> new TNAngularRoutesFileContext(fileContext.getProject(), psiFile));
     }
 
     @NotNull

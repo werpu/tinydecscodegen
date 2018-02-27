@@ -6,7 +6,7 @@ import indexes.RoutesIndex;
 import indexes.TNRoutesIndex;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
-import supportive.fs.tn.TNUIRoutesRoutesFileContext;
+import supportive.fs.tn.TNAngularRoutesFileContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -81,7 +81,7 @@ public class ContextFactory {
                 .map(psiFile -> new UIRoutesRoutesFileContext(projectRoot.getProject(), psiFile)).distinct().collect(Collectors.toList()));
 
         routeFiles.addAll( TNRoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
-                .map(psiFile -> new TNUIRoutesRoutesFileContext(projectRoot.getProject(), psiFile))
+                .map(psiFile -> new TNAngularRoutesFileContext(projectRoot.getProject(), psiFile))
                 .distinct()
                 .collect(Collectors.toList()));
         return routeFiles;

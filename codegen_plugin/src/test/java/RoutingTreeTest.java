@@ -5,7 +5,7 @@ import providers.RouteTreeNode;
 import supportive.fs.common.PsiElementContext;
 import supportive.fs.common.PsiRouteContext;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
-import supportive.fs.tn.TNUIRoutesRoutesFileContext;
+import supportive.fs.tn.TNAngularRoutesFileContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +67,7 @@ public class RoutingTreeTest extends BaseTsTest {
         PsiFile[] files = myFixture.configureByFiles("TN_Routes.ts", "module1/View1.ts", "module2/View2.ts");
         fs = files[0];
 
-       TNUIRoutesRoutesFileContext ctx = new TNUIRoutesRoutesFileContext(prj, fs);
+       TNAngularRoutesFileContext ctx = new TNAngularRoutesFileContext(prj, fs);
 
         List<PsiRouteContext> routes = ctx.getRoutes();
         assertTrue(routes.size() > 2);
@@ -76,5 +76,23 @@ public class RoutingTreeTest extends BaseTsTest {
 
 
     }
+
+
+   /* public void testTnUiRoutesTree() {
+        if(!assertTestable()) {
+            return;
+        }
+        PsiFile[] files = myFixture.configureByFiles("TN_UIRoutesRoutes.ts", "module1/View1.ts", "module2/View2.ts");
+        fs = files[0];
+
+        TNAngularRoutesFileContext ctx = new TNAngularRoutesFileContext(prj, fs);
+
+        List<PsiRouteContext> routes = ctx.getRoutes();
+        assertTrue(routes.size() > 2);
+
+
+
+
+    }*/
 
 }

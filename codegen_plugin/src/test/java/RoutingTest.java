@@ -1,14 +1,11 @@
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
-import org.junit.Before;
 import org.junit.Test;
 import supportive.fs.common.ComponentFileContext;
 import supportive.fs.common.PsiElementContext;
 import supportive.fs.common.Route;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
-import supportive.fs.tn.TNUIRoutesRoutesFileContext;
-import util.TestUtils;
+import supportive.fs.tn.TNAngularRoutesFileContext;
 
 import java.util.Optional;
 
@@ -57,7 +54,7 @@ public class RoutingTest extends BaseTsTest {
         PsiFile fs = myFixture.configureByFile("TN_Routes.ts");
         Project prj = myFixture.getProject();
 
-        TNUIRoutesRoutesFileContext fileContext = new TNUIRoutesRoutesFileContext(prj, fs);
+        TNAngularRoutesFileContext fileContext = new TNAngularRoutesFileContext(prj, fs);
 
         assertTrue(fileContext.getConstructors().size() > 0);
 
