@@ -6,7 +6,7 @@ apply plugin: 'org.jetbrains.intellij'
 intellij {
     //release numbers can be found at https://s3-eu-west-1.amazonaws.com/intellij-releases/
     //localPath = '/Applications/Intellij IDEA.app'
-    version = 'IU-173.4548.28'
+    version = 'IU-181.4445.78'
 }
 
 dependencies {
