@@ -68,6 +68,8 @@ public class IntellijDtoReflector {
         return new GenericClass(classDescriptor, parent, Collections.emptyList(), props.stream().collect(Collectors.toList()));
     }
 
+
+
     public static GenericClass reflectEnum(String includingEndpoint, PsiClass clazz) {
         GenericEnum parent = null;
 
@@ -235,7 +237,10 @@ public class IntellijDtoReflector {
     }
 
     private static boolean isLombokedAnn(PsiAnnotation ann) {
-        return ann.getQualifiedName().equals("Getter") || ann.getQualifiedName().equals("Data");
+        return ann.getQualifiedName().equals("Getter") ||
+                ann.getQualifiedName().equals("Data") ||
+                ann.getQualifiedName().equals("lombok.Getter") ||
+                ann.getQualifiedName().equals("lombok.Data");
     }
 
     private static List<GenericVar> resolveGetters(List<GenericVar> before, PsiMethod[] methods) {
