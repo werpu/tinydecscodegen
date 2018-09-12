@@ -3,6 +3,7 @@ package actions_ng;
 import actions.ServiceGenerationAction;
 import actions_all.shared.JavaFileContext;
 import actions_all.shared.NgFileNameTransformer;
+import actions_all.shared.VisibleAssertions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -18,9 +19,13 @@ public class ServiceGenerateActionFromSource extends AnAction {
 
     private static final Logger log = Logger.getInstance(ServiceGenerationAction.class);
 
+
+
     @Override
     public void update(AnActionEvent anActionEvent) {
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
+        //TODO improve project angular detection
+        //VisibleAssertions.tnVisible(anActionEvent);
         if (assertNotJava(ctx) || (assertNotJavaRest(ctx) && assertNotSpringRest(ctx))) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;

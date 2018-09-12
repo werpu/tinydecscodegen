@@ -147,13 +147,12 @@
                 <separator/>
 
                 <action id="TD_ServiceSource" class="actions.ServiceGenerateActionFromSource"
-                        text="Service Generation from Source"
+                        text="TT Service Generation from Source"
                         description="Generate a typescript service">
 
                 </action>
 
 
-                <separator/>
                 <action id="NG_ServiceSource" class="actions_ng.ServiceGenerateActionFromSource"
                         text="Angular NG Service Generation from Source"
                         description="Generate a Angular Ng typescript service">
@@ -187,6 +186,7 @@
             </action>
 
             <separator/>
+
 
             <action id="TD_CreateComponent" class="actions.CreateTnDecComponent" text="Create Component"
                     description="Create a an Angular Tiny Decorations Component" icon="/images/tt.png">
@@ -233,6 +233,7 @@
             <action id="NG_CreateProject2" class="actions_ng.CreateNgProject" text="Create Angular Ng Project"
                     description="Create a an Angular Ng Project" icon="/images/tt.png">
             </action>
+
 
             <separator/>
 
@@ -285,6 +286,24 @@
             <action id="TD_DtoSrc3" class="actions_all.DtoGenerateFromSource" text="Dto Generation from source"
                     description="Generate a typescript dto from the current editor window" icon="/images/tt.png">
             </action>
+            <separator/>
+
+            <action id="TD_ServiceSource4" class="actions.ServiceGenerateActionFromSource"
+                    text="TT Service Generation from Source"
+                    description="Generate a typescript service"
+                    icon="/images/tt.png"
+            >
+
+            </action>
+            <action id="NG_ServiceSourcer3" class="actions_ng.ServiceGenerateActionFromSource"
+                    text="Angular NG Service Generation from Source"
+                    description="Generate a Angular Ng typescript service"
+                    icon="/images/ng.png"
+            >
+            </action>
+
+
+
             <separator/>
 
             <action id="NG_CreateRoute3" class="actions_ng.CreateNgRoute" text="Create UI-Routes Route" icon="/images/ng.png"

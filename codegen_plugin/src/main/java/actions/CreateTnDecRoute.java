@@ -37,7 +37,7 @@ public class CreateTnDecRoute extends AnAction {
 
     @Override
     public void update(AnActionEvent anActionEvent) {
-        VisibleAssertions.ngVisible(anActionEvent);
+        VisibleAssertions.tnVisible(anActionEvent);
     }
 
     @Override

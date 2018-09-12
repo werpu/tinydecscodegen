@@ -51,6 +51,7 @@ public class CreateTnDecComponent extends AnAction  {
 
 
     public static final String EXPORT = "___export___";
+    public static final String DECLARATIONS = "___export___";
 
     public CreateTnDecComponent() {
         super();
@@ -148,7 +149,8 @@ public class CreateTnDecComponent extends AnAction  {
                             hasTransclude(templateText), getPossibleTransclusionSlots(templateText));
                     List<ComponentAttribute> attrs = getCompAttrs(editor, mainForm);
                     boolean export = mainForm.getCbExport().isSelected();
-                    ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder, export));
+                    boolean declaration = !mainForm.getCbExport().isSelected();
+                    ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder, declaration, export));
                     ConfigSerializer.getInstance().getState().setComponentExport(mainForm.getCbExport().isSelected());
                 });
                 super.doOKAction();
@@ -176,7 +178,7 @@ public class CreateTnDecComponent extends AnAction  {
         });
     }
 
-    void buildFile(Project project, ComponentJson model, List<ComponentAttribute> cAttrs, VirtualFile folder, boolean export) {
+    void buildFile(Project project, ComponentJson model, List<ComponentAttribute> cAttrs, VirtualFile folder, boolean declaration, boolean export) {
 
         WriteCommandAction.runWriteCommandAction(project, () -> {
             String className = StringUtils.toCamelCase(model.getSelector());
@@ -201,6 +203,9 @@ public class CreateTnDecComponent extends AnAction  {
             if(export) {
                 attrs.put(EXPORT, export);
             }
+            if(declaration) {
+                attrs.put(DECLARATIONS, declaration);
+            }
 
             generate(project, folder, className, vslTemplate, attrs);
             supportive.utils.IntellijUtils.showInfoMessage("The Component has been generated", "Info");
@@ -211,9 +216,12 @@ public class CreateTnDecComponent extends AnAction  {
 
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
         List<ModuleElementScope> scope = Lists.newArrayList();
-        scope.add(ModuleElementScope.DECLARATIONS);
+
         if(attrs.containsKey(EXPORT)) {
             scope.add(ModuleElementScope.EXPORT);
+        }
+        if(attrs.containsKey(DECLARATIONS)){
+            scope.add(ModuleElementScope.DECLARATIONS);
         }
         ModuleElementScope[] scope1 = scope.stream().toArray(size -> new ModuleElementScope[size]);
         new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new SimpleFileNameTransformer(), scope.toArray(new ModuleElementScope[scope.size()])).run();
