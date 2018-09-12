@@ -5,7 +5,10 @@ import {Inject, NgModule} from "TinyDecorations";
  * @author ${AUTHOR}
  */
 @NgModule({
-    name: "${NAME}"
+    name: "${NAME}",
+    declarations: [],
+    imports: [],
+    exports: []
 })
 export class ${CLASS_NAME} {
    static angularModule: any; //classic angular representation of the current module

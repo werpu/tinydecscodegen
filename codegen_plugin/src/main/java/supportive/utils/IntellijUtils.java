@@ -48,6 +48,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
@@ -513,7 +514,7 @@ public class IntellijUtils {
                 } finally {
                     p.destroy();
                 }
-
+                ProjectManager.getInstance().reloadProject(project);
             }
         };
 

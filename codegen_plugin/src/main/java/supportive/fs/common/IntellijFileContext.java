@@ -324,7 +324,7 @@ public class IntellijFileContext {
 
     public boolean isAngularChild(AngularVersion angularVersion) {
 
-            return AngularIndex.isBelowAngularVersion(this, getAngularVersion().get());
+            return AngularIndex.isBelowAngularVersion(this, angularVersion);
 
     }
 

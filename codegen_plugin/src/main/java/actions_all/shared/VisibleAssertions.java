@@ -56,7 +56,7 @@ public class VisibleAssertions {
 
 
         Optional<AngularVersion> angularVersion = ctx.getAngularVersion();
-        if (!angularVersion.isPresent() || !angularVersion.get().equals(AngularVersion.TN_DEC)) {
+        if (!ctx.isAngularChild(AngularVersion.TN_DEC)) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
@@ -71,7 +71,7 @@ public class VisibleAssertions {
         }
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         Optional<AngularVersion> angularVersion = ctx.getAngularVersion();
-        if (!angularVersion.isPresent() || !angularVersion.get().equals(AngularVersion.NG)) {
+        if (!ctx.isAngularChild(AngularVersion.NG)) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }

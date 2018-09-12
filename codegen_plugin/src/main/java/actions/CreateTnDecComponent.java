@@ -51,7 +51,7 @@ public class CreateTnDecComponent extends AnAction  {
 
 
     public static final String EXPORT = "___export___";
-    public static final String DECLARATIONS = "___export___";
+    public static final String DECLARATIONS = "___declarations___";
 
     public CreateTnDecComponent() {
         super();

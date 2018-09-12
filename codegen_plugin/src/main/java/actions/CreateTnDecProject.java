@@ -13,7 +13,12 @@ import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
@@ -152,70 +157,93 @@ public class CreateTnDecProject extends AnAction {
             }
 
             final String fProjectDir = projectDir;
-            WriteCommandAction.runWriteCommandAction(project, () -> {
-                try {
-                    FileDocumentManager.getInstance().saveAllDocuments();
-                    ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
-                    IntellijResourceDir resources = new IntellijResourceDir(getResourcePath(), getSubPath());
 
 
-                    resources.copyTo(new File(fProjectDir), new TextTransformer() {
-                        @Override
-                        public String transform(String out, String data) {
+            /*ProgressManager progressManager = ProgressManager.getInstance();
+            */
+
+            final Task.Backgroundable myTask = new Task.Backgroundable(project, "calling npm install") {
+                @Override
+                public void run(@NotNull ProgressIndicator progressIndicator) {
+
+                    progressIndicator.setIndeterminate(true);
+                    progressIndicator.setText("Creating Project");
+
+                    WriteCommandAction.runWriteCommandAction(project, () -> {
+
+                        try {
+                            FileDocumentManager.getInstance().saveAllDocuments();
+                            ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
+                            IntellijResourceDir resources = new IntellijResourceDir(getResourcePath(), getSubPath());
 
 
-                            String relPath = Paths.get(out).relativize(Paths.get(mainForm.targetDir.getText().replaceAll("\\\\", "/"))).toString();
-                            relPath = relPath.replaceAll("\\\\", "/");
-                            String projRelPath = Paths.get(out).relativize(Paths.get(fProjectDir.replaceAll("\\\\", "/"))).toString();
+                            resources.copyTo(new File(fProjectDir), new TextTransformer() {
+                                @Override
+                                public String transform(String out, String data) {
 
 
-                            data = data.replaceAll("\\$\\{deployment_root_rel\\}", relPath);
-                            data = data.replaceAll("\\$\\{proj_root_rel\\}", projRelPath);
+                                    String relPath = Paths.get(out).relativize(Paths.get(mainForm.targetDir.getText().replaceAll("\\\\", "/"))).toString();
+                                    relPath = relPath.replaceAll("\\\\", "/");
+                                    String projRelPath = Paths.get(out).relativize(Paths.get(fProjectDir.replaceAll("\\\\", "/"))).toString();
 
-                            return data;
+
+                                    data = data.replaceAll("\\$\\{deployment_root_rel\\}", relPath);
+                                    data = data.replaceAll("\\$\\{proj_root_rel\\}", projRelPath);
+
+                                    return data;
+                                }
+                            });
+
+                            SaveAndSyncHandlerImpl.getInstance().refreshOpenFiles();
+                            VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
+
+                            supportive.utils.IntellijUtils.showInfoMessage("Project setup done, now starting npm to install all needed dependencies", "Info");
+
+                        } finally {
+                            ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
+                            //progressIndicator.stop();
                         }
+
+
                     });
 
-                    SaveAndSyncHandlerImpl.getInstance().refreshOpenFiles();
-                    VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
 
-                    supportive.utils.IntellijUtils.showInfoMessage("Project setup done, now starting npm to install all needed dependencies", "Info");
 
-                } finally {
-                    ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
+                    WriteCommandAction.runWriteCommandAction(project, () -> {
+                        try {
+                            FileDocumentManager.getInstance().saveAllDocuments();
+                            ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
+                            createRunner(project, TnDecGroupFactory.TPL_RUN_CONFIG, projectName, fProjectDir);
+                        } catch (IOException e) {
+                            supportive.utils.IntellijUtils.showErrorDialog(project, "Error", e.getMessage());
+                            e.printStackTrace();
+                        } finally {
+                            ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
+                        }
+                    });
+                    WriteCommandAction.runWriteCommandAction(project, () -> {
+                        try {
+                            FileDocumentManager.getInstance().saveAllDocuments();
+                            ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
+                            VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
+                        } finally {
+                            ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
+                        }
+                    });
+                    ApplicationManager.getApplication().invokeLater(() -> {
+
+                        IntellijUtils.npmInstall(project, fProjectDir, "The project has been generated successfully", "Success");
+
+                    });
+
                 }
+            };
+            BackgroundableProcessIndicator myProcessIndicator = new BackgroundableProcessIndicator(myTask);
+            myProcessIndicator.setText("Running npm install");
 
 
-            });
+            ProgressManager.getInstance().runProcessWithProgressAsynchronously(myTask, myProcessIndicator);
 
-
-
-            WriteCommandAction.runWriteCommandAction(project, () -> {
-                try {
-                    FileDocumentManager.getInstance().saveAllDocuments();
-                    ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
-                    createRunner(project, TnDecGroupFactory.TPL_RUN_CONFIG, projectName, fProjectDir);
-                } catch (IOException e) {
-                    supportive.utils.IntellijUtils.showErrorDialog(project, "Error", e.getMessage());
-                    e.printStackTrace();
-                } finally {
-                    ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
-                }
-            });
-            WriteCommandAction.runWriteCommandAction(project, () -> {
-                try {
-                    FileDocumentManager.getInstance().saveAllDocuments();
-                    ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
-                    VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
-                } finally {
-                    ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
-                }
-            });
-            ApplicationManager.getApplication().invokeLater(() -> {
-
-                    IntellijUtils.npmInstall(project, fProjectDir, "The project has been generated successfully", "Success");
-
-            });
 
 
         }
