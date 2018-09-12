@@ -25,8 +25,10 @@ public class ServiceGenerateActionFromSource extends AnAction {
     public void update(AnActionEvent anActionEvent) {
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         //TODO improve project angular detection
-        //VisibleAssertions.tnVisible(anActionEvent);
-        if (assertNotJava(ctx) || (assertNotJavaRest(ctx) && assertNotSpringRest(ctx))) {
+        VisibleAssertions.ngVisible(anActionEvent);
+
+
+        if ((!anActionEvent.getPresentation().isVisible()) || assertNotJava(ctx) || (assertNotJavaRest(ctx) && assertNotSpringRest(ctx))) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }

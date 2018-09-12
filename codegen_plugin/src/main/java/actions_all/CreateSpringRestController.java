@@ -12,11 +12,15 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.impl.file.PsiDirectoryFactory;
+import com.intellij.psi.impl.file.PsiJavaDirectoryImpl;
 import configuration.ConfigSerializer;
 import configuration.TinyDecsConfiguration;
 import factories.TnDecGroupFactory;
@@ -43,8 +47,12 @@ public class CreateSpringRestController extends AnAction  {
     public void update(AnActionEvent event) {
 
         final Project project = IntellijUtils.getProject(event);
+
         VirtualFile folder = IntellijUtils.getFolderOrFile(event);
         VirtualFile srcRoot = ProjectFileIndex.getInstance(project).getSourceRootForFile(folder);
+
+        //PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(srcRoot);
+        //boolean isJavaSourceRoot = dir.getContext() instanceof PsiJavaDirectoryImpl;
 
         event.getPresentation().setEnabledAndVisible(srcRoot != null);
     }

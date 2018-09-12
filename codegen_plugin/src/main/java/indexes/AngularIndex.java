@@ -91,6 +91,15 @@ public class AngularIndex extends ScalarIndexExtension<String> {
         if(angularRoots.isEmpty()) {
             return false;
         }
+        return true;
+        //return angularRoots.stream().filter(angularRoot -> angularRoot.isBelow(file)).findFirst().isPresent();
+    }
+
+    public static boolean isBelowAngularVersion(IntellijFileContext file, AngularVersion angularVersion) {
+        List<IntellijFileContext> angularRoots = getAllAngularRoots(file.getProject(), angularVersion);
+        if(angularRoots.isEmpty()) {
+            return false;
+        }
 
         return angularRoots.stream().filter(angularRoot -> angularRoot.isBelow(file)).findFirst().isPresent();
     }

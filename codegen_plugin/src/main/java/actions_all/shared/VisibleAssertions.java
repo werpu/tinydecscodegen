@@ -37,6 +37,7 @@ public class VisibleAssertions {
         return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getPath().endsWith(".ts");
     }
 
+
     public static boolean assertTemplated(IntellijFileContext ctx) {
         return ctx.getText().contains("@Component") ||
                 ctx.getText().contains("@Directive") ||
@@ -84,8 +85,8 @@ public class VisibleAssertions {
             return;
         }
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
-        Optional<AngularVersion> angularVersion = ctx.getAngularVersion();
-        if (angularVersion.isPresent()) {
+;
+        if (ctx.isAngularChild()) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }

@@ -10,15 +10,18 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.psi.PsiFile;
 import gui.CreateRoute;
+import indexes.AngularIndex;
 import indexes.ControllerIndex;
 import indexes.RoutesIndex;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import supportive.fs.common.AngularVersion;
 import supportive.fs.common.ComponentFileContext;
 import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.Route;
 import supportive.fs.ng.UIRoutesRoutesFileContext;
+import supportive.utils.IntellijUtils;
 import supportive.utils.StringUtils;
 
 import javax.swing.*;
@@ -37,6 +40,9 @@ public class CreateNgRoute extends AnAction {
     @Override
     public void update(AnActionEvent anActionEvent) {
         VisibleAssertions.ngVisible(anActionEvent);
+        if(anActionEvent.getPresentation().isVisible() && !AngularIndex.isBelowAngularVersion(new IntellijFileContext(anActionEvent), AngularVersion.NG)) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+        }
     }
 
     @Override

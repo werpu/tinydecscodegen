@@ -322,6 +322,19 @@ public class IntellijFileContext {
 
     }
 
+    public boolean isAngularChild(AngularVersion angularVersion) {
+
+            return AngularIndex.isBelowAngularVersion(this, getAngularVersion().get());
+
+    }
+
+    public boolean isAngularChild() {
+
+        return AngularIndex.isBelowAngularVersion(this, AngularVersion.NG) ||
+           AngularIndex.isBelowAngularVersion(this, AngularVersion.TN_DEC);
+
+    }
+
     public Optional<IntellijFileContext> getAngularRoot() {
         Optional<IntellijFileContext> fileContext = findFirstUpwards(psiFile -> psiFile.getVirtualFile().getName().equals("package.json")).stream().findFirst();
 
