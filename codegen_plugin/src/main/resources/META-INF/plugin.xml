@@ -267,7 +267,7 @@
         </group>
 
         <group id="TNNG_Create_Rest" text="_Create Rest" popup="true" description="Creation Actions"
-               icon="/images/tt.png">
+               icon="/images/tt.png" >
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
 
             <action id="NG_SprinRest2" class="actions_all.CreateSpringRestController"
