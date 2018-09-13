@@ -58,9 +58,10 @@ public class CreateNgComponent extends CreateTnDecComponent {
 
         if(attrs.containsKey(EXPORT)) {
             scope.add(ModuleElementScope.EXPORT);
-        } else {
-            scope.add(ModuleElementScope.DECLARATIONS);
         }
+
+        scope.add(ModuleElementScope.DECLARATIONS);
+
         ModuleElementScope[] scope1 = scope.stream().toArray(size -> new ModuleElementScope[size]);
 
         new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new NgFileNameTransformer("component"), scope1).run();

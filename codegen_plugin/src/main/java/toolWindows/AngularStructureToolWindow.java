@@ -30,6 +30,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
@@ -108,6 +111,20 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                     goToComponent(foundContext);
                 });
                 popupMenu.add(go_to_component);
+
+                popupMenu.addSeparator();
+                JMenuItem copy_route_key = new JMenuItem("Copy Route Key");
+                copy_route_key.addActionListener(actionEvent -> {
+                    copyRouteName(foundContext);
+                });
+                popupMenu.add(copy_route_key);
+
+                JMenuItem copy_route_link = new JMenuItem("Copy Route Link");
+                copy_route_link.addActionListener(actionEvent -> {
+                    copyRouteLink(foundContext);
+                });
+                popupMenu.add(copy_route_link);
+
                 popupMenu.show(tree, ev.getX(), ev.getY());
             }
         }
@@ -142,6 +159,33 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         foundContext.getElement().getContainingFile().getParent().findFile("/" + relPath + ".ts");
         (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(virtualFile, true);
 
+    }
+
+    /**
+     * copies the route name into the clipboard
+     */
+    public void copyRouteName(PsiRouteContext foundContext) {
+        Route route = foundContext.getRoute();
+        if(route == null) {
+            return;
+        }
+        StringSelection stringSelection = new StringSelection(route.getRouteKey());
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, null);
+    }
+
+    /**
+     * copies the fully qualified route link into the clipboard
+     * to be inserted somewhere in the code
+     */
+    public void copyRouteLink(PsiRouteContext foundContext) {
+        Route route = foundContext.getRoute();
+        if(route == null) {
+            return;
+        }
+        StringSelection stringSelection = new StringSelection("<a uiSref=\""+route.getRouteKey()+"\" uiSrefActive=\"active\">"+route.getRouteVarName()+"</a>");
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, null);
     }
 
     public void goToNavDeclaration(PsiRouteContext ctx) {
