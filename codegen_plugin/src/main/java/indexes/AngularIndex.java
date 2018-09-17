@@ -25,7 +25,7 @@ import static supportive.reflectRefact.PsiWalkFunctions.NPM_ROOT;
 public class AngularIndex extends ScalarIndexExtension<String> {
 
     public static final ID<String, Void> NAME = ID.create("TNNG_AngularIndex");
-    public static final String TN_MARKER = "\"@types/angular\"";
+    public static final String TN_MARKER = "\"angular\"";
     public static final String NG_MARKER = "\"@angular/core\"";
 
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
