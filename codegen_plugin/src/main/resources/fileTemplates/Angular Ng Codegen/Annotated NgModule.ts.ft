@@ -7,9 +7,6 @@ import { CommonModule } from '@angular/common';
  */
 @NgModule({
     name: "${NAME}"
-})
-
-@NgModule({
     declarations: [],
     imports: [],
     exports: []
