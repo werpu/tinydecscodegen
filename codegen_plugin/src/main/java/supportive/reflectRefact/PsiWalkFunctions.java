@@ -74,6 +74,8 @@ public class PsiWalkFunctions {
     public static final String P_LAST = ":LAST";
     public static final String P_FIRST = ":first";
 
+    public static final String PSI_CLASS = "PsiClass:";
+
 
     public static boolean isNgModule(PsiElement element) {
         return isAnnotatedElement(element, NG_MODULE);
@@ -140,6 +142,7 @@ public class PsiWalkFunctions {
         return element != null && element.toString().equals(JS_REFERENCE_EXPRESSION);
     }
 
+
     public static boolean isTemplateString(PsiElement element) {
         return element != null && getName(element).equals(JS_STRING_TYPE);
     }
@@ -164,6 +167,10 @@ public class PsiWalkFunctions {
                         element.getText().startsWith(TN_CONTROLLER) ||
                                 element.getText().startsWith(NG_COMPONENT)
                 );
+    }
+
+    public static boolean isPsiClass(PsiElement element) {
+         return element != null && element.toString().startsWith(PSI_CLASS);
     }
 
 

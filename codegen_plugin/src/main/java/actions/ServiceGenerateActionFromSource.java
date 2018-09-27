@@ -2,12 +2,14 @@ package actions;
 
 import actions_all.shared.JavaFileContext;
 import actions_all.shared.SimpleFileNameTransformer;
+import actions_all.shared.VisibleAssertions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiJavaFile;
+import supportive.fs.common.AngularVersion;
 import supportive.fs.common.IntellijFileContext;
 import supportive.utils.IntellijUtils;
 
@@ -21,7 +23,8 @@ public class ServiceGenerateActionFromSource extends AnAction {
     public void update(AnActionEvent anActionEvent) {
 
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
-        if (assertNotJava(ctx) || (assertNotJavaRest(ctx) && assertNotSpringRest(ctx))) {
+        if (!VisibleAssertions.hasAngularVersion(anActionEvent, AngularVersion.TN_DEC) ||
+                assertNotJava(ctx) || (assertNotJavaRest(ctx) && assertNotSpringRest(ctx))) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }

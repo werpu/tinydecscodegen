@@ -240,7 +240,35 @@ public class CreateRestEndpoint extends AnAction  {
 
                 editor.getDocument().insertString(beforeElement.getTextRange().getEndOffset() + 1, insertText);
             } else {
-                editor.getDocument().insertString(cursorPos, insertText);
+                //Todo insert in class
+                List<PsiElement> classes = editorFile.findPsiElements(PsiWalkFunctions::isPsiClass);
+                //TODO iterate over all found classes and use that one which is nearest the cursor pos
+                //should be diable with an offset sort and then compare
+                //the lower ands higer value to our insert position
+
+
+                /*PsiElement nearest = null;
+                int offset = 0;
+                for(PsiElement el: classes) {
+                    //todo find a suitable nearest condition formular, for now one
+                    //class this suffices.
+                    int currOffset = Math.abs(cursorPos - (el.getStartOffsetInParent() + el.getTextLength()));
+                    if(offset < currOffset) {
+                        nearest = el;
+                        offset = currOffset;
+                    }
+                }*/
+
+
+                if(!classes.isEmpty()) {
+                    PsiElement element = classes.get(0);
+                    int finalOffset = element.getStartOffsetInParent()+element.getTextLength();
+                    editor.getDocument().insertString(finalOffset - 1, insertText);
+                } else {
+                    editor.getDocument().insertString(cursorPos, insertText);
+                }
+
+
 
             }
             try {

@@ -39,11 +39,11 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
         group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_MODULE + "." + TPL_EXT, TTIcons.LogoSm));
         group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_CONFIG + "." + TPL_EXT, TTIcons.LogoSm));
         group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_RUN + "." + TPL_EXT, TTIcons.LogoSm));
-        group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_SERVICE + "." + TPL_EXT));
-        group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_MODULE + "." + TPL_EXT));
-        group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_COMPONENT + "." + TPL_EXT));
-        group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_PIPE + "." + TPL_EXT));
-        group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_DIRECTIVE + "." + TPL_EXT));
+        group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_SERVICE + "." + TPL_EXT, TTIcons.LogoNgSm));
+        group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_MODULE + "." + TPL_EXT, TTIcons.LogoNgSm));
+        group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_COMPONENT + "." + TPL_EXT, TTIcons.LogoNgSm));
+        group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_PIPE + "." + TPL_EXT, TTIcons.LogoNgSm));
+        group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_DIRECTIVE + "." + TPL_EXT, TTIcons.LogoNgSm));
         group.addTemplate(new FileTemplateDescriptor(TPL_RUN_CONFIG + "." + TPL_EXT_XML));
         group.addTemplate(new FileTemplateDescriptor(TPL_SPRING_REST + "." + TPL_EXT_JAVA));
         group.addTemplate(new FileTemplateDescriptor(TPL_SPRING_REST_METHOD + "." + TPL_EXT_JAVA));

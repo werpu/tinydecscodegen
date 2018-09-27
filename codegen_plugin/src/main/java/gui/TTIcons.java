@@ -11,5 +11,6 @@ public class TTIcons {
   }
 
   public static final Icon LogoSm = load("/images/tt.png"); // 16x16
+  public static final Icon LogoNgSm = load("/images/ng.png"); // 16x16
 
 }

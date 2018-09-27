@@ -10,6 +10,7 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiJavaFile;
+import supportive.fs.common.AngularVersion;
 import supportive.fs.common.IntellijFileContext;
 import supportive.utils.IntellijUtils;
 
@@ -25,10 +26,11 @@ public class ServiceGenerateActionFromSource extends AnAction {
     public void update(AnActionEvent anActionEvent) {
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         //TODO improve project angular detection
-        VisibleAssertions.ngVisible(anActionEvent);
+        //VisibleAssertions.ngVisible(anActionEvent);
 
 
-        if ((!anActionEvent.getPresentation().isVisible()) || assertNotJava(ctx) || (assertNotJavaRest(ctx) && assertNotSpringRest(ctx))) {
+        if (!VisibleAssertions.hasAngularVersion(anActionEvent, AngularVersion.NG) ||
+                (!anActionEvent.getPresentation().isVisible()) || assertNotJava(ctx) || (assertNotJavaRest(ctx) && assertNotSpringRest(ctx))) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }

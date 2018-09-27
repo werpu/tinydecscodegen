@@ -346,6 +346,8 @@ public class IntellijFileContext {
     }
 
 
+
+
     public boolean isChildOf(IntellijFileContext ctx) {
         Path child =  Paths.get(getVirtualFile().isDirectory() ? this.getVirtualFile().getPath() : this.getVirtualFile().getParent().getPath());
         Path parent = Paths.get(ctx.getVirtualFile().isDirectory() ? ctx.getVirtualFile().getPath() : ctx.getVirtualFile().getParent().getPath());

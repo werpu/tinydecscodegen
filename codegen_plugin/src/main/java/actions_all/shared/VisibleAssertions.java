@@ -1,6 +1,7 @@
 package actions_all.shared;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
 import indexes.AngularIndex;
 import supportive.fs.common.AngularVersion;
 import supportive.fs.common.IntellijFileContext;
@@ -118,5 +119,10 @@ public class VisibleAssertions {
             return true;
         }
         return false;
+    }
+
+    public static boolean hasAngularVersion(AnActionEvent anActionEvent, AngularVersion angularVersion) {
+        return AngularIndex.isAngularVersion(new IntellijFileContext(anActionEvent), angularVersion);
+
     }
 }
