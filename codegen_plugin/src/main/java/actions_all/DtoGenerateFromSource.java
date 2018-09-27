@@ -8,11 +8,18 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.JavaModuleType;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleType;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiJavaFile;
+import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.IntellijFileContext;
 import supportive.utils.IntellijUtils;
+
+import java.util.Collection;
 
 import static actions_all.shared.VisibleAssertions.*;
 
@@ -46,12 +53,18 @@ public class DtoGenerateFromSource extends AnAction {
 
         try {
             IntellijUtils.fileNameTransformer = new SimpleFileNameTransformer();
-            IntellijUtils.generateDto(javaData.getProject(), javaData.getModule(), (PsiJavaFile) javaData.getJavaFile());
+            IntellijUtils.generateDto(javaData.getProject(), javaData.getModule() != null ? javaData.getModule() : fetchModule(javaData), (PsiJavaFile) javaData.getJavaFile());
 
         } catch (RuntimeException | ClassNotFoundException e) {
             log.error(e);
             Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions_all.shared.Messages.ERR_OCCURRED);
         }
 
+    }
+
+    @NotNull
+    public Module fetchModule(JavaFileContext javaData) {
+        Collection<Module> modulesOfType = ModuleUtil.getModulesOfType(javaData.getProject(), JavaModuleType.getModuleType());
+        return !modulesOfType.isEmpty() ? modulesOfType.iterator().next() : null;
     }
 }

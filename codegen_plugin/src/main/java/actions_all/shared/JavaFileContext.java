@@ -140,7 +140,7 @@ public class JavaFileContext {
 
     private boolean fromClassNameToJavaFile(String className) {
         this.className = className;
-        PsiClass javaFile1 = JavaPsiFacade.getInstance(project).findClass(className, GlobalSearchScope.projectScope(project));
+        PsiClass javaFile1 = JavaPsiFacade.getInstance(project).findClass(className, GlobalSearchScope.everythingScope(project));
         if (javaFile1 == null) {
             return errInvalidRef();
         }

@@ -23,7 +23,8 @@ public class VisibleAssertions {
 
     public static boolean assertNotJava(IntellijFileContext ctx) {
         return ctx.getPsiFile() == null ||
-                !ctx.getPsiFile().getVirtualFile().getPath().endsWith(".java");
+                (!ctx.getPsiFile().getVirtualFile().getPath().endsWith(".java") &&
+                        !ctx.getPsiFile().getVirtualFile().getPath().endsWith(".class"));
     }
 
 

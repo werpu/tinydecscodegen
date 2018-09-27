@@ -355,7 +355,8 @@ public class IntellijUtils {
         PsiJavaFile javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(vFile);
 
         String packageName = javaFile.getPackageName();
-        return packageName + "." + javaFile.getName().replaceAll(".java", "");
+        return packageName + "." + javaFile.getName().replaceAll(".java", "")
+                .replaceAll(".class", "");
     }
 
     /**
