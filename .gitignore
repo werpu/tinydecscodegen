@@ -18,7 +18,7 @@ codegen_plugin/build/patchedPluginXmlFiles/
 codegen_plugin/build/resources/
 codegen_plugin/out/
 out/
-!codegen_plugin/build/distributions/
+!codegen_plugin/build/distributions/*.zip
 .gradle
 gradle
 codegen_plugin/libs/transient/*.jar
