@@ -240,35 +240,18 @@ public class CreateRestEndpoint extends AnAction  {
 
                 editor.getDocument().insertString(beforeElement.getTextRange().getEndOffset() + 1, insertText);
             } else {
-                //Todo insert in class
+
                 List<PsiElement> classes = editorFile.findPsiElements(PsiWalkFunctions::isPsiClass);
-                //TODO iterate over all found classes and use that one which is nearest the cursor pos
-                //should be diable with an offset sort and then compare
-                //the lower ands higer value to our insert position
+                PsiElement insertClass = findNearest(cursorPos, classes);
 
 
-                /*PsiElement nearest = null;
-                int offset = 0;
-                for(PsiElement el: classes) {
-                    //todo find a suitable nearest condition formular, for now one
-                    //class this suffices.
-                    int currOffset = Math.abs(cursorPos - (el.getStartOffsetInParent() + el.getTextLength()));
-                    if(offset < currOffset) {
-                        nearest = el;
-                        offset = currOffset;
-                    }
-                }*/
-
-
-                if(!classes.isEmpty()) {
-                    PsiElement element = classes.get(0);
+                if(insertClass != null) {
+                    PsiElement element = insertClass;
                     int finalOffset = element.getStartOffsetInParent()+element.getTextLength();
                     editor.getDocument().insertString(finalOffset - 1, insertText);
                 } else {
                     editor.getDocument().insertString(cursorPos, insertText);
                 }
-
-
 
             }
             try {
@@ -278,6 +261,31 @@ public class CreateRestEndpoint extends AnAction  {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    /**
+     * find the nearest class to the current cursorPos
+     * we use a distance calc to check where the nearest class is located
+     *
+     * @param cursorPos
+     * @param classes
+     * @return
+     */
+    @Nullable
+    public PsiElement findNearest(int cursorPos, List<PsiElement> classes) {
+        int distance = 100000;
+        PsiElement insertClass = null;
+        for(PsiElement clazz: classes) {
+            int startOffset = clazz.getStartOffsetInParent();
+            int endOffset = clazz.getStartOffsetInParent() + clazz.getTextLength();
+            int newDistance = Math.min(Math.abs(cursorPos - startOffset), Math.abs(cursorPos - endOffset));
+            if(newDistance < distance) {
+                distance = newDistance;
+                insertClass = clazz;
+            }
+
+        }
+        return insertClass;
     }
 
     @NotNull
