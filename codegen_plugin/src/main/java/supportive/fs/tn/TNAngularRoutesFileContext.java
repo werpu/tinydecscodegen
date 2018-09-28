@@ -57,7 +57,7 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
     @Override
     public void addRoute(Route routeData) {
         //find route provider inject
-        routeData.setComponent(super.appendImport(routeData.getComponent(), routeData.getComponentPath()));
+        routeData.setComponent(super.appendImport(routeData.getComponent().replaceAll("\\[.*\\]+", ""), routeData.getComponentPath()));
 
         for (PsiElementContext constructor : constructors) {
             String routeProviderName = getStateOrRouteProviderName(constructor);
@@ -78,7 +78,7 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
         int insertPos = 0;
         if (whenCallArgs.size() > 0) {
             PsiElementContext elementContext = whenCallArgs.get(whenCallArgs.size() - 1);
-            insertPos = elementContext.getElement().getStartOffsetInParent() + elementContext.getElement().getTextLength();
+            insertPos = elementContext.getElement().getTextOffset()+elementContext.getTextLength()+1;
         } else {
             insertPos = body.get().getTextOffset() + 1;
         }

@@ -49,7 +49,7 @@ public class CreateRoute {
     public void updateRouteName(ItemEvent e) {
         String oldValue = e != null ? (String) e.getItem() : "";
         String mappedName = StringUtils.toLowerDash(oldValue).replaceAll("_component", "");
-        String newValue = StringUtils.toLowerDash((String) cbComponent.getSelectedItem()).replaceAll("_component", "");
+        String newValue = StringUtils.toLowerDash((String) cbComponent.getSelectedItem()).replaceAll("(\\[.*\\])+", "").replaceAll("_component", "");
         newValue = Strings.isNullOrEmpty(getTxtRouteName().getText())  ? newValue : getTxtRouteName().getText().replace(mappedName, newValue);
         getTxtRouteName().setText(newValue);
         updateHref();

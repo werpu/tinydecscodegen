@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static supportive.reflectRefact.PsiWalkFunctions.JS_ROUTER_MODULE_FOR_ROOT;
 import static supportive.reflectRefact.PsiWalkFunctions.JS_UIROUTER_MODULE_FOR_ROOT;
 
 public class RoutesIndex extends ScalarIndexExtension<String> {
@@ -72,6 +73,8 @@ public class RoutesIndex extends ScalarIndexExtension<String> {
     public boolean dependsOnFileContent() {
         return true;
     }
+
+
 
 
     public static List<PsiFile> getAllMainRoutes(Project project, IntellijFileContext angularRoot) {

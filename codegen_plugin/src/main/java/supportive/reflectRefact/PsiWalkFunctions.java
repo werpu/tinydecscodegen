@@ -61,6 +61,7 @@ public class PsiWalkFunctions {
 
     public static final String JS_CALL_EXPRESSION = "JSCallExpression";
     public static final String JS_UIROUTER_MODULE_FOR_ROOT = "UIRouterModule.forRoot";
+    public static final String JS_ROUTER_MODULE_FOR_ROOT = "$routeProvider.when";
     public static final String TN_UIROUTER_MODULE_FOR_ROOT = "TN_RootRouter";
     public static final String NPM_ROOT = "package.json";
     public static final String PSI_ELEMENT_JS_RBRACKET = "PsiElement(JS:RBRACKET)";

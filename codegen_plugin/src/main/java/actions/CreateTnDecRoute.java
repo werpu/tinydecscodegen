@@ -66,7 +66,7 @@ public class CreateTnDecRoute extends AnAction {
             protected List<ValidationInfo> doValidateAll() {
                 Route route = getRoute(mainForm);
 
-                UIRoutesRoutesFileContext ctx = RoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
+                UIRoutesRoutesFileContext ctx = TNRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
                         .map(psiFile -> new UIRoutesRoutesFileContext(fileContext.getProject(), psiFile)).findAny().get();
 
 
