@@ -2,11 +2,13 @@ package supportive.fs.common;
 
 import com.google.common.collect.Lists;
 import indexes.AngularIndex;
-import indexes.RoutesIndex;
+import indexes.NG_UIRoutesIndex;
 import indexes.TNRoutesIndex;
+import indexes.TN_UIRoutesIndex;
 import org.jetbrains.annotations.Nullable;
-import supportive.fs.ng.UIRoutesRoutesFileContext;
+import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
+import supportive.fs.tn.TNUIRoutesFileContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +28,7 @@ public class ContextFactory {
     }
 
     @Nullable
-    public static PsiRouteContext createRouteContext(TypescriptFileContext routesFile, PsiElementContext psiElementContext) {
+    public static PsiRouteContext createRouteContext(TypescriptFileContext routesFile, PsiElementContext psiElementContext, Class origin) {
         Optional<PsiElementContext> name = psiElementContext.queryContent(JS_PROPERTY,  "NAME:(name)",PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
         Optional<PsiElementContext> url = psiElementContext.queryContent(JS_PROPERTY, "NAME:(url)",PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
         Optional<PsiElementContext> component = psiElementContext.queryContent(JS_PROPERTY, "NAME:(component)",PSI_ELEMENT_JS_IDENTIFIER).reduce((el1, el2) -> el2);
@@ -60,7 +62,7 @@ public class ContextFactory {
 
 
         if (found) {
-            return new PsiRouteContext(psiElementContext.getElement(), new Route(sName, sUrl, sComponent, psiElementContext.getName(), sImport));
+            return new PsiRouteContext(psiElementContext.getElement(), new Route(sName, sUrl, sComponent, psiElementContext.getName(), sImport, origin));
         }
         return null;
     }
@@ -77,13 +79,19 @@ public class ContextFactory {
     public List<IUIRoutesRoutesFileContext> getRouteFiles(IntellijFileContext projectRoot) {
         List<IUIRoutesRoutesFileContext> routeFiles = Lists.newLinkedList();
 
-        routeFiles.addAll(RoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
-                .map(psiFile -> new UIRoutesRoutesFileContext(projectRoot.getProject(), psiFile)).distinct().collect(Collectors.toList()));
+        routeFiles.addAll(NG_UIRoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
+                .map(psiFile -> new NG_UIRoutesRoutesFileContext(projectRoot.getProject(), psiFile)).distinct().collect(Collectors.toList()));
 
         routeFiles.addAll( TNRoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
                 .map(psiFile -> new TNAngularRoutesFileContext(projectRoot.getProject(), psiFile))
                 .distinct()
                 .collect(Collectors.toList()));
+
+        routeFiles.addAll(TN_UIRoutesIndex.getAllMainRoutes(project.getProject(), projectRoot).stream()
+                .map(psiFile -> new TNUIRoutesFileContext(projectRoot.getProject(), psiFile))
+                .distinct()
+                .collect(Collectors.toList()));
+
         return routeFiles;
 
     }

@@ -19,11 +19,14 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
-import indexes.AngularIndex;
+import indexes.TN_UIRoutesIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.*;
-import supportive.fs.ng.UIRoutesRoutesFileContext;
+import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
+import supportive.fs.tn.TNAngularRoutesFileContext;
+import supportive.fs.tn.TNRoutesFileContext;
+import supportive.fs.tn.TNUIRoutesFileContext;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -74,8 +77,8 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
         contentPanel.getBtClose().addActionListener(e -> myToolWindow.hide(null));
         contentPanel.getBtRefresh().addActionListener(e -> {
-            UIRoutesRoutesFileContext ctx = (UIRoutesRoutesFileContext) ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
-                    .filter(item -> item instanceof UIRoutesRoutesFileContext).findFirst().get();
+            NG_UIRoutesRoutesFileContext ctx = (NG_UIRoutesRoutesFileContext) ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
+                    .filter(item -> item instanceof NG_UIRoutesRoutesFileContext).findFirst().get();
 
             //tree.setModel(new DefaultTreeModel(SwingRouteTreeFactory.createRouteTrees(ctx)));
             refreshContent(projectRoot.getProject());
@@ -183,7 +186,14 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         if(route == null) {
             return;
         }
-        StringSelection stringSelection = new StringSelection("<a uiSref=\""+route.getRouteKey()+"\" uiSrefActive=\"active\">"+route.getRouteVarName()+"</a>");
+        StringSelection stringSelection = null;
+        if(route.getOriginContext().equals(TNUIRoutesFileContext.class)) {
+            stringSelection = new StringSelection("<a ui-sref=\"" + route.getRouteKey() + "\" ui-sref-active=\"active\">" + route.getRouteVarName() + "</a>");
+        } else if (route.getOriginContext().equals(TNAngularRoutesFileContext.class)) {
+            stringSelection = new StringSelection("<a href=\"#"+route.getUrl()+"\">" +route.getRouteVarName()+ "</a>");
+        } else {
+            stringSelection = new StringSelection("<a uiSref=\""+route.getRouteKey()+"\" uiSrefActive=\"active\">"+route.getRouteVarName()+"</a>");
+        }
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(stringSelection, null);
     }
@@ -253,7 +263,11 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 DefaultTreeModel newModel = new DefaultTreeModel(rootNode);
                 routeFiles.stream()
                         .forEach(ctx -> {
-                        DefaultMutableTreeNode routes = SwingRouteTreeFactory.createRouteTrees(ctx, ctx instanceof UIRoutesRoutesFileContext ? "Angluar NG" : "TN Dec");
+
+                        String node = ctx instanceof NG_UIRoutesRoutesFileContext ? "Angluar NG  Routes" :
+                                           ctx instanceof TNAngularRoutesFileContext ?  "TN Dec Routes":
+                                                   "TN Dec UI Routes";
+                            DefaultMutableTreeNode routes = SwingRouteTreeFactory.createRouteTrees(ctx, node);
                         rootNode.add(routes);
                 });
                 tree.setRootVisible(false);

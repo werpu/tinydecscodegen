@@ -32,14 +32,18 @@ public class Route implements Cloneable, Serializable, Comparable{
     @Getter
     String componentPath;
 
-    public Route(String routeKey, String url, String component) {
+    @Getter
+    Class originContext;
+
+    public Route(String routeKey, String url, String component, Class origin) {
         setRouteKey(routeKey);
         this.url = url;
         this.component = component;
+        this.originContext = origin;
     }
 
-    public Route(String routeKey, String url, String component, String routeVarName, String componentPath) {
-        this(routeKey, url, component);
+    public Route(String routeKey, String url, String component, String routeVarName, String componentPath, Class origin) {
+        this(routeKey, url, component, origin);
         this.routeVarName = routeVarName;
         this.componentPath = componentPath;
     }
@@ -52,7 +56,15 @@ public class Route implements Cloneable, Serializable, Comparable{
 
 
     public String toStringNg1() {
-        return "//TODO yet to be implemented \n";
+        String routeTemplateStr = "$stateProvider.state(\n" +
+                "    MetaData.routeData(View1,\n" +
+                "        {\n" +
+                "            name: '%s',\n" +
+                "            url: '%s'\n" +
+                "        }\n" +
+                "    )\n" +
+                ")\n";
+        return String.format(routeTemplateStr, getRouteVarName(), routeKey, url, component);
     }
 
     public String toStringNg2() {

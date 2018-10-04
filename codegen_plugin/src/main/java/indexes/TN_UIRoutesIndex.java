@@ -18,22 +18,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static supportive.reflectRefact.PsiWalkFunctions.JS_ROUTER_MODULE_FOR_ROOT;
-import static supportive.reflectRefact.PsiWalkFunctions.JS_UIROUTER_MODULE_FOR_ROOT;
+import static supportive.reflectRefact.PsiWalkFunctions.JS_STATE_MODULE_FOR_ROOT;
+import static supportive.reflectRefact.PsiWalkFunctions.TN_ROUTES_UIROUTER_MODULE_FOR_ROOT;
 
-public class RoutesIndex extends ScalarIndexExtension<String> {
+public class TN_UIRoutesIndex extends ScalarIndexExtension<String> {
 
-    public static final ID<String, Void> NAME = ID.create("TN_NG_MainRoutesIndex");
-    private final MyDataIndexer myDataIndexer = new MyDataIndexer();
+    public static final ID<String, Void> NAME = ID.create("TN_UIRoutesIndex");
+    private final TN_UIRoutesIndex.MyDataIndexer myDataIndexer = new TN_UIRoutesIndex.MyDataIndexer();
 
     private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
         @Override
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if (inputData.getContentAsText().toString().contains(JS_UIROUTER_MODULE_FOR_ROOT) &&
-                    PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isRootNav, true).size() > 0) {
-                return Collections.singletonMap(JS_UIROUTER_MODULE_FOR_ROOT, null);
+            //if()
+            if (inputData.getContentAsText().toString().contains("\"$stateProvider\"") &&
+                    PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isTnConfig, true).size() > 0) {
+                return Collections.singletonMap(TN_ROUTES_UIROUTER_MODULE_FOR_ROOT, null);
             }
 
             return Collections.emptyMap();
@@ -78,13 +79,12 @@ public class RoutesIndex extends ScalarIndexExtension<String> {
 
 
     public static List<PsiFile> getAllMainRoutes(Project project, IntellijFileContext angularRoot) {
-        return FileBasedIndex.getInstance().getContainingFiles(NAME, JS_UIROUTER_MODULE_FOR_ROOT,
+        return FileBasedIndex.getInstance().getContainingFiles(NAME, TN_ROUTES_UIROUTER_MODULE_FOR_ROOT,
                 GlobalSearchScope.projectScope(project)).stream()
                 .filter(VirtualFile::isValid)
                 .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).startsWith("..")))
                 .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
-                .filter(psiFile -> psiFile != null)
-                //.map(psiFile -> new UIRoutesRoutesFileContext(project, psiFile))
+                //.map(psiFile -> new NG_UIRoutesRoutesFileContext(project, psiFile))
                 .collect(Collectors.toList());
     }
 

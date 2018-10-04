@@ -8,7 +8,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.PsiRouteContext;
-import supportive.fs.ng.UIRoutesRoutesFileContext;
+import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,20 +20,20 @@ import java.util.stream.Collectors;
 public class NavTreeStructureProvider implements TreeStructureProvider {
 
     @Getter
-    UIRoutesRoutesFileContext ctx = null;
+    NG_UIRoutesRoutesFileContext ctx = null;
 
     @Getter
     List<RouteTreeNode> treeNodes = new LinkedList<>();
 
 
 
-    public NavTreeStructureProvider(UIRoutesRoutesFileContext ctx) {
+    public NavTreeStructureProvider(NG_UIRoutesRoutesFileContext ctx) {
         this.ctx = ctx;
 
         makeRouteTreeNodes(ctx);
     }
 
-    public void makeRouteTreeNodes(UIRoutesRoutesFileContext ctx) {
+    public void makeRouteTreeNodes(NG_UIRoutesRoutesFileContext ctx) {
         Map<String, RouteTreeNode> _routeIdx = new HashMap<>();
 
         //lets make the tree Nodes

@@ -3,7 +3,6 @@ package actions_ng;
 import actions_all.shared.ComponentSelectorModel;
 import actions_all.shared.Messages;
 import actions_all.shared.VisibleAssertions;
-import com.intellij.execution.RunManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -13,7 +12,7 @@ import com.intellij.psi.PsiFile;
 import gui.CreateRoute;
 import indexes.AngularIndex;
 import indexes.ControllerIndex;
-import indexes.RoutesIndex;
+import indexes.NG_UIRoutesIndex;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,8 +20,7 @@ import supportive.fs.common.AngularVersion;
 import supportive.fs.common.ComponentFileContext;
 import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.Route;
-import supportive.fs.ng.UIRoutesRoutesFileContext;
-import supportive.utils.IntellijUtils;
+import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.utils.StringUtils;
 
 import javax.swing.*;
@@ -94,8 +92,8 @@ public class CreateNgRoute extends AnAction {
             protected List<ValidationInfo> doValidateAll() {
                 Route route = getRoute(mainForm, selectorModel);
 
-                UIRoutesRoutesFileContext ctx = RoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
-                        .map(psiFile -> new UIRoutesRoutesFileContext(fileContext.getProject(), psiFile)).findAny().get();
+                NG_UIRoutesRoutesFileContext ctx = NG_UIRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
+                        .map(psiFile -> new NG_UIRoutesRoutesFileContext(fileContext.getProject(), psiFile)).findAny().get();
 
                 return CreateNgRoute.this.validate(route, ctx, mainForm);
             }
@@ -148,7 +146,7 @@ public class CreateNgRoute extends AnAction {
 
     }
 
-    protected List<ValidationInfo> validate(Route route, UIRoutesRoutesFileContext ctx, CreateRoute mainForm) {
+    protected List<ValidationInfo> validate(Route route, NG_UIRoutesRoutesFileContext ctx, CreateRoute mainForm) {
         return Arrays.asList(
                 assertNotNullOrEmpty(mainForm.getTxtRouteName().getText(), Messages.ERR_NAME_VALUE, mainForm.getTxtRouteName()),
                 assertPattern(mainForm.getTxtRouteName().getText(), VALID_ROUTE, Messages.ERR_CONFIG_PATTERN, mainForm.getTxtRouteName()),
@@ -157,9 +155,9 @@ public class CreateNgRoute extends AnAction {
         ).stream().filter(s -> s != null).collect(Collectors.toList());
     }
 
-    public Stream<UIRoutesRoutesFileContext> getRoutesFiles(IntellijFileContext fileContext) {
-        return RoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
-                .map(psiFile -> new UIRoutesRoutesFileContext(fileContext.getProject(), psiFile));
+    public Stream<NG_UIRoutesRoutesFileContext> getRoutesFiles(IntellijFileContext fileContext) {
+        return NG_UIRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
+                .map(psiFile -> new NG_UIRoutesRoutesFileContext(fileContext.getProject(), psiFile));
     }
 
     @NotNull
@@ -169,7 +167,7 @@ public class CreateNgRoute extends AnAction {
         return new Route(
                         mainForm.getTxtRouteName().getText(),
                         mainForm.getTxtHref().getText(),
-                        selectorModel.getComponentFileContexts()[mainForm.getCbComponent().getSelectedIndex()].getComponentClassName());
+                        selectorModel.getComponentFileContexts()[mainForm.getCbComponent().getSelectedIndex()].getComponentClassName(), this.getClass());
     }
 
 

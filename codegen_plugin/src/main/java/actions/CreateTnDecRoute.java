@@ -11,7 +11,6 @@ import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.psi.PsiFile;
 import gui.CreateRoute;
 import indexes.ControllerIndex;
-import indexes.RoutesIndex;
 import indexes.TNRoutesIndex;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.ComponentFileContext;
 import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.Route;
-import supportive.fs.ng.UIRoutesRoutesFileContext;
+import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
 import supportive.utils.StringUtils;
 
@@ -66,8 +65,8 @@ public class CreateTnDecRoute extends AnAction {
             protected List<ValidationInfo> doValidateAll() {
                 Route route = getRoute(mainForm);
 
-                UIRoutesRoutesFileContext ctx = TNRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
-                        .map(psiFile -> new UIRoutesRoutesFileContext(fileContext.getProject(), psiFile)).findAny().get();
+                NG_UIRoutesRoutesFileContext ctx = TNRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
+                        .map(psiFile -> new NG_UIRoutesRoutesFileContext(fileContext.getProject(), psiFile)).findAny().get();
 
 
                 return CreateTnDecRoute.this.validate(route, ctx, mainForm);
@@ -139,7 +138,7 @@ public class CreateTnDecRoute extends AnAction {
 
 
     //dedup this code
-    protected List<ValidationInfo> validate(Route route, UIRoutesRoutesFileContext ctx, CreateRoute mainForm) {
+    protected List<ValidationInfo> validate(Route route, NG_UIRoutesRoutesFileContext ctx, CreateRoute mainForm) {
         return Arrays.asList(
                 assertNotNullOrEmpty(mainForm.getTxtRouteName().getText(), Messages.ERR_NAME_VALUE, mainForm.getTxtRouteName()),
                 assertPattern(mainForm.getTxtRouteName().getText(), VALID_ROUTE, Messages.ERR_CONFIG_PATTERN, mainForm.getTxtRouteName()),
@@ -158,7 +157,7 @@ public class CreateTnDecRoute extends AnAction {
         return new Route(
                 mainForm.getTxtRouteName().getText(),
                 mainForm.getTxtHref().getText(),
-                (String) mainForm.getCbComponent().getSelectedItem());
+                (String) mainForm.getCbComponent().getSelectedItem(), this.getClass());
     }
 
     protected ComponentFileContext[] findAllPageComponents(IntellijFileContext rootContext) {

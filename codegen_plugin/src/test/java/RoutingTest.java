@@ -4,7 +4,7 @@ import org.junit.Test;
 import supportive.fs.common.ComponentFileContext;
 import supportive.fs.common.PsiElementContext;
 import supportive.fs.common.Route;
-import supportive.fs.ng.UIRoutesRoutesFileContext;
+import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
 
 import java.util.Optional;
@@ -25,7 +25,7 @@ public class RoutingTest extends BaseTsTest {
         }
 
 
-        UIRoutesRoutesFileContext routesFileContext = new UIRoutesRoutesFileContext(prj, fs);
+        NG_UIRoutesRoutesFileContext routesFileContext = new NG_UIRoutesRoutesFileContext(prj, fs);
         Optional<PsiElementContext> arr = routesFileContext.getNavigationalArray();
 
         assertTrue(arr.isPresent());
@@ -40,7 +40,7 @@ public class RoutingTest extends BaseTsTest {
         if (!assertTestable()) {
             return;
         }
-        Route route = new Route("my.route", "/myroute", "MyComponent");
+        Route route = new Route("my.route", "/myroute", "MyComponent", this.getClass());
 
         assertTrue(route.toStringNg2().replaceAll("\\s", "").startsWith("letmy_route={name:'my.route',url:'/myroute',component:MyComponent}"));
     }
@@ -58,8 +58,8 @@ public class RoutingTest extends BaseTsTest {
 
         assertTrue(fileContext.getConstructors().size() > 0);
 
-        Route route = new Route("my.route",  "/MyComponent", "MyComponent", "MyComponentVar","./MyComponent.ts");
-        Route route2 = new Route("my.route2", "/view2", "MyComponent");
+        Route route = new Route("my.route",  "/MyComponent", "MyComponent", "MyComponentVar","./MyComponent.ts", this.getClass());
+        Route route2 = new Route("my.route2", "/view2", "MyComponent", this.getClass());
 
 
 

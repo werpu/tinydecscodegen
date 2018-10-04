@@ -67,6 +67,11 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
         return retVal;
     }
 
+    /**
+     * searches for an @Inject("$stateProvider")
+     * @param constructor
+     * @return
+     */
     public Optional<PsiElementContext> getStateProviderDef(PsiElementContext constructor) {
 
         Optional<PsiElementContext> retVal = constructor.queryContent(p_isInject(), p_isProvider()).findFirst();
@@ -196,11 +201,15 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         String url = (oUrl.isPresent()) ? oUrl.get().getText() : "";
         String component = classIdentifier.orElse("No Class");
-        Route route = new Route(name, url, component, "", pageController.getVirtualFile().getPath());
+        Route route = new Route(name, url, component, "", pageController.getVirtualFile().getPath(), this.getClass());
 
         return Optional.of(new PsiRouteContext(call.getElement(), route));
     }
 
+    /**
+     * resolves the incoming arguments list accordingly
+     * @return
+     */
     @NotNull
     public Function<PsiElementContext, Stream<Optional<PsiRouteContext>>> resolveArgs() {
         return (PsiElementContext call) -> {//$provider.when

@@ -178,6 +178,11 @@ public class TypescriptFileContext extends IntellijFileContext {
     }
 
     protected Optional<PsiElement> getPsiImportString(Optional<PsiElement> theImport) {
+
+        if(!theImport.isPresent()) {
+            return theImport;
+        }
+
         return Arrays.asList(theImport.get().getChildren()).stream()
                 .filter(el -> el.toString().equals("ES6FromClause"))
                 .map(el -> el.getNode().getLastChildNode().getPsi())

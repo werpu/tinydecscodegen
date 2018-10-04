@@ -46,7 +46,9 @@
 
         <fileBasedIndex implementation="indexes.ComponentIndex" />
         <fileBasedIndex implementation="indexes.ControllerIndex" />
-        <fileBasedIndex implementation="indexes.RoutesIndex" />
+        <!-- route indexes -->
+        <fileBasedIndex implementation="indexes.NG_UIRoutesIndex" />
+        <fileBasedIndex implementation="indexes.TN_UIRoutesIndex" />
         <fileBasedIndex implementation="indexes.TNRoutesIndex" />
         <fileBasedIndex implementation="indexes.AngularIndex" />
 

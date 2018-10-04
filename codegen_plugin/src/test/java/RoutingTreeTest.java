@@ -4,7 +4,7 @@ import providers.NavTreeStructureProvider;
 import providers.RouteTreeNode;
 import supportive.fs.common.PsiElementContext;
 import supportive.fs.common.PsiRouteContext;
-import supportive.fs.ng.UIRoutesRoutesFileContext;
+import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class RoutingTreeTest extends BaseTsTest {
         }
         fs = myFixture.configureByFile("Routes.ts");
 
-        UIRoutesRoutesFileContext ctx = new UIRoutesRoutesFileContext(prj, fs);
+        NG_UIRoutesRoutesFileContext ctx = new NG_UIRoutesRoutesFileContext(prj, fs);
 
         List<PsiElementContext>  idents = ctx.getImportIdentifiers("MainPageComponent");
         assertTrue(idents.size() == 1);

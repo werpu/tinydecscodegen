@@ -23,17 +23,17 @@ import static supportive.utils.StringUtils.literalContains;
  * helper context to deal with routes and subroutes
  * in a single file
  */
-public class UIRoutesRoutesFileContext extends TypescriptFileContext implements IUIRoutesRoutesFileContext {
+public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implements IUIRoutesRoutesFileContext {
 
 
     PsiElementContext routesArr;
 
 
-    public UIRoutesRoutesFileContext(Project project, PsiFile psiFile) {
+    public NG_UIRoutesRoutesFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
     }
 
-    public UIRoutesRoutesFileContext(IntellijFileContext fileContext) {
+    public NG_UIRoutesRoutesFileContext(IntellijFileContext fileContext) {
         super(fileContext);
     }
 
@@ -135,11 +135,11 @@ public class UIRoutesRoutesFileContext extends TypescriptFileContext implements 
         retVal.addAll(foundIdentifiers.stream().flatMap(identifier -> {
             return queryContent(JS_VAR_STATEMENT, TYPE_SCRIPT_VARIABLE, "NAME:(" + identifier.getText() + ")");
         })
-                .map(psiElementContext -> ContextFactory.createRouteContext(this, psiElementContext)).filter(found -> found != null)
+                .map(psiElementContext -> ContextFactory.createRouteContext(this, psiElementContext, this.getClass())).filter(found -> found != null)
                 .collect(Collectors.toList()));
 
         retVal.addAll(foundParseableBlocks.stream()
-                .map(psiElementContext -> ContextFactory.createRouteContext(this, psiElementContext)).filter(found -> found != null)
+                .map(psiElementContext -> ContextFactory.createRouteContext(this, psiElementContext, this.getClass())).filter(found -> found != null)
                 .collect(Collectors.toList()));
 
         return retVal;

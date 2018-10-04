@@ -3,7 +3,6 @@ package toolWindows;
 import com.jgoodies.common.base.Strings;
 import supportive.fs.common.IUIRoutesRoutesFileContext;
 import supportive.fs.common.PsiRouteContext;
-import supportive.fs.ng.UIRoutesRoutesFileContext;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.Comparator;
