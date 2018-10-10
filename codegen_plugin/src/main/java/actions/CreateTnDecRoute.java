@@ -12,14 +12,16 @@ import com.intellij.psi.PsiFile;
 import gui.CreateRoute;
 import indexes.ControllerIndex;
 import indexes.TNRoutesIndex;
+import indexes.TN_UIRoutesIndex;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.ComponentFileContext;
 import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.Route;
-import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
+import supportive.fs.tn.TNRoutesFileContext;
+import supportive.fs.tn.TNUIRoutesFileContext;
 import supportive.utils.StringUtils;
 
 import javax.swing.*;
@@ -65,11 +67,12 @@ public class CreateTnDecRoute extends AnAction {
             protected List<ValidationInfo> doValidateAll() {
                 Route route = getRoute(mainForm);
 
-                NG_UIRoutesRoutesFileContext ctx = TNRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
-                        .map(psiFile -> new NG_UIRoutesRoutesFileContext(fileContext.getProject(), psiFile)).findAny().get();
+
+                //NG_UIRoutesRoutesFileContext ctx = TNRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
+                //        .map(psiFile -> new NG_UIRoutesRoutesFileContext(fileContext.getProject(), psiFile)).findAny().get();
 
 
-                return CreateTnDecRoute.this.validate(route, ctx, mainForm);
+                return getRoutesFiles(fileContext).flatMap(el -> CreateTnDecRoute.this.validate(route, el, mainForm).stream()).collect(Collectors.toList());//CreateTnDecRoute.this.validate(route, ctx, mainForm);
             }
 
 
@@ -117,28 +120,37 @@ public class CreateTnDecRoute extends AnAction {
             Route route = getRoute(mainForm);
             ComponentFileContext compContext = components[mainForm.getCbComponent().getSelectedIndex()];
 
-            getRoutesFiles(fileContext)
-                    .forEach(rContext -> {
-                        //calculate the component include relative from the file
-                        route.setComponentPath(compContext.calculateRelPathTo(rContext));
-                        rContext.addRoute(route);
 
-                        WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
-                            try {
-                                rContext.commit();
-                                supportive.utils.IntellijUtils.showInfoMessage("The new route has been added", "Info");
-                            } catch (IOException e) {
-                                supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "Error", e.getMessage());
-                                e.printStackTrace();
-                            }
-                        });
-                    });
+            WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
+                try {
+                    getRoutesFiles(fileContext)
+                            .forEach(rContext -> {
+                                //calculate the component include relative from the file
+                                try {
+                                    Route myRoute = (Route) route.clone();
+                                    myRoute.setComponentPath(compContext.calculateRelPathTo(rContext));
+                                    myRoute.setComponent(myRoute.getComponent().replaceAll("\\[[^\\]]+\\]", ""));
+                                    rContext.addRoute(myRoute);
+
+                                    rContext.commit();
+                                } catch (IOException | CloneNotSupportedException e) {
+                                    throw new RuntimeException(e);
+                                }
+
+                            });
+                    supportive.utils.IntellijUtils.showInfoMessage("The new route has been added", "Info");
+                } catch (RuntimeException e) {
+                    supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "Error", e.getMessage());
+                    e.printStackTrace();
+                }
+
+            });
         }
     }
 
 
     //dedup this code
-    protected List<ValidationInfo> validate(Route route, NG_UIRoutesRoutesFileContext ctx, CreateRoute mainForm) {
+    protected List<ValidationInfo> validate(Route route, TNRoutesFileContext ctx, CreateRoute mainForm) {
         return Arrays.asList(
                 assertNotNullOrEmpty(mainForm.getTxtRouteName().getText(), Messages.ERR_NAME_VALUE, mainForm.getTxtRouteName()),
                 assertPattern(mainForm.getTxtRouteName().getText(), VALID_ROUTE, Messages.ERR_CONFIG_PATTERN, mainForm.getTxtRouteName()),
@@ -147,9 +159,19 @@ public class CreateTnDecRoute extends AnAction {
         ).stream().filter(s -> s != null).collect(Collectors.toList());
     }
 
-    public Stream<TNAngularRoutesFileContext> getRoutesFiles(IntellijFileContext fileContext) {
-        return TNRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
+    public Stream<TNRoutesFileContext> getRoutesFiles(IntellijFileContext fileContext) {
+        //Standard angular 1 routes
+        Stream<TNAngularRoutesFileContext> routeFilesClassic = TNRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
                 .map(psiFile -> new TNAngularRoutesFileContext(fileContext.getProject(), psiFile));
+
+        //UI Routes tiny decorations routes
+        Stream<TNRoutesFileContext> routeFilesUIRoutes = TN_UIRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir()))
+                .stream().map(psiFile -> new TNUIRoutesFileContext(fileContext.getProject(), psiFile));
+
+        //TODO for now we deal with only one route file per system
+        //but in the long run we need to take care of a selection dialog
+        //which allows to select which route file
+        return Stream.concat(routeFilesClassic, routeFilesUIRoutes);
     }
 
     @NotNull

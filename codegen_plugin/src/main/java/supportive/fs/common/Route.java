@@ -1,38 +1,36 @@
 package supportive.fs.common;
 
 import com.google.common.base.Strings;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 
+@Getter
+@Setter
 
 public class Route implements Cloneable, Serializable, Comparable{
 
     @NonNull
     private String routeKey;
 
-    @NonNull
-    @Setter
-    @Getter
+    private String viewName;
+
     private String url;
 
-    @NonNull
-    @Setter
-    @Getter
     private String component;
 
-    @Setter
-    @Getter
     private String routeVarName;
 
-    @Getter
     String componentPath;
 
-    @Getter
+
     Class originContext;
 
     public Route(String routeKey, String url, String component, Class origin) {
@@ -48,6 +46,13 @@ public class Route implements Cloneable, Serializable, Comparable{
         this.componentPath = componentPath;
     }
 
+    public Route(String viewName, String routeKey, String url, String component, String routeVarName, String componentPath, Class origin) {
+        this(routeKey, url, component, origin);
+        this.routeVarName = routeVarName;
+        this.componentPath = componentPath;
+        this.viewName = viewName;
+    }
+
     public void setRouteKey(String routeKey) {
         this.routeKey = routeKey;
         this.routeVarName = routeKey.replaceAll("\\.", "_");
@@ -55,16 +60,15 @@ public class Route implements Cloneable, Serializable, Comparable{
 
 
 
-    public String toStringNg1() {
-        String routeTemplateStr = "$stateProvider.state(\n" +
-                "    MetaData.routeData(View1,\n" +
+    public String toStringTnNg1() {
+        String routeTemplateStr = "\n\n$stateProvider.state('%s',\n" +
+                "    MetaData.routeData(%s,\n" +
                 "        {\n" +
-                "            name: '%s',\n" +
                 "            url: '%s'\n" +
                 "        }\n" +
                 "    )\n" +
-                ")\n";
-        return String.format(routeTemplateStr, getRouteVarName(), routeKey, url, component);
+                ");\n";
+        return String.format(routeTemplateStr, routeKey, component,  url, component);
     }
 
     public String toStringNg2() {
@@ -110,5 +114,9 @@ public class Route implements Cloneable, Serializable, Comparable{
 
         int weight = routeKey * 256 + url * 16 + component;
         return (weight > 0) ? -1:  (weight == 0) ? 0 : 1;
+    }
+
+    public Route clone() throws CloneNotSupportedException {
+       return (Route) super.clone();
     }
 }

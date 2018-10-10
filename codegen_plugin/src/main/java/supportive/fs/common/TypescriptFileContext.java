@@ -126,7 +126,7 @@ public class TypescriptFileContext extends IntellijFileContext {
             varPostfix = varPostfix.replaceAll("[^0-9]+", "");
             int currentPostFixIdx = varPostfix.isEmpty() ? 0 : Integer.parseInt(varPostfix);
             currentPostFixIdx++;
-            appendImport(plannedVariable, "_"+currentPostFixIdx, importPath);
+            return appendImport(plannedVariable, "_"+currentPostFixIdx, importPath);
 
         } else {
             Optional<PsiElementContext> lastImport = this.queryContent(JS_ES_6_IMPORT_DECLARATION).reduce((import1, import2) -> import2);
@@ -158,7 +158,13 @@ public class TypescriptFileContext extends IntellijFileContext {
 
     @NotNull
     public Predicate<PsiElementContext> importPathMatch(String importPath) {
-        return importIdentifier -> importIdentifier.queryContent(":PARENTS", JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:('"+importPath+"')").findFirst().isPresent();
+        final String origImportPath = importPath;
+        if(importPath.startsWith("./..")) {
+            importPath = importPath.substring(2);
+        }
+        final String fImportPath = importPath;
+        return importIdentifier -> importIdentifier.queryContent(":PARENTS", JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:('"+fImportPath+"')").findFirst().isPresent() ||
+                                   importIdentifier.queryContent(":PARENTS", JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:('"+origImportPath+"')").findFirst().isPresent();
     }
 
 

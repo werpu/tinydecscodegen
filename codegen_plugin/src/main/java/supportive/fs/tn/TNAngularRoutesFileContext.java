@@ -51,6 +51,7 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
 
         constructors = this.queryContent(">" + TYPE_SCRIPT_FUNC, p_isConstructor(), p_isRouteProviderPresent()
         ).collect(Collectors.toList());
+
     }
 
 
@@ -84,6 +85,8 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
         }
         return insertPos;
     }
+
+
 
     List<PsiElementContext> getRouteParams(PsiElementContext constructor, String routeProviderName) {
 

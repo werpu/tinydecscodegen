@@ -89,7 +89,7 @@ public class SwingUtils {
 
         String txt = source.getText();
 
-        StringUtils.toLowerDash(txt);
+
         //Transform text
 
         String txtBase = Strings.nullToEmpty(target.getText());
@@ -104,7 +104,7 @@ public class SwingUtils {
             //name = args[0];
         }
         name = StringUtils.toLowerDash(txt);
-
+        name = name.replaceAll("\\.+", "/");
 
         target.setText(base + "/" + name);
     }

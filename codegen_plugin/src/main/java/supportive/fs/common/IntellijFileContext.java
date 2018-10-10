@@ -119,6 +119,7 @@ public class IntellijFileContext {
                 root.getVirtualFile().getParent().getPath());
         Path componentFilePath = Paths.get(getVirtualFile().getPath());
         Path relPath = routesFilePath.relativize(componentFilePath);
+
         return ("./" + relPath.toString())
                 .replaceAll("\\\\", "/")
                 .replaceAll("" +

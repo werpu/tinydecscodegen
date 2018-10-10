@@ -28,6 +28,8 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
     @Getter
     List<PsiElementContext> constructors = Lists.emptyList();
 
+    String routeProviderName;
+
     public TNRoutesFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
     }
@@ -65,6 +67,18 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
         }
 
         return retVal;
+    }
+
+    /**
+     * returns all route param arrays in the context
+     *
+     *
+     * @return
+     */
+    public List<PsiElementContext> getRouteParams() {
+        return constructors.stream().flatMap(el -> getRouteParams(el, getStateOrRouteProviderName(el)).stream())
+
+                .collect(Collectors.toList());
     }
 
     /**

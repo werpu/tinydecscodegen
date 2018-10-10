@@ -31,6 +31,10 @@ public class StringUtils {
         return "get"+in.substring(0, 1).toUpperCase()+in.substring(1);
     }
 
+    public static String pointToLowerDash(String s) {
+        return s.replaceAll("\\.+", "_");
+    }
+
     public static String toLowerDash(String s) {
 
         String camelCase = "[A-Z]";

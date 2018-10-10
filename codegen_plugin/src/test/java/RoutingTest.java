@@ -3,11 +3,15 @@ import com.intellij.psi.PsiFile;
 import org.junit.Test;
 import supportive.fs.common.ComponentFileContext;
 import supportive.fs.common.PsiElementContext;
+import supportive.fs.common.PsiRouteContext;
 import supportive.fs.common.Route;
 import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
+import supportive.fs.tn.TNUIRoutesFileContext;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 public class RoutingTest extends BaseTsTest {
@@ -73,6 +77,28 @@ public class RoutingTest extends BaseTsTest {
 
     }
 
+    @Test
+    public void testTNUIRouting() {
+        if (!assertTestable()) {
+            return;
+        }
+        PsiFile fs[] = myFixture.configureByFiles("Routes2.ts", "module2/View2.ts", "module1/View1.ts");
+
+
+        Project prj = myFixture.getProject();
+        TNUIRoutesFileContext fileContext = new TNUIRoutesFileContext(prj, fs[0]);
+
+        assertTrue(fileContext.getRouteParams().size() == 5);
+
+
+        List<PsiRouteContext> rets = fileContext.getRouteParams().stream()
+                .map(fileContext::parse)
+                .flatMap(el -> el.stream())
+                .collect(Collectors.toList());
+
+        assertTrue(true);
+
+    }
 
 
     @Test
