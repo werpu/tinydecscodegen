@@ -38,6 +38,8 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -147,19 +149,11 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     public void goToComponent(PsiRouteContext foundContext) {
         Route route = foundContext.getRoute();
         PsiElementContext topCtx = new PsiElementContext(foundContext.getElement().getContainingFile());
-        List<PsiElementContext> imports = topCtx.getImportsWithIdentifier(route.getComponent());
-        if (imports.size() == 0) {
-            return;
-        }
-        Optional<PsiElementContext> importStr = imports.get(0).queryContent(JS_ES_6_FROM_CLAUSE, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
-        if (!importStr.isPresent()) {
-            return;
-        }
-        String relPath = stripQuotes(importStr.get().getText());
 
-
-        VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(relPath + ".ts");
-        foundContext.getElement().getContainingFile().getParent().findFile("/" + relPath + ".ts");
+        Path componentPath = Paths.get(route.getComponentPath());
+        Path parent = Paths.get(foundContext.getElement().getContainingFile().getParent().getVirtualFile().getPath());
+        Path rel = parent.relativize(componentPath);
+        VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(rel.toString()+".ts");
         (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(virtualFile, true);
 
     }
