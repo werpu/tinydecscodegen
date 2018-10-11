@@ -1,6 +1,7 @@
 package supportive.fs.tn;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -25,6 +26,8 @@ import static supportive.utils.StringUtils.elVis;
 import static supportive.utils.StringUtils.literalEquals;
 
 public class TNUIRoutesFileContext extends TNRoutesFileContext {
+
+    private static final Logger log = Logger.getInstance(TNUIRoutesFileContext.class);
 
     public TNUIRoutesFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
@@ -238,9 +241,13 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
         if (routeName.isPresent() && controller.isPresent() && parmsCall.isPresent() && routeName.get().getTextOffset() < parmsCall.get().getTextOffset()) {
             //route name and parms call
-            IntellijFileContext pageController = resolveController(controller);
-            Route target = new Route(routeName.get().getText(), "", pageController.getText(), this.getClass());
-            target.setComponentPath(pageController.getVirtualFile().getPath());
+            Optional<IntellijFileContext> pageController = resolveController(controller);
+            Route target = new Route(routeName.get().getText(), "",controller.get().getText(), this.getClass());
+            if(pageController.isPresent()) {
+                target.setComponentPath(pageController.get().getVirtualFile().getPath());
+                //TODO error log to identify the issue
+            }
+
             Optional<PsiElementContext> views = resolveObjectProp(parmsMap.get(), "views");
             if (!views.isPresent()) {
                 resolveParamsMap(target, parmsMap.get());
@@ -274,11 +281,11 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
              *              *                     }
              *              *                 )
              */
-            IntellijFileContext pageController = controller.isPresent() ? resolveController(controller) : null;
+            Optional<IntellijFileContext> pageController = controller.isPresent() ? resolveController(controller) : Optional.empty();
 
             Route rt = new Route("", "", controller.isPresent() ? controller.get().getText() : "", this.getClass());
 
-            rt.setComponentPath(pageController != null ? pageController.getVirtualFile().getPath() : null);
+            rt.setComponentPath(pageController.isPresent() ? pageController.get().getVirtualFile().getPath() : null);
             resolveParamsMap(rt, parmsMap.get());
             Optional<PsiElementContext> views = resolveObjectProp(parmsMap.get(), "views");
             if (!views.isPresent()) {
@@ -316,9 +323,13 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
     }
 
     @NotNull
-    public IntellijFileContext resolveController(Optional<PsiElementContext> controller) {
+    public Optional<IntellijFileContext> resolveController(Optional<PsiElementContext> controller) {
         Optional<PsiElement> importStr = findImportString(controller.get().getText());
-        return new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(StringUtils.stripQuotes(importStr.get().getText()) + ".ts"));
+        if(!importStr.isPresent()) {
+            log.warn("no import found on controller"+controller.get().getText());
+            return Optional.empty();
+        }
+        return  Optional.ofNullable(new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(StringUtils.stripQuotes(importStr.get().getText()) + ".ts")));
     }
 
     void resolveParamsMap(Route target, PsiElementContext paramsMap) {
@@ -328,9 +339,13 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
         Optional<PsiElementContext> controller = resolveStringProp(paramsMap, "controller");
 
         if (controller.isPresent()) {
-            target.setComponent(resolveController(controller).getText());
-            IntellijFileContext controllerFile = resolveController(controller);
-            target.setComponentPath(controllerFile.getVirtualFile().getPath());
+            Optional<IntellijFileContext> controllerFile = resolveController(controller);
+
+            target.setComponent(controller.get().getText());
+            if(controllerFile.isPresent()) {
+                target.setComponentPath(controllerFile.get().getVirtualFile().getPath());
+            }
+
         }
 
         if (name.isPresent()) {
