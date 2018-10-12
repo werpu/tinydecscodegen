@@ -209,18 +209,21 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     //trying to reimplement
     public List<PsiRouteContext> parse(PsiElementContext argumentsList) {
+
         //first part either name or call or map
+        try {
+            Optional<PsiElementContext> routeName = argumentsList.queryContent(JS_LITERAL_EXPRESSION, ">" + PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+            Optional<PsiElementContext> parmsCall = argumentsList.queryContent(JS_REFERENCE_EXPRESSION, "TEXT:(MetaData.routeData)").findFirst();
+            Optional<PsiElementContext> controller = argumentsList.queryContent(JS_CALL_EXPRESSION, JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst();
+            Optional<PsiElementContext> parmsMap = argumentsList.queryContent(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
+            List<PsiRouteContext> target = resolveParms(argumentsList, routeName, parmsCall, controller, parmsMap);
+            if (target != null) return target;
 
-
-        Optional<PsiElementContext> routeName = argumentsList.queryContent(JS_LITERAL_EXPRESSION, ">" + PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
-        Optional<PsiElementContext> parmsCall = argumentsList.queryContent(JS_REFERENCE_EXPRESSION, "TEXT:(MetaData.routeData)").findFirst();
-        Optional<PsiElementContext> controller = argumentsList.queryContent(JS_CALL_EXPRESSION, JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst();
-        Optional<PsiElementContext> parmsMap = argumentsList.queryContent(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
-        List<PsiRouteContext> target = resolveParms(argumentsList, routeName, parmsCall, controller, parmsMap);
-        if (target != null) return target;
-
-        return Collections.emptyList();
-        //if(routeName.isPresent() && routeName.get().getElement().getTextOffset() < )
+            return Collections.emptyList();
+        } catch (RuntimeException e) {
+            log.error(e);
+            return Collections.emptyList();
+        }
 
     }
 

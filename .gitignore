@@ -7,7 +7,7 @@ target
 
 /codegen/velocity.log
 /build/
-codegen/build/
+
 codegen/out/
 codegen_plugin/build/classes/
 codegen_plugin/build/reports/
@@ -16,9 +16,9 @@ codegen_plugin/build/idea-sandbox/
 codegen_plugin/build/libs/
 codegen_plugin/build/patchedPluginXmlFiles/
 codegen_plugin/build/resources/
+codegen_plugin/build/tmp/
 codegen_plugin/out/
 out/
-!codegen_plugin/build/distributions/*.zip
 .gradle
 gradle
 codegen_plugin/libs/transient/*.jar
