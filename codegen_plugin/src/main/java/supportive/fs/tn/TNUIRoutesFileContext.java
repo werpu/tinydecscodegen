@@ -1,26 +1,26 @@
 package supportive.fs.tn;
 
+import com.google.common.base.Strings;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import indexes.ModuleIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import supportive.fs.common.IntellijFileContext;
-import supportive.fs.common.PsiElementContext;
-import supportive.fs.common.PsiRouteContext;
-import supportive.fs.common.Route;
+import supportive.fs.common.*;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.RefactorUnit;
-import supportive.utils.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static supportive.reflectRefact.IntellijRefactor.NG_MODULE;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
 import static supportive.utils.StringUtils.elVis;
 import static supportive.utils.StringUtils.literalEquals;
@@ -63,7 +63,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
                 //back to stateprivider call
                 .filter(item3 -> item3.walkParent(item2 -> literalEquals(item2.toString(), JS_EXPRESSION_STATEMENT) && item2.getText().startsWith("$stateProvider")).isPresent())
                 //find the topmost call
-                .map(item4 -> item4.walkParent(item5 -> literalEquals(item5.toString(), JS_EXPRESSION_STATEMENT)).get()).reduce((el1, el2) -> el2);
+                .map(item4 -> findMethodCallStart(item4, JS_EXPRESSION_STATEMENT).get()).reduce((el1, el2) -> el2);
 
         return found;
     }
@@ -127,20 +127,6 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     }
 
-    /**
-     * just gets the list of route calls (not the subviews... needed for insert)
-     *
-     * @return
-     */
-    List<PsiElement> getRoutesDeclaration() {
-
-        return constructors.stream().map(//we search for the last call into $stateProvider.when
-                TNUIRoutesFileContext::findStateProvidersCalls)
-                .filter(item -> item.isPresent())
-                .map(item -> item.get().getElement())
-                .collect(Collectors.toList());
-
-    }
 
 
     /**
@@ -245,8 +231,8 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
         if (routeName.isPresent() && controller.isPresent() && parmsCall.isPresent() && routeName.get().getTextOffset() < parmsCall.get().getTextOffset()) {
             //route name and parms call
             Optional<IntellijFileContext> pageController = resolveController(controller);
-            Route target = new Route(routeName.get().getText(), "",controller.get().getText(), this.getClass());
-            if(pageController.isPresent()) {
+            Route target = new Route(routeName.get().getText(), "", controller.get().getText(), this.getClass());
+            if (pageController.isPresent()) {
                 target.setComponentPath(pageController.get().getVirtualFile().getPath());
                 //TODO error log to identify the issue
             }
@@ -278,19 +264,23 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
             //TODO
             /**
              * (MetaData.routeData(View2,
-             *              *                     {
-             *              *                         name: "myState.state4",
-             *              *                         url: "/myState"
-             *              *                     }
-             *              *                 )
+             *          {
+             *               name: "myState.state4",
+             *               url: "/myState"
+             *          }
+             * )
              */
             Optional<IntellijFileContext> pageController = controller.isPresent() ? resolveController(controller) : Optional.empty();
 
             Route rt = new Route("", "", controller.isPresent() ? controller.get().getText() : "", this.getClass());
 
-            rt.setComponentPath(pageController.isPresent() ? pageController.get().getVirtualFile().getPath() : null);
-            resolveParamsMap(rt, parmsMap.get());
-            Optional<PsiElementContext> views = resolveObjectProp(parmsMap.get(), "views");
+            rt.setComponentPath(pageController.isPresent() ? pageController.get().getVirtualFile().getPath() : "");
+            Optional<PsiElementContext> views = Optional.empty();
+            if(parmsMap.isPresent()) {
+                resolveParamsMap(rt, parmsMap.get());
+                views = resolveObjectProp(parmsMap.get(), "views");
+
+            }
             if (!views.isPresent()) {
                 return Collections.singletonList(new PsiRouteContext(routeCall.getElement(), rt));
             } else {
@@ -299,41 +289,156 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
                 return resolveViews(routeCall, rtName, controller2, views);
             }
-
-
         }
-
     }
 
     public List<PsiRouteContext> resolveViews(PsiElementContext routeCall, Optional<PsiElementContext> routeName, Optional<PsiElementContext> controller, Optional<PsiElementContext> views) {
-        return views.get().queryContent(">" + JS_PROPERTY).flatMap(prop -> {
+
+         return views.get().queryContent(">" + JS_PROPERTY).flatMap(prop -> {
             /**
              *   "viewMain": MetaData.routeData(View2,
-             *                     {
-             *                         name: "myState.state4",
-             *                         url: "/myState"
-             *                     }
-             *                 ),
+             *        {
+             *             name: "myState.state4",
+             *             url: "/myState"
+             *        }
+             *    ),
              */
-            final String viewName = prop.queryContent(">" + PSI_ELEMENT_JS_STRING_LITERAL).findFirst().get().getText();
-            Optional<PsiElementContext> callExpr = prop.queryContent(">" + JS_CALL_EXPRESSION).findFirst();
-            Optional<PsiElementContext> controller2 = callExpr.get().queryContent(">" + JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst();
-            Optional<PsiElementContext> paramsMap2 = callExpr.get().queryContent(">" + JS_ARGUMENTS_LIST, JS_OBJECT_LITERAL_EXPRESSION).findFirst();
-            List<PsiRouteContext> rets = resolveParms(routeCall, routeName, callExpr, controller2.isPresent() ? controller2 : controller, paramsMap2);
-            rets.stream().forEach(el -> el.getRoute().setViewName(viewName));
-            return rets.stream();
+
+            try {
+                Optional<PsiElementContext> propKey = findFirstPropKey(prop);
+                Optional<PsiElementContext> newParamsMap = prop.queryContent(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
+
+                final String viewName = propKey.get().getText();
+                Optional<PsiElementContext> callExpr = prop.queryContent(">" + JS_CALL_EXPRESSION).findFirst();
+                Optional<PsiElementContext> controller2 = callExpr.isPresent() ? callExpr.get().queryContent(">" + JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst() : Optional.empty();
+                Optional<PsiElementContext> paramsMap2 = callExpr.isPresent() ? callExpr.get().queryContent(">" + JS_ARGUMENTS_LIST, JS_OBJECT_LITERAL_EXPRESSION).findFirst(): Optional.empty();
+                List<PsiRouteContext> rets = resolveParms(routeCall, routeName, callExpr, controller2.isPresent() ? controller2 : controller,newParamsMap.isPresent() ? newParamsMap : paramsMap2);
+                rets.stream().forEach(el -> {
+                    el.getRoute().setViewName(viewName);
+                    if(Strings.isNullOrEmpty(el.getRoute().getRouteKey()) && routeName.isPresent()) {
+                        el.getRoute().setRouteKey(routeName.get().getText());
+                    }
+                    if(Strings.isNullOrEmpty(el.getRoute().getComponentPath()) && controller.isPresent()) {
+                        Optional<IntellijFileContext> intellijFileContext = resolveController(controller);
+                        el.getRoute().setComponentPath(intellijFileContext.isPresent() ? intellijFileContext.get().getVirtualFile().getPath(): "");
+                    }
+                });
+                return rets.stream();
+            } catch (RuntimeException ex) {
+                log.error(ex);
+                return Collections.<PsiRouteContext>emptyList().stream();
+            }
         }).collect(Collectors.toList());
+
+    }
+
+    @NotNull
+    public Optional<PsiElementContext> findFirstPropKey(PsiElementContext prop) {
+        Optional<PsiElementContext> el1 =  prop.queryContent(">" + PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+        Optional<PsiElementContext> el2=  prop.queryContent(">" + JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
+
+        Optional<PsiElementContext> propKey = null;
+        if(el1.isPresent() && !el2.isPresent()) {
+            propKey = el1;
+        } else if(el2.isPresent() && !el1.isPresent()) {
+            propKey = el2;
+        } else {
+            propKey = el1.get().getTextOffset() < el1.get().getTextOffset() ? el1 : el2;
+        }
+        return propKey;
     }
 
     @NotNull
     public Optional<IntellijFileContext> resolveController(Optional<PsiElementContext> controller) {
-        Optional<PsiElement> importStr = findImportString(controller.get().getText());
-        if(!importStr.isPresent()) {
-            log.warn("no import found on controller"+controller.get().getText());
-            return Optional.empty();
+        String controllerName = controller.get().getText();
+        Optional<PsiElement> importStr = findImportString(controllerName);
+        if (!importStr.isPresent()) {
+            return findExternalImport(controllerName);
+        } else {
+            return Optional.ofNullable(this.relative(importStr.get()));
         }
-        return  Optional.ofNullable(new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(StringUtils.stripQuotes(importStr.get().getText()) + ".ts")));
     }
+
+    @Nullable
+    public Optional<IntellijFileContext> findExternalImport(String controllerName) {
+        //TODO fallback into a global search
+        List<IntellijFileContext> module = ModuleIndex.getAllModuleFiles(getProject(), getAngularRoot().get()).stream()
+                .filter(psiFile -> {
+
+                    if (psiFile == null || psiFile.getVirtualFile() == null ||
+                            psiFile.getVirtualFile().getExtension() == null ||
+                            psiFile.getContainingFile() == null ||
+                            psiFile.getContainingFile().getText() == null ||
+                            psiFile.getVirtualFile().getPath().contains("node_modules") ||
+                            !psiFile.getVirtualFile().getExtension().equalsIgnoreCase("ts")) {
+                        return false;
+                    }
+                    String text = psiFile.getContainingFile().getText();
+                    return (text.contains(NG_MODULE) ||
+                            text.trim().contains(".module(")) && (
+                            text.trim().contains(".controller(\"" + controllerName + "\"") ||
+                                    text.trim().contains(".controller('" + controllerName + "'") || text.trim().contains(".controller(\"" + controllerName + "\")") ||
+                                    text.trim().contains(".component(\"" + controllerName + "\"") ||
+                                    text.trim().contains(".component('" + controllerName + "'")
+
+                    );
+                }).map(el -> new IntellijFileContext(getProject(), el))
+                .collect(Collectors.toList());
+
+        if (!module.isEmpty()) {
+            Optional<IntellijFileContext> controllerDef = module.stream().map(fc -> {
+                Optional<PsiElement> importStr2 = queryController(fc)
+                        .map(el -> findMethodCallStart(el, JS_CALL_EXPRESSION))
+                        .filter(el2 -> hasControllerName(controllerName, el2))
+                        .flatMap(el -> getImportStrinStream(fc, el)).findFirst().get();
+                return fc.relative(importStr2.get());
+
+            }).findFirst();
+            if (controllerDef.isPresent()) {
+                return controllerDef;
+            }
+            return module.stream().map(fc -> {
+                Optional<PsiElement> importStr2 = queryComponent(fc)
+                        .map(el -> findMethodCallStart(el, JS_CALL_EXPRESSION))
+                        .filter(el2 -> hasControllerName(controllerName, el2))
+                        .flatMap(el -> getImportStrinStream(fc, el)).findFirst().get();
+                return fc.relative(importStr2.get());
+
+            }).findFirst();
+        }
+        return Optional.empty();
+    }
+
+    public Stream<Optional<PsiElement>> getImportStrinStream(IntellijFileContext fc, Optional<PsiElementContext> el) {
+        return Collections.singletonList(getImportString(fc, el)).stream();
+    }
+
+    public Optional<PsiElement> getImportString(IntellijFileContext fc, Optional<PsiElementContext> el) {
+        //controllerNam
+        PsiElementContext ctrl = el.get()
+                .queryContent(JS_REFERENCE_EXPRESSION)
+                .reduce((el1, el2) -> el2).get();
+        return findImportString(new TypescriptFileContext(fc), ctrl.getText());
+    }
+
+    public boolean hasControllerName(String controllerName, Optional<PsiElementContext> el2) {
+        return el2.isPresent() && el2.get()
+                .queryContent(PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:(" + controllerName + ")")
+                .findFirst().isPresent();
+    }
+
+    public Stream<PsiElementContext> queryController(IntellijFileContext fc) {
+        return fc.queryContent(PSI_ELEMENT_JS_IDENTIFIER, "TEXT:(controller)");
+    }
+
+    public Stream<PsiElementContext> queryComponent(IntellijFileContext fc) {
+        return fc.queryContent(PSI_ELEMENT_JS_IDENTIFIER, "TEXT:(component)");
+    }
+
+    public static Optional<PsiElementContext> findMethodCallStart(PsiElementContext el, String jsCallExpression) {
+        return el.walkParent(el2 -> literalEquals(el2.toString(), jsCallExpression));
+    }
+
 
     void resolveParamsMap(Route target, PsiElementContext paramsMap) {
 
@@ -345,7 +450,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
             Optional<IntellijFileContext> controllerFile = resolveController(controller);
 
             target.setComponent(controller.get().getText());
-            if(controllerFile.isPresent()) {
+            if (controllerFile.isPresent()) {
                 target.setComponentPath(controllerFile.get().getVirtualFile().getPath());
             }
 

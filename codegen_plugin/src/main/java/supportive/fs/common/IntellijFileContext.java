@@ -40,6 +40,7 @@ import lombok.Getter;
 import supportive.refactor.IRefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
 import supportive.utils.IntellijUtils;
+import supportive.utils.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -219,6 +220,9 @@ public class IntellijFileContext {
             });
     }
 
+
+
+
     /**
      * goes an element tree upwards and finds all files/dirs triggered
      * by the visitor
@@ -371,6 +375,10 @@ public class IntellijFileContext {
         Path pOther = Paths.get(that.getVirtualFile().getPath());
 
         return pThis.relativize(pOther).toString().isEmpty();
+    }
+
+    public IntellijFileContext relative( PsiElement importStr) {
+        return new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(StringUtils.stripQuotes(importStr.getText()) + ".ts"));
     }
 
 

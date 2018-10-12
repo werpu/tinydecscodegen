@@ -51,6 +51,7 @@
         <fileBasedIndex implementation="indexes.TN_UIRoutesIndex" />
         <fileBasedIndex implementation="indexes.TNRoutesIndex" />
         <fileBasedIndex implementation="indexes.AngularIndex" />
+        <fileBasedIndex implementation="indexes.ModuleIndex" />
 
 
 

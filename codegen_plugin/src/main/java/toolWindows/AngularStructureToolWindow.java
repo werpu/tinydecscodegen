@@ -79,8 +79,8 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
         contentPanel.getBtClose().addActionListener(e -> myToolWindow.hide(null));
         contentPanel.getBtRefresh().addActionListener(e -> {
-            NG_UIRoutesRoutesFileContext ctx = (NG_UIRoutesRoutesFileContext) ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
-                    .filter(item -> item instanceof NG_UIRoutesRoutesFileContext).findFirst().get();
+            //Optional<NG_UIRoutesRoutesFileContext> ctx = (Optional<NG_UIRoutesRoutesFileContext) ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
+            //        .filter(item -> item instanceof NG_UIRoutesRoutesFileContext).findFirst();
 
             //tree.setModel(new DefaultTreeModel(SwingRouteTreeFactory.createRouteTrees(ctx)));
             refreshContent(projectRoot.getProject());

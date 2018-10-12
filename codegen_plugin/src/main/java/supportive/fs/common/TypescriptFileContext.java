@@ -174,7 +174,11 @@ public class TypescriptFileContext extends IntellijFileContext {
 
 
     protected Optional<PsiElement> findImportString(String templateVarName) {
-        Optional<PsiElement> theImport = super.findPsiElements(PsiWalkFunctions::isImport).stream()
+        return this.findImportString(this, templateVarName);
+    }
+
+    protected Optional<PsiElement> findImportString(TypescriptFileContext ctxm, String templateVarName) {
+        Optional<PsiElement> theImport = ctxm.findPsiElements(PsiWalkFunctions::isImport).stream()
                 .filter(
                         el -> Arrays.stream(el.getChildren())
                                 .anyMatch(el2 -> el2.getText().contains(templateVarName) && PsiWalkFunctions.queryContent(el2, PSI_ELEMENT_JS_IDENTIFIER,"TEXT:("+templateVarName+")").findFirst().isPresent())
@@ -194,6 +198,8 @@ public class TypescriptFileContext extends IntellijFileContext {
                 .map(el -> el.getNode().getLastChildNode().getPsi())
                 .findFirst();
     }
+
+
 
     /**
      * central commit handler to perform all refactorings on the
