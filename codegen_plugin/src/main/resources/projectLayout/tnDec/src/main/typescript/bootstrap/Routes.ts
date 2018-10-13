@@ -5,6 +5,7 @@ import {View1} from "../module1/View1";
 import {Config, Inject} from "TinyDecorations";
 import {MetaData} from "Routing";
 import {View2} from "../module2/View2";
+import {StateProvider} from "@uirouter/angularjs";
 
 /**
  * @meta: rootRouteConfig
@@ -14,10 +15,16 @@ import {View2} from "../module2/View2";
  */
 @Config()
 export class RouteConfig {
-    constructor(@Inject("$routeProvider") private $routeProvider: any) {
-        $routeProvider.otherwise({redirectTo: '/view1'});
-        $routeProvider.when("/view1", MetaData.routeData(View1));
-        $routeProvider.when("/view2", MetaData.routeData(View2));
+    constructor(@Inject("$stateProvider") private $stateProvider: StateProvider) {
+        $stateProvider.state("default", MetaData.routeData(View1, {
+            url: "/"
+        }));
+        $stateProvider.state("view1", MetaData.routeData(View1, {
+            url: "/view1"
+        }));
+        $stateProvider.state("view2", MetaData.routeData(View2, {
+            url: "/view2"
+        }));
     }
 }
 

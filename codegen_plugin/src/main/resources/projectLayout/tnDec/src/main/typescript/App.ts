@@ -1,4 +1,5 @@
 /// <reference path="${proj_root_rel}/node_modules/ts-ng-tinydecorations/dist/TinyDecorations.d.ts" />
+/// <reference path="${proj_root_rel}/node_modules/ts-ng-tinydecorations/dist/Dto.d.ts" />
 /// <reference path="${proj_root_rel}/node_modules/ts-ng-tinydecorations/dist/Cache.d.ts" />
 /// <reference path="${proj_root_rel}/node_modules/ts-ng-tinydecorations/dist/Routing.d.ts" />
 
@@ -14,7 +15,7 @@ import {NgModule, platformBrowserDynamic} from "TinyDecorations";
 @NgModule({
     name: "myApp",
     declarations: [AppConfig, AppRun, RouteConfig],
-    imports: ["ngRoute", "ngResource", Module2, Module1]
+    imports: ["ngRoute", "ngResource", Module2, Module1,"ui.router"]
 })
 export class MyApp {
 }

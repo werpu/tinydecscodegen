@@ -6,12 +6,13 @@
 <body>
 
 <ul class="menu">
-    <li><a href="#!/view1">view1</a></li>
-    <li><a href="#!/view2">view2</a></li>
+
+    <li><a ui-sref="view1" ui-sref-active="active">view1</a></li>
+    <li><a ui-sref="view2" ui-sref-active="active">view2</a></li>
 </ul>
 
 
 
-<div ng-view></div>
+<div ui-view></div>
 </body>
 </html>
