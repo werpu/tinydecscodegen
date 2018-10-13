@@ -3,10 +3,12 @@ description = "intellij tinydecs codegen plugin"
 apply plugin: 'java'
 apply plugin: 'org.jetbrains.intellij'
 
+
 intellij {
     //release numbers can be found at https://s3-eu-west-1.amazonaws.com/intellij-releases/
     //localPath = '/Applications/Intellij IDEA.app'
     version = 'IU-182.4129.33'
+
 }
 
 dependencies {
@@ -21,3 +23,4 @@ dependencies {
     compile group: 'org.jgrapht', name: 'jgrapht-core', version: '1.1.0'
     */
 }
+

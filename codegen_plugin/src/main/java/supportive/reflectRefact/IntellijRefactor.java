@@ -23,6 +23,8 @@ public class IntellijRefactor {
         for (IntellijFileContext angularModule : annotatedModules) {
             NgModuleFileContext moduleFileContext = new NgModuleFileContext(angularModule);
 
+
+
             String relativePath = (fileContext.calculateRelPathTo(moduleFileContext))
                     .replaceAll("\\.ts$", "")
                     .replaceAll("\\/\\/", "/");

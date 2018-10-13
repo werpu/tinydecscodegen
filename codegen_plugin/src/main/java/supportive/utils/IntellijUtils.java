@@ -161,7 +161,7 @@ public class IntellijUtils {
 
                     FileEditorManager.getInstance(project).openFile(dir.findFile(file.getName()).getVirtualFile(), true);
                     if (artifactType.isService()) {
-                        IntellijFileContext fileContext = new IntellijFileContext(project, dir.getVirtualFile());
+                        IntellijFileContext fileContext = new IntellijFileContext(project, dir.findFile(file.getName()).getVirtualFile());
 
                         try {
                             IntellijRefactor.appendDeclarationToModule(fileContext, ModuleElementScope.PROVIDERS, className, file.getName());

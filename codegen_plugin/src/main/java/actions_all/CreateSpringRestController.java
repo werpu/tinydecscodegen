@@ -127,11 +127,11 @@ public class CreateSpringRestController extends AnAction  {
 
                         IntellijUtils.fileNameTransformer = new SimpleFileNameTransformer();
 
-                        PsiJavaFile jav = (PsiJavaFile) PsiManager.getInstance(project).findFile(ctx.getVirtualFile().findFileByRelativePath("./"+className+".java"));
+                        PsiJavaFile javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(ctx.getVirtualFile().findFileByRelativePath("./"+className+".java"));
 
                         if(mainForm.getCbCreate().isSelected()) {
                             try {
-                                IntellijUtils.generateService(project, ctx.getModule(),jav, mainForm.getCbNg().isSelected());
+                                IntellijUtils.generateService(project, ctx.getModule(),javaFile, mainForm.getCbNg().isSelected());
                             } catch (ClassNotFoundException e) {
                                 e.printStackTrace();
                             }
