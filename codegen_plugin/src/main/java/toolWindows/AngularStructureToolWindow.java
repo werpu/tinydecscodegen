@@ -1,5 +1,6 @@
 package toolWindows;
 
+import com.google.common.base.Strings;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.NodeRenderer;
 import com.intellij.navigation.ItemPresentation;
@@ -10,6 +11,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileContentsChangedAdapter;
@@ -149,7 +151,10 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     public void goToComponent(PsiRouteContext foundContext) {
         Route route = foundContext.getRoute();
         PsiElementContext topCtx = new PsiElementContext(foundContext.getElement().getContainingFile());
-
+        if(Strings.isNullOrEmpty(route.getComponentPath())) {
+            Messages.showErrorDialog(this.tree.getRootPane(), "No component determinable - please check your route declaration.", actions_all.shared.Messages.ERR_OCCURRED);
+            return;
+        }
         Path componentPath = Paths.get(route.getComponentPath());
         Path parent = Paths.get(foundContext.getElement().getContainingFile().getParent().getVirtualFile().getPath());
         Path rel = parent.relativize(componentPath);
