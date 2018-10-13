@@ -5,6 +5,7 @@ import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.NodeRenderer;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -144,7 +145,9 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     public void openEditor(PsiRouteContext foundContext) {
         FileEditor[] editors = (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(foundContext.getElement().getContainingFile().getVirtualFile(), true);
         if (editors.length > 0 && elVis(editors[0], "editor").isPresent()) {
-            ((Editor) elVis(editors[0], "editor").get()).getCaretModel().moveToOffset(foundContext.getTextOffset());
+            CaretModel editor = ((Editor) elVis(editors[0], "editor").get()).getCaretModel();
+            editor.moveToOffset(foundContext.getTextOffset());
+            editor.moveCaretRelatively(0, 0, false, false, true);
         }
     }
 
