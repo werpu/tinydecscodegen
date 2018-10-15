@@ -28,6 +28,8 @@ import com.google.common.collect.Lists;
 import com.intellij.diff.DiffManager;
 import com.intellij.diff.contents.DocumentContentImpl;
 import com.intellij.diff.requests.SimpleDiffRequest;
+import com.intellij.execution.ExecutionException;
+import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -477,15 +479,22 @@ public class IntellijUtils {
     public static void npmInstall(Project project, String projectDir, String doneMessage, String doneTitle) {
         BackgroundableProcessIndicator myProcessIndicator = null;
 
-        ProcessBuilder pb = System.getProperty("os.name").toLowerCase().contains("windows") ?
-                new ProcessBuilder("npm.cmd", "install", "--verbose", "--no-progress") :
-                new ProcessBuilder("npm", "install", "--verbose", "--no-progress");
 
-        pb.directory(new File(projectDir));
+        boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
+        GeneralCommandLine cmd = new GeneralCommandLine(isWindows ? "npm.cmd" : "npm", "install", "--verbose", "--no-progress");
+        cmd.withWorkDirectory(projectDir);
+        if(!isWindows) {
+            cmd.withEnvironment("PATH", System.getenv("PATH")+":/usr/local/bin:/usr/bin:~/bin:/bin");
+        }
+
+        cmd.withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE);
+
+
+
         Process p2 = null;
         try {
-            p2 = pb.start();
-        } catch (IOException e) {
+            p2 =  cmd.createProcess();
+        } catch (ExecutionException e) {
             Messages.showErrorDialog(project, e.getMessage(), "Error calling npm install");
 
             e.printStackTrace();
