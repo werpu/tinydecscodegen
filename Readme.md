@@ -29,6 +29,16 @@ a successful code generation
 * Fallback option to use angular-cli for Angular 5+ projects
 * Integrates seamlessly into angular-cli for Angular 5+ projects
 
+## Are there demo videos?
+
+Yes, I will add a set of demo videos shortly
+before I will tagg 1.0, simly
+follow this : 
+[link to Youtube](https://www.youtube.com/watch?v=GNpvAFgr1rw&list=PLNRFvroappqZZKSrCGBwOSqb-pLomytw6)
+
+Atm the videos are a little bit rough around the edges (I had technical
+issues while recording them), expect better versions soon.
+
 
 ## Is this plugin usable already?
 
@@ -58,3 +68,4 @@ code, feel free to send me a code drop/pull request or add a feature request in 
 * [Wiki](https://github.com/werpu/tinydecscodegen/wiki)
 * [ts-ng-tinydecorations](https://github.com/werpu/ts-ng-tinydecorations) 
 * [Angular 5+](https://angular.io/)
+* [Link to Youtube playlist hosting the demo and tutorial videos](https://www.youtube.com/watch?v=GNpvAFgr1rw&list=PLNRFvroappqZZKSrCGBwOSqb-pLomytw6)
