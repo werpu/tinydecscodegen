@@ -57,11 +57,11 @@ users for this project atm, although I love people using my stuff, there is alwa
 and this costs time I have to cut off from my family and implementation time. 
 
 
-Hence, there is no offical drop of the plugin into the Jetbrains repository at the moment.
+Hence, there is no official drop of the plugin into the Jetbrains repository at the moment.
 
 So feel free to use it. I am happy about it, but never mind, that I will keep it a little bit under the radar for the time being. 
 
-The project simply was created because I was in the need of such tools
+The project simply was created because I was in need of such tools
 and hence developed it on my own for my needs. If you think something is missing or if you want to donate
 code, feel free to send me a code drop/pull request or add a feature request in the projects list.
 
