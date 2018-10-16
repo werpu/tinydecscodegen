@@ -24,10 +24,14 @@ functionality of your Jetbrains ide.
 * Update existing generated typescript classes via the Intellij diff editor after
 a successful code generation
 * Generate Rest Clients from Spring and JaxRS Rest Endpoints
+* Easy generation of rest endpoints
 * Wizards for most of the Angular Artifacts supported by the Tiny Decorations project and Angular 5+
-* Auto updating of associated modules if a new artifact is generated
+* Auto updating of associated modules once a new artifact is generated
 * Fallback option to use angular-cli for Angular 5+ projects
 * Integrates seamlessly into angular-cli for Angular 5+ projects
+* Navigational Tree for easy navigation within your project
+* Navigational helpers to easily jump between java dtos/rest services and their typescript counterparts
+
 
 ## Are there demo videos?
 
