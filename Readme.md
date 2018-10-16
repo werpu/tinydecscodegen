@@ -37,8 +37,7 @@ a successful code generation
 
 Yes, I will add a set of demo videos shortly
 before I will tagg 1.0, simly
-follow this  
-[link to Youtube](https://www.youtube.com/watch?v=GNpvAFgr1rw&list=PLNRFvroappqZZKSrCGBwOSqb-pLomytw6)
+follow this [link to Youtube](https://www.youtube.com/watch?v=GNpvAFgr1rw&list=PLNRFvroappqZZKSrCGBwOSqb-pLomytw6)
 
 Atm. the videos are a little bit rough around the edges (I had technical
 issues while recording them), expect better versions soon.
