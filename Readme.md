@@ -48,7 +48,7 @@ issues while recording them), expect better versions soon.
 
 ### Honest Answer
 
-Yes definitely, I use it together with TinyDecorations and/or Angular 5+ in a bigger projects. 
+Yes definitely, I use it together with TinyDecorations and/or Angular 5+ in a bigger project. 
 So I am eating my own dogfood here. However the ui is bound to change, since it is very basic atm.
 Also smaller bugs can be expected. 
 
