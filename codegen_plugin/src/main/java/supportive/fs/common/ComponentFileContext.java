@@ -1,5 +1,7 @@
 package supportive.fs.common;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.RangeMarker;
@@ -197,10 +199,13 @@ public class ComponentFileContext extends TypescriptFileContext {
 
     public Optional<String> findComponentClassName() {
         List<PsiElement> componentDefs = findPsiElements(PsiWalkFunctions::isComponent);
+        List<PsiElement> componentDefs2 = findPsiElements(PsiWalkFunctions::isController);
         List<PsiElement> classDefs = findPsiElements(PsiWalkFunctions::isClass);
 
+        final List<PsiElement> componentControllerDefs = Lists.newArrayList(Iterables.concat(componentDefs, componentDefs2));
+
         Optional<String> componentClassDef = classDefs.stream().filter(classDef -> {
-            for (PsiElement componentDef : componentDefs) {
+            for (PsiElement componentDef : componentControllerDefs) {
                 if (componentDef.getTextOffset() < classDef.getTextOffset()) return true;
             }
             return false;
