@@ -140,6 +140,9 @@ public class ComponentFileContext extends TypescriptFileContext {
                 return Optional.ofNullable(this.templateText.get().getText().substring(1, this.templateText.get().getText().length() - 1));
             } else {
                 templateRef = getTemplateRef(template.get());
+
+
+
                 if (templateRef.isPresent()) {
                     String templateRefText = this.templateRef.get().getTemplateTextAsStr().get();
                     return Optional.ofNullable(templateRefText.substring(1, templateRefText.length() - 1));
@@ -148,6 +151,8 @@ public class ComponentFileContext extends TypescriptFileContext {
         }
         return Optional.empty();
     }
+
+
 
     private Optional<TemplateFileContext> getTemplateRef(PsiElement template) {
         Optional<PsiElement> templateRef = Arrays.stream(template.getChildren())

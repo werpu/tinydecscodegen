@@ -6,9 +6,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import lombok.Getter;
 import supportive.refactor.RefactorUnit;
 
 import java.util.Optional;
+
+import static supportive.reflectRefact.PsiWalkFunctions.*;
 
 /*
 JSFile:Dummy.ts(0,37)
@@ -40,6 +43,7 @@ JSFile:Dummy.ts(0,37)
  */
 public class TemplateFileContext extends TypescriptFileContext {
 
+    @Getter
     private String refName;
 
     private Optional<PsiElement> templateText;
@@ -74,12 +78,24 @@ public class TemplateFileContext extends TypescriptFileContext {
     }
 
     Optional<PsiElement> getPsiTemplateText() {
-        Optional<PsiElement> el = super.findPsiElements(el2 -> el2.toString().equals("TypeScriptVariable:"+refName)).stream()
+        Optional<PsiElementContext> elCtx =  super.queryContent(TYPE_SCRIPT_VARIABLE, "NAME:("+refName+")", STRING_TEMPLATE_EXPR).findFirst();
+        if(elCtx.isPresent()) {
+            return Optional.of(elCtx.get().element);
+        } else {
+            //fallback to literal expression for other not determinalbe strings
+            elCtx =  super.queryContent(TYPE_SCRIPT_VARIABLE, "NAME:("+refName+")", JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+            if(elCtx.isPresent()) {
+                return Optional.of(elCtx.get().element);
+            }
+        }
+        return Optional.empty();
+
+        /*Optional<PsiElement> el = super.findPsiElements(el2 -> el2.toString().equals("TypeScriptVariable:"+refName)).stream()
           .filter(el2 -> el2.getChildren().length > 0 &&
           el2.getChildren()[0].toString().equals("JSStringTemplateExpression"))
-                .map(el2 -> el2.getChildren()[0]).findFirst();
+                .map(el2 -> el2.getChildren()[0]).findFirst();*/
 
-        return el;
+
     }
 
     Optional<RangeMarker> getInitialRangeMarker() {
@@ -102,4 +118,6 @@ public class TemplateFileContext extends TypescriptFileContext {
         }
         super.addRefactoring(new RefactorUnit(psiFile, this.templateText.get(), "`" + newText + "`"));
     }
+
+
 }

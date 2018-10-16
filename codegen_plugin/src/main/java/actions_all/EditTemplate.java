@@ -123,7 +123,6 @@ public class EditTemplate extends AnAction implements EditorCallback {
 
             //https://www.jetbrains.org/intellij/sdk/docs/tutorials/editor_basics/editor_events.html
 
-
             doubleBuffer.addDocumentListener(new DocumentListener() {
                 @Override
                 public void documentChanged(DocumentEvent event) {

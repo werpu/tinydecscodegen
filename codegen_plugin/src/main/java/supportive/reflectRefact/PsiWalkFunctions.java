@@ -70,6 +70,7 @@ public class PsiWalkFunctions {
     public static final String PSI_ELEMENT_JS_RBRACKET = "PsiElement(JS:RBRACKET)";
     public static final String PSI_ELEMENT_JS_IDENTIFIER = "PsiElement(JS:IDENTIFIER)";
     public static final String PSI_ELEMENT_JS_STRING_LITERAL = "PsiElement(JS:STRING_LITERAL)";
+    public static final String PSI_ELEMENT_JS_STRING_TEMPLATE_PART = "PsiElement(JS:STRING_TEMPLATE_PART)";
     public static final String JS_PROPERTY = "JSProperty";
     public static final String JS_ARRAY_LITERAL_EXPRESSION = "JSArrayLiteralExpression";
     public static final String JS_ARGUMENTS_LIST = "JSArgumentList";
@@ -79,6 +80,7 @@ public class PsiWalkFunctions {
     public static final String P_FIRST = ":first";
 
     public static final String PSI_CLASS = "PsiClass:";
+    public static final String STRING_TEMPLATE_EXPR = "JSStringTemplateExpression";
 
 
     public static boolean isNgModule(PsiElement element) {
