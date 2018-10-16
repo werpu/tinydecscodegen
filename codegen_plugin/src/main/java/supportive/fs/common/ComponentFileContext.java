@@ -37,7 +37,9 @@ public class ComponentFileContext extends TypescriptFileContext {
 
     @Getter
     Optional<PsiElement> templateText = Optional.empty();
+    @Getter
     Optional<RangeMarker> rangeMarker = Optional.empty();
+    @Getter
     Optional<TemplateFileContext> templateRef = Optional.empty();
 
     @Getter
@@ -97,6 +99,17 @@ public class ComponentFileContext extends TypescriptFileContext {
         }
     }
 
+    public boolean inTemplate(int pos) {
+        if (templateRef.isPresent()) {
+            return false;//external file
+        }
+        if (this.rangeMarker.isPresent()) {
+            RangeMarker rangeMarker = this.rangeMarker.get();
+            return rangeMarker.getStartOffset() <= pos && pos <rangeMarker.getEndOffset();
+        }
+        return false;
+    }
+
     private void init() {
         Optional<PsiElement> template = Optional.empty();
         template = getTemplate();
@@ -129,6 +142,8 @@ public class ComponentFileContext extends TypescriptFileContext {
         }
         return template;
     }
+
+
 
     public Optional<String> getTemplateTextAsStr() {
 

@@ -70,6 +70,7 @@ public class TemplateFileContext extends TypescriptFileContext {
         }
     }
 
+
     private RangeMarker replaceText(Document doc, RangeMarker marker, String newText) {
         newText = "`"+newText+"`";
         doc.replaceString(marker.getStartOffset(), marker.getEndOffset(), newText);
