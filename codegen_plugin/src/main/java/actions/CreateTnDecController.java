@@ -7,20 +7,29 @@ import actions_all.shared.VisibleAssertions;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.lang.html.HTMLLanguage;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
+import configuration.ConfigSerializer;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
+import gui.CreateTnDecComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.dtos.ModuleElementScope;
+import supportive.fs.common.IntellijFileContext;
 import supportive.utils.IntellijUtils;
+import supportive.utils.SwingUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -50,15 +59,53 @@ public class CreateTnDecController extends AnAction  {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        final Project project = IntellijUtils.getProject(event);
+        //final Project project = IntellijUtils.getProject(event);
 
-
+        /*
         VirtualFile folder = IntellijUtils.getFolderOrFile(event);
 
 
         final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
         mainForm.getLblSelector().setText("Name *");
         mainForm.getLblTitle().setText("Create an Annotated Controller");
+
+        Document document = workFile.getViewProvider().getDocument();
+        Editor editor = SwingUtils.createHtmlEditor(fileContext.getProject(), document);
+        editor.getDocument().setText("  ");
+
+
+        createDialog(project, folder, document);
+        */
+
+        final IntellijFileContext fileContext = new IntellijFileContext(event);
+
+        WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
+
+            PsiFile workFile = PsiFileFactory.getInstance(fileContext.getProject()).createFileFromText("create.html",
+                    HTMLLanguage.INSTANCE, "");
+
+            Document document = workFile.getViewProvider().getDocument();
+            Editor editor = SwingUtils.createHtmlEditor(fileContext.getProject(), document);
+            editor.getDocument().setText("  ");
+
+            ApplicationManager.getApplication().invokeLater(() -> {
+                createDialog(fileContext.getProject(), fileContext.getVirtualFile(), document);
+            });
+        });
+    }
+
+    public void createDialog(Project project, VirtualFile folder, Document document) {
+
+        final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
+        mainForm.getTxtTemplate().setVisible(false);
+        mainForm.getCbExport().setSelected(ConfigSerializer.getInstance().getState().isComponentExport());
+
+        Editor editor = SwingUtils.createHtmlEditor(project, document);
+
+        WriteCommandAction.runWriteCommandAction(project, () -> {
+            editor.getDocument().setText("  ");
+        });
+        mainForm.getPnEditorHolder().getViewport().setView(editor.getComponent());
 
         DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
 
@@ -106,7 +153,7 @@ public class CreateTnDecController extends AnAction  {
         if (dialogWrapper.isOK()) {
             ControllerJson model = new ControllerJson(mainForm.getName(), mainForm.getTemplate(), mainForm.getControllerAs());
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
-            supportive.utils.IntellijUtils.showInfoMessage("The Controller has been generated", "Info");
+            IntellijUtils.showInfoMessage("The Controller has been generated", "Info");
         }
     }
 
