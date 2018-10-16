@@ -161,7 +161,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         Path componentPath = Paths.get(route.getComponentPath());
         Path parent = Paths.get(foundContext.getElement().getContainingFile().getParent().getVirtualFile().getPath());
         Path rel = parent.relativize(componentPath);
-        VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(rel.toString()+".ts");
+        VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(rel.toString().replaceAll("\\\\","/")+".ts");
         (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(virtualFile, true);
 
     }
