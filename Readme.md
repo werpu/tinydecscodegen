@@ -36,8 +36,9 @@ a successful code generation
 ## Are there demo videos?
 
 Yes, I will add a set of demo videos shortly
-before I will tagg 1.0, simly
+before I will tag 1.0, simly
 follow this [link to Youtube](https://www.youtube.com/watch?v=GNpvAFgr1rw&list=PLNRFvroappqZZKSrCGBwOSqb-pLomytw6)
+for a small unfinished demo.
 
 Atm. the videos are a little bit rough around the edges (I had technical
 issues while recording them), expect better versions soon.
