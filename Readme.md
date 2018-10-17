@@ -12,11 +12,11 @@ A temporary binary build can be found under
 
 [codegen_plugin/build/distributions](https://github.com/werpu/tinydecscodegen/tree/master/codegen_plugin/build/distributions)
 
-To install it simply install it via the install plugin from local filesystem
-functionality of your Jetbrains ide.
+To install it, simply  the **Install Plugin from Local Filesystem**
+functionality of your Jetbrains IDE.
 
 
-## What can the plugin do
+## What can the Plugin do
 
 * Allows you to **generate a new** TinyDecorations (Annotated Angular 1.5+) or Angular 5 **project**.
 
@@ -33,18 +33,18 @@ a successful code generation
 * Navigational helpers to easily jump between java Dtos/Rest services and their Typescript counterparts
 
 
-## Are there demo videos?
+## Are there Demo Videos?
 
 Yes, I will add a set of demo videos shortly
-before I will tag 1.0, simly
-follow this [link to Youtube](https://www.youtube.com/watch?v=GNpvAFgr1rw&list=PLNRFvroappqZZKSrCGBwOSqb-pLomytw6)
+before I will tag 1.0.
+Follow this [link to Youtube](https://www.youtube.com/watch?v=GNpvAFgr1rw&list=PLNRFvroappqZZKSrCGBwOSqb-pLomytw6)
 for a small unfinished demo.
 
 Atm. the videos are a little bit rough around the edges (I had technical
 issues while recording them), expect better versions soon.
 
 
-## Is this plugin usable already?
+## Is this Plugin Usable Already?
 
 ### Honest Answer
 
