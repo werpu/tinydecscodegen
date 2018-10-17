@@ -28,6 +28,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -98,7 +99,7 @@ public class CreateTnDecRoute extends AnAction {
             return;
         }
 
-        List<ComponentFileContext> editorControllers = getControllers(fileContext);
+        List<ComponentFileContext> editorControllers = (fileContext.getVirtualFile().isDirectory()) ? Collections.emptyList() : getControllers(fileContext);
 
         selectorModel = new ComponentSelectorModel(components);
         mainForm.getCbComponent().setModel(new ListComboBoxModel(Arrays.asList(selectorModel.getContextNames())));
