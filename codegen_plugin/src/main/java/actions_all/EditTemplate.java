@@ -38,8 +38,7 @@ import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
-import com.intellij.openapi.fileEditor.impl.EditorTabbedContainer;
-import com.intellij.openapi.fileEditor.impl.EditorWindow;
+import com.intellij.openapi.fileEditor.impl.*;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
@@ -60,7 +59,7 @@ import java.util.concurrent.TimeoutException;
 import static supportive.utils.SwingUtils.createHtmlEditor;
 
 
-public class EditTemplate extends AnAction implements EditorCallback {
+public class EditTemplate extends MoveEditorToOppositeTabGroupAction implements EditorCallback {
 
 
     public static final String TEMPLATE_OF = "Template of: ";
@@ -117,10 +116,15 @@ public class EditTemplate extends AnAction implements EditorCallback {
             final FileEditorManagerEx edManager = (FileEditorManagerEx) FileEditorManagerEx.getInstance(fileContext.getProject());
 
             EditorWindow currentWindow = edManager.getCurrentWindow();
-            edManager.createSplitter(SwingConstants.HORIZONTAL, currentWindow);
+            edManager.createSplitter(SwingConstants.VERTICAL, currentWindow);
             final VirtualFile virtualFile = workFile.getVirtualFile();
             FileEditor[] editors = FileEditorManager.getInstance(fileContext.getProject()).openFile(virtualFile, true);
             currentWindow.getTabbedPane().close();
+
+
+            ApplicationManager.getApplication().invokeLater(() -> {
+                    super.actionPerformed(e);
+                });
 
             //https://www.jetbrains.org/intellij/sdk/docs/tutorials/editor_basics/editor_events.html
 
@@ -152,6 +156,11 @@ public class EditTemplate extends AnAction implements EditorCallback {
         });
     }
 
+    @Override
+    protected void closeOldFile(VirtualFile vFile, EditorWindow window) {
+        //super.closeOldFile(vFile, window);
+    }
+
     @NotNull
     public DocumentListener newCloseListener(ComponentFileContext fileContext, Editor ediOrig, String title) {
         return new DocumentListener() {
@@ -162,7 +171,7 @@ public class EditTemplate extends AnAction implements EditorCallback {
 
             @Override
             public void documentChanged(DocumentEvent event) {
-                System.out.println(event.getOffset());
+
 
                 if (fileContext.inTemplate(event.getOffset())) {
                     //Arrays.stream(editors).forEach(editor -> editor.dispose());
@@ -193,8 +202,12 @@ public class EditTemplate extends AnAction implements EditorCallback {
                             TabInfo tab = tabs.getTabAt(cnt);
                             if(tab.getText().equalsIgnoreCase(title)) {
 
-                                tabbedPane.removeTabAt(cnt, Math.max(0, editorPos ));
 
+                                if(tabbedPane.getTabCount() == 1) {
+                                    ed.closeFile(ed.getSelectedFile());
+                                } else {
+                                    tabbedPane.removeTabAt(cnt, Math.max(0, editorPos ));
+                                }
 
                                 ediOrig.getDocument().removeDocumentListener(this);
 
