@@ -89,23 +89,9 @@ public class SwingUtils {
 
         String txt = source.getText();
 
-
-        //Transform text
-
-        String txtBase = Strings.nullToEmpty(target.getText());
-        String[] args = txtBase.split("\\/");
-        String base = "";
-        String name = "";
-
-        if (args.length > 1) {
-            base = txtBase.substring(0, txtBase.lastIndexOf("/"));
-            //name = args[args.length - 1];
-        } else if (args.length == 1) {
-            //name = args[0];
-        }
-        name = StringUtils.toLowerDash(txt);
+        String name = StringUtils.toLowerDash(txt);
         name = name.replaceAll("\\.+", "/");
 
-        target.setText(base + "/" + name);
+        target.setText("/" + name);
     }
 }
