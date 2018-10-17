@@ -1,6 +1,6 @@
 # ts-ng-tinydecorations Code Generator
 
-This is bascially a set of intellij plugins in development
+This is bascially a set of Intellij plugins in development
 to support the [ts-ng-tinydecorations](https://github.com/werpu/ts-ng-tinydecorations) project.
 and [Angular 5+](https://angular.io/).
 
@@ -21,16 +21,16 @@ functionality of your Jetbrains ide.
 * Allows you to **generate a new** TinyDecorations (Annotated Angular 1.5+) or Angular 5 **project**.
 
 * Generate Typescript classes from Java Dto Files (with annotation support for mapped implementation classes)
-* Update existing generated typescript classes via the Intellij diff editor after
+* Update existing generated Typescript classes via the Intellij diff editor after
 a successful code generation
-* Generate Rest Clients from Spring and JaxRS Rest Endpoints
-* Easy generation of rest endpoints
+* Generate Rest clients from Spring and JaxRS Rest endpoints
+* Easy generation of Rest endpoints
 * Wizards for most of the Angular Artifacts supported by the Tiny Decorations project and Angular 5+
 * Auto updating of associated modules once a new artifact is generated
 * Fallback option to use angular-cli for Angular 5+ projects
 * Integrates seamlessly into angular-cli for Angular 5+ projects
 * Navigational Tree for easy navigation within your project
-* Navigational helpers to easily jump between java dtos/rest services and their typescript counterparts
+* Navigational helpers to easily jump between java Dtos/Rest services and their Typescript counterparts
 
 
 ## Are there demo videos?
@@ -53,9 +53,9 @@ So I am eating my own dogfood here. However the ui is bound to change, since it 
 Also smaller bugs can be expected. 
 
 However, since I currently develop
-this project alone in my limited sparetime without any payment on it, I am glad that I do not have to many
-users for this project atm, although I love people using my stuff, there is always support involved with it 
-and this costs time I have to cut off from my family and implementation time. 
+this project alone in my limited sparetime without any payment, I am glad that I do not have too many
+users for this project atm. Although I love people using my stuff, there is always support involved with it 
+and this costs time, which I have to cut off from my family and implementation time. 
 
 
 Hence, there is no official drop of the plugin into the Jetbrains repository at the moment.
