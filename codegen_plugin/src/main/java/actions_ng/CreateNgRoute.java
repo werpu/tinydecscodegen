@@ -27,11 +27,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static actions_all.shared.FormAssertions.*;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
 
 public class CreateNgRoute extends AnAction {
 
@@ -62,11 +66,14 @@ public class CreateNgRoute extends AnAction {
         List<ComponentFileContext> editorControllers = getControllers(fileContext);
 
         selectorModel = new ComponentSelectorModel(components);
-        mainForm.getCbComponent().setModel(new ListComboBoxModel(Arrays.asList(selectorModel.getContextNames())));
-        if (editorControllers.size() > 0) {
-            ComponentFileContext componentFileContext = editorControllers.stream().findFirst().get();
-            String componentClassName = componentFileContext.getComponentClassName();
-            String displayName = componentFileContext.getDisplayName();
+        List<String> selectorIndex = Arrays.asList(selectorModel.getContextNames());
+        mainForm.getCbComponent().setModel(new ListComboBoxModel(selectorIndex));
+        Optional<ComponentFileContext> defaultComponentData = getDefaultComponentData(fileContext);
+        if (editorControllers.size() > 0 || defaultComponentData.isPresent()) {
+            ComponentFileContext cData = defaultComponentData.get();
+            mainForm.getCbComponent().setSelectedIndex(selectorIndex.indexOf(cData.getDisplayName()));
+            String componentClassName = cData.getComponentClassName();
+            String displayName = cData.getDisplayName();
             mainForm.getCbComponent().setSelectedItem(displayName);
             mainForm.getTxtRouteName().setText(StringUtils.toLowerDash(componentClassName).replaceAll("_component", ""));
         } else {
@@ -144,6 +151,16 @@ public class CreateNgRoute extends AnAction {
                     });
         }
 
+    }
+
+    @NotNull
+    public Optional<ComponentFileContext> getDefaultComponentData(IntellijFileContext fileContext) {
+        List<ComponentFileContext> editorControllers = (fileContext.getVirtualFile().isDirectory()) ? Collections.emptyList() : getControllers(fileContext);
+        if(editorControllers.isEmpty()) {
+            return empty();
+        } else {
+            return ofNullable(editorControllers.stream().findFirst().get());
+        }
     }
 
     protected List<ValidationInfo> validate(Route route, NG_UIRoutesRoutesFileContext ctx, CreateRoute mainForm) {

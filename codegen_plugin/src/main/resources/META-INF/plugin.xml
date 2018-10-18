@@ -61,7 +61,7 @@
 
     <actions>
         <!-- Add your actions here -->
-
+        <!--
         <group id="TD_TinyDecsMenu" text="_Tiny Decorations" description="Tiny decorations actions">
             <add-to-group group-id="MainMenu" anchor="after" relative-to-action="ToolsMenu"/>
 
@@ -179,7 +179,7 @@
 
 
         </group>
-
+        -->
         <!-- File Menu -->
         <group id="TD_TinyDecsContextMenu" text="_Tiny Decorations" popup="true"
                description="Tiny decorations context actions" icon="/images/tt.png">
@@ -309,9 +309,7 @@
 
             <separator/>
 
-            <action id="NG_CreateRoute3" class="actions_ng.CreateNgRoute" text="Create UI-Routes Route" icon="/images/ng.png"
-                    description="Create a new Route">
-            </action>
+
 
             <action id="TD_GoToTypescript3" class="actions_all.GoToTs" text="Go To Typescript"
                     icon="/images/tt.png">
@@ -327,6 +325,18 @@
                     icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="H" keymap="$default"/>
             </action>
+
+            <action id="TD_TD_CreateRoute" class="actions.CreateTnDecRouteFromEdit" text="Create Route"
+                    icon="/images/tt.png">
+                <keyboard-shortcut first-keystroke="control alt T" second-keystroke="R" keymap="$default"/>
+            </action>
+
+            <action id="TT_NG_CreateRoute" class="actions_ng.CreateNgRouteFromEdit" text="Create Route"
+                    icon="/images/tt.png">
+                <keyboard-shortcut first-keystroke="control alt T" second-keystroke="R" keymap="$default"/>
+            </action>
+
+
             <separator/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </group>

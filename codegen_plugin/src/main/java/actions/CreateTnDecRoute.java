@@ -13,6 +13,8 @@ import gui.CreateRoute;
 import indexes.ControllerIndex;
 import indexes.TNRoutesIndex;
 import indexes.TN_UIRoutesIndex;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,10 +32,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static actions_all.shared.FormAssertions.*;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
 
 public class CreateTnDecRoute extends AnAction {
 
@@ -102,9 +107,13 @@ public class CreateTnDecRoute extends AnAction {
         List<ComponentFileContext> editorControllers = (fileContext.getVirtualFile().isDirectory()) ? Collections.emptyList() : getControllers(fileContext);
 
         selectorModel = new ComponentSelectorModel(components);
-        mainForm.getCbComponent().setModel(new ListComboBoxModel(Arrays.asList(selectorModel.getContextNames())));
-        if (editorControllers.size() > 0) {
-            String componentClassName = editorControllers.stream().findFirst().get().getComponentClassName();
+        List<String> selectorIndex = Arrays.asList(selectorModel.getContextNames());
+        mainForm.getCbComponent().setModel(new ListComboBoxModel(selectorIndex));
+        Optional<ComponentFileContext> defaultComponentData = getDefaultComponentData(fileContext);
+        if (editorControllers.size() > 0 || defaultComponentData.isPresent()) {
+            ComponentFileContext cData = defaultComponentData.get();
+            mainForm.getCbComponent().setSelectedIndex(selectorIndex.indexOf(cData.getDisplayName()));
+            String componentClassName = cData.getComponentClassName();
             mainForm.getCbComponent().setSelectedItem(componentClassName);
             mainForm.getTxtRouteName().setText(StringUtils.toLowerDash(componentClassName).replaceAll("_component", ""));
         } else {
@@ -198,4 +207,19 @@ public class CreateTnDecRoute extends AnAction {
         return ComponentFileContext.getInstances(ctx);
     }
 
+    public Optional<ComponentFileContext> getDefaultComponentData(IntellijFileContext fileContext) {
+        List<ComponentFileContext> editorControllers = (fileContext.getVirtualFile().isDirectory()) ? Collections.emptyList() : getControllers(fileContext);
+        if(editorControllers.isEmpty()) {
+            return empty();
+        } else {
+            return ofNullable(editorControllers.stream().findFirst().get());
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class ComponentData {
+        private ComponentFileContext componentFileContext;
+        private String moduleName;
+    }
 }

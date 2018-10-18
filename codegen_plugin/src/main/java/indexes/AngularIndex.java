@@ -25,7 +25,7 @@ import static supportive.reflectRefact.PsiWalkFunctions.NPM_ROOT;
 public class AngularIndex extends ScalarIndexExtension<String> {
 
     public static final ID<String, Void> NAME = ID.create("TNNG_AngularIndex");
-    public static final String TN_MARKER = "\"angular\"";
+    public static final String TN_MARKER = "\"@types/angular\"";
     public static final String NG_MARKER = "\"@angular/core\"";
 
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
@@ -109,7 +109,9 @@ public class AngularIndex extends ScalarIndexExtension<String> {
                 GlobalSearchScope.projectScope(project)).stream()
                 .filter(VirtualFile::isValid)
                 .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
-                .filter(psiFile -> psiFile != null &&  psiFile.getText().contains((angularVersion == AngularVersion.NG ? NG_MARKER: TN_MARKER)))
+                .filter(psiFile -> {
+                    return psiFile != null && psiFile.getText().contains((angularVersion == AngularVersion.NG ? NG_MARKER : TN_MARKER));
+                })
                 .map(psiFile -> psiFile.getParent())
                 .map(psiDirectory -> new IntellijFileContext(project, psiDirectory.getVirtualFile()))
                 .collect(Collectors.toList());

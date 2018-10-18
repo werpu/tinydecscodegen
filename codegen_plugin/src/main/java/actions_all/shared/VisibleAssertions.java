@@ -9,6 +9,9 @@ import supportive.utils.IntellijUtils;
 
 import java.util.Optional;
 
+import static supportive.reflectRefact.PsiWalkFunctions.JS_ES_6_DECORATOR;
+import static supportive.reflectRefact.PsiWalkFunctions.PSI_ELEMENT_JS_IDENTIFIER;
+
 public class VisibleAssertions {
     public static boolean assertNotJavaRest(IntellijFileContext ctx) {
         return ctx.getProject() == null ||
@@ -46,6 +49,12 @@ public class VisibleAssertions {
                 ctx.getText().contains("@Controller");
     }
 
+    public static boolean assertController(IntellijFileContext ctx) {
+        return ctx.queryContent(JS_ES_6_DECORATOR, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:(Controller)").findFirst().isPresent() ||
+                ctx.queryContent(JS_ES_6_DECORATOR, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:(Component)").findFirst().isPresent();
+
+    }
+
     public static void tnVisible(AnActionEvent anActionEvent) {
         if(IntellijUtils.getFolderOrFile(anActionEvent) == null) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
@@ -54,10 +63,6 @@ public class VisibleAssertions {
 
 
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
-
-
-
-        Optional<AngularVersion> angularVersion = ctx.getAngularVersion();
         if (!ctx.isAngularChild(AngularVersion.TN_DEC)) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
@@ -72,7 +77,6 @@ public class VisibleAssertions {
             return;
         }
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
-        Optional<AngularVersion> angularVersion = ctx.getAngularVersion();
         if (!ctx.isAngularChild(AngularVersion.NG)) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;

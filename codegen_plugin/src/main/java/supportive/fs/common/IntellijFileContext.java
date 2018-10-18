@@ -318,9 +318,9 @@ public class IntellijFileContext {
      */
     public Optional<AngularVersion> getAngularVersion() {
 
-        if(AngularIndex.isAngularVersion(this, NG)) {
+        if(AngularIndex.isBelowAngularVersion(this, NG)) {
             return Optional.of(NG);
-        } else if(AngularIndex.isAngularVersion(this, TN_DEC)) {
+        } else if(AngularIndex.isBelowAngularVersion(this, TN_DEC)) {
             return Optional.of(TN_DEC);
         }
         return Optional.empty();
