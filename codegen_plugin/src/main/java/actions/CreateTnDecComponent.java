@@ -144,7 +144,7 @@ public class CreateTnDecComponent extends AnAction  {
             protected void doOKAction() {
                 ApplicationManager.getApplication().invokeLater(() -> {
 
-                    String templateText = new String(editor.getDocument().getText().getBytes(), EncodingRegistry.getInstance().getDefaultCharset()).toString();
+                    String templateText = new String(editor.getDocument().getText().getBytes(), EncodingRegistry.getInstance().getDefaultCharset());
                     ComponentJson model = new ComponentJson(mainForm.getName(), templateText, mainForm.getControllerAs(),
                             hasTransclude(templateText), getPossibleTransclusionSlots(templateText));
                     List<ComponentAttribute> attrs = getCompAttrs(editor, mainForm);

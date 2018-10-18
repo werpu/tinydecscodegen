@@ -18,6 +18,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.encoding.EncodingRegistry;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import configuration.ConfigSerializer;
@@ -61,21 +62,8 @@ public class CreateTnDecController extends AnAction  {
     public void actionPerformed(AnActionEvent event) {
         //final Project project = IntellijUtils.getProject(event);
 
-        /*
-        VirtualFile folder = IntellijUtils.getFolderOrFile(event);
 
 
-        final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
-        mainForm.getLblSelector().setText("Name *");
-        mainForm.getLblTitle().setText("Create an Annotated Controller");
-
-        Document document = workFile.getViewProvider().getDocument();
-        Editor editor = SwingUtils.createHtmlEditor(fileContext.getProject(), document);
-        editor.getDocument().setText("  ");
-
-
-        createDialog(project, folder, document);
-        */
 
         final IntellijFileContext fileContext = new IntellijFileContext(event);
 
@@ -85,8 +73,7 @@ public class CreateTnDecController extends AnAction  {
                     HTMLLanguage.INSTANCE, "");
 
             Document document = workFile.getViewProvider().getDocument();
-            Editor editor = SwingUtils.createHtmlEditor(fileContext.getProject(), document);
-            editor.getDocument().setText("  ");
+
 
             ApplicationManager.getApplication().invokeLater(() -> {
                 createDialog(fileContext.getProject(), fileContext.getVirtualFile(), document);
@@ -95,12 +82,13 @@ public class CreateTnDecController extends AnAction  {
     }
 
     public void createDialog(Project project, VirtualFile folder, Document document) {
-
         final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
-        mainForm.getTxtTemplate().setVisible(false);
-        mainForm.getCbExport().setSelected(ConfigSerializer.getInstance().getState().isComponentExport());
+        mainForm.getLblSelector().setText("Name *");
+        mainForm.getLblTitle().setText("Create an Annotated Controller");
 
         Editor editor = SwingUtils.createHtmlEditor(project, document);
+        editor.getDocument().setText("  ");
+
 
         WriteCommandAction.runWriteCommandAction(project, () -> {
             editor.getDocument().setText("  ");
@@ -151,7 +139,8 @@ public class CreateTnDecController extends AnAction  {
         //mainForm.initDefault(dialogWrapper.getWindow());
         dialogWrapper.show();
         if (dialogWrapper.isOK()) {
-            ControllerJson model = new ControllerJson(mainForm.getName(), mainForm.getTemplate(), mainForm.getControllerAs());
+            String templateText = new String(editor.getDocument().getText().getBytes(), EncodingRegistry.getInstance().getDefaultCharset());
+            ControllerJson model = new ControllerJson(mainForm.getName(), templateText, mainForm.getControllerAs());
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
             IntellijUtils.showInfoMessage("The Controller has been generated", "Info");
         }
