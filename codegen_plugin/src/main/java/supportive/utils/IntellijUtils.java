@@ -386,7 +386,7 @@ public class IntellijUtils {
                 retVal.set(false);
                 return;
             }
-            String text = TypescriptRestGenerator.generate(restService, ng);
+            String text = IntellijRestGenerator.generate(project, restService, ng);//TypescriptRestGenerator.generate(restService, ng);
 
 
             String fileName = fileNameTransformer.transform(restService.get(0).getServiceName());
@@ -407,7 +407,7 @@ public class IntellijUtils {
             Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
             return false;
         }
-        String text = TypescriptRestGenerator.generate(restService, ng);
+        String text = IntellijRestGenerator.generate(project, restService, ng);//TypescriptRestGenerator.generate(restService, ng);
 
         String fileName = fileNameTransformer.transform(restService.get(0).getServiceName());
 
