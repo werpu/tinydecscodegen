@@ -7,8 +7,8 @@ import {Inject, NgModule} from "TinyDecorations";
 @NgModule({
     name: "${NAME}",
     declarations: [],
-    imports:[],
-    exports[]
+    imports: [],
+    exports: []
 
 })
 export class ${CLASS_NAME} {
