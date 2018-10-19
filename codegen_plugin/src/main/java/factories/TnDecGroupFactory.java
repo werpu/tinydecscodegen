@@ -23,6 +23,7 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
     public static final String TPL_RUN_CONFIG = "RunConfig";
     public static final String TPL_SPRING_REST = "SpringRestController";
     public static final String TPL_SPRING_REST_METHOD = "SpringRestMethod";
+    public static final String TPL_DTO = "Dto";
 
     public static final String TPL_EXT = "ts";
     public static final String TPL_EXT_XML = "ts";
@@ -44,9 +45,13 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
         group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_COMPONENT + "." + TPL_EXT, TTIcons.LogoNgSm));
         group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_PIPE + "." + TPL_EXT, TTIcons.LogoNgSm));
         group.addTemplate(new FileTemplateDescriptor(TPL_ANNOTATED_NG_DIRECTIVE + "." + TPL_EXT, TTIcons.LogoNgSm));
+
+        group.addTemplate(new FileTemplateDescriptor(TPL_DTO + "." + TPL_EXT));
+
         group.addTemplate(new FileTemplateDescriptor(TPL_RUN_CONFIG + "." + TPL_EXT_XML));
         group.addTemplate(new FileTemplateDescriptor(TPL_SPRING_REST + "." + TPL_EXT_JAVA));
         group.addTemplate(new FileTemplateDescriptor(TPL_SPRING_REST_METHOD + "." + TPL_EXT_JAVA));
+
 
         return group;
     }

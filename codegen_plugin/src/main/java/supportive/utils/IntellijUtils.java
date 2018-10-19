@@ -65,7 +65,6 @@ import gui.Confirm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reflector.SpringJavaRestReflector;
-import reflector.TypescriptDtoGenerator;
 import reflector.TypescriptRestGenerator;
 import reflector.utils.ReflectUtils;
 import rest.GenericClass;
@@ -73,10 +72,7 @@ import rest.RestService;
 import supportive.dtos.ArtifactType;
 import supportive.dtos.ModuleElementScope;
 import supportive.fs.common.IntellijFileContext;
-import supportive.reflectRefact.IntellijDtoReflector;
-import supportive.reflectRefact.IntellijJaxRsReflector;
-import supportive.reflectRefact.IntellijRefactor;
-import supportive.reflectRefact.IntellijSpringRestReflector;
+import supportive.reflectRefact.*;
 
 import java.awt.*;
 import java.io.*;
@@ -88,7 +84,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -560,7 +555,7 @@ public class IntellijUtils {
                     Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
                     return false;
                 }
-                String text = TypescriptDtoGenerator.generate(dtos);
+                String text = IntellijDtoGenerator.generate(project, dtos);//TypescriptDtoGenerator.generate(dtos);
 
                 String fileName = fileNameTransformer.transform(dtos.get(0).getName());
 
@@ -578,7 +573,7 @@ public class IntellijUtils {
                 Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
                 return false;
             }
-            String text = TypescriptDtoGenerator.generate(dtos);
+            String text = IntellijDtoGenerator.generate(project, dtos);//TypescriptDtoGenerator.generate(dtos);
 
             String fileName = fileNameTransformer.transform(dtos.get(0).getName());
 
@@ -611,7 +606,7 @@ public class IntellijUtils {
                         retVal.set(false);
                         return false;
                     }
-                    String text = TypescriptDtoGenerator.generate(dtos);
+                    String text = IntellijDtoGenerator.generate(project, dtos);//TypescriptDtoGenerator.generate(dtos);
 
 
                     String fileName = fileNameTransformer.transform(dtos.get(0).getName());
@@ -630,7 +625,7 @@ public class IntellijUtils {
                     retVal.set(false);
                     return;
                 }
-                String text = TypescriptDtoGenerator.generate(dtos);
+                String text = IntellijDtoGenerator.generate(project, dtos);//TypescriptDtoGenerator.generate(dtos);
 
                 String fileName = fileNameTransformer.transform(dtos.get(0).getName());
 

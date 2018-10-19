@@ -1,0 +1,67 @@
+import {Dto, PostConstruct} from "Dto";
+
+/**
+ * DTO typescript interface definition for ${clazz.name}
+ * this is just for instanceof checks since we cannot inherit
+ * between api and impl, and api might rely on foreign base classes
+ * So the API is a no go as well.
+ *
+ * The pattern is if a class inherits this interface, you can
+ * savely cast the impl class against the api class although
+ * they share only this interface.
+ *
+ * @ref: ${clazz.clazz.ownerType}
+ */
+export interface I${clazz.name}  {
+}
+
+/**
+ * DTO typescript definition for ${clazz.name}
+ *
+ */
+export class ${clazz.name} #if(${clazz.parentClass})
+    extends ${clazz.parentClass.name}
+#end
+    implements I${clazz.name} {
+
+#foreach( $prop in $clazz.properties)
+    ${prop.name}: ${prop.classType.toTypeScript()};
+#end
+
+}
+
+/**
+ * Implementation class for for ${clazz.name}
+ */
+@Dto({/* enable what you want to have mapped
+
+#foreach($prop in $clazz.properties)
+    ${prop.name}: ${prop.classType.toTypeScript()};
+#end
+
+*/})
+
+export class ${clazz.name}Impl #if(${clazz.parentClass} )
+    extends ${clazz.parentClass.name}Impl
+#end
+    implements I${clazz.name} {
+
+#foreach($prop in $clazz.properties)
+    ${prop.name}: ${prop.classType.toTypeScript()};
+#end
+
+    constructor(data: ${clazz.name}) {
+#if(${clazz.parentClass})
+            super(data);
+#end
+    }
+
+    @PostConstruct()
+    postConstruct(data: ${clazz.name}) {
+        //fill in your post init code here, the data is
+        //already applied to this, but you can
+        //alter it on the fly
+    }
+
+    //you can add custom behavior here
+}
