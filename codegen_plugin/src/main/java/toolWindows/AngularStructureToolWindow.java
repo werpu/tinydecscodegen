@@ -1,9 +1,11 @@
 package toolWindows;
 
 import com.google.common.base.Strings;
+import com.intellij.ide.CommonActionsManager;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.NodeRenderer;
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
@@ -13,17 +15,20 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileContentsChangedAdapter;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.openapi.wm.ex.ToolWindowEx;
 import com.intellij.packageDependencies.ui.TreeExpansionMonitor;
 import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.*;
@@ -34,7 +39,6 @@ import supportive.fs.tn.TNUIRoutesFileContext;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -45,26 +49,25 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.Objects;
 
 import static supportive.utils.StringUtils.elVis;
 
 
 public class AngularStructureToolWindow implements ToolWindowFactory {
 
-    private ToolWindow myToolWindow;
-    gui.AngularStructureToolWindow contentPanel = new gui.AngularStructureToolWindow();
-    Tree tree = new Tree();
-    IntellijFileContext projectRoot = null;
-    TreeSpeedSearch searchPath = null;
-    TreeExpansionMonitor expansionMonitor = null;
+    private Tree tree = new Tree();
+
+    private gui.AngularStructureToolWindow contentPanel = new gui.AngularStructureToolWindow();
+
+    private IntellijFileContext projectRoot = null;
+    private TreeSpeedSearch searchPath = null;
+    private TreeExpansionMonitor expansionMonitor = null;
 
     public AngularStructureToolWindow() {
+
         final Icon ng = IconLoader.getIcon("/images/ng.png");
-        NodeRenderer renderer = (NodeRenderer) tree.getCellRenderer();
 
         tree.setCellRenderer(new NodeRenderer() {
             @Nullable
@@ -78,7 +81,6 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 return retVal;
             }
         });
-
 
 
         tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Please Wait")));
@@ -114,9 +116,11 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
             }
         });
+
     }
 
-    public void doMouseClicked(MouseEvent ev) {
+
+    private void doMouseClicked(MouseEvent ev) {
         TreePath tp = tree.getPathForLocation(ev.getX(), ev.getY());
         if (tp == null) {
             return;
@@ -138,22 +142,16 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 popupMenu.add(go_to_route_declaration);
 
                 JMenuItem go_to_component = new JMenuItem("Go to component");
-                go_to_component.addActionListener(actionEvent -> {
-                    goToComponent(foundContext);
-                });
+                go_to_component.addActionListener(actionEvent -> goToComponent(foundContext));
                 popupMenu.add(go_to_component);
 
                 popupMenu.addSeparator();
                 JMenuItem copy_route_key = new JMenuItem("Copy Route Key");
-                copy_route_key.addActionListener(actionEvent -> {
-                    copyRouteName(foundContext);
-                });
+                copy_route_key.addActionListener(actionEvent -> copyRouteName(foundContext));
                 popupMenu.add(copy_route_key);
 
                 JMenuItem copy_route_link = new JMenuItem("Copy Route Link");
-                copy_route_link.addActionListener(actionEvent -> {
-                    copyRouteLink(foundContext);
-                });
+                copy_route_link.addActionListener(actionEvent -> copyRouteLink(foundContext));
                 popupMenu.add(copy_route_link);
 
                 popupMenu.show(tree, ev.getX(), ev.getY());
@@ -161,75 +159,6 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         }
     }
 
-    public void goToRouteDcl(PsiRouteContext foundContext) {
-        openEditor(foundContext);
-    }
-
-    public void openEditor(PsiRouteContext foundContext) {
-        FileEditor[] editors = (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(foundContext.getElement().getContainingFile().getVirtualFile(), true);
-        if (editors.length > 0 && elVis(editors[0], "editor").isPresent()) {
-            CaretModel editor = ((Editor) elVis(editors[0], "editor").get()).getCaretModel();
-            editor.moveToOffset(foundContext.getTextOffset());
-            editor.moveCaretRelatively(0, 0, false, false, true);
-        }
-    }
-
-    public void goToComponent(PsiRouteContext foundContext) {
-        Route route = foundContext.getRoute();
-        PsiElementContext topCtx = new PsiElementContext(foundContext.getElement().getContainingFile());
-        if (Strings.isNullOrEmpty(route.getComponentPath())) {
-            Messages.showErrorDialog(this.tree.getRootPane(), "No component determinable - please check your route declaration.", actions_all.shared.Messages.ERR_OCCURRED);
-            return;
-        }
-        Path componentPath = Paths.get(route.getComponentPath());
-        Path parent = Paths.get(foundContext.getElement().getContainingFile().getParent().getVirtualFile().getPath());
-        Path rel = parent.relativize(componentPath);
-        VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(rel.toString().replaceAll("\\\\", "/") + ".ts");
-        (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(virtualFile, true);
-
-    }
-
-    /**
-     * copies the route name into the clipboard
-     */
-    public void copyRouteName(PsiRouteContext foundContext) {
-        Route route = foundContext.getRoute();
-        if (route == null) {
-            return;
-        }
-        StringSelection stringSelection = new StringSelection(route.getRouteKey());
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(stringSelection, null);
-    }
-
-    /**
-     * copies the fully qualified route link into the clipboard
-     * to be inserted somewhere in the code
-     */
-    public void copyRouteLink(PsiRouteContext foundContext) {
-        Route route = foundContext.getRoute();
-        if (route == null) {
-            return;
-        }
-        StringSelection stringSelection = null;
-        if (route.getOriginContext().equals(TNUIRoutesFileContext.class)) {
-            stringSelection = new StringSelection("<a ui-sref=\"" + route.getRouteKey() + "\" ui-sref-active=\"active\">" + route.getRouteVarName() + "</a>");
-        } else if (route.getOriginContext().equals(TNAngularRoutesFileContext.class)) {
-            stringSelection = new StringSelection("<a href=\"#" + route.getUrl() + "\">" + route.getRouteVarName() + "</a>");
-        } else {
-            stringSelection = new StringSelection("<a uiSref=\"" + route.getRouteKey() + "\" uiSrefActive=\"active\">" + route.getRouteVarName() + "</a>");
-        }
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(stringSelection, null);
-    }
-
-    public void goToNavDeclaration(PsiRouteContext ctx) {
-
-    }
-
-    public void goToComponentDeclaration(PsiRouteContext ctx) {
-
-    }
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
@@ -245,7 +174,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                     IntellijFileContext vFileContext = new IntellijFileContext(project, file);
 
                     boolean routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
-                            .filter(routeFile -> routeFile.equals(vFileContext)).findFirst().isPresent();
+                            .anyMatch(routeFile -> routeFile.equals(vFileContext));
 
                     if (routeFileAffected) {
                         refreshContent(projectRoot.getProject());
@@ -259,21 +188,34 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
             }
         });
 
-        myToolWindow = toolWindow;
+        SimpleToolWindowPanel panel = new SimpleToolWindowPanel(true, true);
+
         refreshContent(project);
+        panel.setContent(contentPanel.getMainPanel());
+        panel.setBackground(UIUtil.getFieldForegroundColor());
+
         contentPanel.getScollPanel().setViewportView(tree);
+
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(contentPanel.getMainPanel(), "", false);
+        Content content = contentFactory.createContent(panel, "", false);
         toolWindow.getContentManager().addContent(content);
+
+
+        if (toolWindow instanceof ToolWindowEx) {
+            AnAction[] titleActions = new AnAction[]{
+                    CommonActionsManager.getInstance().createExpandAllHeaderAction(tree),
+                    CommonActionsManager.getInstance().createCollapseAllHeaderAction(tree)
+            };
+            ((ToolWindowEx) toolWindow).setTitleActions(titleActions);
+        }
+
+
     }
 
-    public void refreshContent(@NotNull Project project) {
+    private void refreshContent(@NotNull Project project) {
         ApplicationManager.getApplication().invokeLater(() -> {
             try {
-
-
                 projectRoot = new IntellijFileContext(project);
-
 
                 List<IUIRoutesRoutesFileContext> routeFiles = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot);
                 if (routeFiles == null || routeFiles.isEmpty()) {
@@ -281,16 +223,9 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                     return;
                 }
 
-                DefaultTreeModel oldModel = (DefaultTreeModel) tree.getModel();
-
-
                 SwingRootParentNode rootNode = new SwingRootParentNode("Routes");
-
-
-
                 DefaultTreeModel newModel = new DefaultTreeModel(rootNode);
-                routeFiles.stream()
-                        .forEach(ctx -> {
+                routeFiles.forEach(ctx -> {
 
                             String node = ctx instanceof NG_UIRoutesRoutesFileContext ? "Angluar NG  Routes" :
                                     ctx instanceof TNAngularRoutesFileContext ? "TN Dec Routes" :
@@ -299,14 +234,11 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                             rootNode.add(routes);
                         });
                 tree.setRootVisible(false);
-
-
                 tree.setModel(newModel);
-
 
                 //now we restore the expansion state
 
-                if(expansionMonitor != null) {
+                if (expansionMonitor != null) {
                     expansionMonitor.restore();
                 }
 
@@ -315,7 +247,6 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 if (searchPath == null) {
 
                     expansionMonitor = TreeExpansionMonitor.install(tree);
-
                     tree.addMouseListener(new MouseAdapter() {
                         public void mouseClicked(MouseEvent me) {
                             doMouseClicked(me);
@@ -326,12 +257,12 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                         treePath.getPath();
                         final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
                         final Object userObject = node.getUserObject();
-                        TreePath nodePath = new TreePath(((DefaultMutableTreeNode) node).getPath());
-                        if(!tree.isExpanded(nodePath)) {
+                        TreePath nodePath = new TreePath(node.getPath());
+                        if (!tree.isExpanded(nodePath)) {
                             tree.expandPath(nodePath);
                         }
 
-                        if (userObject != null && userObject instanceof PsiRouteContext) {
+                        if (userObject instanceof PsiRouteContext) {
                             return ((PsiRouteContext) userObject).getRoute().getRouteVarName();
                         }
                         return null;
@@ -346,20 +277,67 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     }
 
 
-    boolean walkTree(TreeNode node, Function<TreeNode, Boolean> walkerFunction) {
+    private void goToRouteDcl(PsiRouteContext foundContext) {
+        openEditor(foundContext);
+    }
 
-        boolean ret = walkerFunction.apply(node);
-        if (!ret) {
-            return false;
+    private void openEditor(PsiRouteContext foundContext) {
+        FileEditor[] editors = (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(foundContext.getElement().getContainingFile().getVirtualFile(), true);
+        if (editors.length > 0 && elVis(editors[0], "editor").isPresent()) {
+            CaretModel editor = ((Editor) elVis(editors[0], "editor").get()).getCaretModel();
+            editor.moveToOffset(foundContext.getTextOffset());
+            editor.moveCaretRelatively(0, 0, false, false, true);
         }
-        if (node.getChildCount() > 0) {
-            for (int cnt = 0; cnt < node.getChildCount(); cnt++) {
-                if (!walkTree(node.getChildAt(cnt), walkerFunction)) {
-                    return false;
-                }
-            }
+    }
+
+    private void goToComponent(PsiRouteContext foundContext) {
+        Route route = foundContext.getRoute();
+        if (Strings.isNullOrEmpty(route.getComponentPath())) {
+            Messages.showErrorDialog(this.tree.getRootPane(), "No component determinable - please check your route declaration.", actions_all.shared.Messages.ERR_OCCURRED);
+            return;
         }
-        return true;
+        Path componentPath = Paths.get(route.getComponentPath());
+        Path parent = Paths.get(Objects.requireNonNull(foundContext.getElement().getContainingFile().getParent()).getVirtualFile().getPath());
+        Path rel = parent.relativize(componentPath);
+        VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(rel.toString().replaceAll("\\\\", "/") + ".ts");
+        if(virtualFile != null) {
+            (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(virtualFile, true);
+        }
+
+    }
+
+    /**
+     * copies the route name into the clipboard
+     */
+    private void copyRouteName(PsiRouteContext foundContext) {
+        Route route = foundContext.getRoute();
+        if (route == null) {
+            return;
+        }
+        StringSelection stringSelection = new StringSelection(route.getRouteKey());
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, null);
+    }
+
+    /**
+     * copies the fully qualified route link into the clipboard
+     * to be inserted somewhere in the code
+     */
+    private void copyRouteLink(PsiRouteContext foundContext) {
+        Route route = foundContext.getRoute();
+        if (route == null) {
+            return;
+        }
+        StringSelection stringSelection;
+        if (route.getOriginContext().equals(TNUIRoutesFileContext.class)) {
+            stringSelection = new StringSelection("<a ui-sref=\"" + route.getRouteKey() + "\" ui-sref-active=\"active\">" + route.getRouteVarName() + "</a>");
+        } else if (route.getOriginContext().equals(TNAngularRoutesFileContext.class)) {
+            stringSelection = new StringSelection("<a href=\"#" + route.getUrl() + "\">" + route.getRouteVarName() + "</a>");
+        } else {
+            stringSelection = new StringSelection("<a uiSref=\"" + route.getRouteKey() + "\" uiSrefActive=\"active\">" + route.getRouteVarName() + "</a>");
+        }
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, null);
     }
 
 
