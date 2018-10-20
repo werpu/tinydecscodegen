@@ -19,16 +19,15 @@ import com.intellij.openapi.vfs.VirtualFileContentsChangedAdapter;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
-import indexes.TN_UIRoutesIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.*;
 import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
-import supportive.fs.tn.TNRoutesFileContext;
 import supportive.fs.tn.TNUIRoutesFileContext;
 
 import javax.swing.*;
@@ -39,20 +38,18 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import static supportive.reflectRefact.PsiWalkFunctions.JS_ES_6_FROM_CLAUSE;
-import static supportive.reflectRefact.PsiWalkFunctions.PSI_ELEMENT_JS_STRING_LITERAL;
 import static supportive.utils.StringUtils.elVis;
-import static supportive.utils.StringUtils.stripQuotes;
 
 
 public class AngularStructureToolWindow implements ToolWindowFactory {
@@ -61,6 +58,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     gui.AngularStructureToolWindow contentPanel = new gui.AngularStructureToolWindow();
     Tree tree = new Tree();
     IntellijFileContext projectRoot = null;
+    TreeSpeedSearch searchPath = null;
 
     public AngularStructureToolWindow() {
         final Icon ng = IconLoader.getIcon("/images/ng.png");
@@ -90,6 +88,38 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         });
 
         tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Please Wait")));
+
+
+        tree.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (!(tree.getLastSelectedPathComponent() instanceof SwingRouteTreeNode)) {
+                    return;
+                }
+                SwingRouteTreeNode selectedNode = (SwingRouteTreeNode) tree.getLastSelectedPathComponent();
+                if (e.isMetaDown() && e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    if (selectedNode.getUserObject() instanceof PsiRouteContext) {
+                        PsiRouteContext foundContext = (PsiRouteContext) selectedNode.getUserObject();
+                        goToComponent(foundContext);
+                    }
+                } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    if (selectedNode.getUserObject() instanceof PsiRouteContext) {
+                        PsiRouteContext foundContext = (PsiRouteContext) selectedNode.getUserObject();
+                        goToRouteDcl(foundContext);
+                    }
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
     }
 
     public void doMouseClicked(MouseEvent ev) {
@@ -104,7 +134,6 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
         if (selectedNode instanceof PsiRouteContext) {
             PsiRouteContext foundContext = (PsiRouteContext) selectedNode;
-            System.out.println("Debug");
 
 
             if (SwingUtilities.isRightMouseButton(ev)) {
@@ -154,14 +183,14 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     public void goToComponent(PsiRouteContext foundContext) {
         Route route = foundContext.getRoute();
         PsiElementContext topCtx = new PsiElementContext(foundContext.getElement().getContainingFile());
-        if(Strings.isNullOrEmpty(route.getComponentPath())) {
+        if (Strings.isNullOrEmpty(route.getComponentPath())) {
             Messages.showErrorDialog(this.tree.getRootPane(), "No component determinable - please check your route declaration.", actions_all.shared.Messages.ERR_OCCURRED);
             return;
         }
         Path componentPath = Paths.get(route.getComponentPath());
         Path parent = Paths.get(foundContext.getElement().getContainingFile().getParent().getVirtualFile().getPath());
         Path rel = parent.relativize(componentPath);
-        VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(rel.toString().replaceAll("\\\\","/")+".ts");
+        VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(rel.toString().replaceAll("\\\\", "/") + ".ts");
         (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(virtualFile, true);
 
     }
@@ -171,7 +200,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
      */
     public void copyRouteName(PsiRouteContext foundContext) {
         Route route = foundContext.getRoute();
-        if(route == null) {
+        if (route == null) {
             return;
         }
         StringSelection stringSelection = new StringSelection(route.getRouteKey());
@@ -185,16 +214,16 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
      */
     public void copyRouteLink(PsiRouteContext foundContext) {
         Route route = foundContext.getRoute();
-        if(route == null) {
+        if (route == null) {
             return;
         }
         StringSelection stringSelection = null;
-        if(route.getOriginContext().equals(TNUIRoutesFileContext.class)) {
+        if (route.getOriginContext().equals(TNUIRoutesFileContext.class)) {
             stringSelection = new StringSelection("<a ui-sref=\"" + route.getRouteKey() + "\" ui-sref-active=\"active\">" + route.getRouteVarName() + "</a>");
         } else if (route.getOriginContext().equals(TNAngularRoutesFileContext.class)) {
-            stringSelection = new StringSelection("<a href=\"#"+route.getUrl()+"\">" +route.getRouteVarName()+ "</a>");
+            stringSelection = new StringSelection("<a href=\"#" + route.getUrl() + "\">" + route.getRouteVarName() + "</a>");
         } else {
-            stringSelection = new StringSelection("<a uiSref=\""+route.getRouteKey()+"\" uiSrefActive=\"active\">"+route.getRouteVarName()+"</a>");
+            stringSelection = new StringSelection("<a uiSref=\"" + route.getRouteKey() + "\" uiSrefActive=\"active\">" + route.getRouteVarName() + "</a>");
         }
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(stringSelection, null);
@@ -214,7 +243,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
             @Override
             protected void onFileChange(@NotNull VirtualFile file) {
                 //TODO angular version dynamic depending on the project type
-                if(!file.getName().endsWith(".ts")) {
+                if (!file.getName().endsWith(".ts")) {
                     return;
                 }
                 DumbService.getInstance(projectRoot.getProject()).smartInvokeLater(() -> {
@@ -248,11 +277,12 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         ApplicationManager.getApplication().invokeLater(() -> {
             try {
 
+
                 projectRoot = new IntellijFileContext(project);
 
 
                 List<IUIRoutesRoutesFileContext> routeFiles = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot);
-                if(routeFiles == null || routeFiles.isEmpty()) {
+                if (routeFiles == null || routeFiles.isEmpty()) {
                     tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("No route found")));
                     return;
                 }
@@ -266,23 +296,41 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 routeFiles.stream()
                         .forEach(ctx -> {
 
-                        String node = ctx instanceof NG_UIRoutesRoutesFileContext ? "Angluar NG  Routes" :
-                                           ctx instanceof TNAngularRoutesFileContext ?  "TN Dec Routes":
-                                                   "TN Dec UI Routes";
+                            String node = ctx instanceof NG_UIRoutesRoutesFileContext ? "Angluar NG  Routes" :
+                                    ctx instanceof TNAngularRoutesFileContext ? "TN Dec Routes" :
+                                            "TN Dec UI Routes";
                             DefaultMutableTreeNode routes = SwingRouteTreeFactory.createRouteTrees(ctx, node);
-                        rootNode.add(routes);
-                });
+                            rootNode.add(routes);
+                        });
                 tree.setRootVisible(false);
                 tree.setModel(newModel);
 
                 //now we restore the expansion state
                 restoreOpenState(openState, (TreeNode) newModel.getRoot());
 
-                tree.addMouseListener(new MouseAdapter() {
-                    public void mouseClicked(MouseEvent me) {
-                        doMouseClicked(me);
-                    }
-                });
+
+
+
+                /*found this usefule helper in the jetbrains intellij sources*/
+                if (searchPath == null) {
+                    tree.addMouseListener(new MouseAdapter() {
+                        public void mouseClicked(MouseEvent me) {
+                            doMouseClicked(me);
+                        }
+                    });
+
+                    searchPath = new TreeSpeedSearch(tree, treePath -> {
+                        treePath.getPath();
+                        final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
+                        final Object userObject = node.getUserObject();
+                        if (userObject != null && userObject instanceof PsiRouteContext) {
+                            return ((PsiRouteContext) userObject).getRoute().getRouteVarName();
+                        }
+                        return null;
+
+                    });
+                }
+
             } catch (IndexNotReadyException exception) {
                 refreshContent(project);
             }
@@ -292,7 +340,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     public void restoreOpenState(Set<String> openIdx, TreeNode newModel) {
         walkTree(newModel, node -> {
             Object userObject = ((DefaultMutableTreeNode) node).getUserObject();
-            if(userObject instanceof PsiRouteContext) {
+            if (userObject instanceof PsiRouteContext) {
                 String routeKey = ((PsiRouteContext) userObject).getRoute().getRouteKey();
                 if (openIdx.contains(routeKey)) {
                     tree.expandPath(new TreePath(((DefaultMutableTreeNode) node).getPath()));
@@ -310,7 +358,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         walkTree((TreeNode) oldModel.getRoot(), node -> {
             Object userObject = ((DefaultMutableTreeNode) node).getUserObject();
 
-            if(userObject instanceof PsiRouteContext &&
+            if (userObject instanceof PsiRouteContext &&
                     tree.isExpanded(new TreePath(((DefaultMutableTreeNode) node).getPath()))) {
                 String routeKey = ((PsiRouteContext) userObject).getRoute().getRouteKey();
                 openIdx.add(routeKey);
@@ -324,12 +372,12 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     boolean walkTree(TreeNode node, Function<TreeNode, Boolean> walkerFunction) {
 
         boolean ret = walkerFunction.apply(node);
-        if(!ret) {
+        if (!ret) {
             return false;
         }
-        if(node.getChildCount() > 0) {
-            for(int cnt = 0; cnt < node.getChildCount(); cnt++) {
-                if(!walkTree(node.getChildAt(cnt), walkerFunction )) {
+        if (node.getChildCount() > 0) {
+            for (int cnt = 0; cnt < node.getChildCount(); cnt++) {
+                if (!walkTree(node.getChildAt(cnt), walkerFunction)) {
                     return false;
                 }
             }
