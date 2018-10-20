@@ -1,7 +1,5 @@
 package toolWindows;
 
-import com.thaiopensource.xml.dtd.om.Def;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 
 public class SwingRootParentNode extends DefaultMutableTreeNode {
