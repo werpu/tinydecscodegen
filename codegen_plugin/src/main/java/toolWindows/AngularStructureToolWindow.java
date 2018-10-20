@@ -108,6 +108,11 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                         PsiRouteContext foundContext = (PsiRouteContext) selectedNode.getUserObject();
                         goToRouteDcl(foundContext);
                     }
+                } else if (e.isMetaDown() && e.getKeyCode() == KeyEvent.VK_C) {
+                    if (selectedNode.getUserObject() instanceof PsiRouteContext) {
+                        PsiRouteContext foundContext = (PsiRouteContext) selectedNode.getUserObject();
+                        copyRouteLink(foundContext);
+                    }
                 }
             }
 
