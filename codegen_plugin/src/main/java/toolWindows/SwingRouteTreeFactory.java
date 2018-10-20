@@ -18,7 +18,7 @@ public class SwingRouteTreeFactory {
 
     public static DefaultMutableTreeNode createRouteTrees(IUIRoutesRoutesFileContext ctx, String label) {
         Map<String, SwingRouteTreeNode> _routeIdx = new HashMap<>();
-        DefaultMutableTreeNode treeNodes = new DefaultMutableTreeNode(label);
+        DefaultMutableTreeNode treeNodes = new SwingRootParentNode(label);
 
         //lets make the tree Nodes
         List<PsiRouteContext> sortedRoutes = (List<PsiRouteContext>) ctx.getRoutes().stream().sorted(Comparator.comparing(PsiRouteContext::getRoute)).collect(Collectors.toList());

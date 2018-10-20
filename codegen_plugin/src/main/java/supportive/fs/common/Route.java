@@ -1,10 +1,7 @@
 package supportive.fs.common;
 
 import com.google.common.base.Strings;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -14,7 +11,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-
+@EqualsAndHashCode
 public class Route implements Cloneable, Serializable, Comparable{
 
     @NonNull

@@ -20,4 +20,15 @@ public class SwingRouteTreeNode extends DefaultMutableTreeNode {
         PsiRouteContext userObject = (PsiRouteContext) getUserObject();
         return userObject.getRoute().getRouteKey();
     }
+
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof SwingRouteTreeNode) {
+            return ((SwingRouteTreeNode) obj).getUserObject().equals(((PsiRouteContext) this.getUserObject()).getRoute());
+        } else {
+            return false;
+        }
+    }
 }

@@ -8,6 +8,4 @@ import javax.swing.*;
 public class AngularStructureToolWindow   {
     private JPanel mainPanel;
     private JScrollPane scollPanel;
-    private JButton btRefresh;
-    private JButton btClose;
 }

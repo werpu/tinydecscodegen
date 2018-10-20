@@ -1,8 +1,10 @@
 package supportive.fs.common;
 
 import com.intellij.psi.PsiElement;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+@EqualsAndHashCode(callSuper=false)
 public class PsiRouteContext extends PsiElementContext {
 
     @Getter

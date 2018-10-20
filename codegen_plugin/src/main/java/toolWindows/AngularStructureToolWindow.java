@@ -19,6 +19,7 @@ import com.intellij.openapi.vfs.VirtualFileContentsChangedAdapter;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.packageDependencies.ui.TreeExpansionMonitor;
 import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
@@ -59,6 +60,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     Tree tree = new Tree();
     IntellijFileContext projectRoot = null;
     TreeSpeedSearch searchPath = null;
+    TreeExpansionMonitor expansionMonitor = null;
 
     public AngularStructureToolWindow() {
         final Icon ng = IconLoader.getIcon("/images/ng.png");
@@ -78,14 +80,6 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         });
 
 
-        contentPanel.getBtClose().addActionListener(e -> myToolWindow.hide(null));
-        contentPanel.getBtRefresh().addActionListener(e -> {
-            //Optional<NG_UIRoutesRoutesFileContext> ctx = (Optional<NG_UIRoutesRoutesFileContext) ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
-            //        .filter(item -> item instanceof NG_UIRoutesRoutesFileContext).findFirst();
-
-            //tree.setModel(new DefaultTreeModel(SwingRouteTreeFactory.createRouteTrees(ctx)));
-            refreshContent(projectRoot.getProject());
-        });
 
         tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Please Wait")));
 
@@ -288,9 +282,11 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 }
 
                 DefaultTreeModel oldModel = (DefaultTreeModel) tree.getModel();
-                Set<String> openState = fetchOpenState(oldModel);
 
-                DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Routes");
+
+                SwingRootParentNode rootNode = new SwingRootParentNode("Routes");
+
+
 
                 DefaultTreeModel newModel = new DefaultTreeModel(rootNode);
                 routeFiles.stream()
@@ -303,16 +299,23 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                             rootNode.add(routes);
                         });
                 tree.setRootVisible(false);
+
+
                 tree.setModel(newModel);
 
+
                 //now we restore the expansion state
-                restoreOpenState(openState, (TreeNode) newModel.getRoot());
 
-
+                if(expansionMonitor != null) {
+                    expansionMonitor.restore();
+                }
 
 
                 /*found this usefule helper in the jetbrains intellij sources*/
                 if (searchPath == null) {
+
+                    expansionMonitor = TreeExpansionMonitor.install(tree);
+
                     tree.addMouseListener(new MouseAdapter() {
                         public void mouseClicked(MouseEvent me) {
                             doMouseClicked(me);
@@ -323,6 +326,11 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                         treePath.getPath();
                         final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
                         final Object userObject = node.getUserObject();
+                        TreePath nodePath = new TreePath(((DefaultMutableTreeNode) node).getPath());
+                        if(!tree.isExpanded(nodePath)) {
+                            tree.expandPath(nodePath);
+                        }
+
                         if (userObject != null && userObject instanceof PsiRouteContext) {
                             return ((PsiRouteContext) userObject).getRoute().getRouteVarName();
                         }
@@ -335,37 +343,6 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 refreshContent(project);
             }
         });
-    }
-
-    public void restoreOpenState(Set<String> openIdx, TreeNode newModel) {
-        walkTree(newModel, node -> {
-            Object userObject = ((DefaultMutableTreeNode) node).getUserObject();
-            if (userObject instanceof PsiRouteContext) {
-                String routeKey = ((PsiRouteContext) userObject).getRoute().getRouteKey();
-                if (openIdx.contains(routeKey)) {
-                    tree.expandPath(new TreePath(((DefaultMutableTreeNode) node).getPath()));
-                }
-            }
-
-
-            return true;
-        });
-    }
-
-    @NotNull
-    public Set<String> fetchOpenState(DefaultTreeModel oldModel) {
-        Set<String> openIdx = new HashSet();
-        walkTree((TreeNode) oldModel.getRoot(), node -> {
-            Object userObject = ((DefaultMutableTreeNode) node).getUserObject();
-
-            if (userObject instanceof PsiRouteContext &&
-                    tree.isExpanded(new TreePath(((DefaultMutableTreeNode) node).getPath()))) {
-                String routeKey = ((PsiRouteContext) userObject).getRoute().getRouteKey();
-                openIdx.add(routeKey);
-            }
-            return true;
-        });
-        return openIdx;
     }
 
 
