@@ -24,6 +24,7 @@ package supportive.reflectRefact;
 import com.google.common.collect.Lists;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.PsiClassImpl;
 import org.jetbrains.annotations.NotNull;
 import reflector.utils.ReflectUtils;
 import rest.GenericClass;
@@ -63,10 +64,14 @@ public class IntellijDtoReflector {
         if (includingEndpoint.equals(clazz.getQualifiedName()) && isNotObject(clazz)) {
             parent = reflectDto(Arrays.asList(clazz.getSuperClass()), includingEndpoint).get(0);
         }
-        GenericType classDescriptor = ReflectUtils.buildGenericTypes(clazz.getQualifiedName()).get(0);
+        PsiTypeParameter[] tp = ((PsiClassImpl) clazz).getTypeParameterList().getTypeParameters();
+        String generics = (tp != null && tp.length > 0) ? "<"+Arrays.stream(tp).map(el -> el.getName()).reduce((e1, e2) -> e1+","+e2).get()+">" : "";
+
+         GenericType classDescriptor = ReflectUtils.buildGenericTypes(clazz.getQualifiedName()+generics).get(0);
 
         return new GenericClass(classDescriptor, parent, Collections.emptyList(), props.stream().collect(Collectors.toList()));
     }
+
 
 
 

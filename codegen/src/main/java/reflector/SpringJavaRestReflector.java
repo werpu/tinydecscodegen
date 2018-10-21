@@ -32,9 +32,15 @@ import rest.*;
 import java.beans.IntrospectionException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.*;
+import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Collections.emptyList;
 
 
 /**
@@ -86,7 +92,7 @@ public class SpringJavaRestReflector {
     }
 
     private static GenericClass reflectClass(Class includingEndpoint, Class clazz) {
-        Collection<GenericVar> props = Collections.emptyList();
+        Collection<GenericVar> props = emptyList();
         GenericClass parent = null;
         try {
             props = ReflectUtils.getAllProperties(clazz, includingEndpoint);
@@ -97,9 +103,26 @@ public class SpringJavaRestReflector {
         } catch (IntrospectionException e) {
             e.printStackTrace();
         }
-        GenericType classDescriptor = ReflectUtils.buildGenericTypes(clazz.getTypeName()).get(0);
 
-        return new GenericClass(classDescriptor, parent, Collections.emptyList(), props.stream().collect(Collectors.toList()));
+        TypeVariable[] tv = clazz.getTypeParameters();
+        //if(tv != null && tv.length > 0) {
+        //    classDescriptor.set(Arrays.stream(tv).map(e -> new GenericType(reduceType(e), emptyList())).collect(Collectors.toList()));
+        //}
+        String generics = "<"+Arrays.stream(tv).map(SpringJavaRestReflector::reduceType).reduce((e1, e2) -> e1+","+e2).get()+">";
+        if(generics == "<>") {
+            generics = "";
+        }
+
+        GenericType classDescriptor = ReflectUtils.buildGenericTypes(clazz.getTypeName()+generics).get(0);
+
+
+
+        return new GenericClass(classDescriptor, parent, emptyList(), props.stream().collect(Collectors.toList()));
+    }
+
+    public static String reduceType(TypeVariable tv) {
+        String name = tv.getName();
+        return name;
     }
 
 
@@ -219,7 +242,7 @@ public class SpringJavaRestReflector {
                 restVarType = RestVarType.RequestBody;
             }
             boolean array = ReflectUtils.isArrayType(paramType);
-            return new RestVar(restVarType, restName, name, new GenericType(paramType.getTypeName(), Collections.emptyList()), array);
+            return new RestVar(restVarType, restName, name, new GenericType(paramType.getTypeName(), emptyList()), array);
         });
 
     }

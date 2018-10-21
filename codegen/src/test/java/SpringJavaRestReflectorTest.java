@@ -78,6 +78,7 @@ public class SpringJavaRestReflectorTest {
         List<GenericClass> genericClasses = SpringJavaRestReflector.reflectDto(Arrays.asList( TestDto.class), TestDto.class);
         assertTrue(genericClasses.size() == 1);
         GenericClass parsedClass = genericClasses.get(0);
+       assertTrue(parsedClass.getClazz().getChildTypes().size() > 0);
         assertTrue(parsedClass.getName().equals("TestDto"));
 
         assertTrue(parsedClass.getProperties().size() == 3);

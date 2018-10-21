@@ -5,9 +5,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import probes.ProbeRetVal;
 
+import java.util.List;
+
 @EqualsAndHashCode
 @AllArgsConstructor
-public class TestDto {
+public class TestDto<T, K extends List<String>> {
 
     public final String booga;
 

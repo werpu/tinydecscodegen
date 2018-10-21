@@ -1,4 +1,19 @@
 import {Dto, PostConstruct} from "Dto";
+##root: rest.GenericClass
+
+#macro(theGenerics $clazz)
+#if(${clazz.clazz.childTypes} && ${clazz.clazz.childTypes.size()} > 0)
+<#foreach($generic in ${clazz.clazz.childTypes})
+${generic.toTypeScript()}#if($velocityCount < ${clazz.clazz.childTypes.size()}), #end
+#end
+>#end
+#end
+
+#macro(props $clazz)
+#foreach($prop in $clazz.properties)
+    ${prop.name}: ${prop.classType.toTypeScript()};
+#end
+#end
 
 /**
  * DTO typescript interface definition for ${clazz.name}
@@ -12,21 +27,19 @@ import {Dto, PostConstruct} from "Dto";
  *
  * @ref: ${clazz.clazz.ownerType}
  */
-export interface I${clazz.name}  {
+export interface I${clazz.name}#theGenerics($clazz) {
 }
 
 /**
  * DTO typescript definition for ${clazz.name}
  *
  */
-export class ${clazz.name} #if(${clazz.parentClass})
-    extends ${clazz.parentClass.name}
+export class ${clazz.name}#theGenerics($clazz)#if(${clazz.parentClass})
+ extends ${clazz.parentClass.name}
 #end
-    implements I${clazz.name} {
+ implements I${clazz.name}#theGenerics($clazz) {
 
-#foreach( $prop in $clazz.properties)
-    ${prop.name}: ${prop.classType.toTypeScript()};
-#end
+#props($clazz)
 
 }
 
@@ -35,29 +48,25 @@ export class ${clazz.name} #if(${clazz.parentClass})
  */
 @Dto({/* enable what you want to have mapped
 
-#foreach($prop in $clazz.properties)
-    ${prop.name}: ${prop.classType.toTypeScript()};
-#end
+#props($clazz)
 
 */})
 
-export class ${clazz.name}Impl #if(${clazz.parentClass} )
-    extends ${clazz.parentClass.name}Impl
+export class ${clazz.name}Impl#theGenerics($clazz)#if(${clazz.parentClass} )
+ extends ${clazz.parentClass.name}Impl#theGenerics($clazz)
 #end
-    implements I${clazz.name} {
+ implements I${clazz.name}#theGenerics($clazz) {
 
-#foreach($prop in $clazz.properties)
-    ${prop.name}: ${prop.classType.toTypeScript()};
-#end
+#props($clazz)
 
     constructor(data: ${clazz.name}) {
 #if(${clazz.parentClass})
-            super(data);
+        super(data);
 #end
     }
 
     @PostConstruct()
-    postConstruct(data: ${clazz.name}) {
+    postConstruct(data: ${clazz.name}#theGenerics($clazz)) {
         //fill in your post init code here, the data is
         //already applied to this, but you can
         //alter it on the fly

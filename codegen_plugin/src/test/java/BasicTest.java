@@ -55,6 +55,7 @@ public class BasicTest extends LightCodeInsightFixtureTestCase {
         assertTrue(parsedClass.getName().equals("TestDto"));
 
         assertTrue(parsedClass.getProperties().size() == 3);
+        assertTrue(parsedClass.getClazz().getChildTypes().size() >= 2);
 
         assertTrue(parsedClass.getProperties().get(2).getName().equals("retVal"));
         assertTrue(parsedClass.getProperties().get(2).getClassType().toTypescript(TypescriptTypeMapper::map, ReflectUtils::reduceClassName).equals("ProbeRetVal"));
