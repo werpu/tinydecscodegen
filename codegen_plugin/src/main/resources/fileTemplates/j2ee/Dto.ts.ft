@@ -1,6 +1,8 @@
 import {Dto, PostConstruct} from "Dto";
 ##root: rest.GenericClass
-
+#*
+outputs a list of generics if present
+ *#
 #macro(theGenerics $clazz)
 #if(${clazz.clazz.childTypes} && ${clazz.clazz.childTypes.size()} > 0)
 <#foreach($generic in ${clazz.clazz.childTypes})
@@ -8,11 +10,22 @@ ${generic.toTypeScript()}#if($velocityCount < ${clazz.clazz.childTypes.size()}),
 #end
 >#end
 #end
-
+#*
+ouztputs the list of class properties
+*#
 #macro(props $clazz)
 #foreach($prop in $clazz.properties)
     ${prop.name}: ${prop.classType.toTypeScript()};
 #end
+#end
+#*
+ Defines the class definition header (export class ClassName)
+ *#
+#macro(classHeader $clazz $implString)
+export class ${clazz.name}${implString}#theGenerics($clazz)#if(${clazz.parentClass} )
+ extends ${clazz.parentClass.name}${implString}#theGenerics($clazz)
+#end
+ implements I${clazz.name}#theGenerics($clazz)
 #end
 
 /**
@@ -34,10 +47,7 @@ export interface I${clazz.name}#theGenerics($clazz) {
  * DTO typescript definition for ${clazz.name}
  *
  */
-export class ${clazz.name}#theGenerics($clazz)#if(${clazz.parentClass})
- extends ${clazz.parentClass.name}
-#end
- implements I${clazz.name}#theGenerics($clazz) {
+#classHeader($clazz '') {
 
 #props($clazz)
 
@@ -51,15 +61,11 @@ export class ${clazz.name}#theGenerics($clazz)#if(${clazz.parentClass})
 #props($clazz)
 
 */})
-
-export class ${clazz.name}Impl#theGenerics($clazz)#if(${clazz.parentClass} )
- extends ${clazz.parentClass.name}Impl#theGenerics($clazz)
-#end
- implements I${clazz.name}#theGenerics($clazz) {
+#classHeader($clazz 'Impl') {
 
 #props($clazz)
 
-    constructor(data: ${clazz.name}) {
+    constructor(data: ${clazz.name}#theGenerics($clazz)) {
 #if(${clazz.parentClass})
         super(data);
 #end
