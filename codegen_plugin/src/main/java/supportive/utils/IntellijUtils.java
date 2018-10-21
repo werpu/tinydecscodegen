@@ -396,7 +396,7 @@ public class IntellijUtils {
 
             String fileName = fileNameTransformer.transform(restService.get(0).getServiceName());
 
-            generateOrDiffTsFile(text, fileName, javaClass.getQualifiedName(), project, module, javaFile, ArtifactType.SERVICE);
+            generateOrDiffTsFile(text, fileName, restService.get(0).getServiceName(), project, module, javaFile, ArtifactType.SERVICE);
         });
 
         return retVal.get();
