@@ -195,9 +195,11 @@ public class CreateTnDecModule extends AnAction  {
 
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
         List<ModuleElementScope> scope = Lists.newArrayList();
-        scope.add(ModuleElementScope.IMPORT);
+
         if(attrs.containsKey(EXPORT)) {
             scope.add(ModuleElementScope.EXPORT);
+        } else {
+            scope.add(ModuleElementScope.IMPORT);
         }
         ModuleElementScope[] scopes = scope.stream().toArray(size -> new ModuleElementScope[size]);
 
