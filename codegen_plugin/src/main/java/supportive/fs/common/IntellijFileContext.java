@@ -293,6 +293,9 @@ public class IntellijFileContext {
     }
 
     public String getFolderPath() {
+        if(virtualFile == null || virtualFile.getParent() == null) {
+            return "____NaN____";
+        }
         return virtualFile.isDirectory() ? virtualFile.getPath() : virtualFile.getParent().getPath();
     }
 

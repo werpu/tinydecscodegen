@@ -1,0 +1,69 @@
+import { Injectable } from '@angular/core';
+import { HttpParams, HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs/Rx';
+
+/**
+ * Rest service ${service.serviceName}
+ * @ref: ${service.ref}
+ */
+
+@Injectable()
+export class ${service.serviceName} {
+
+#if(${service.serviceRootUrl})
+    restRoot: string = "${service.serviceRootUrl}";
+#else
+    restRoot: string = "";// fill in your rest request root here
+#end
+
+    constructor(private http: HttpClient) {
+    }
+
+#foreach($method in ${service.methods})
+    #set($mType = $method.restType.name().toLowerCase())
+
+    ${method.comment}
+    ${method.name}(#foreach($param in ${method.params})
+
+        ${param.toTypeScript()}#if($velocityCount < $method.params.size()), #else
+
+    #end
+#end): Observable<#if(!${method.returnValue.isPresent()} || ${method.returnValue.get().toTypeScript()} ==
+        'void')any#else${method.returnValue.get().toTypeScript()}#end> {
+
+        let params: HttpParams = new HttpParams();
+#if ($mType == "post" || $mType == "put"|| $mType == "patch")
+        let body: string = null;
+#end
+#foreach($param in ${method.params})
+#if ($mType == "post" || $mType == "put"|| $mType == "patch")
+#if (${param.paramType.name()} == "RequestBody")
+        body = JSON.stringify(${param.restName});
+#else
+        params = params.append('${param.restName}', ${param.restName});
+#end
+#elseif(${param.paramType.name()} != "RequestBody")
+        params = params.append('${param.restName}', ${param.restName});
+#end
+#end
+
+#if ($mType == "post" || $mType == "put"|| $mType == "patch")
+        let retVal = this.http.${mType.toLowerCase()}(this.restRoot + "#if(${service.serviceRootUrl})#end
+${method.url}#foreach($param in  ${method.params})#if($param.paramType.name() == "PathVariable")/${${param.restName}}#end
+#end", body, {
+            params: params
+        });
+#else
+        let retVal = this.http.${mType.toLowerCase()}(this.restRoot + "#if(${service.serviceRootUrl})#end
+${method.url}#foreach($param in  ${method.params})#if($param.paramType.name() == "PathVariable")/${${param.restName}}#end
+#end", {
+            params: params
+        });
+#end
+
+        return <Observable<#if(!${method.returnValue.isPresent()} || ${method.returnValue.get().toTypeScript()} ==
+            'void')any#else${method.returnValue.get().toTypeScript()}#end>> retVal;
+    }
+#end
+
+}
