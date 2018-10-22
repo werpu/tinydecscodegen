@@ -10,6 +10,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.psi.PsiFile;
 import gui.CreateRoute;
+import gui.support.DialogWrapperCreator;
 import indexes.ControllerIndex;
 import indexes.TNRoutesIndex;
 import indexes.TN_UIRoutesIndex;
@@ -17,7 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.ComponentFileContext;
 import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.Route;
@@ -26,7 +26,6 @@ import supportive.fs.tn.TNRoutesFileContext;
 import supportive.fs.tn.TNUIRoutesFileContext;
 import supportive.utils.StringUtils;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Arrays;
@@ -54,47 +53,12 @@ public class CreateTnDecRoute extends AnAction {
         ComponentSelectorModel selectorModel = null;
 
 
-        DialogWrapper dialogWrapper = new DialogWrapper(fileContext.getProject(), true, DialogWrapper.IdeModalityType.PROJECT) {
+        DialogWrapper dialogWrapper = new DialogWrapperCreator(fileContext.getProject(), mainForm.getRootPanel())
+                .withDimensionKey("AnnRoute").withValidator(() -> {
+                    Route route = getRoute(mainForm);
+                    return getRoutesFiles(fileContext).flatMap(el -> CreateTnDecRoute.this.validate(route, el, mainForm).stream()).collect(Collectors.toList());
+                }).create();
 
-            @Nullable
-            @Override
-            protected JComponent createCenterPanel() {
-                return mainForm.getRootPanel();
-            }
-
-            @Nullable
-            @Override
-            protected String getDimensionServiceKey() {
-                return "AnnRoute";
-            }
-
-            @Nullable
-            @NotNull
-            protected List<ValidationInfo> doValidateAll() {
-                Route route = getRoute(mainForm);
-
-
-                //NG_UIRoutesRoutesFileContext ctx = TNRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
-                //        .map(psiFile -> new NG_UIRoutesRoutesFileContext(fileContext.getProject(), psiFile)).findAny().get();
-
-
-                return getRoutesFiles(fileContext).flatMap(el -> CreateTnDecRoute.this.validate(route, el, mainForm).stream()).collect(Collectors.toList());//CreateTnDecRoute.this.validate(route, ctx, mainForm);
-            }
-
-
-            @Override
-            public void init() {
-                super.init();
-            }
-
-            public void show() {
-
-                this.init();
-                this.setModal(true);
-                this.pack();
-                super.show();
-            }
-        };
 
         ComponentFileContext[] components = findAllPageComponents(fileContext);
         if (components.length == 0) {
@@ -212,7 +176,7 @@ public class CreateTnDecRoute extends AnAction {
 
     public Optional<ComponentFileContext> getDefaultComponentData(IntellijFileContext fileContext) {
         List<ComponentFileContext> editorControllers = (fileContext.getVirtualFile().isDirectory()) ? Collections.emptyList() : getControllers(fileContext);
-        if(editorControllers.isEmpty()) {
+        if (editorControllers.isEmpty()) {
             return empty();
         } else {
             return ofNullable(editorControllers.stream().findFirst().get());

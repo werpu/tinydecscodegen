@@ -77,7 +77,7 @@ public class CreateTnDecConfig extends AnAction  {
             @Nullable
             @Override
             protected String getDimensionServiceKey() {
-                return "AnnComponent";
+                return "AnnConfig";
             }
 
             @Nullable

@@ -19,13 +19,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import configuration.ConfigSerializer;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
+import gui.CreateTnDecComponent;
+import gui.support.DialogWrapperCreator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import supportive.dtos.ModuleElementScope;
 import supportive.utils.IntellijUtils;
 import supportive.utils.StringUtils;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Arrays;
@@ -82,44 +82,11 @@ public class CreateTnDecModule extends AnAction  {
         mainForm.getCbExport().setSelected(ConfigSerializer.getInstance().getState().isModuleExport());
         mainForm.getCbCreateDir().setSelected(ConfigSerializer.getInstance().getState().isModuleGenerateFolder());
 
-        DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
+        DialogWrapper dialogWrapper = new DialogWrapperCreator(project, mainForm.rootPanel)
+                .withDimensionKey("AnnModule").withValidator(() -> Arrays.asList(
+                        validateInput(mainForm)
+                ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
 
-            @Nullable
-            @Override
-            protected JComponent createCenterPanel() {
-                return mainForm.rootPanel;
-            }
-
-            @Nullable
-            @Override
-            protected String getDimensionServiceKey() {
-                return "AnnComponent";
-            }
-
-
-            @Nullable
-            @NotNull
-            protected List<ValidationInfo> doValidateAll() {
-                return Arrays.asList(
-                        assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
-                        assertPattern(mainForm.getName(), VALID_NAME, Messages.ERR_MODULE_PATTERN, mainForm.getTxtName())
-                ).stream().filter(s -> s != null).collect(Collectors.toList());
-            }
-
-
-            @Override
-            public void init() {
-                super.init();
-            }
-
-            public void show() {
-
-                this.init();
-                this.setModal(true);
-                this.pack();
-                super.show();
-            }
-        };
 
 
         dialogWrapper.setTitle("Create Module");
@@ -142,6 +109,12 @@ public class CreateTnDecModule extends AnAction  {
             ConfigSerializer.getInstance().getState().setModuleGenerateFolder(generateFolder);
             ConfigSerializer.getInstance().getState().setModuleGenerateStructure(generateStructure);
         }
+    }
+
+    @NotNull
+    private ValidationInfo[] validateInput(CreateTnDecComponent mainForm) {
+        return new ValidationInfo[]{assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
+                assertPattern(mainForm.getName(), VALID_NAME, Messages.ERR_MODULE_PATTERN, mainForm.getTxtName())};
     }
 
     void buildFile(Project project, ControllerJson model, final VirtualFile folder, boolean export, boolean createDir, boolean createStructure) {

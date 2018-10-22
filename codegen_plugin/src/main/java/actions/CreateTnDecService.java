@@ -17,15 +17,14 @@ import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
+import gui.CreateService;
+import gui.support.DialogWrapperCreator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import supportive.dtos.ModuleElementScope;
 import supportive.utils.IntellijUtils;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -35,7 +34,7 @@ import static actions_all.shared.FormAssertions.*;
  * Create a Tiny Decs artefact.
  * The idea is that every created artifact should auto register if possible
  */
-public class CreateTnDecService extends AnAction  {
+public class CreateTnDecService extends AnAction {
 
 
     public CreateTnDecService() {
@@ -58,45 +57,11 @@ public class CreateTnDecService extends AnAction  {
 
         final gui.CreateService mainForm = new gui.CreateService();
 
+        DialogWrapper dialogWrapper = new DialogWrapperCreator(project, mainForm.getMainPanel())
+                .withDimensionKey("AnnService").withValidator(() -> Arrays.asList(
+                        validateInput(mainForm)
+                ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
 
-        DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
-
-            @Nullable
-            @Override
-            protected JComponent createCenterPanel() {
-                return mainForm.getMainPanel();
-            }
-
-            @Nullable
-            @Override
-            protected String getDimensionServiceKey() {
-                return "AnnComponent";
-            }
-
-
-            @Nullable
-            @NotNull
-            protected List<ValidationInfo> doValidateAll() {
-                return Arrays.asList(
-                        assertNotNullOrEmpty((String) mainForm.getTxtName().getValue(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
-                        assertPattern((String) mainForm.getTxtName().getValue(), VALID_NAME, Messages.ERR_SERVICE_PATTERN, mainForm.getTxtName())
-                ).stream().filter(s -> s != null).collect(Collectors.toList());
-            }
-
-
-            @Override
-            public void init() {
-                super.init();
-            }
-
-            public void show() {
-
-                this.init();
-                this.setModal(true);
-                this.pack();
-                super.show();
-            }
-        };
 
         dialogWrapper.setTitle("Create Service");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 150));
@@ -106,10 +71,16 @@ public class CreateTnDecService extends AnAction  {
         //mainForm.initDefault(dialogWrapper.getWindow());
         dialogWrapper.show();
         if (dialogWrapper.isOK()) {
-            ControllerJson model = new ControllerJson((String) mainForm.getTxtName().getValue(),"", "");
+            ControllerJson model = new ControllerJson((String) mainForm.getTxtName().getValue(), "", "");
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
             supportive.utils.IntellijUtils.showInfoMessage("The Service has been generated", "Info");
         }
+    }
+
+    @NotNull
+    private ValidationInfo[] validateInput(CreateService mainForm) {
+        return new ValidationInfo[]{assertNotNullOrEmpty((String) mainForm.getTxtName().getValue(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
+                assertPattern((String) mainForm.getTxtName().getValue(), VALID_NAME, Messages.ERR_SERVICE_PATTERN, mainForm.getTxtName())};
     }
 
     void buildFile(Project project, ControllerJson model, VirtualFile folder) {

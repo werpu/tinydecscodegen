@@ -18,15 +18,14 @@ import com.intellij.openapi.vfs.VirtualFile;
 import configuration.ConfigSerializer;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
+import gui.CreateService;
+import gui.support.DialogWrapperCreator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import supportive.dtos.ModuleElementScope;
 import supportive.utils.IntellijUtils;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -57,54 +56,22 @@ public class CreateTnDecFilter extends AnAction  {
         VirtualFile folder = IntellijUtils.getFolderOrFile(event);
 
 
-        final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
+        final gui.CreateService mainForm = new gui.CreateService();
         mainForm.getLblSelector().setText("Name *");
         mainForm.getLblTitle().setText(getTitle());
-        mainForm.getLblTemplate().setVisible(false);
-        mainForm.getLblControllerAs().setVisible(false);
+        //mainForm.getLblTemplate().setVisible(false);
+        //mainForm.getLblControllerAs().setVisible(false);
 
-        mainForm.getTxtTemplate().setVisible(false);
-        mainForm.getTxtControllerAs().setVisible(false);
+        //mainForm.getTxtTemplate().setVisible(false);
+        //mainForm.getTxtControllerAs().setVisible(false);
+        mainForm.getLblExport().setText("Export Filter");
         mainForm.getCbExport().setSelected(ConfigSerializer.getInstance().getState().isFilterExport());
 
-        DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
+        DialogWrapper dialogWrapper = new DialogWrapperCreator(project, mainForm.getMainPanel())
+                .withDimensionKey("AnnFilter").withValidator(() -> Arrays.asList(
+                        validateInput(mainForm)
+                ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
 
-            @Nullable
-            @Override
-            protected JComponent createCenterPanel() {
-                return mainForm.rootPanel;
-            }
-
-            @Nullable
-            @Override
-            protected String getDimensionServiceKey() {
-                return "AnnComponent";
-            }
-
-
-            @Nullable
-            @NotNull
-            protected List<ValidationInfo> doValidateAll() {
-                return Arrays.asList(
-                        assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
-                        assertPattern(mainForm.getName(), VALID_NAME, Messages.ERR_FILTER_PATTERN, mainForm.getTxtName())
-                ).stream().filter(s -> s != null).collect(Collectors.toList());
-            }
-
-
-            @Override
-            public void init() {
-                super.init();
-            }
-
-            public void show() {
-
-                this.init();
-                this.setModal(true);
-                this.pack();
-                super.show();
-            }
-        };
 
         dialogWrapper.setTitle(getDialogTitle());
         mainForm.getLblExport().setText(getExportLabel());
@@ -114,11 +81,17 @@ public class CreateTnDecFilter extends AnAction  {
         //mainForm.initDefault(dialogWrapper.getWindow());
         dialogWrapper.show();
         if (dialogWrapper.isOK()) {
-            ControllerJson model = new ControllerJson(mainForm.getName(), mainForm.getTemplate(), mainForm.getControllerAs());
+            ControllerJson model = new ControllerJson((String) mainForm.getTxtName().getValue(), "", "");
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
             supportive.utils.IntellijUtils.showInfoMessage("The Filter/Pipe has been generated", "Info");
             ConfigSerializer.getInstance().getState().setDirectiveExport(mainForm.getCbExport().isSelected());
         }
+    }
+
+    @NotNull
+    private ValidationInfo[] validateInput(CreateService mainForm) {
+        return new ValidationInfo[]{assertNotNullOrEmpty((String) mainForm.getTxtName().getValue(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
+                assertPattern((String) mainForm.getTxtName().getValue(), VALID_NAME, Messages.ERR_FILTER_PATTERN, mainForm.getTxtName())};
     }
 
     @NotNull

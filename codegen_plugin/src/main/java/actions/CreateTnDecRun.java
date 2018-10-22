@@ -17,16 +17,15 @@ import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
+import gui.CreateTnDecComponent;
+import gui.support.DialogWrapperCreator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import supportive.dtos.ModuleElementScope;
 import supportive.utils.IntellijUtils;
 import supportive.utils.StringUtils;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -66,46 +65,13 @@ public class CreateTnDecRun extends AnAction  {
         mainForm.getTxtTemplate().setVisible(false);
         mainForm.getTxtControllerAs().setVisible(false);
 
-        DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
-
-            @Nullable
-            @Override
-            protected JComponent createCenterPanel() {
-                return mainForm.rootPanel;
-            }
-
-            @Nullable
-            @Override
-            protected String getDimensionServiceKey() {
-                return "AnnComponent";
-            }
+        DialogWrapper dialogWrapper = new DialogWrapperCreator(project, mainForm.rootPanel)
+                .withDimensionKey("AnnRun").withValidator(() -> Arrays.asList(
+                        validateInput(mainForm)
+                ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
 
 
-            @Nullable
-            @NotNull
-            protected List<ValidationInfo> doValidateAll() {
-                return Arrays.asList(
-                        assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
-                        assertPattern(mainForm.getName(), MODULE_PATTERN, Messages.ERR_RUN_PATTERN, mainForm.getTxtName())
-                ).stream().filter(s -> s != null).collect(Collectors.toList());
-            }
-
-
-            @Override
-            public void init() {
-                super.init();
-            }
-
-            public void show() {
-
-                this.init();
-                this.setModal(true);
-                this.pack();
-                super.show();
-            }
-        };
-
-        dialogWrapper.setTitle("Create Service");
+        dialogWrapper.setTitle("Create Run Service");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
 
@@ -116,6 +82,12 @@ public class CreateTnDecRun extends AnAction  {
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
             supportive.utils.IntellijUtils.showInfoMessage("The Run Config has been generated", "Info");
         }
+    }
+
+    @NotNull
+    private ValidationInfo[] validateInput(CreateTnDecComponent mainForm) {
+        return new ValidationInfo[]{assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
+                assertPattern(mainForm.getName(), MODULE_PATTERN, Messages.ERR_RUN_PATTERN, mainForm.getTxtName())};
     }
 
     void buildFile(Project project, ControllerJson model, VirtualFile folder) {

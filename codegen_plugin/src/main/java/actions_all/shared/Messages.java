@@ -34,6 +34,7 @@ public class Messages {
     public static final String ERR_CONFIG_PATTERN = "Config name must consist of letters or numbers";
     public static final String ERR_FILTER_PATTERN = "The filter name must consist of letters or numbers only ";
     public static final String ERR_MODULE_PATTERN = "Module name must consist of letters . or numbers";
+    public static final String ERR_CONTROLLER_PATTERN = "Controller name must consist of letters, numbers and/or dash and lower dash";
     public static final String ERR_RUN_PATTERN = "Run name must consist of letters  numbers";
     public static final String ERR_SERVICE_PATTERN = "The service must must consist of letters or numbers";
     public static final String ERR_ELTYPE_SEL = "One element type must be selected";

@@ -23,15 +23,14 @@ import configuration.ConfigSerializer;
 import dtos.ComponentAttribute;
 import dtos.DirectiveJson;
 import factories.TnDecGroupFactory;
+import gui.support.DialogWrapperCreator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import reflector.ComponentAttributesReflector;
 import supportive.dtos.ModuleElementScope;
 import supportive.fs.common.IntellijFileContext;
 import supportive.utils.StringUtils;
 import supportive.utils.SwingUtils;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Arrays;
@@ -93,64 +92,13 @@ public class CreateTnDecDirective extends AnAction  {
 
         mainForm.getCbExport().setSelected(ConfigSerializer.getInstance().getState().isDirectiveExport());
 
-        DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
 
-            @Nullable
-            @Override
-            protected JComponent createCenterPanel() {
-                return mainForm.rootPanel;
-            }
-
-            @Nullable
-            @Override
-            protected String getDimensionServiceKey() {
-                return "AnnDirective";
-            }
+        DialogWrapper dialogWrapper = new DialogWrapperCreator(project, mainForm.rootPanel)
+                .withDimensionKey("AnnDirective").withValidator(() -> Arrays.asList(
+                        validateInput(mainForm)
+                ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
 
 
-            @Nullable
-            @NotNull
-            protected List<ValidationInfo> doValidateAll() {
-                return Arrays.asList(
-                        assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_TAG_SELECTOR_MUST_HAVE_A_VALUE, mainForm.getTxtName()),
-                        assertNotNullOrEmpty(mainForm.getControllerAs(), Messages.ERR_CTRL_AS_VALUE, mainForm.getTxtControllerAs()),
-                        assertPattern(mainForm.getName(), FormAssertions.TAG_SELECTOR_PATTERN, Messages.ERR_TAG_SELECTOR_PATTERN, mainForm.getTxtName()),
-                        assertypes(mainForm)
-                ).stream().filter(s -> s != null).collect(Collectors.toList());
-            }
-
-
-            @Override
-            public void init() {
-                super.init();
-            }
-
-            public void show() {
-                this.init();
-                this.setModal(false);
-                this.pack();
-                super.show();
-            }
-
-            @Override
-            protected void doOKAction() {
-                ApplicationManager.getApplication().invokeLater(() -> {
-
-                    String templateText =  new String(editor.getDocument().getText().getBytes(), EncodingRegistry.getInstance().getDefaultCharset()).toString();
-                    DirectiveJson model = new DirectiveJson(mainForm.getName(),
-                            templateText,
-                            mainForm.getControllerAs(), buildTypes(mainForm),
-                            hasTransclude(templateText), getPossibleTransclusionSlots(templateText));
-                    List<ComponentAttribute> attrs = ComponentAttributesReflector.reflect(templateText, mainForm.getControllerAs());
-
-                    boolean export = mainForm.getCbExport().isSelected();
-
-                    ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder, export));
-                    ConfigSerializer.getInstance().getState().setDirectiveExport(mainForm.getCbExport().isSelected());
-                });
-                super.doOKAction();
-            }
-        };
 
         if(!isAngular1()) {
             mainForm.getElementCheckBox().setVisible(false);
@@ -162,6 +110,31 @@ public class CreateTnDecDirective extends AnAction  {
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
         dialogWrapper.show();
+
+        if(dialogWrapper.isOK()) {
+            ApplicationManager.getApplication().invokeLater(() -> {
+
+                String templateText =  new String(editor.getDocument().getText().getBytes(), EncodingRegistry.getInstance().getDefaultCharset()).toString();
+                DirectiveJson model = new DirectiveJson(mainForm.getName(),
+                        templateText,
+                        mainForm.getControllerAs(), buildTypes(mainForm),
+                        hasTransclude(templateText), getPossibleTransclusionSlots(templateText));
+                List<ComponentAttribute> attrs = ComponentAttributesReflector.reflect(templateText, mainForm.getControllerAs());
+
+                boolean export = mainForm.getCbExport().isSelected();
+
+                ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, attrs, folder, export));
+                ConfigSerializer.getInstance().getState().setDirectiveExport(mainForm.getCbExport().isSelected());
+            });
+        }
+    }
+
+    @NotNull
+    private ValidationInfo[] validateInput(gui.CreateTnDecDirective mainForm) {
+        return new ValidationInfo[]{assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_TAG_SELECTOR_MUST_HAVE_A_VALUE, mainForm.getTxtName()),
+                assertNotNullOrEmpty(mainForm.getControllerAs(), Messages.ERR_CTRL_AS_VALUE, mainForm.getTxtControllerAs()),
+                assertPattern(mainForm.getName(), FormAssertions.TAG_SELECTOR_PATTERN, Messages.ERR_TAG_SELECTOR_PATTERN, mainForm.getTxtName()),
+                assertypes(mainForm)};
     }
 
 

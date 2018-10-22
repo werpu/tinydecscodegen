@@ -21,21 +21,18 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.encoding.EncodingRegistry;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
-import configuration.ConfigSerializer;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
 import gui.CreateTnDecComponent;
+import gui.support.DialogWrapperCreator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import supportive.dtos.ModuleElementScope;
 import supportive.fs.common.IntellijFileContext;
 import supportive.utils.IntellijUtils;
 import supportive.utils.SwingUtils;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -45,7 +42,7 @@ import static actions_all.shared.FormAssertions.*;
  * Create a Tiny Decs artefact.
  * The idea is that every created artifact should auto register if possible
  */
-public class CreateTnDecController extends AnAction  {
+public class CreateTnDecController extends AnAction {
 
 
     public CreateTnDecController() {
@@ -61,8 +58,6 @@ public class CreateTnDecController extends AnAction  {
     @Override
     public void actionPerformed(AnActionEvent event) {
         //final Project project = IntellijUtils.getProject(event);
-
-
 
 
         final IntellijFileContext fileContext = new IntellijFileContext(event);
@@ -91,45 +86,13 @@ public class CreateTnDecController extends AnAction  {
         WriteCommandAction.runWriteCommandAction(project, () -> editor.getDocument().setText(""));
 
 
-
         mainForm.getPnEditorHolder().getViewport().setView(editor.getComponent());
 
-        DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
+        DialogWrapper dialogWrapper = new DialogWrapperCreator(project, mainForm.rootPanel)
+                .withDimensionKey("AnnController").withValidator(() -> Arrays.asList(
+                        validateInput(mainForm)
+                ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
 
-            @Nullable
-            @Override
-            protected JComponent createCenterPanel() {
-                return mainForm.rootPanel;
-            }
-
-            @Nullable
-            @Override
-            protected String getDimensionServiceKey() {
-                return "AnnComponent";
-            }
-
-            @Nullable
-            @NotNull
-            protected List<ValidationInfo> doValidateAll() {
-               return Arrays.asList(
-                        assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
-                        assertNotNullOrEmpty(mainForm.getControllerAs(), Messages.ERR_CTRL_AS_VALUE, mainForm.getTxtControllerAs()),
-                        assertPattern(mainForm.getName(), VALID_NAME, Messages.ERR_SELECTOR_PATTERN, mainForm.getTxtName())
-                ).stream().filter(s -> s != null).collect(Collectors.toList());
-            }
-
-            @Override
-            public void init() {
-                super.init();
-            }
-
-            public void show() {
-                this.init();
-                this.setModal(true);
-                this.pack();
-                super.show();
-            }
-        };
 
         dialogWrapper.setTitle("Create Controller");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
@@ -143,6 +106,13 @@ public class CreateTnDecController extends AnAction  {
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
             IntellijUtils.showInfoMessage("The Controller has been generated", "Info");
         }
+    }
+
+    @NotNull
+    private ValidationInfo[] validateInput(CreateTnDecComponent mainForm) {
+        return new ValidationInfo[]{assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
+                assertNotNullOrEmpty(mainForm.getControllerAs(), Messages.ERR_CTRL_AS_VALUE, mainForm.getTxtControllerAs()),
+                assertPattern(mainForm.getName(), VALID_NAME, Messages.ERR_CONTROLLER_PATTERN, mainForm.getTxtName())};
     }
 
 

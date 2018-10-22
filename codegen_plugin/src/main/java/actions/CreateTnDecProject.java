@@ -6,7 +6,6 @@ import com.intellij.ide.SaveAndSyncHandlerImpl;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
-import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
@@ -18,7 +17,6 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
@@ -27,13 +25,13 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import factories.TnDecGroupFactory;
+import gui.CreateTnProject;
+import gui.support.DialogWrapperCreator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.IntellijResourceDir;
 import supportive.fs.common.TextTransformer;
 import supportive.utils.IntellijUtils;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +39,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -78,43 +75,12 @@ public class CreateTnDecProject extends AnAction {
 
     private void createDialog(Project project, String projectFolder, String targetFolder) {
         final gui.CreateTnProject mainForm = new gui.CreateTnProject();
-        DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
 
-            @Nullable
-            @Override
-            protected JComponent createCenterPanel() {
-                return mainForm.rootPanel;
-            }
+        DialogWrapper dialogWrapper = new DialogWrapperCreator(project, mainForm.rootPanel)
+                .withDimensionKey("AnnProject").withValidator(() -> Arrays.asList(
+                        validateInput(mainForm)
+                ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
 
-            @Nullable
-            @Override
-            protected String getDimensionServiceKey() {
-                return "AnnComponent";
-            }
-
-            @Override
-            public void init() {
-                super.init();
-            }
-
-            @Nullable
-            @NotNull
-            protected List<ValidationInfo> doValidateAll() {
-                return Arrays.asList(
-                        assertNotNullOrEmpty(mainForm.getTxtProjectName().getText(), actions_all.shared.Messages.ERR_PROJECT_NO_NAME, mainForm.getTxtProjectName()),
-                        assertNotNullOrEmpty(mainForm.projectDir.getText(), actions_all.shared.Messages.ERR_PROJECT_DIR_CHOSEN, mainForm.getProjectDir()),
-                        assertNotNullOrEmpty(mainForm.targetDir.getText(), actions_all.shared.Messages.ERR_TARGET_DIR_CHOSEN, mainForm.getTargetDir()))
-                        .stream().filter(s -> s != null).collect(Collectors.toList());
-            }
-
-            public void show() {
-
-                this.init();
-                this.setModal(true);
-                this.pack();
-                super.show();
-            }
-        };
 
         mainForm.setProject(project);
         mainForm.getLblTitle().setText(getTitle());
@@ -248,6 +214,13 @@ public class CreateTnDecProject extends AnAction {
 
         }
 
+    }
+
+    @NotNull
+    private ValidationInfo[] validateInput(CreateTnProject mainForm) {
+        return new ValidationInfo[]{assertNotNullOrEmpty(mainForm.getTxtProjectName().getText(), actions_all.shared.Messages.ERR_PROJECT_NO_NAME, mainForm.getTxtProjectName()),
+                assertNotNullOrEmpty(mainForm.projectDir.getText(), actions_all.shared.Messages.ERR_PROJECT_DIR_CHOSEN, mainForm.getProjectDir()),
+                assertNotNullOrEmpty(mainForm.targetDir.getText(), actions_all.shared.Messages.ERR_TARGET_DIR_CHOSEN, mainForm.getTargetDir())};
     }
 
     @NotNull
