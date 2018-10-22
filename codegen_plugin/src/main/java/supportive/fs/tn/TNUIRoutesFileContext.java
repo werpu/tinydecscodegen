@@ -390,10 +390,13 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
                 Optional<PsiElement> importStr2 = queryController(fc)
                         .map(el -> findMethodCallStart(el, JS_CALL_EXPRESSION))
                         .filter(el2 -> hasControllerName(controllerName, el2))
-                        .flatMap(el -> getImportStrinStream(fc, el)).findFirst().get();
-                return fc.relative(importStr2.get());
+                        .flatMap(el -> getImportStrinStream(fc, el)).findFirst().orElse(Optional.empty());
+                if(importStr2.isPresent()) {
+                    return fc.relative(importStr2.get());
+                }
+                return null;
 
-            }).findFirst();
+            }).filter(e -> e != null).findFirst();
             if (controllerDef.isPresent()) {
                 return controllerDef;
             }
@@ -401,10 +404,13 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
                 Optional<PsiElement> importStr2 = queryComponent(fc)
                         .map(el -> findMethodCallStart(el, JS_CALL_EXPRESSION))
                         .filter(el2 -> hasControllerName(controllerName, el2))
-                        .flatMap(el -> getImportStrinStream(fc, el)).findFirst().get();
-                return fc.relative(importStr2.get());
+                        .flatMap(el -> getImportStrinStream(fc, el)).findFirst().orElse(Optional.empty());
+                if(importStr2.isPresent()) {
+                    return fc.relative(importStr2.get());
+                }
+                return null;
 
-            }).findFirst();
+            }).filter(e -> e != null).findFirst();
         }
         return Optional.empty();
     }
