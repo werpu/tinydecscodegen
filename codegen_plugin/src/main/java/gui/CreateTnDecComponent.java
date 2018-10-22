@@ -49,7 +49,9 @@ public class CreateTnDecComponent {
     private JLabel lblTemplate;
     private JLabel lblControllerAs;
     private JLabel lblTitle;
-    private JScrollPane pnEditorHolder;
+
+
+    public JScrollPane pnEditorHolder;
     private JLabel lblExport;
     private JCheckBox cbExport;
     private JCheckBox cbCreateDir;
@@ -97,6 +99,8 @@ public class CreateTnDecComponent {
     public String getControllerAs() {
         return txtControllerAs.getText();
     }
+
+
 
 
     /**

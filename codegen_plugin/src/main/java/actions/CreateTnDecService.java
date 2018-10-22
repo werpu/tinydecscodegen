@@ -64,6 +64,9 @@ public class CreateTnDecService extends AnAction  {
 
         mainForm.getTxtTemplate().setVisible(false);
         mainForm.getTxtControllerAs().setVisible(false);
+        mainForm.getPnEditorHolder().setVisible(false);
+
+        mainForm.getLblExport().setText("Export Service");
 
         DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
 
@@ -105,8 +108,9 @@ public class CreateTnDecService extends AnAction  {
         };
 
         dialogWrapper.setTitle("Create Service");
-        dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
+        dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 150));
 
+        dialogWrapper.setResizable(false);
 
         //mainForm.initDefault(dialogWrapper.getWindow());
         dialogWrapper.show();
