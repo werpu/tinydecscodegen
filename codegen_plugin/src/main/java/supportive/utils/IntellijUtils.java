@@ -113,8 +113,9 @@ public class IntellijUtils {
      */
     protected static void generateOrDiffTsFile(String text, String fileName, String className, Project project, Module module, PsiFile javaFile, ArtifactType artifactType) {
         text = text.replaceAll("\\r", "");
+        final Collection<PsiFile> alreadyExisting = Arrays.stream(((PsiJavaFile) javaFile).getClasses()).flatMap(psiJavaClass -> IntellijUtils.searchRefs(project, psiJavaClass.getQualifiedName(), "ts").stream()).collect(Collectors.toList());
+
         PsiFile file = PsiFileFactory.getInstance(project).createFileFromText(fileName, Language.findLanguageByID("TypeScript"), text);
-        final Collection<PsiFile> alreadyExisting = IntellijUtils.searchRefs(project, className, "ts");
         ApplicationManager.getApplication().runWriteAction(() -> {
             moveFileToGeneratedDir(file, project, module);
             boolean diffed = false;
