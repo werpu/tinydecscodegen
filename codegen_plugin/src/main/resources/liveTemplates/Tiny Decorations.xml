@@ -18,6 +18,26 @@
       <option name="TypeScript" value="true" />
     </context>
   </template>
+  <template name="tcserv_inj" value="@Inject($NAME$)" description="typesave service injection from clipboard" toReformat="false" toShortenFQNames="true">
+    <variable name="NAME" expression="" defaultValue="clipboard()" alwaysStopAt="true" />
+    <context>
+      <option name="TypeScript" value="true" />
+    </context>
+  </template>
+  <template name="tcinj_full" value="@Inject(&quot;$NAME$&quot;) private $NAME2$: $NAME$" description="Tiny decorations inject and name pasted from the clipboard value - full inject" toReformat="false" toShortenFQNames="true">
+    <variable name="NAME" expression="clipboard()" defaultValue="" alwaysStopAt="true" />
+    <variable name="NAME2" expression="" defaultValue="decapitalize(clipboard())" alwaysStopAt="true" />
+    <context>
+      <option name="TypeScript" value="true" />
+    </context>
+  </template>
+  <template name="tcserv_inj_full" value="@Inject($NAME$) private $NAME2$: $NAME$" description="typesave service injection from clipboard - full inject" toReformat="false" toShortenFQNames="true">
+    <variable name="NAME" expression="" defaultValue="clipboard()" alwaysStopAt="true" />
+    <variable name="NAME2" expression="" defaultValue="decapitalize(clipboard())" alwaysStopAt="true" />
+    <context>
+      <option name="TypeScript" value="true" />
+    </context>
+  </template>
   <template name="ttpl" value="`$TPL_STRING$`" description="multiline template" toReformat="false" toShortenFQNames="true">
     <variable name="TPL_STRING" expression="complete()" defaultValue="Fill your template in here" alwaysStopAt="true" />
     <context>
