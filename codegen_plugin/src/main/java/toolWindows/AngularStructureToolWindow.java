@@ -171,7 +171,14 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 }
                 DumbService.getInstance(projectRoot.getProject()).smartInvokeLater(() -> {
                     //List<IntellijFileContext> angularRoots = AngularIndex.getAllAngularRoots(project, NG);
-                    IntellijFileContext vFileContext = new IntellijFileContext(project, file);
+                    final IntellijFileContext vFileContext;
+                    try {
+                        vFileContext = new IntellijFileContext(project, file);
+                    } catch(RuntimeException ex) {
+                        //TODO logging here, the project was not resolvable
+                        tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Project structure cannot be determined atm. Please try again later.")));
+                        return;
+                    }
 
                     boolean routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
                             .anyMatch(routeFile -> routeFile.equals(vFileContext));
@@ -215,7 +222,14 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     private void refreshContent(@NotNull Project project) {
         ApplicationManager.getApplication().invokeLater(() -> {
             try {
-                projectRoot = new IntellijFileContext(project);
+                try {
+                    projectRoot = new IntellijFileContext(project);
+                } catch(RuntimeException ex) {
+                    //TODO logging here, the project was not resolvable
+                    tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Project structure cannot be determined atm. Please try again later.")));
+                    return;
+                }
+
 
                 List<IUIRoutesRoutesFileContext> routeFiles = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot);
                 if (routeFiles == null || routeFiles.isEmpty()) {

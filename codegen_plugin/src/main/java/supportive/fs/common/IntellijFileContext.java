@@ -94,6 +94,7 @@ public class IntellijFileContext {
 
     public IntellijFileContext(Project project, VirtualFile virtualFile) {
         this.project = project;
+        //NPE on find file here in some scenarii
         this.psiFile = PsiManager.getInstance(project).findFile(virtualFile);
         this.virtualFile = virtualFile;
         this.document = (psiFile != null) ? PsiDocumentManager.getInstance(project).getDocument(psiFile) : null;
