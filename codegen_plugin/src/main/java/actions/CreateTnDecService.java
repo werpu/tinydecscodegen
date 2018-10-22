@@ -56,24 +56,15 @@ public class CreateTnDecService extends AnAction  {
         VirtualFile folder = IntellijUtils.getFolderOrFile(event);
 
 
-        final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
-        mainForm.getLblSelector().setText("Name *");
-        mainForm.getLblTitle().setText("Create an Annotated Service");
-        mainForm.getLblTemplate().setVisible(false);
-        mainForm.getLblControllerAs().setVisible(false);
+        final gui.CreateService mainForm = new gui.CreateService();
 
-        mainForm.getTxtTemplate().setVisible(false);
-        mainForm.getTxtControllerAs().setVisible(false);
-        mainForm.getPnEditorHolder().setVisible(false);
-
-        mainForm.getLblExport().setText("Export Service");
 
         DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
 
             @Nullable
             @Override
             protected JComponent createCenterPanel() {
-                return mainForm.rootPanel;
+                return mainForm.getMainPanel();
             }
 
             @Nullable
@@ -87,8 +78,8 @@ public class CreateTnDecService extends AnAction  {
             @NotNull
             protected List<ValidationInfo> doValidateAll() {
                 return Arrays.asList(
-                        assertNotNullOrEmpty(mainForm.getName(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
-                        assertPattern(mainForm.getName(), VALID_NAME, Messages.ERR_SERVICE_PATTERN, mainForm.getTxtName())
+                        assertNotNullOrEmpty((String) mainForm.getTxtName().getValue(), Messages.ERR_NAME_VALUE, mainForm.getTxtName()),
+                        assertPattern((String) mainForm.getTxtName().getValue(), VALID_NAME, Messages.ERR_SERVICE_PATTERN, mainForm.getTxtName())
                 ).stream().filter(s -> s != null).collect(Collectors.toList());
             }
 
@@ -115,7 +106,7 @@ public class CreateTnDecService extends AnAction  {
         //mainForm.initDefault(dialogWrapper.getWindow());
         dialogWrapper.show();
         if (dialogWrapper.isOK()) {
-            ControllerJson model = new ControllerJson(mainForm.getName(), mainForm.getTemplate(), mainForm.getControllerAs());
+            ControllerJson model = new ControllerJson((String) mainForm.getTxtName().getValue(),"", "");
             ApplicationManager.getApplication().invokeLater(() -> buildFile(project, model, folder));
             supportive.utils.IntellijUtils.showInfoMessage("The Service has been generated", "Info");
         }
