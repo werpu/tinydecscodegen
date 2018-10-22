@@ -142,7 +142,10 @@ public class CreateTnDecRoute extends AnAction {
                                     myRoute.setComponent(myRoute.getComponent().replaceAll("\\[[^\\]]+\\]", ""));
                                     rContext.addRoute(myRoute);
 
+
                                     rContext.commit();
+                                    rContext.reformat();
+
                                 } catch (IOException | CloneNotSupportedException e) {
                                     throw new RuntimeException(e);
                                 }

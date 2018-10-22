@@ -85,14 +85,13 @@ public class CreateTnDecController extends AnAction  {
         final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
         mainForm.getLblSelector().setText("Name *");
         mainForm.getLblTitle().setText("Create an Annotated Controller");
+        mainForm.getLblExport().setText("Export Controller");
 
         Editor editor = SwingUtils.createHtmlEditor(project, document);
-        editor.getDocument().setText("  ");
+        WriteCommandAction.runWriteCommandAction(project, () -> editor.getDocument().setText(""));
 
 
-        WriteCommandAction.runWriteCommandAction(project, () -> {
-            editor.getDocument().setText("  ");
-        });
+
         mainForm.getPnEditorHolder().getViewport().setView(editor.getComponent());
 
         DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
