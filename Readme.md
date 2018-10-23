@@ -12,7 +12,7 @@ A temporary binary build can be found under
 
 [codegen_plugin/build/distributions](https://github.com/werpu/tinydecscodegen/tree/master/codegen_plugin/build/distributions)
 
-To install it, simply  the **Install Plugin from Local Filesystem**
+To install it, simply use the **Install Plugin from Local Filesystem**
 functionality of your Jetbrains IDE.
 
 
