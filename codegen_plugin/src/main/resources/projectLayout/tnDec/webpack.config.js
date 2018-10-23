@@ -26,7 +26,7 @@ var config = {
      * server instances
      */
     proxy: {
-        "/rest": "http://localhost:4200"
+        "/rest": "http://localhost:8080"
     }
 };
 
