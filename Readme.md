@@ -16,6 +16,13 @@ To install it, simply  the **Install Plugin from Local Filesystem**
 functionality of your Jetbrains IDE.
 
 
+## Are there any final releases already?
+
+Yes at the time of writing this, the 1.0 release has been tagged
+please go to https://github.com/werpu/tinydecscodegen/releases/tag/1.0.0-FINAL
+for the sources and binaries.
+
+
 ## What can the Plugin do
 
 * Allows you to **generate a new** TinyDecorations (Annotated Angular 1.5+) or Angular 5 **project**.
@@ -35,13 +42,11 @@ a successful code generation
 
 ## Are there Demo Videos?
 
-Yes, I will add a set of demo videos shortly
-before I will tag 1.0.
-Follow this [link to Youtube](https://www.youtube.com/watch?v=GNpvAFgr1rw&list=PLNRFvroappqZZKSrCGBwOSqb-pLomytw6)
-for a small unfinished demo.
+Yes, there is a comprehensive video guide, currently for Angular 1.x only
+(but it works the same for Angular 5+).
 
-Atm. the videos are a little bit rough around the edges (I had technical
-issues while recording them), expect better versions soon.
+Follow this [link to Youtube](https://www.youtube.com/watch?v=MvJY0z3oIYk&list=PLNRFvroappqZZKSrCGBwOSqb-pLomytw6&index=1)
+for the guide.
 
 
 ## Is this Plugin Usable Already?
@@ -49,22 +54,27 @@ issues while recording them), expect better versions soon.
 ### Honest Answer
 
 Yes definitely, I use it together with TinyDecorations and/or Angular 5+ in a bigger project. 
-So I am eating my own dogfood here. However the ui is bound to change, since it is very basic atm.
-Also smaller bugs can be expected. 
+So I am eating my own dogfood here. And develop what I need on a day to day base.
+But smaller bugs can be expected, and feedback and bugreports or patchs are always appreciated.
 
 However, since I currently develop
 this project alone in my limited sparetime without any payment, I am glad that I do not have too many
 users for this project atm. Although I love people using my stuff, there is always support involved with it 
 and this costs time, which I have to cut off from my family and implementation time. 
 
-
 Hence, there is no official drop of the plugin into the Jetbrains repository at the moment.
 
-So feel free to use it. I am happy about it, but never mind, that I will keep it a little bit under the radar for the time being. 
+So feel free to use it. I am happy about it, but never mind, that I cannot give
+full blown professional support for the time being. I will answer and give
+support as good as possible, however.
 
 The project simply was created because I was in need of such tools
 and hence developed it on my own for my needs. If you think something is missing or if you want to donate
 code, feel free to send me a code drop/pull request or add a feature request in the projects list.
+
+I might open a patreon in the future for small money donations, but ATM I wont,
+because I shun a little bit the long term responsibility which comes with it, timewise.
+
 
 
 ## Links
