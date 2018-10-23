@@ -24,7 +24,7 @@ import static supportive.utils.StringUtils.elVis;
  * all the required add operations for our artifacts, including
  * also the includes statement and omitting double insers
  */
-public class NgModuleFileContext extends TypescriptFileContext {
+public class NgModuleFileContext extends TypescriptResourceContext {
 
     PsiElementContext ngModuleDeclationalPart = null;
 

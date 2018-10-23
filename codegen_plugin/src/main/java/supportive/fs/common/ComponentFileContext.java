@@ -33,7 +33,7 @@ import static supportive.utils.StringUtils.elVis;
  * <p>
  * ATM only one component def per file is possible
  */
-public class ComponentFileContext extends TypescriptFileContext {
+public class ComponentFileContext extends TypescriptResourceContext {
 
     @Getter
     Optional<PsiElement> templateText = Optional.empty();
