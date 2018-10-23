@@ -24,11 +24,14 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ex.ToolWindowEx;
 import com.intellij.packageDependencies.ui.TreeExpansionMonitor;
+import com.intellij.psi.PsiFile;
 import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.UIUtil;
+import indexes.AngularIndex;
+import indexes.ModuleIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.*;
@@ -51,6 +54,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static supportive.utils.StringUtils.elVis;
 
@@ -107,6 +111,11 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                     if (selectedNode.getUserObject() instanceof PsiRouteContext) {
                         PsiRouteContext foundContext = (PsiRouteContext) selectedNode.getUserObject();
                         goToRouteDcl(foundContext);
+                    }
+                } else if (e.isMetaDown() && e.getKeyCode() == KeyEvent.VK_C) {
+                    if (selectedNode.getUserObject() instanceof PsiRouteContext) {
+                        PsiRouteContext foundContext = (PsiRouteContext) selectedNode.getUserObject();
+                        copyRouteLink(foundContext);
                     }
                 }
             }
@@ -169,24 +178,32 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 if (!file.getName().endsWith(".ts")) {
                     return;
                 }
-                DumbService.getInstance(projectRoot.getProject()).smartInvokeLater(() -> {
-                    //List<IntellijFileContext> angularRoots = AngularIndex.getAllAngularRoots(project, NG);
-                    final IntellijFileContext vFileContext;
-                    try {
-                        vFileContext = new IntellijFileContext(project, file);
-                    } catch(RuntimeException ex) {
-                        //TODO logging here, the project was not resolvable
-                        tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Project structure cannot be determined atm. Please try again later.")));
-                        return;
-                    }
+
+                //document listener which refreshes every time a route file changes
+                getChangeListener().smartInvokeLater(() -> {
+                    IntellijFileContext vFileContext = new IntellijFileContext(project, file);
 
                     boolean routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
                             .anyMatch(routeFile -> routeFile.equals(vFileContext));
 
                     if (routeFileAffected) {
                         refreshContent(projectRoot.getProject());
+                        return;
+                    }
+
+                    //ModuleIndex allModules = ModuleIndex.getAllModuleFilesAsMap(, )
+                    routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
+                            .anyMatch(routeFile -> routeFile.equals(vFileContext));
+
+                    if (routeFileAffected) {
+                        refreshContent(projectRoot.getProject());
                     }
                 });
+                //TODO add the same check for modules which handle all the artifacts
+            }
+
+            private DumbService getChangeListener() {
+                return DumbService.getInstance(projectRoot.getProject());
             }
 
             @Override
@@ -237,16 +254,21 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                     return;
                 }
 
-                SwingRootParentNode rootNode = new SwingRootParentNode("Routes");
-                DefaultTreeModel newModel = new DefaultTreeModel(rootNode);
-                routeFiles.forEach(ctx -> {
+                SwingRootParentNode rootNode = new SwingRootParentNode("Artifacts");
+                SwingRootParentNode routesHolder = new SwingRootParentNode("Routes");
+                SwingRootParentNode modules = new SwingRootParentNode("Modules");
+                SwingRootParentNode components = new SwingRootParentNode("Components");
+                SwingRootParentNode services = new SwingRootParentNode("Services");
 
-                            String node = ctx instanceof NG_UIRoutesRoutesFileContext ? "Angluar NG  Routes" :
-                                    ctx instanceof TNAngularRoutesFileContext ? "TN Dec Routes" :
-                                            "TN Dec UI Routes";
-                            DefaultMutableTreeNode routes = SwingRouteTreeFactory.createRouteTrees(ctx, node);
-                            rootNode.add(routes);
-                        });
+
+                rootNode.add(routesHolder);
+                rootNode.add(modules);
+                rootNode.add(components);
+                rootNode.add(services);
+
+                DefaultTreeModel newModel = new DefaultTreeModel(rootNode);
+                buildRoutesTree(routesHolder);
+
                 tree.setRootVisible(false);
                 tree.setModel(newModel);
 
@@ -290,6 +312,44 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         });
     }
 
+    private void buildRoutesTree(SwingRootParentNode routesHolder) {
+        List<IUIRoutesRoutesFileContext> routeFiles = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot);
+
+        routeFiles.forEach(ctx -> {
+
+            String node = ctx instanceof NG_UIRoutesRoutesFileContext ? "Angluar NG  Routes" :
+                    ctx instanceof TNAngularRoutesFileContext ? "TN Dec Routes" :
+                            "TN Dec UI Routes";
+            DefaultMutableTreeNode routes = SwingRouteTreeFactory.createRouteTrees(ctx, node);
+
+            routesHolder.add(routes);
+        });
+    }
+
+    private void buildModulesTree(SwingRootParentNode routesHolder) {
+        if(!projectRoot.getAngularRoot().isPresent()) {
+            return;
+        }
+
+
+        List<PsiFile> modules_tn = AngularIndex.getAllAngularRoots(projectRoot.getProject(), AngularVersion.TN_DEC).stream()
+                .flatMap(angRoot ->  ModuleIndex.getAllModuleFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());
+        List<PsiFile> modules_ng = AngularIndex.getAllAngularRoots(projectRoot.getProject(), AngularVersion.NG).stream()
+                .flatMap(angRoot ->  ModuleIndex.getAllModuleFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());
+
+
+
+        /*modules.forEach(ctx -> {
+
+            String node = ctx instanceof NG_UIRoutesRoutesFileContext ? "Angluar NG  Routes" :
+                    ctx instanceof TNAngularRoutesFileContext ? "TN Dec Routes" :
+                            "TN Dec UI Routes";
+            DefaultMutableTreeNode routes = SwingRouteTreeFactory.createRouteTrees(ctx, node);
+
+            routesHolder.add(routes);
+        });*/
+    }
+
 
     private void goToRouteDcl(PsiRouteContext foundContext) {
         openEditor(foundContext);
@@ -314,7 +374,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         Path parent = Paths.get(Objects.requireNonNull(foundContext.getElement().getContainingFile().getParent()).getVirtualFile().getPath());
         Path rel = parent.relativize(componentPath);
         VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(rel.toString().replaceAll("\\\\", "/") + ".ts");
-        if(virtualFile != null) {
+        if (virtualFile != null) {
             (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(virtualFile, true);
         }
 

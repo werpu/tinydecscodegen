@@ -16,6 +16,7 @@ import supportive.reflectRefact.PsiWalkFunctions;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ModuleIndex extends ScalarIndexExtension<String> {
@@ -87,5 +88,17 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
                 .filter(psiFile -> psiFile != null)
                 //.map(psiFile -> new ComponentFileContext(project, psiFile))
                 .collect(Collectors.toList());
+    }
+
+    public static Map<String, PsiFile> getAllModuleFilesAsMap(Project project, IntellijFileContext angularRoot) {
+        return FileBasedIndex.getInstance().getContainingFiles(NAME, MODULE,
+                GlobalSearchScope.projectScope(project)).stream()
+                .filter(VirtualFile::isValid)
+                //only relative to angular root files
+                .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).startsWith("..")))
+                .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
+                .filter(psiFile -> psiFile != null)
+                //.map(psiFile -> new ComponentFileContext(project, psiFile))
+                .collect(Collectors.toMap(psiFile -> psiFile.getVirtualFile().getPath(), psiFile -> psiFile));
     }
 }
