@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.github.tinydecs-codegen.service</id>
     <name>Service Codegen for the ts-ng-tinydecs lib</name>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-FINAL</version>
     <vendor email="werner.punz@gmail.com" url="">Werner Punz</vendor>
 
     <description><![CDATA[
