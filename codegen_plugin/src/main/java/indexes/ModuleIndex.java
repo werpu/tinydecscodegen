@@ -11,18 +11,19 @@ import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.IntellijFileContext;
-import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static supportive.reflectRefact.PsiWalkFunctions.DEF_CALL;
+import static supportive.reflectRefact.PsiWalkFunctions.MODULE_ANN;
 
 public class ModuleIndex extends ScalarIndexExtension<String> {
 
     public static final ID<String, Void> NAME = ID.create("TN_ModuleIndex");
-    public static final String MODULE = "@Module";
+    public static final String MODULE = "@NgModule";
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 
     private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
@@ -30,17 +31,20 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
+            IntellijFileContext ctx = new IntellijFileContext(inputData.getProject(), inputData.getFile());
             String text = inputData.getContentAsText().toString();
-            if (text.contains(MODULE) ||
-                text.contains(".module(") ||
-                text.contains(".component(")
+            if (ctx.queryContent(MODULE_ANN).findFirst().isPresent() ||
+                    ctx.queryContent(DEF_CALL("component")).findFirst().isPresent() ||
+                    ctx.queryContent(DEF_CALL("service")).findFirst().isPresent() ||
+                    ctx.queryContent(DEF_CALL("controller")).findFirst().isPresent() ||
+                    ctx.queryContent(DEF_CALL("factory")).findFirst().isPresent() ||
+                    ctx.queryContent(DEF_CALL("filter")).findFirst().isPresent() ||
+                    ctx.queryContent(DEF_CALL("directive")).findFirst().isPresent()
             ) {
                 return Collections.singletonMap(MODULE, null);
             }
             return Collections.emptyMap();
-
-
-        }
+      }
     }
 
     @NotNull
@@ -86,6 +90,7 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
                 .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).startsWith("..")))
                 .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
                 .filter(psiFile -> psiFile != null)
+                .distinct()
                 //.map(psiFile -> new ComponentFileContext(project, psiFile))
                 .collect(Collectors.toList());
     }
@@ -98,6 +103,7 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
                 .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).startsWith("..")))
                 .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
                 .filter(psiFile -> psiFile != null)
+                .distinct()
                 //.map(psiFile -> new ComponentFileContext(project, psiFile))
                 .collect(Collectors.toMap(psiFile -> psiFile.getVirtualFile().getPath(), psiFile -> psiFile));
     }
