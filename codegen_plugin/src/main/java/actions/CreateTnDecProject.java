@@ -47,10 +47,10 @@ public class CreateTnDecProject extends AnAction {
 
     private static final String TN_PROJECT_LAYOUT = "/resources/projectLayout/tnDec";
     private static final Dimension PREFERRED_SIZE = new Dimension(400, 300);
-    public static final String RE_DEPLOYMENT_ROOT = "\\$\\{deployment_root_rel}";
-    public static final String RE_PROJ_ROOT = "\\$\\{proj_root_rel}";
-    public static final String RE_BACKSLASH = "\\\\";
-    public static final String SLASH = "/";
+    private static final String RE_DEPLOYMENT_ROOT = "\\$\\{deployment_root_rel}";
+    private static final String RE_PROJ_ROOT = "\\$\\{proj_root_rel}";
+    private static final String RE_BACKSLASH = "\\\\";
+    private static final String SLASH = "/";
 
     @Override
     public void update(AnActionEvent anActionEvent) {
