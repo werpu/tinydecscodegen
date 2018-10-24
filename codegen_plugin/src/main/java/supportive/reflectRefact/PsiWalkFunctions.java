@@ -104,6 +104,7 @@ public class PsiWalkFunctions {
     public static final Object[] CONTROLLER_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), PARENTS_EQ(JS_ES_6_DECORATOR)};
     public static final Object[] CONTROLLER_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), JS_ARGUMENTS_LIST};
     public static final Object[] CONTROLLER_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final String CHILD_ELEM = ">";
     /*prdefined queries end*/
 
 
@@ -124,7 +125,7 @@ public class PsiWalkFunctions {
         return "TEXT*:(" + val + ")";
     }
     public static String DIRECT_CHILD(String val) {
-        return ">" + val;
+        return CHILD_ELEM + val;
     }
 
     public static Object[] DEF_CALL(String callType) {
@@ -439,7 +440,7 @@ public class PsiWalkFunctions {
 
                 final String text = (String) item;
                 String subCommand = (text).trim();
-                directChild = (text).startsWith(">");
+                directChild = (text).startsWith(CHILD_ELEM);
                 if (item instanceof String && (text).matches(RE_TEXT_EQ)) {
                     subItem = handleTextEQ(subItem, text);
                     continue;
@@ -467,7 +468,7 @@ public class PsiWalkFunctions {
                 }
 
                 final String finalSubCommand = subCommand;
-                if (subCommand.toLowerCase().equals(P_FIRST)) {
+                if (subCommand.equals(P_FIRST)) {
                     subItem = handlePFirst(subItem);
                 } else if (subCommand.startsWith("PARENTS:(")) {
                     subItem = handleParentsEq(subItem, text);
@@ -477,7 +478,7 @@ public class PsiWalkFunctions {
                     subItem = handlePLast(subItem);
 
                 } else if (directChild) {
-                    subItem = handleDirectChild(subItem, finalSubCommand);
+                        subItem = handleDirectChild(subItem, finalSubCommand);
                 } else {
                     subItem = handleFindSubItem(subItem, finalSubCommand);
                 }

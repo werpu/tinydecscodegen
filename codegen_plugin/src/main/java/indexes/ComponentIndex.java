@@ -86,7 +86,7 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
                 GlobalSearchScope.projectScope(project)).stream()
                 .filter(VirtualFile::isValid)
                 //only relative to angular root files
-                .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).startsWith("..")))
+                .filter(vFile -> new IntellijFileContext(project, vFile).isChildOf(angularRoot))
                 .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
                 .filter(psiFile -> psiFile != null)
                 //.map(psiFile -> new ComponentFileContext(project, psiFile))

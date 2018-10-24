@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static supportive.fs.common.AngularVersion.TN_DEC;
 import static supportive.utils.StringUtils.elVis;
 
 
@@ -187,7 +188,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                             .anyMatch(routeFile -> routeFile.equals(vFileContext));
 
 
-                    ContextFactory.getInstance(projectRoot).getProjectResources(projectRoot);
+                    ContextFactory.getInstance(projectRoot).getProjectResources(projectRoot, TN_DEC);
 
                     if (routeFileAffected) {
                         refreshContent(projectRoot.getProject());
@@ -335,7 +336,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         }
 
 
-        List<PsiFile> modules_tn = AngularIndex.getAllAngularRoots(projectRoot.getProject(), AngularVersion.TN_DEC).stream()
+        List<PsiFile> modules_tn = AngularIndex.getAllAngularRoots(projectRoot.getProject(), TN_DEC).stream()
                 .flatMap(angRoot ->  ModuleIndex.getAllModuleFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());
         List<PsiFile> modules_ng = AngularIndex.getAllAngularRoots(projectRoot.getProject(), AngularVersion.NG).stream()
                 .flatMap(angRoot ->  ModuleIndex.getAllModuleFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());

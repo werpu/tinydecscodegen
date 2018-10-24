@@ -128,26 +128,20 @@ public class ContextFactory {
                 .collect(Collectors.toList());
     }
 
-    public ResourceFilesContext getProjectResources(IntellijFileContext projectRoot) {
+    public ResourceFilesContext getProjectResources(IntellijFileContext projectRoot, AngularVersion angularVersion) {
         ResourceFilesContext resourceFilesContext = new ResourceFilesContext(projectRoot.getProject());
 
 
-        resourceFilesContext.getRoutes().addAll(getRouteFiles(projectRoot));
+        resourceFilesContext.getRoutes().addAll(getRouteFiles(projectRoot, angularVersion));
 
-        List<NgModuleFileContext> modulesTn = getModules(projectRoot, TN_DEC);
-        List<NgModuleFileContext> modulesNg = getModules(projectRoot, NG);
-
-        List<ComponentFileContext> componentsTn = getComponents(projectRoot, TN_DEC);
-        List<ComponentFileContext> componentsNg = getComponents(projectRoot, NG);
+        List<NgModuleFileContext> modulesTn = getModules(projectRoot, angularVersion);
+        List<ComponentFileContext> componentsTn = getComponents(projectRoot, angularVersion);
 
         resourceFilesContext.getModules().addAll(modulesTn);
         resourceFilesContext.getComponents().addAll(componentsTn);
         return resourceFilesContext;
     }
 
-    public List<NgModuleFileContext> getModulesNg(Optional<IntellijFileContext> moduleElement) {
-        throw new RuntimeException("Not implemented yet");
-    }
 
 
 }
