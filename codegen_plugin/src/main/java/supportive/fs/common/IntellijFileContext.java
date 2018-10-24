@@ -84,6 +84,8 @@ public class IntellijFileContext {
         this(project, project.getProjectFile());
     }
 
+    //todo inherently problematic because sometimes the psi file does not exist
+    //and get psi file throws an error from intellij
     public IntellijFileContext(Project project, PsiFile psiFile) {
         this.project = project;
         this.psiFile = psiFile;

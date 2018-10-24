@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static supportive.reflectRefact.PsiWalkFunctions.COMPONENT_ANN;
+import static supportive.reflectRefact.PsiWalkFunctions.DEF_CALL;
+import static supportive.reflectRefact.PsiWalkFunctions.MODULE_ANN;
+
 public class ComponentIndex extends ScalarIndexExtension<String> {
 
     public static final ID<String, Void> NAME = ID.create("TN_NG_ComponentIndex");
@@ -29,14 +33,17 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if (inputData.getContentAsText().toString().contains(COMPONENT) &&
-                    PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isComponent, true).size() > 0) {
+            if (isComponent(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
                 return Collections.singletonMap(COMPONENT, null);
             }
             return Collections.emptyMap();
 
 
         }
+    }
+
+    public static boolean isComponent(IntellijFileContext ctx) {
+        return ctx.queryContent(COMPONENT_ANN).findFirst().isPresent();
     }
 
     @NotNull

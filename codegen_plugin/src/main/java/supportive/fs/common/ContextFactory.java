@@ -29,9 +29,9 @@ public class ContextFactory {
 
     @Nullable
     public static PsiRouteContext createRouteContext(TypescriptFileContext routesFile, PsiElementContext psiElementContext, Class origin) {
-        Optional<PsiElementContext> name = psiElementContext.queryContent(JS_PROPERTY,  "NAME:(name)",PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
-        Optional<PsiElementContext> url = psiElementContext.queryContent(JS_PROPERTY, "NAME:(url)",PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
-        Optional<PsiElementContext> component = psiElementContext.queryContent(JS_PROPERTY, "NAME:(component)",PSI_ELEMENT_JS_IDENTIFIER).reduce((el1, el2) -> el2);
+        Optional<PsiElementContext> name = psiElementContext.queryContent(JS_PROPERTY, "NAME:(name)", PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
+        Optional<PsiElementContext> url = psiElementContext.queryContent(JS_PROPERTY, "NAME:(url)", PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
+        Optional<PsiElementContext> component = psiElementContext.queryContent(JS_PROPERTY, "NAME:(component)", PSI_ELEMENT_JS_IDENTIFIER).reduce((el1, el2) -> el2);
         String sName = "";
         String sUrl = "";
         String sComponent = "";
@@ -72,18 +72,18 @@ public class ContextFactory {
     }
 
     public List<IntellijFileContext> getProjects(AngularVersion angularVersion) {
-        return  AngularIndex.getAllAngularRoots(project.getProject(), angularVersion);
+        return AngularIndex.getAllAngularRoots(project.getProject(), angularVersion);
     }
 
 
     public List<IUIRoutesRoutesFileContext> getRouteFiles(IntellijFileContext projectRoot, AngularVersion angularVersion) {
         List<IUIRoutesRoutesFileContext> routeFiles = Lists.newLinkedList();
 
-        if(angularVersion == NG) {
+        if (angularVersion == NG) {
             routeFiles.addAll(NG_UIRoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
                     .map(psiFile -> new NG_UIRoutesRoutesFileContext(projectRoot.getProject(), psiFile)).distinct().collect(Collectors.toList()));
 
-            routeFiles.addAll( TNRoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
+            routeFiles.addAll(TNRoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
                     .map(psiFile -> new TNAngularRoutesFileContext(projectRoot.getProject(), psiFile))
                     .distinct()
                     .collect(Collectors.toList()));
@@ -112,11 +112,20 @@ public class ContextFactory {
     @NotNull
     public List<NgModuleFileContext> getModules(IntellijFileContext projectRoot, AngularVersion angularVersion) {
         List<IntellijFileContext> angularRoots = AngularIndex.getAllAngularRoots(projectRoot.getProject(), angularVersion);
-        return angularRoots.stream().flatMap(angularRoot -> {
-            return ModuleIndex.getAllModuleFiles(projectRoot.getProject(), angularRoot).stream();
-        })
-        .map(module -> new NgModuleFileContext(projectRoot.getProject(), module))
-        .collect(Collectors.toList());
+        return angularRoots.stream().flatMap(angularRoot -> ModuleIndex
+                .getAllModuleFiles(projectRoot.getProject(), angularRoot).stream())
+                .map(module -> new NgModuleFileContext(projectRoot.getProject(), module))
+                .collect(Collectors.toList());
+    }
+
+
+    @NotNull
+    public List<ComponentFileContext> getComponents(IntellijFileContext projectRoot, AngularVersion angularVersion) {
+        List<IntellijFileContext> angularRoots = AngularIndex.getAllAngularRoots(projectRoot.getProject(), angularVersion);
+        return angularRoots.stream().flatMap(angularRoot -> ComponentIndex
+                .getAllComponentFiles(projectRoot.getProject(), angularRoot).stream())
+                .map(component -> new ComponentFileContext(projectRoot.getProject(), component))
+                .collect(Collectors.toList());
     }
 
     public ResourceFilesContext getProjectResources(IntellijFileContext projectRoot) {
@@ -128,14 +137,17 @@ public class ContextFactory {
         List<NgModuleFileContext> modulesTn = getModules(projectRoot, TN_DEC);
         List<NgModuleFileContext> modulesNg = getModules(projectRoot, NG);
 
+        List<ComponentFileContext> componentsTn = getComponents(projectRoot, TN_DEC);
+        List<ComponentFileContext> componentsNg = getComponents(projectRoot, NG);
+
         resourceFilesContext.getModules().addAll(modulesTn);
+        resourceFilesContext.getComponents().addAll(componentsTn);
         return resourceFilesContext;
     }
 
     public List<NgModuleFileContext> getModulesNg(Optional<IntellijFileContext> moduleElement) {
         throw new RuntimeException("Not implemented yet");
     }
-
 
 
 }

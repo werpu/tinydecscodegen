@@ -33,10 +33,7 @@ import java.beans.IntrospectionException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.TypeVariable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -144,12 +141,8 @@ public class SpringJavaRestReflector {
         Collection<Method> methods = ReflectUtils.getAllMethods(cls, false, false);
         return methods.stream()
                 .filter(method -> method.isAnnotationPresent(RequestMapping.class))
-                .flatMap(method -> {
-                    return mapMethod(method, flattenResult);
-                })
-                .sorted((o1, o2) -> {
-                    return o1.getName().compareTo(o2.getName());
-                })
+                .flatMap(method -> mapMethod(method, flattenResult))
+                .sorted(Comparator.comparing(RestMethod::getName))
                 .collect(Collectors.toList());
 
     }
@@ -161,17 +154,13 @@ public class SpringJavaRestReflector {
         RequestMethod[] reqMethods = mapping.method(); //if there is more than one request method we map it over to additional typescript methods
 
         reqMethods = reqMethodDefault(reqMethods);
-        String[] consumes = mapping.consumes();
+
         //we can savely ignore produces since we always return a json object in our case
 
         List<RestVar> restVars = getRestVars(method).collect(Collectors.toList());
-
         String url = cutOffParams(value[0]);
-
         List<RestMethod> restMethods = Lists.newArrayList();
 
-
-        boolean array = ReflectUtils.isArrayType(method.getReturnType());
 
         Optional<RestVar> returnValue = ReflectUtils.getGenericRetVal(method);
 
@@ -223,20 +212,18 @@ public class SpringJavaRestReflector {
         final String names[] = new BytecodeReadingParanamer().lookupParameterNames(method, true);
 
 
-        return Arrays.stream(params).filter(parameter -> {
-            return parameter.isAnnotationPresent(PathVariable.class) || parameter.isAnnotationPresent(RequestParam.class) ||
-                    parameter.isAnnotationPresent(RequestBody.class);
-        }).map(parameter -> {
+        return Arrays.stream(params).filter(parameter -> parameter.isAnnotationPresent(PathVariable.class) || parameter.isAnnotationPresent(RequestParam.class) ||
+                parameter.isAnnotationPresent(RequestBody.class)).map(parameter -> {
             int pos = paramsList.indexOf(parameter);
             Class paramType = parameter.getType();
             String name = (names.length <= pos) ? parameter.getName() : names[pos];
-            RestVarType restVarType = null;
+            RestVarType restVarType;
             String restName = "";
             if (parameter.isAnnotationPresent(PathVariable.class)) {
                 restVarType = RestVarType.PathVariable;
             } else if (parameter.isAnnotationPresent(RequestParam.class)) {
                 restVarType = RestVarType.RequestParam;
-                restName = ((RequestParam) parameter.getAnnotation(RequestParam.class)).value();
+                restName = parameter.getAnnotation(RequestParam.class).value();
 
             } else {
                 restVarType = RestVarType.RequestBody;

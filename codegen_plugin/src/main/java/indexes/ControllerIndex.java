@@ -11,12 +11,14 @@ import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.IntellijFileContext;
-import supportive.reflectRefact.PsiWalkFunctions;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static supportive.reflectRefact.PsiWalkFunctions.COMPONENT_ANN;
+import static supportive.reflectRefact.PsiWalkFunctions.CONTROLLER_ANN;
 
 public class ControllerIndex extends ScalarIndexExtension<String> {
 
@@ -30,21 +32,25 @@ public class ControllerIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if ((inputData.getContentAsText().toString().contains(COMPONENT) &&
-                    inputData.getFile().getPath().replaceAll("\\\\","/" ).contains("/pages/"))
-                    || inputData.getContentAsText().toString().contains(CONTROLLER)) {
-
-
-                if(PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isComponent, true).size() > 0 ||
-                        PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isController, true).size() > 0) {
-                    return Collections.singletonMap(CONTROLLER, null);
-                }
-
+            IntellijFileContext ctx = new IntellijFileContext(inputData.getProject(), inputData.getFile());
+            if ((isComponent(ctx) &&
+                    //TODO pages really?
+                    inputData.getFile().getPath().replaceAll("\\\\", "/").contains("/pages/"))
+                    || isController(ctx)) {
+                return Collections.singletonMap(CONTROLLER, null);
             }
             return Collections.emptyMap();
 
 
         }
+    }
+
+    public static boolean isComponent(IntellijFileContext ctx) {
+        return ctx.queryContent(COMPONENT_ANN).findFirst().isPresent();
+    }
+
+    public static boolean isController(IntellijFileContext ctx) {
+        return ctx.queryContent(CONTROLLER_ANN).findFirst().isPresent();
     }
 
     @NotNull

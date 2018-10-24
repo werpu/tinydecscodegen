@@ -30,21 +30,25 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
         @Override
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
+            String content = inputData.getContentAsText().toString();
+            //speedup
+            if(!content.contains(MODULE) && !content.contains(".module")) {
+                return Collections.emptyMap();
+            }
 
             IntellijFileContext ctx = new IntellijFileContext(inputData.getProject(), inputData.getFile());
-            String text = inputData.getContentAsText().toString();
-            if (ctx.queryContent(MODULE_ANN).findFirst().isPresent() ||
-                    ctx.queryContent(DEF_CALL("component")).findFirst().isPresent() ||
-                    ctx.queryContent(DEF_CALL("service")).findFirst().isPresent() ||
-                    ctx.queryContent(DEF_CALL("controller")).findFirst().isPresent() ||
-                    ctx.queryContent(DEF_CALL("factory")).findFirst().isPresent() ||
-                    ctx.queryContent(DEF_CALL("filter")).findFirst().isPresent() ||
-                    ctx.queryContent(DEF_CALL("directive")).findFirst().isPresent()
+            String text = content;
+            if (isModuleFile(ctx)
             ) {
                 return Collections.singletonMap(MODULE, null);
             }
             return Collections.emptyMap();
       }
+    }
+
+    public static boolean isModuleFile(IntellijFileContext ctx) {
+        return ctx.queryContent(MODULE_ANN).findFirst().isPresent() ||
+                ctx.queryContent(DEF_CALL("module")).findFirst().isPresent();
     }
 
     @NotNull

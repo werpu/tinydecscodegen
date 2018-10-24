@@ -123,9 +123,12 @@ public class PsiWalkFunctions {
     public static String TEXT_STARTS_WITH(String val) {
         return "TEXT*:(" + val + ")";
     }
+    public static String DIRECT_CHILD(String val) {
+        return ">" + val;
+    }
 
     public static Object[] DEF_CALL(String callType) {
-        return new Object[]{JS_CALL_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ(callType)};
+        return new Object[]{JS_CALL_EXPRESSION, DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), TEXT_EQ(callType)};
     }
     /*helpers end*/
 
