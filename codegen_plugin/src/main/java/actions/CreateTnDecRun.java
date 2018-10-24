@@ -18,7 +18,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
 import gui.CreateTnDecComponent;
-import gui.support.DialogWrapperCreator;
+import gui.support.InputDialogWrapperBuilder;
 import org.jetbrains.annotations.NotNull;
 import supportive.dtos.ModuleElementScope;
 import supportive.utils.IntellijUtils;
@@ -65,7 +65,7 @@ public class CreateTnDecRun extends AnAction  {
         mainForm.getTxtTemplate().setVisible(false);
         mainForm.getTxtControllerAs().setVisible(false);
 
-        DialogWrapper dialogWrapper = new DialogWrapperCreator(project, mainForm.rootPanel)
+        DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(project, mainForm.rootPanel)
                 .withDimensionKey("AnnRun").withValidator(() -> Arrays.asList(
                         validateInput(mainForm)
                 ).stream().filter(s -> s != null).collect(Collectors.toList())).create();

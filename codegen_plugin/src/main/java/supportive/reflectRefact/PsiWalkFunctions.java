@@ -35,7 +35,7 @@ public class PsiWalkFunctions {
     public static final String JS_FROM_CLAUSE = "com.intellij.lang.typescript.psi.impl.ES6FromClause";
     public static final String JS_REF_TYPE = "com.intellij.lang.typescript.psi.impl.ES6ReferenceExpression";
 
-
+    /*ElementTypes*/
     public static final String JS_PROP_TEMPLATE = "template";
     public static final String NG_TYPE_COMPONENT = "Component";
     public static final String NG_TYPE_DIRECTIVE = "Directive";
@@ -74,13 +74,65 @@ public class PsiWalkFunctions {
     public static final String JS_PROPERTY = "JSProperty";
     public static final String JS_ARRAY_LITERAL_EXPRESSION = "JSArrayLiteralExpression";
     public static final String JS_ARGUMENTS_LIST = "JSArgumentList";
+
     public static final String JS_VAR_STATEMENT = "JSVarStatement";
     public static final String P_PARENTS = ":PARENTS";
+    public static final String PARENTS = "PARENTS:";
     public static final String P_LAST = ":LAST";
     public static final String P_FIRST = ":first";
 
     public static final String PSI_CLASS = "PsiClass:";
     public static final String STRING_TEMPLATE_EXPR = "JSStringTemplateExpression";
+    /*ElementTypes end*/
+
+    //TODO LOGICAL OPS
+    public static final String L_PAR = "(";
+    public static final String R_PAR = ")";
+    public static final String L_AND= "AND";
+    public static final String L_OR= "OR";
+
+
+    /*prdefined queries*/
+    public static final Object[] MODULE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@NgModule"), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] MODULE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@NgModule"), JS_ARGUMENTS_LIST};
+    public static final Object[] MODULE_CLASS = {JS_ES_6_DECORATOR,TEXT_STARTS_WITH("@NgModule"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+
+    public static final Object[] COMPONENT_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Component"), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] COMPONENT_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Component"), JS_ARGUMENTS_LIST};
+    public static final Object[] COMPONENT_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Component"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+
+    public static final Object[] CONTROLLER_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] CONTROLLER_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), JS_ARGUMENTS_LIST};
+    public static final Object[] CONTROLLER_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    /*prdefined queries end*/
+    
+
+
+    /*helpers*/
+    public static String PARENTS_EQ(String val) {
+        return "PARENTS:("+val+")";
+    }
+
+    public static String TEXT_EQ(String val) {
+        return "TEXT:("+val+")";
+    }
+
+    public static String NAME_EQ(String val) {
+        return "NAME:("+val+")";
+    }
+
+    public static String TEXT_STARTS_WITH(String val) {
+        return "TEXT*:("+val+")";
+    }
+    /*helpers end*/
+
+    /*predefined rex for deeper string analysis*/
+    private static final String RE_TEXT_EQ = "^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$";
+    private static final String RE_TEXT_STARTS_WITH = "^\\s*TEXT\\*\\s*\\:\\s*\\((.*)\\)\\s*$";
+    private static final String RE_NAME_EQ = "^\\s*NAME\\s*\\:\\s*\\((.*)\\)\\s*$";
+    private static final String RE_STRING_LITERAL = "^[\\\"\\'](.*)[\\\"\\']$";
+    private static final String RE_NAME_STARTS_WITH = "^\\s*NAME\\*\\s*\\:\\s*\\((.*)\\)\\s*$";
+    private static final String RE_PARENTS_EQ = "^\\s*PARENTS\\s*\\:\\s*\\((.*)\\)\\s*$";
 
 
     public static boolean isNgModule(PsiElement element) {
@@ -342,16 +394,16 @@ public class PsiWalkFunctions {
 
     public static Stream<PsiElementContext> queryContent(PsiFile file, Object... items) {
         Stream<PsiElementContext> subItem = Arrays.asList(file).stream().map(item -> new PsiElementContext(item));
-        return _query(subItem, items);
+        return execQuery(subItem, items);
     }
 
     public static Stream<PsiElementContext> queryContent(PsiElement element, Object... items) {
         Stream<PsiElementContext> subItem = Arrays.asList(new PsiElementContext(element)).stream();
-        return _query(subItem, items);
+        return execQuery(subItem, items);
     }
 
     /**
-     * A simple query facility to redude code
+     * A simple query facility to reduce code
      * <p>
      * <p>
      * Syntax
@@ -360,15 +412,18 @@ public class PsiWalkFunctions {
      * command: ElementType | SIMPLE_COMMAND | CONSUMER | PREDICATE | FUNCTION
      * <p>
      * ElementyType: char*
-     * SIMPLE_COMMAND: > | :FIRST | TEXT:(<char *>) | TEXT*:(<char *>)
+     * SIMPLE_COMMAND: > | :FIRST | TEXT:(<char *>) | TEXT*:(<char *>) | NAME:(<char *>) | NAME*:(<char *>) | PARENTS:(<char *> | ElementType) | PARENTS:  | :LAST | :FIRST
      * PREDICATE ...: Function as defined by Java
+     *
+     * TODO add contextual grammar info
+     * PARENTS:(<char *> | ElementType) shortcut for PARENTS:, TEXT:(...) or :PARENTS,<ElementType>
      *
      * @param subItem
      * @param items
      * @return
      */
-    private static Stream<PsiElementContext> _query(Stream<PsiElementContext> subItem, Object[] items) {
-        boolean directChild = false;
+    private static Stream<PsiElementContext> execQuery(Stream<PsiElementContext> subItem, Object[] items) {
+        boolean directChild;
         for (Object item : items) {
             //shortcut. we can skip  processing at empty subitems
 
@@ -378,71 +433,19 @@ public class PsiWalkFunctions {
                 final String text = (String) item;
                 String subCommand = (text).trim();
                 directChild = (text).startsWith(">");
-                if (item instanceof String && (text).matches("^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$")) {
-                    Pattern p = Pattern.compile("^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$");
-                    subItem = subItem.filter(psiElementContext -> {
-
-                        Matcher m = p.matcher(text);
-                        if (!m.find()) {
-                            return false;
-                        }
-                        String matchText = m.group(1);
-                        boolean literalEquals = false;
-                        if (matchText.matches("^[\\\"\\'](.*)[\\\"\\']$")) {
-                            matchText = matchText.substring(1, matchText.length() - 1);
-                            literalEquals = true;
-                        }
-
-                        return literalEquals ? literalEquals(psiElementContext.getText(), matchText) : matchText.equals(psiElementContext.getText());
-                    });
+                if (item instanceof String && (text).matches(RE_TEXT_EQ)) {
+                    subItem = handleTextEQ(subItem, text);
                     continue;
-                } else if (item instanceof String && (text).matches("^\\s*TEXT\\*\\s*\\:\\s*\\((.*)\\)\\s*$")) {
-                    Pattern p = Pattern.compile("^\\s*TEXT\\*\\s*\\:\\s*\\((.*)\\)\\s*$");
-                    subItem = subItem.filter(psiElementContext -> {
-
-                        Matcher m = p.matcher(text);
-                        if (!m.find()) {
-                            return false;
-                        }
-                        String matchText = m.group(1);
-
-                        return listeralStartsWith(psiElementContext.getText(), matchText) || psiElementContext.getText().startsWith(matchText);
-                    });
+                } else if (item instanceof String && (text).matches(RE_TEXT_STARTS_WITH)) {
+                    subItem = handleTextStartsWith(subItem, text);
                     continue;
 
 
-                } else if (item instanceof String && (text).matches("^\\s*NAME\\s*\\:\\s*\\((.*)\\)\\s*$")) {
-                    Pattern p = Pattern.compile("^\\s*NAME*\\:\\s*\\((.*)\\)\\s*$");
-                    subItem = subItem.filter(psiElementContext -> {
-
-                        Matcher m = p.matcher(text);
-                        if (!m.find()) {
-                            return false;
-                        }
-                        String matchText = m.group(1);
-                        boolean literalEquals = false;
-                        if (matchText.matches("^[\\\"\\'](.*)[\\\"\\']$")) {
-                            matchText = matchText.substring(1, matchText.length() - 1);
-                            literalEquals = true;
-                        }
-
-                        return literalEquals ? literalEquals(psiElementContext.getName(), matchText) : matchText.equals(psiElementContext.getName());
-                    });
+                } else if (item instanceof String && (text).matches(RE_NAME_EQ)) {
+                    subItem = handleNameEQ(subItem, text);
                     continue;
-                } else if (item instanceof String && (text).matches("^\\s*NAME\\*\\s*\\:\\s*\\((.*)\\)\\s*$")) {
-                    Pattern p = Pattern.compile("^\\s*NAME\\*\\s*\\:\\s*\\((.*)\\)\\s*$");
-                    subItem = subItem.filter(psiElementContext -> {
-
-                        Matcher m = p.matcher(text);
-                        if (!m.find()) {
-                            return false;
-                        }
-                        String matchText = m.group(1);
-
-                        return listeralStartsWith(psiElementContext.getName(), matchText) ||
-
-                                psiElementContext.getName().startsWith(matchText);
-                    });
+                } else if (item instanceof String && (text).matches(RE_NAME_STARTS_WITH)) {
+                    subItem = handleNameStartsWith(subItem, text);
                     continue;
 
 
@@ -458,48 +461,25 @@ public class PsiWalkFunctions {
 
                 final String finalSubCommand = subCommand;
                 if (subCommand.toLowerCase().equals(P_FIRST)) {
-                    PsiElementContext firstItem = subItem.findFirst().orElse(null);
-                    if (firstItem != null) {
-                        subItem = Arrays.asList(firstItem).stream();
-                    } else {
-                        subItem = emptyStream();
-                    }
+                    subItem = handlePFirst(subItem);
                 } else if (subCommand.startsWith("PARENTS:(")) {
-                    Pattern p = Pattern.compile("^\\s*PARENTS\\s*\\:\\s*\\((.*)\\)\\s*$");
-                    subItem = subItem.flatMap(theItem -> theItem.parents().stream().filter(psiElementContext -> {
-
-                        Matcher m = p.matcher(text);
-                        if (!m.find()) {
-                            return false;
-                        }
-                        String matchText = m.group(1);
-
-                        return listeralStartsWith(psiElementContext.getName(), matchText) || listeralStartsWith(psiElementContext.getElement().toString(), matchText);
-                    }));
+                    subItem = handleParentsEq(subItem, text);
                 } else if (subCommand.equals(P_PARENTS)) {
                     subItem = subItem.flatMap(theItem -> theItem.parents().stream());
                 } else if (subCommand.equals(P_LAST)) {
-                    Optional<PsiElementContext> reduced = subItem.reduce((theItem, theItem2) -> theItem2);
-                    if (reduced.isPresent()) {
-                        subItem = Arrays.asList(reduced.get()).stream();
-                    } else {
-                        subItem = Collections.<PsiElementContext>emptyList().stream();
-                    }
+                    subItem = handlePLast(subItem);
 
                 } else if (directChild) {
-                    subItem = subItem.filter(psiItem -> psiItem.toString().startsWith(finalSubCommand));
+                    subItem = handleDirectChild(subItem, finalSubCommand);
                 } else {
-                    subItem = subItem.flatMap(psiItem -> psiItem.findPsiElements(psiElement ->  psiElement.toString().startsWith(finalSubCommand)).stream());
+                    subItem = handleFindSubItem(subItem, finalSubCommand);
                 }
             } else if (item instanceof Consumer) {
-                subItem.forEach(elem -> {
-                    ((Consumer) item).accept(elem);
-                });
-                subItem = emptyStream();
+                subItem = handleConsumer(subItem, (Consumer) item);
             } else if (item instanceof Predicate) {
-                subItem = subItem.filter(elem -> ((Predicate) item).test(elem));
+                subItem = handlePredicate(subItem, (Predicate) item);
             } else if (item instanceof Function) {
-                subItem = subItem.map(elem -> ((Function<PsiElementContext, PsiElementContext>) item).apply(elem));
+                subItem = handleFunction(subItem, (Function<PsiElementContext, PsiElementContext>) item);
             } else {
                 throw new RuntimeException("Undefined query mapping");
             }
@@ -508,6 +488,154 @@ public class PsiWalkFunctions {
         return privateDistinctEl(subItem);
     }
 
+    @NotNull
+    private static Stream<PsiElementContext> handleFindSubItem(Stream<PsiElementContext> subItem, String finalSubCommand) {
+        subItem = subItem.flatMap(psiItem -> psiItem.findPsiElements(psiElement ->  psiElement.toString().startsWith(finalSubCommand)).stream());
+        return subItem;
+    }
+
+    @NotNull
+    private static Stream<PsiElementContext> handleDirectChild(Stream<PsiElementContext> subItem, String finalSubCommand) {
+        subItem = subItem.filter(psiItem -> psiItem.toString().startsWith(finalSubCommand));
+        return subItem;
+    }
+
+    @NotNull
+    private static Stream<PsiElementContext> handleFunction(Stream<PsiElementContext> subItem, Function<PsiElementContext, PsiElementContext> item) {
+        subItem = subItem.map(elem -> item.apply(elem));
+        return subItem;
+    }
+
+    @NotNull
+    private static Stream<PsiElementContext> handlePredicate(Stream<PsiElementContext> subItem, Predicate item) {
+        subItem = subItem.filter(elem -> item.test(elem));
+        return subItem;
+    }
+
+    @NotNull
+    private static Stream<PsiElementContext> handleConsumer(Stream<PsiElementContext> subItem, Consumer item) {
+        subItem.forEach(elem -> {
+            item.accept(elem);
+        });
+        subItem = emptyStream();
+        return subItem;
+    }
+
+    @NotNull
+    private static Stream<PsiElementContext> handlePLast(Stream<PsiElementContext> subItem) {
+        Optional<PsiElementContext> reduced = subItem.reduce((theItem, theItem2) -> theItem2);
+        if (reduced.isPresent()) {
+            subItem = Arrays.asList(reduced.get()).stream();
+        } else {
+            subItem = Collections.<PsiElementContext>emptyList().stream();
+        }
+        return subItem;
+    }
+
+    @NotNull
+    private static Stream<PsiElementContext> handleParentsEq(Stream<PsiElementContext> subItem, String text) {
+        Pattern p = Pattern.compile(RE_PARENTS_EQ);
+        subItem = subItem.flatMap(theItem -> theItem.parents().stream().filter(psiElementContext -> {
+
+            Matcher m = p.matcher(text);
+            if (!m.find()) {
+                return false;
+            }
+            String matchText = m.group(1);
+
+            return literalStartsWith(psiElementContext.getName(), matchText) || literalStartsWith(psiElementContext.getElement().toString(), matchText);
+        }));
+        return subItem;
+    }
+
+    @NotNull
+    private static Stream<PsiElementContext> handlePFirst(Stream<PsiElementContext> subItem) {
+        PsiElementContext firstItem = subItem.findFirst().orElse(null);
+        if (firstItem != null) {
+            subItem = Arrays.asList(firstItem).stream();
+        } else {
+            subItem = emptyStream();
+        }
+        return subItem;
+    }
+
+    @NotNull
+    private static Stream<PsiElementContext> handleNameStartsWith(Stream<PsiElementContext> subItem, String text) {
+        Pattern p = Pattern.compile(RE_NAME_STARTS_WITH);
+        subItem = subItem.filter(psiElementContext -> {
+
+            Matcher m = p.matcher(text);
+            if (!m.find()) {
+                return false;
+            }
+            String matchText = m.group(1);
+
+            return literalStartsWith(psiElementContext.getName(), matchText) ||
+
+                    psiElementContext.getName().startsWith(matchText);
+        });
+        return subItem;
+    }
+
+    @NotNull
+    private static Stream<PsiElementContext> handleNameEQ(Stream<PsiElementContext> subItem, String text) {
+        Pattern p = Pattern.compile(RE_NAME_EQ);
+        subItem = subItem.filter(psiElementContext -> {
+
+            Matcher m = p.matcher(text);
+            if (!m.find()) {
+                return false;
+            }
+            String matchText = m.group(1);
+            boolean literalEquals = false;
+            if (matchText.matches(RE_STRING_LITERAL)) {
+                matchText = matchText.substring(1, matchText.length() - 1);
+                literalEquals = true;
+            }
+
+            return literalEquals ? literalEquals(psiElementContext.getName(), matchText) : matchText.equals(psiElementContext.getName());
+        });
+        return subItem;
+    }
+
+    @NotNull
+    private static Stream<PsiElementContext> handleTextStartsWith(Stream<PsiElementContext> subItem, String text) {
+        Pattern p = Pattern.compile(PsiWalkFunctions.RE_TEXT_STARTS_WITH);
+        subItem = subItem.filter(psiElementContext -> {
+
+            Matcher m = p.matcher(text);
+            if (!m.find()) {
+                return false;
+            }
+            String matchText = m.group(1);
+
+            return literalStartsWith(psiElementContext.getText(), matchText) || psiElementContext.getText().startsWith(matchText);
+        });
+        return subItem;
+    }
+
+    @NotNull
+    private static Stream<PsiElementContext> handleTextEQ(Stream<PsiElementContext> subItem, String text) {
+        Pattern p = Pattern.compile(PsiWalkFunctions.RE_TEXT_EQ);
+        subItem = subItem.filter(psiElementContext -> {
+
+            Matcher m = p.matcher(text);
+            if (!m.find()) {
+                return false;
+            }
+            String matchText = m.group(1);
+            boolean literalEquals = false;
+            if (matchText.matches(RE_STRING_LITERAL)) {
+                matchText = matchText.substring(1, matchText.length() - 1);
+                literalEquals = true;
+            }
+
+            return literalEquals ? literalEquals(psiElementContext.getText(), matchText) : matchText.equals(psiElementContext.getText());
+        });
+        return subItem;
+    }
+
+    @NotNull
     static private Stream<PsiElementContext> privateDistinctEl(Stream<PsiElementContext> inStr) {
         final Set<PsiElementContext> elIdx = new HashSet<>();
         return inStr.filter(el -> {

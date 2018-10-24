@@ -18,7 +18,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
 import gui.CreateService;
-import gui.support.DialogWrapperCreator;
+import gui.support.InputDialogWrapperBuilder;
 import org.jetbrains.annotations.NotNull;
 import supportive.dtos.ModuleElementScope;
 import supportive.utils.IntellijUtils;
@@ -57,7 +57,7 @@ public class CreateTnDecService extends AnAction {
 
         final gui.CreateService mainForm = new gui.CreateService();
 
-        DialogWrapper dialogWrapper = new DialogWrapperCreator(project, mainForm.getMainPanel())
+        DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(project, mainForm.getMainPanel())
                 .withDimensionKey("AnnService").withValidator(() -> Arrays.asList(
                         validateInput(mainForm)
                 ).stream().filter(s -> s != null).collect(Collectors.toList())).create();

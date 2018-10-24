@@ -10,7 +10,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.psi.PsiFile;
 import gui.CreateRoute;
-import gui.support.DialogWrapperCreator;
+import gui.support.InputDialogWrapperBuilder;
 import indexes.ControllerIndex;
 import indexes.TNRoutesIndex;
 import indexes.TN_UIRoutesIndex;
@@ -53,7 +53,7 @@ public class CreateTnDecRoute extends AnAction {
         ComponentSelectorModel selectorModel = null;
 
 
-        DialogWrapper dialogWrapper = new DialogWrapperCreator(fileContext.getProject(), mainForm.getRootPanel())
+        DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(fileContext.getProject(), mainForm.getRootPanel())
                 .withDimensionKey("AnnRoute").withValidator(() -> {
                     Route route = getRoute(mainForm);
                     return getRoutesFiles(fileContext).flatMap(el -> CreateTnDecRoute.this.validate(route, el, mainForm).stream()).collect(Collectors.toList());

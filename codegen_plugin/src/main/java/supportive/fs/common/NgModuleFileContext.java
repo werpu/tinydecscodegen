@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import org.jetbrains.annotations.NotNull;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.RefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
@@ -26,27 +27,35 @@ import static supportive.utils.StringUtils.elVis;
  */
 public class NgModuleFileContext extends TypescriptResourceContext {
 
-    PsiElementContext ngModuleDeclationalPart = null;
 
     public NgModuleFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
         //fish the ngModuleDeclationalPart
-
+        resourceRoot = resolveClass(psiFile);
 
     }
 
+
+
     public NgModuleFileContext(AnActionEvent event) {
         super(event);
+        resourceRoot = resolveClass(getPsiFile());
     }
 
     public NgModuleFileContext(Project project, VirtualFile virtualFile) {
         super(project, virtualFile);
+        resourceRoot = resolveClass(getPsiFile());
     }
 
     public NgModuleFileContext(IntellijFileContext fileContext) {
         super(fileContext);
+        resourceRoot = resolveClass(getPsiFile());
     }
 
+    @NotNull
+    public PsiElementContext resolveClass(PsiFile psiFile) {
+        return new PsiElementContext(psiFile).queryContent(MODULE_CLASS).findFirst().get();
+    }
 
     protected void init() {
 
@@ -103,7 +112,7 @@ public class NgModuleFileContext extends TypescriptResourceContext {
      * @throws IOException
      */
     protected boolean insertUpdateDefSection(String sectionName, String partName) throws IOException {
-        Optional<PsiElementContext> ngModuleArgs = queryContent(JS_ES_6_DECORATOR, "TEXT*:(@NgModule)", JS_ARGUMENTS_LIST).findFirst();
+        Optional<PsiElementContext> ngModuleArgs = queryContent(MODULE_ARGS).findFirst();
 
         addArgumentsSection(ngModuleArgs);
         addOrInsertSection(sectionName);
@@ -122,7 +131,7 @@ public class NgModuleFileContext extends TypescriptResourceContext {
      */
     private void addInsertValue(String sectionName, String value) throws IOException {
         //PsiElement(JS:COMMA)
-        Optional<PsiElementContext> propsArray = queryContent(JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, "NAME:(" + sectionName + ")", JS_ARRAY_LITERAL_EXPRESSION).findFirst();
+        Optional<PsiElementContext> propsArray = queryContent(JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, NAME_EQ(sectionName), JS_ARRAY_LITERAL_EXPRESSION).findFirst();
         boolean hasElement = propsArray.get().queryContent(PSI_ELEMENT_JS_IDENTIFIER).findFirst().isPresent();
         int insertPos =  propsArray.get().queryContent(PSI_ELEMENT_JS_RBRACKET).reduce((el1, el2) -> el2).get().getTextOffset();
         StringBuilder insertStr = new StringBuilder("");
@@ -154,9 +163,9 @@ public class NgModuleFileContext extends TypescriptResourceContext {
      * @param sectionName
      */
     private void addOrInsertSection(String sectionName) throws IOException {
-        Optional<PsiElementContext> ngModuleArgs = queryContent(JS_ES_6_DECORATOR, "TEXT*:(@NgModule)", JS_ARGUMENTS_LIST).findFirst();
+        Optional<PsiElementContext> ngModuleArgs = queryContent(MODULE_ARGS).findFirst();
 
-        if(ngModuleArgs.get().queryContent(JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, "NAME:(" + sectionName + ")").findFirst().isPresent()) {
+        if(ngModuleArgs.get().queryContent(JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, NAME_EQ(sectionName)).findFirst().isPresent()) {
             return;
         }
 
@@ -177,7 +186,7 @@ public class NgModuleFileContext extends TypescriptResourceContext {
      * @param sectionName
      */
     private void addSection(String sectionName) throws IOException {
-        Optional<PsiElementContext> ngModuleArgs = queryContent(JS_ES_6_DECORATOR, "TEXT*:(@NgModule)", JS_ARGUMENTS_LIST).findFirst();
+        Optional<PsiElementContext> ngModuleArgs = queryContent(MODULE_ARGS).findFirst();
         PsiElementContext argsList = ngModuleArgs.get();
         int insertPos = argsList.getTextOffset()+ Math.round(argsList.getTextLength() / 2);
         addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(insertPos), "\n    "+sectionName+": []\n"));

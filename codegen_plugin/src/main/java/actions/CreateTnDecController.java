@@ -24,7 +24,7 @@ import com.intellij.psi.PsiFileFactory;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
 import gui.CreateTnDecComponent;
-import gui.support.DialogWrapperCreator;
+import gui.support.InputDialogWrapperBuilder;
 import org.jetbrains.annotations.NotNull;
 import supportive.dtos.ModuleElementScope;
 import supportive.fs.common.IntellijFileContext;
@@ -88,7 +88,7 @@ public class CreateTnDecController extends AnAction {
 
         mainForm.getPnEditorHolder().getViewport().setView(editor.getComponent());
 
-        DialogWrapper dialogWrapper = new DialogWrapperCreator(project, mainForm.rootPanel)
+        DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(project, mainForm.rootPanel)
                 .withDimensionKey("AnnController").withValidator(() -> Arrays.asList(
                         validateInput(mainForm)
                 ).stream().filter(s -> s != null).collect(Collectors.toList())).create();

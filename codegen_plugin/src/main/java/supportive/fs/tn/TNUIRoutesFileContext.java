@@ -28,6 +28,7 @@ import static supportive.utils.StringUtils.literalEquals;
 public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     private static final Logger log = Logger.getInstance(TNUIRoutesFileContext.class);
+    public static final Object[] STATE_PROVIDER_VAR = {JS_EXPRESSION_STATEMENT, JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, NAME_EQ("$stateProvider")};
 
     public TNUIRoutesFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
@@ -49,24 +50,6 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
         init();
     }
 
-    /**
-     * find the state provider root elements
-     *
-     * @param item
-     * @return
-     */
-    private static Optional<PsiElementContext> findStateProvidersCalls(PsiElementContext item) {
-        //JS_EXPRESSION_STATEMENT == $stateProvider.state(....).state
-        //      JS_REFERENCE_EXPRESSION == $stateProvider.state
-        //          PSI_ELEMENT_JS_IDENTIFIER == $stateProvider
-        Optional<PsiElementContext> found = item.queryContent(JS_EXPRESSION_STATEMENT, JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, "NAME:($stateProvider)")
-                //back to stateprivider call
-                .filter(item3 -> item3.walkParent(item2 -> literalEquals(item2.toString(), JS_EXPRESSION_STATEMENT) && item2.getText().startsWith("$stateProvider")).isPresent())
-                //find the topmost call
-                .map(item4 -> findMethodCallStart(item4, JS_EXPRESSION_STATEMENT).get()).reduce((el1, el2) -> el2);
-
-        return found;
-    }
 
 
     protected void init() {
@@ -161,7 +144,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
         return constructor
                 //.state(...
-                .queryContent(PSI_ELEMENT_JS_IDENTIFIER, "TEXT:('state')")
+                .queryContent(PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("'state'"))
                 //$stateProvider.state
                 .map(item -> item.walkParent(el -> {
                     return literalEquals(el.toString(), JS_EXPRESSION_STATEMENT);
@@ -180,26 +163,13 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     }
 
-    /**
-     * returns the subelement hosting the route meta data
-     * {
-     * name: "myState",
-     * url:"/myState"
-     * }
-     */
-    PsiElementContext getRouteMeta(PsiElementContext routeParam) {
-        return routeParam.queryContent(JS_ARGUMENTS_LIST, JS_OBJECT_LITERAL_EXPRESSION)
-                .findFirst().get();
-    }
-
-
     //trying to reimplement
     public List<PsiRouteContext> parse(PsiElementContext argumentsList) {
 
         //first part either name or call or map
         try {
             Optional<PsiElementContext> routeName = argumentsList.queryContent(JS_LITERAL_EXPRESSION, ">" + PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
-            Optional<PsiElementContext> parmsCall = argumentsList.queryContent(JS_REFERENCE_EXPRESSION, "TEXT:(MetaData.routeData)").findFirst();
+            Optional<PsiElementContext> parmsCall = argumentsList.queryContent(JS_REFERENCE_EXPRESSION, TEXT_EQ("MetaData.routeData")).findFirst();
             Optional<PsiElementContext> controller = argumentsList.queryContent(JS_CALL_EXPRESSION, JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst();
             Optional<PsiElementContext> parmsMap = argumentsList.queryContent(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
             List<PsiRouteContext> target = resolveParms(argumentsList, routeName, parmsCall, controller, parmsMap);
@@ -429,16 +399,16 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     public boolean hasControllerName(String controllerName, Optional<PsiElementContext> el2) {
         return el2.isPresent() && el2.get()
-                .queryContent(PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:(" + controllerName + ")")
+                .queryContent(PSI_ELEMENT_JS_STRING_LITERAL, TEXT_EQ(controllerName))
                 .findFirst().isPresent();
     }
 
     public Stream<PsiElementContext> queryController(IntellijFileContext fc) {
-        return fc.queryContent(PSI_ELEMENT_JS_IDENTIFIER, "TEXT:(controller)");
+        return fc.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("controller"));
     }
 
     public Stream<PsiElementContext> queryComponent(IntellijFileContext fc) {
-        return fc.queryContent(PSI_ELEMENT_JS_IDENTIFIER, "TEXT:(component)");
+        return fc.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("component"));
     }
 
     public static Optional<PsiElementContext> findMethodCallStart(PsiElementContext el, String jsCallExpression) {
@@ -479,7 +449,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
     }
 
     private Optional<PsiElementContext> resolveProp(PsiElementContext paramsMap, String prop, String targetType) {
-        return paramsMap.queryContent(JS_PROPERTY, "NAME:(" + prop + ")", targetType).findFirst();
+        return paramsMap.queryContent(JS_PROPERTY, NAME_EQ(prop), targetType).findFirst();
     }
 
 

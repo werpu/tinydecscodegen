@@ -1,10 +1,8 @@
 package supportive.fs.common;
 
 import com.google.common.collect.Lists;
-import indexes.AngularIndex;
-import indexes.NG_UIRoutesIndex;
-import indexes.TNRoutesIndex;
-import indexes.TN_UIRoutesIndex;
+import indexes.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
@@ -14,6 +12,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static supportive.fs.common.AngularVersion.NG;
+import static supportive.fs.common.AngularVersion.TN_DEC;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
 
 /**
@@ -76,25 +76,56 @@ public class ContextFactory {
     }
 
 
-    public List<IUIRoutesRoutesFileContext> getRouteFiles(IntellijFileContext projectRoot) {
+    public List<IUIRoutesRoutesFileContext> getRouteFiles(IntellijFileContext projectRoot, AngularVersion angularVersion) {
         List<IUIRoutesRoutesFileContext> routeFiles = Lists.newLinkedList();
 
-        routeFiles.addAll(NG_UIRoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
-                .map(psiFile -> new NG_UIRoutesRoutesFileContext(projectRoot.getProject(), psiFile)).distinct().collect(Collectors.toList()));
+        if(angularVersion == NG) {
+            routeFiles.addAll(NG_UIRoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
+                    .map(psiFile -> new NG_UIRoutesRoutesFileContext(projectRoot.getProject(), psiFile)).distinct().collect(Collectors.toList()));
 
-        routeFiles.addAll( TNRoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
-                .map(psiFile -> new TNAngularRoutesFileContext(projectRoot.getProject(), psiFile))
-                .distinct()
-                .collect(Collectors.toList()));
+            routeFiles.addAll( TNRoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
+                    .map(psiFile -> new TNAngularRoutesFileContext(projectRoot.getProject(), psiFile))
+                    .distinct()
+                    .collect(Collectors.toList()));
+        } else {
 
-        routeFiles.addAll(TN_UIRoutesIndex.getAllMainRoutes(project.getProject(), projectRoot).stream()
-                .map(psiFile -> new TNUIRoutesFileContext(projectRoot.getProject(), psiFile))
-                .distinct()
-                .collect(Collectors.toList()));
+            routeFiles.addAll(TN_UIRoutesIndex.getAllMainRoutes(project.getProject(), projectRoot).stream()
+                    .map(psiFile -> new TNUIRoutesFileContext(projectRoot.getProject(), psiFile))
+                    .distinct()
+                    .collect(Collectors.toList()));
+        }
 
         return routeFiles;
 
     }
+
+    public List<IUIRoutesRoutesFileContext> getRouteFiles(IntellijFileContext projectRoot) {
+        List<IUIRoutesRoutesFileContext> routeFiles = Lists.newLinkedList();
+
+        routeFiles.addAll(getRouteFiles(projectRoot, TN_DEC));
+        routeFiles.addAll(getRouteFiles(projectRoot, NG));
+
+        return routeFiles;
+
+    }
+
+    @NotNull
+    public List<NgModuleFileContext> getModules(IntellijFileContext projectRoot, AngularVersion angularVersion) {
+        List<IntellijFileContext> angularRoots = AngularIndex.getAllAngularRoots(projectRoot.getProject(), angularVersion);
+        return angularRoots.stream().flatMap(angularRoot -> {
+            return ModuleIndex.getAllModuleFiles(projectRoot.getProject(), angularRoot).stream();
+        })
+        .map(module -> new NgModuleFileContext(projectRoot.getProject(), module))
+        .collect(Collectors.toList());
+    }
+
+    public ResourceFilesContext getProjectResources(IntellijFileContext projectRoot) {
+        //ResourceFilesContext resourceFilesContext = new ResourceFilesContext(projectRoot.getProject(), projectRoot);
+
+        //resourceFilesContext.getRoutes().addAll(getRouteFiles(projectRoot));
+        return null;
+    }
+
     public List<NgModuleFileContext> getModulesNg(Optional<IntellijFileContext> moduleElement) {
         throw new RuntimeException("Not implemented yet");
     }

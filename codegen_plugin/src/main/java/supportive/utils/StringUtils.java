@@ -94,7 +94,7 @@ public class StringUtils {
         return literal.contains(contentToCompare);
     }
 
-    public static boolean listeralStartsWith(String literal, String contentToCompare) {
+    public static boolean literalStartsWith(String literal, String contentToCompare) {
         literal = stripQuotes(literal);
         contentToCompare = stripQuotes(contentToCompare);
         return literal.startsWith(contentToCompare);

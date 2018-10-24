@@ -20,7 +20,7 @@ import configuration.ConfigSerializer;
 import dtos.ControllerJson;
 import factories.TnDecGroupFactory;
 import gui.CreateTnDecComponent;
-import gui.support.DialogWrapperCreator;
+import gui.support.InputDialogWrapperBuilder;
 import org.jetbrains.annotations.NotNull;
 import supportive.dtos.ModuleElementScope;
 import supportive.utils.IntellijUtils;
@@ -82,7 +82,7 @@ public class CreateTnDecModule extends AnAction  {
         mainForm.getCbExport().setSelected(ConfigSerializer.getInstance().getState().isModuleExport());
         mainForm.getCbCreateDir().setSelected(ConfigSerializer.getInstance().getState().isModuleGenerateFolder());
 
-        DialogWrapper dialogWrapper = new DialogWrapperCreator(project, mainForm.rootPanel)
+        DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(project, mainForm.rootPanel)
                 .withDimensionKey("AnnModule").withValidator(() -> Arrays.asList(
                         validateInput(mainForm)
                 ).stream().filter(s -> s != null).collect(Collectors.toList())).create();

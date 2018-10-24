@@ -23,7 +23,7 @@ import configuration.ConfigSerializer;
 import dtos.ComponentAttribute;
 import dtos.DirectiveJson;
 import factories.TnDecGroupFactory;
-import gui.support.DialogWrapperCreator;
+import gui.support.InputDialogWrapperBuilder;
 import org.jetbrains.annotations.NotNull;
 import reflector.ComponentAttributesReflector;
 import supportive.dtos.ModuleElementScope;
@@ -93,7 +93,7 @@ public class CreateTnDecDirective extends AnAction  {
         mainForm.getCbExport().setSelected(ConfigSerializer.getInstance().getState().isDirectiveExport());
 
 
-        DialogWrapper dialogWrapper = new DialogWrapperCreator(project, mainForm.rootPanel)
+        DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(project, mainForm.rootPanel)
                 .withDimensionKey("AnnDirective").withValidator(() -> Arrays.asList(
                         validateInput(mainForm)
                 ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
