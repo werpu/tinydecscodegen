@@ -51,19 +51,26 @@ public class CreateTnDecProject extends AnAction {
     private static final String RE_PROJ_ROOT = "\\$\\{proj_root_rel}";
     private static final String RE_BACKSLASH = "\\\\";
     private static final String SLASH = "/";
+    private static final String DIMENSION_KEY = "AnnProject";
+    private static final String DLG_TITLE = "Create Project";
 
     @Override
+    /**
+     * menu item visibility
+     */
     public void update(AnActionEvent anActionEvent) {
         VisibleAssertions.tnNoProject(anActionEvent);
     }
 
     @Override
+    /**
+     * entry point for the action
+     */
     public void actionPerformed(AnActionEvent anActionEvent) {
 
         final Project project = IntellijUtils.getProject(anActionEvent);
 
         VirtualFile file = anActionEvent.getDataContext().getData(DataKeys.VIRTUAL_FILE);
-        //VirtualFile folder = file.getParent();
         if(file == null) {
             IntellijUtils.showInfoMessage("You need to select a parent directory for your project", "Info");
             return;
@@ -80,12 +87,18 @@ public class CreateTnDecProject extends AnAction {
 
     }
 
+    /**
+     * setup the dialog
+     * @param project the project coming from the action
+     * @param projectFolder the folder hosting the new project
+     * @param targetFolder the target folder for the build targets
+     */
     private void createDialog(Project project, String projectFolder, String targetFolder) {
         final gui.CreateTnProject mainForm = new gui.CreateTnProject();
 
         DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(project, mainForm.rootPanel)
-                .withDimensionKey("AnnProject").withValidator(validationCallback(mainForm))
-                .withTitle("Create Project")
+                .withDimensionKey(DIMENSION_KEY).withValidator(validationCallback(mainForm))
+                .withTitle(DLG_TITLE)
                 .withPreferredSize(PREFERRED_SIZE)
                 .withOkHandler(() -> okPressed(project, mainForm))
                 .create();
