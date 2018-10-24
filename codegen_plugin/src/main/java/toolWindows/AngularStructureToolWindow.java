@@ -186,6 +186,9 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                     boolean routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
                             .anyMatch(routeFile -> routeFile.equals(vFileContext));
 
+
+                    ContextFactory.getInstance(projectRoot).getProjectResources(projectRoot);
+
                     if (routeFileAffected) {
                         refreshContent(projectRoot.getProject());
                         return;

@@ -88,14 +88,14 @@ public class PsiWalkFunctions {
     //TODO LOGICAL OPS
     public static final String L_PAR = "(";
     public static final String R_PAR = ")";
-    public static final String L_AND= "AND";
-    public static final String L_OR= "OR";
+    public static final String L_AND = "AND";
+    public static final String L_OR = "OR";
 
 
     /*prdefined queries*/
     public static final Object[] MODULE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@NgModule"), PARENTS_EQ(JS_ES_6_DECORATOR)};
     public static final Object[] MODULE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@NgModule"), JS_ARGUMENTS_LIST};
-    public static final Object[] MODULE_CLASS = {JS_ES_6_DECORATOR,TEXT_STARTS_WITH("@NgModule"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] MODULE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@NgModule"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
     public static final Object[] COMPONENT_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Component"), PARENTS_EQ(JS_ES_6_DECORATOR)};
     public static final Object[] COMPONENT_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Component"), JS_ARGUMENTS_LIST};
@@ -105,26 +105,30 @@ public class PsiWalkFunctions {
     public static final Object[] CONTROLLER_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), JS_ARGUMENTS_LIST};
     public static final Object[] CONTROLLER_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
     /*prdefined queries end*/
-    
 
 
     /*helpers*/
     public static String PARENTS_EQ(String val) {
-        return "PARENTS:("+val+")";
+        return "PARENTS:(" + val + ")";
     }
 
     public static String TEXT_EQ(String val) {
-        return "TEXT:("+val+")";
+        return "TEXT:(" + val + ")";
     }
 
     public static String NAME_EQ(String val) {
-        return "NAME:("+val+")";
+        return "NAME:(" + val + ")";
     }
 
     public static String TEXT_STARTS_WITH(String val) {
-        return "TEXT*:("+val+")";
+        return "TEXT*:(" + val + ")";
+    }
+
+    public static Object[] DEF_CALL(String callType) {
+        return new Object[]{JS_CALL_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ(callType)};
     }
     /*helpers end*/
+
 
     /*predefined rex for deeper string analysis*/
     private static final String RE_TEXT_EQ = "^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$";
@@ -228,7 +232,7 @@ public class PsiWalkFunctions {
     }
 
     public static boolean isPsiClass(PsiElement element) {
-         return element != null && element.toString().startsWith(PSI_CLASS);
+        return element != null && element.toString().startsWith(PSI_CLASS);
     }
 
 
@@ -414,7 +418,7 @@ public class PsiWalkFunctions {
      * ElementyType: char*
      * SIMPLE_COMMAND: > | :FIRST | TEXT:(<char *>) | TEXT*:(<char *>) | NAME:(<char *>) | NAME*:(<char *>) | PARENTS:(<char *> | ElementType) | PARENTS:  | :LAST | :FIRST
      * PREDICATE ...: Function as defined by Java
-     *
+     * <p>
      * TODO add contextual grammar info
      * PARENTS:(<char *> | ElementType) shortcut for PARENTS:, TEXT:(...) or :PARENTS,<ElementType>
      *
@@ -490,7 +494,7 @@ public class PsiWalkFunctions {
 
     @NotNull
     private static Stream<PsiElementContext> handleFindSubItem(Stream<PsiElementContext> subItem, String finalSubCommand) {
-        subItem = subItem.flatMap(psiItem -> psiItem.findPsiElements(psiElement ->  psiElement.toString().startsWith(finalSubCommand)).stream());
+        subItem = subItem.flatMap(psiItem -> psiItem.findPsiElements(psiElement -> psiElement.toString().startsWith(finalSubCommand)).stream());
         return subItem;
     }
 

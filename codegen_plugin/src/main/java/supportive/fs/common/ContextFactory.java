@@ -120,10 +120,16 @@ public class ContextFactory {
     }
 
     public ResourceFilesContext getProjectResources(IntellijFileContext projectRoot) {
-        //ResourceFilesContext resourceFilesContext = new ResourceFilesContext(projectRoot.getProject(), projectRoot);
+        ResourceFilesContext resourceFilesContext = new ResourceFilesContext(projectRoot.getProject());
 
-        //resourceFilesContext.getRoutes().addAll(getRouteFiles(projectRoot));
-        return null;
+
+        resourceFilesContext.getRoutes().addAll(getRouteFiles(projectRoot));
+
+        List<NgModuleFileContext> modulesTn = getModules(projectRoot, TN_DEC);
+        List<NgModuleFileContext> modulesNg = getModules(projectRoot, NG);
+
+        resourceFilesContext.getModules().addAll(modulesTn);
+        return resourceFilesContext;
     }
 
     public List<NgModuleFileContext> getModulesNg(Optional<IntellijFileContext> moduleElement) {
