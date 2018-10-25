@@ -195,7 +195,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                         return;
                     }
 
-                    //ModuleIndex allModules = ModuleIndex.getAllModuleFilesAsMap(, )
+                    //ModuleIndex allModules = ModuleIndex.getAllAffectedFiles(, )
                     routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
                             .anyMatch(routeFile -> routeFile.equals(vFileContext));
 
@@ -336,10 +336,10 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         }
 
 
-        List<PsiFile> modules_tn = AngularIndex.getAllAngularRoots(projectRoot.getProject(), TN_DEC).stream()
-                .flatMap(angRoot ->  ModuleIndex.getAllModuleFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());
-        List<PsiFile> modules_ng = AngularIndex.getAllAngularRoots(projectRoot.getProject(), AngularVersion.NG).stream()
-                .flatMap(angRoot ->  ModuleIndex.getAllModuleFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());
+        List<PsiFile> modules_tn = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), TN_DEC).stream()
+                .flatMap(angRoot ->  ModuleIndex.getAllAffectedFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());
+        List<PsiFile> modules_ng = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), AngularVersion.NG).stream()
+                .flatMap(angRoot ->  ModuleIndex.getAllAffectedFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());
 
 
 

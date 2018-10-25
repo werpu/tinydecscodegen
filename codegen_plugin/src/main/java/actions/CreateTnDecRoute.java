@@ -138,11 +138,11 @@ public class CreateTnDecRoute extends AnAction {
 
     public Stream<TNRoutesFileContext> getRoutesFiles(IntellijFileContext fileContext) {
         //Standard angular 1 routes
-        Stream<TNAngularRoutesFileContext> routeFilesClassic = TNRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
+        Stream<TNAngularRoutesFileContext> routeFilesClassic = TNRoutesIndex.getAllAffectedFiles(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
                 .map(psiFile -> new TNAngularRoutesFileContext(fileContext.getProject(), psiFile));
 
         //UI Routes tiny decorations routes
-        Stream<TNRoutesFileContext> routeFilesUIRoutes = TN_UIRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir()))
+        Stream<TNRoutesFileContext> routeFilesUIRoutes = TN_UIRoutesIndex.getAllAffectedFiles(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir()))
                 .stream().map(psiFile -> new TNUIRoutesFileContext(fileContext.getProject(), psiFile));
 
         //TODO for now we deal with only one route file per system
@@ -161,7 +161,7 @@ public class CreateTnDecRoute extends AnAction {
 
     protected ComponentFileContext[] findAllPageComponents(IntellijFileContext rootContext) {
 
-        List<PsiFile> foundFiles = ControllerIndex.getAllControllerFiles(rootContext.getProject(), rootContext.getAngularRoot().orElse(rootContext.getProjectDir()));
+        List<PsiFile> foundFiles = ControllerIndex.getAllAffectedFiles(rootContext.getProject(), rootContext.getAngularRoot().orElse(rootContext.getProjectDir()));
 
         return foundFiles.stream()
                 .flatMap(psiFile -> supportive.fs.common.ComponentFileContext.getControllerInstances(new IntellijFileContext(rootContext.getProject(), psiFile)).stream())

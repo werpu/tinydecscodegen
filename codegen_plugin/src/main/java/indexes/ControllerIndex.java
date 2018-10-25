@@ -87,17 +87,8 @@ public class ControllerIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
-    public static List<PsiFile> getAllControllerFiles(Project project, IntellijFileContext angularRoot) {
-        //Todo filter accordinf to the root dir od the subproject
-        return FileBasedIndex.getInstance().getContainingFiles(NAME, CONTROLLER,
-                GlobalSearchScope.projectScope(project)).stream()
-                .filter(VirtualFile::isValid)
-
-                //only relative to angular root files
-                .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).contains("../")))
-                .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
-                .filter(psiFile -> psiFile != null)
-                .collect(Collectors.toList());
+    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
+        return IndexUtils.resolve(project, angularRoot, NAME, CONTROLLER);
     }
 
 }

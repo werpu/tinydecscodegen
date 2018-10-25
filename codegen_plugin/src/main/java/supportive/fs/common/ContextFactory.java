@@ -1,6 +1,7 @@
 package supportive.fs.common;
 
 import com.google.common.collect.Lists;
+import com.sun.jndi.toolkit.ctx.ComponentContext;
 import indexes.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -8,6 +9,7 @@ import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
 import supportive.fs.tn.TNUIRoutesFileContext;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -72,7 +74,7 @@ public class ContextFactory {
     }
 
     public List<IntellijFileContext> getProjects(AngularVersion angularVersion) {
-        return AngularIndex.getAllAngularRoots(project.getProject(), angularVersion);
+        return AngularIndex.getAllAffectedRoots(project.getProject(), angularVersion);
     }
 
 
@@ -80,16 +82,16 @@ public class ContextFactory {
         List<IUIRoutesRoutesFileContext> routeFiles = Lists.newLinkedList();
 
         if (angularVersion == NG) {
-            routeFiles.addAll(NG_UIRoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
+            routeFiles.addAll(NG_UIRoutesIndex.getAllAffectedFiles(projectRoot.getProject(), projectRoot).stream()
                     .map(psiFile -> new NG_UIRoutesRoutesFileContext(projectRoot.getProject(), psiFile)).distinct().collect(Collectors.toList()));
 
-            routeFiles.addAll(TNRoutesIndex.getAllMainRoutes(projectRoot.getProject(), projectRoot).stream()
+            routeFiles.addAll(TNRoutesIndex.getAllAffectedFiles(projectRoot.getProject(), projectRoot).stream()
                     .map(psiFile -> new TNAngularRoutesFileContext(projectRoot.getProject(), psiFile))
                     .distinct()
                     .collect(Collectors.toList()));
         } else {
 
-            routeFiles.addAll(TN_UIRoutesIndex.getAllMainRoutes(project.getProject(), projectRoot).stream()
+            routeFiles.addAll(TN_UIRoutesIndex.getAllAffectedFiles(project.getProject(), projectRoot).stream()
                     .map(psiFile -> new TNUIRoutesFileContext(projectRoot.getProject(), psiFile))
                     .distinct()
                     .collect(Collectors.toList()));
@@ -111,9 +113,9 @@ public class ContextFactory {
 
     @NotNull
     public List<NgModuleFileContext> getModules(IntellijFileContext projectRoot, AngularVersion angularVersion) {
-        List<IntellijFileContext> angularRoots = AngularIndex.getAllAngularRoots(projectRoot.getProject(), angularVersion);
+        List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
         return angularRoots.stream().flatMap(angularRoot -> ModuleIndex
-                .getAllModuleFiles(projectRoot.getProject(), angularRoot).stream())
+                .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
                 .map(module -> new NgModuleFileContext(projectRoot.getProject(), module))
                 .collect(Collectors.toList());
     }
@@ -121,10 +123,37 @@ public class ContextFactory {
 
     @NotNull
     public List<ComponentFileContext> getComponents(IntellijFileContext projectRoot, AngularVersion angularVersion) {
-        List<IntellijFileContext> angularRoots = AngularIndex.getAllAngularRoots(projectRoot.getProject(), angularVersion);
+        List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
         return angularRoots.stream().flatMap(angularRoot -> ComponentIndex
-                .getAllComponentFiles(projectRoot.getProject(), angularRoot).stream())
+                .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
                 .map(component -> new ComponentFileContext(projectRoot.getProject(), component))
+                .collect(Collectors.toList());
+    }
+
+    @NotNull
+    public List<ServiceContext> getServices(IntellijFileContext projectRoot, AngularVersion angularVersion) {
+        List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
+        return angularRoots.stream().flatMap(angularRoot -> ServiceIndex
+                .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
+                .map(service -> new ServiceContext(projectRoot.getProject(), service, service.getOriginalElement()))
+                .collect(Collectors.toList());
+    }
+
+    @NotNull
+    public List<ComponentFileContext> getController(IntellijFileContext projectRoot, AngularVersion angularVersion) {
+        List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
+        return angularRoots.stream().flatMap(angularRoot -> ControllerIndex
+                .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
+                .map(component -> new ComponentFileContext(projectRoot.getProject(), component))
+                .collect(Collectors.toList());
+    }
+
+    @NotNull
+    public List<FilterPipeContext> getFilters(IntellijFileContext projectRoot, AngularVersion angularVersion) {
+        List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
+        return angularRoots.stream().flatMap(angularRoot -> FilterIndex
+                .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
+                .map(filters -> new FilterPipeContext(projectRoot.getProject(), filters, filters.getOriginalElement()))
                 .collect(Collectors.toList());
     }
 
@@ -136,9 +165,15 @@ public class ContextFactory {
 
         List<NgModuleFileContext> modulesTn = getModules(projectRoot, angularVersion);
         List<ComponentFileContext> componentsTn = getComponents(projectRoot, angularVersion);
+        List<ComponentFileContext> controllersTn = getController(projectRoot, angularVersion);
+        List<ServiceContext> service = getServices(projectRoot, angularVersion);
+        List<FilterPipeContext> filters = getFilters(projectRoot, angularVersion);
 
         resourceFilesContext.getModules().addAll(modulesTn);
         resourceFilesContext.getComponents().addAll(componentsTn);
+        resourceFilesContext.getServices().addAll(service);
+        resourceFilesContext.getControllers().addAll(controllersTn);
+        resourceFilesContext.getFiltersPipes().addAll(filters);
         return resourceFilesContext;
     }
 

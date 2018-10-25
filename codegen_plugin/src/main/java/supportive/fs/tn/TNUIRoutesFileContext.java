@@ -332,7 +332,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
     @Nullable
     public Optional<IntellijFileContext> findExternalImport(String controllerName) {
         //TODO fallback into a global search
-        List<IntellijFileContext> module = ModuleIndex.getAllModuleFiles(getProject(), getAngularRoot().get()).stream()
+        List<IntellijFileContext> module = ModuleIndex.getAllAffectedFiles(getProject(), getAngularRoot().get()).stream()
                 .filter(psiFile -> {
 
                     if (psiFile == null || psiFile.getVirtualFile() == null ||

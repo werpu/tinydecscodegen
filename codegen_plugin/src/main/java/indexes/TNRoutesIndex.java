@@ -74,7 +74,7 @@ public class TNRoutesIndex extends ScalarIndexExtension<String> {
     }
 
 
-    public static List<PsiFile> getAllMainRoutes(Project project, IntellijFileContext angularRoot) {
+    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
         return FileBasedIndex.getInstance().getContainingFiles(NAME, TN_UIROUTER_MODULE_FOR_ROOT,
                 GlobalSearchScope.projectScope(project)).stream()
                 .filter(VirtualFile::isValid)

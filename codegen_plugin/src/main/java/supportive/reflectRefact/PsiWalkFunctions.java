@@ -101,6 +101,16 @@ public class PsiWalkFunctions {
     public static final Object[] COMPONENT_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Component"), JS_ARGUMENTS_LIST};
     public static final Object[] COMPONENT_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Component"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
+    public static final Object[] FILTER_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Filter"), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] FILTER_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Filter"), JS_ARGUMENTS_LIST};
+    public static final Object[] FILTER_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Filter"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+
+
+    public static final Object[] SERVICE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Injectable"), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] SERVICE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Injectable"), JS_ARGUMENTS_LIST};
+    public static final Object[] SERVICE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Injectable"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+
+
     public static final Object[] CONTROLLER_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), PARENTS_EQ(JS_ES_6_DECORATOR)};
     public static final Object[] CONTROLLER_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), JS_ARGUMENTS_LIST};
     public static final Object[] CONTROLLER_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};

@@ -87,7 +87,7 @@ public class AngularIndex extends ScalarIndexExtension<String> {
 
 
     public static boolean isAngularVersion(IntellijFileContext file, AngularVersion angularVersion) {
-        List<IntellijFileContext> angularRoots = getAllAngularRoots(file.getProject(), angularVersion);
+        List<IntellijFileContext> angularRoots = getAllAffectedRoots(file.getProject(), angularVersion);
         if(angularRoots.isEmpty()) {
             return false;
         }
@@ -96,7 +96,7 @@ public class AngularIndex extends ScalarIndexExtension<String> {
     }
 
     public static boolean isBelowAngularVersion(IntellijFileContext file, AngularVersion angularVersion) {
-        List<IntellijFileContext> angularRoots = getAllAngularRoots(file.getProject(), angularVersion);
+        List<IntellijFileContext> angularRoots = getAllAffectedRoots(file.getProject(), angularVersion);
         if(angularRoots.isEmpty()) {
             return false;
         }
@@ -104,7 +104,7 @@ public class AngularIndex extends ScalarIndexExtension<String> {
         return angularRoots.stream().filter(angularRoot -> angularRoot.isBelow(file)).findFirst().isPresent();
     }
 
-    public static List<IntellijFileContext> getAllAngularRoots(Project project, AngularVersion angularVersion) {
+    public static List<IntellijFileContext> getAllAffectedRoots(Project project, AngularVersion angularVersion) {
         return FileBasedIndex.getInstance().getContainingFiles(NAME, NPM_ROOT,
                 GlobalSearchScope.projectScope(project)).stream()
                 .filter(VirtualFile::isValid)

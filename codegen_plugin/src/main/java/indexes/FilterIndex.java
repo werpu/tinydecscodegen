@@ -17,12 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static supportive.reflectRefact.PsiWalkFunctions.COMPONENT_ANN;
+import static supportive.reflectRefact.PsiWalkFunctions.FILTER_ANN;
 
-public class ComponentIndex extends ScalarIndexExtension<String> {
+public class FilterIndex extends ScalarIndexExtension<String> {
 
-    public static final ID<String, Void> NAME = ID.create("TN_NG_ComponentIndex");
-    public static final String ANN_MARKER = "@Component";
+    public static final ID<String, Void> NAME = ID.create("TN_NG_FilterIndex");
+    public static final String ANN_MARKER = "@Filter";
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 
     private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
@@ -30,7 +30,7 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if (isComponent(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
+            if (isFilter(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
                 return Collections.singletonMap(ANN_MARKER, null);
             }
             return Collections.emptyMap();
@@ -39,8 +39,8 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
         }
     }
 
-    public static boolean isComponent(IntellijFileContext ctx) {
-        return ctx.queryContent(COMPONENT_ANN).findFirst().isPresent();
+    public static boolean isFilter(IntellijFileContext ctx) {
+        return ctx.queryContent(FILTER_ANN).findFirst().isPresent();
     }
 
     @NotNull
@@ -79,9 +79,13 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
     }
 
     public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
-
-        return IndexUtils.resolve(project, angularRoot, NAME, ANN_MARKER);
-
-
+        return FileBasedIndex.getInstance().getContainingFiles(NAME, ANN_MARKER,
+                GlobalSearchScope.projectScope(project)).stream()
+                .filter(VirtualFile::isValid)
+                //only relative to angular root files
+                .filter(vFile -> new IntellijFileContext(project, vFile).isChildOf(angularRoot))
+                .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
+                .filter(psiFile -> psiFile != null)
+                .collect(Collectors.toList());
     }
 }

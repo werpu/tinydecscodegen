@@ -99,7 +99,7 @@ public class CreateNgRoute extends AnAction {
             protected List<ValidationInfo> doValidateAll() {
                 Route route = getRoute(mainForm, selectorModel);
 
-                NG_UIRoutesRoutesFileContext ctx = NG_UIRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
+                NG_UIRoutesRoutesFileContext ctx = NG_UIRoutesIndex.getAllAffectedFiles(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
                         .map(psiFile -> new NG_UIRoutesRoutesFileContext(fileContext.getProject(), psiFile)).findAny().get();
 
                 return CreateNgRoute.this.validate(route, ctx, mainForm);
@@ -173,7 +173,7 @@ public class CreateNgRoute extends AnAction {
     }
 
     public Stream<NG_UIRoutesRoutesFileContext> getRoutesFiles(IntellijFileContext fileContext) {
-        return NG_UIRoutesIndex.getAllMainRoutes(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
+        return NG_UIRoutesIndex.getAllAffectedFiles(fileContext.getProject(), fileContext.getAngularRoot().orElse(fileContext.getProjectDir())).stream()
                 .map(psiFile -> new NG_UIRoutesRoutesFileContext(fileContext.getProject(), psiFile));
     }
 
@@ -189,7 +189,7 @@ public class CreateNgRoute extends AnAction {
 
 
     protected ComponentFileContext[] findAllPageComponents(IntellijFileContext rootContext) {
-        List<PsiFile> foundFiles = ControllerIndex.getAllControllerFiles(rootContext.getProject(), rootContext.getAngularRoot().orElse(rootContext.getProjectDir()));
+        List<PsiFile> foundFiles = ControllerIndex.getAllAffectedFiles(rootContext.getProject(), rootContext.getAngularRoot().orElse(rootContext.getProjectDir()));
 
         return foundFiles.stream().flatMap(psiFile -> ComponentFileContext.getInstances(new IntellijFileContext(rootContext.getProject(), psiFile)).stream())
                 .toArray(size -> new ComponentFileContext[size]);

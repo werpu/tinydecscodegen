@@ -23,7 +23,7 @@ import static supportive.reflectRefact.PsiWalkFunctions.MODULE_ANN;
 public class ModuleIndex extends ScalarIndexExtension<String> {
 
     public static final ID<String, Void> NAME = ID.create("TN_ModuleIndex");
-    public static final String MODULE = "@NgModule";
+    public static final String ANN_MARKER = "@NgModule";
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 
     private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
@@ -32,7 +32,7 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
         public Map<String, Void> map(@NotNull final FileContent inputData) {
             String content = inputData.getContentAsText().toString();
             //speedup
-            if(!content.contains(MODULE) && !content.contains(".module")) {
+            if(!content.contains(ANN_MARKER) && !content.contains(".module")) {
                 return Collections.emptyMap();
             }
 
@@ -40,7 +40,7 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
             String text = content;
             if (isModuleFile(ctx)
             ) {
-                return Collections.singletonMap(MODULE, null);
+                return Collections.singletonMap(ANN_MARKER, null);
             }
             return Collections.emptyMap();
       }
@@ -86,29 +86,9 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
-    public static List<PsiFile> getAllModuleFiles(Project project, IntellijFileContext angularRoot) {
-        return FileBasedIndex.getInstance().getContainingFiles(NAME, MODULE,
-                GlobalSearchScope.projectScope(project)).stream()
-                .filter(VirtualFile::isValid)
-                //only relative to angular root files
-                .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).startsWith("..")))
-                .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
-                .filter(psiFile -> psiFile != null)
-                .distinct()
-                //.map(psiFile -> new ComponentFileContext(project, psiFile))
-                .collect(Collectors.toList());
+    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
+        return  IndexUtils.resolve(project, angularRoot, NAME, ANN_MARKER);
     }
 
-    public static Map<String, PsiFile> getAllModuleFilesAsMap(Project project, IntellijFileContext angularRoot) {
-        return FileBasedIndex.getInstance().getContainingFiles(NAME, MODULE,
-                GlobalSearchScope.projectScope(project)).stream()
-                .filter(VirtualFile::isValid)
-                //only relative to angular root files
-                .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).startsWith("..")))
-                .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
-                .filter(psiFile -> psiFile != null)
-                .distinct()
-                //.map(psiFile -> new ComponentFileContext(project, psiFile))
-                .collect(Collectors.toMap(psiFile -> psiFile.getVirtualFile().getPath(), psiFile -> psiFile));
-    }
+
 }

@@ -2,10 +2,7 @@ package indexes;
 
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
@@ -15,23 +12,22 @@ import supportive.fs.common.IntellijFileContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import static supportive.reflectRefact.PsiWalkFunctions.COMPONENT_ANN;
+import static supportive.reflectRefact.PsiWalkFunctions.SERVICE_ANN;
 
-public class ComponentIndex extends ScalarIndexExtension<String> {
+public class ServiceIndex  extends ScalarIndexExtension<String> {
 
-    public static final ID<String, Void> NAME = ID.create("TN_NG_ComponentIndex");
-    public static final String ANN_MARKER = "@Component";
-    private final MyDataIndexer myDataIndexer = new MyDataIndexer();
+    public static final ID<String, Void> NAME = ID.create("TN_NG_ServiceIndex");
+    public static final String ANNOTATION_MARKER = "@Injectable";
+    private final ServiceIndex.MyDataIndexer myDataIndexer = new ServiceIndex.MyDataIndexer();
 
     private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
         @Override
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if (isComponent(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
-                return Collections.singletonMap(ANN_MARKER, null);
+            if (isMarked(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
+                return Collections.singletonMap(ANNOTATION_MARKER, null);
             }
             return Collections.emptyMap();
 
@@ -39,8 +35,8 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
         }
     }
 
-    public static boolean isComponent(IntellijFileContext ctx) {
-        return ctx.queryContent(COMPONENT_ANN).findFirst().isPresent();
+    public static boolean isMarked(IntellijFileContext ctx) {
+        return ctx.queryContent(SERVICE_ANN).findFirst().isPresent();
     }
 
     @NotNull
@@ -79,9 +75,6 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
     }
 
     public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
-
-        return IndexUtils.resolve(project, angularRoot, NAME, ANN_MARKER);
-
-
+        return IndexUtils.resolve(project, angularRoot, NAME, ANNOTATION_MARKER);
     }
 }
