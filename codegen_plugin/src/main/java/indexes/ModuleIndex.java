@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static indexes.IndexUtils.standardExclusions;
 import static supportive.reflectRefact.PsiWalkFunctions.DEF_CALL;
 import static supportive.reflectRefact.PsiWalkFunctions.MODULE_ANN;
 
@@ -38,7 +39,7 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
 
             IntellijFileContext ctx = new IntellijFileContext(inputData.getProject(), inputData.getFile());
             String text = content;
-            if (isModuleFile(ctx)
+            if ((!standardExclusions(inputData)) && isModuleFile(ctx)
             ) {
                 return Collections.singletonMap(ANN_MARKER, null);
             }

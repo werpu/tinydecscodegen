@@ -97,7 +97,7 @@ public class TypescriptFileContext extends IntellijFileContext {
      * @return the final name of the import variable
      *
      */
-    public String appendImport(String plannedVariable, String importPath) {
+    public String appendImport(String plannedVariable, String importPath)  {
         //case a check for the same pattern as our existing import
         return appendImport(plannedVariable, "", importPath);
     }
@@ -112,7 +112,7 @@ public class TypescriptFileContext extends IntellijFileContext {
      * @param importPath
      * @return
      */
-    private String appendImport(String plannedVariable, String varPostfix, String importPath) {
+    private String appendImport(String plannedVariable, String varPostfix, String importPath)  {
         String varToCheck = plannedVariable + varPostfix;
         List<PsiElementContext> importIdentifiers  = getImportIdentifiers(varToCheck);
         boolean varDefined = importIdentifiers.size() > 0;
@@ -144,6 +144,11 @@ public class TypescriptFileContext extends IntellijFileContext {
 
 
             addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(insertPos), insert));
+            try {
+                commit();
+            } catch (IOException e) {
+                new RuntimeException(e);
+            }
         }
         return plannedVariable+varPostfix;
     }

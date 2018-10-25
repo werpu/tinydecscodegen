@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static indexes.IndexUtils.standardExclusions;
 import static supportive.reflectRefact.PsiWalkFunctions.SERVICE_ANN;
 
 public class ServiceIndex  extends ScalarIndexExtension<String> {
@@ -26,7 +27,7 @@ public class ServiceIndex  extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if (isMarked(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
+            if ((!standardExclusions(inputData)) && isMarked(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
                 return Collections.singletonMap(ANNOTATION_MARKER, null);
             }
             return Collections.emptyMap();

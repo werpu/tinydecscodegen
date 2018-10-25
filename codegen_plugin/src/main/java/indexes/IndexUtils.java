@@ -1,12 +1,15 @@
 package indexes;
 
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.FileBasedIndex;
+import com.intellij.util.indexing.FileContent;
 import com.intellij.util.indexing.ID;
+import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.IntellijFileContext;
 
 import java.util.List;
@@ -22,5 +25,11 @@ public class IndexUtils {
                 .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
                 .filter(psiFile -> psiFile != null)
                 .collect(Collectors.toList());
+    }
+
+    public static boolean standardExclusions(@NotNull final FileContent inputData) {
+        return inputData.getFile().isDirectory()
+                || inputData.getFile().getPath().replaceAll("\\\\", "/").contains("/node_modules/")
+                || !inputData.getFile().getFileType().getDefaultExtension().equalsIgnoreCase("ts");
     }
 }

@@ -3,6 +3,7 @@ package supportive.fs.common;
 import com.intellij.psi.PsiElement;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import supportive.reflectRefact.PsiWalkFunctions;
@@ -114,6 +115,19 @@ public class PsiElementContext {
 
     public Stream<PsiElementContext> queryContent(Object ... items) {
         return PsiWalkFunctions.queryContent(this.getElement(), items);
+    }
+
+    public Stream<PsiElementContext> $q(Object ... items) {
+        return PsiWalkFunctions.queryContent(this.getElement(), items);
+    }
+
+    public Stream<PsiElementContext> $q(Object[] items, Object item) {
+        return PsiWalkFunctions.queryContent(this.getElement(), ArrayUtils.add(items, item));
+    }
+
+    public Stream<PsiElementContext> $q(Object[] ... items) {
+        Object[] all =  Arrays.stream(items).reduce((items1, items2) -> Stream.concat(Arrays.stream(items1), Arrays.stream(items2)).toArray()).get();
+        return PsiWalkFunctions.queryContent(this.getElement(), all);
     }
 
     public List<PsiElementContext> getImportsWithIdentifier(String varToCheck) {

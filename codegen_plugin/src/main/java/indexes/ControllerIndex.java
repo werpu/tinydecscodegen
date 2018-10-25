@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static indexes.IndexUtils.standardExclusions;
 import static supportive.reflectRefact.PsiWalkFunctions.COMPONENT_ANN;
 import static supportive.reflectRefact.PsiWalkFunctions.CONTROLLER_ANN;
 
@@ -33,7 +34,7 @@ public class ControllerIndex extends ScalarIndexExtension<String> {
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
             IntellijFileContext ctx = new IntellijFileContext(inputData.getProject(), inputData.getFile());
-            if ((isComponent(ctx) &&
+            if ((!standardExclusions(inputData)) && (isComponent(ctx) &&
                     //TODO pages really?
                     inputData.getFile().getPath().replaceAll("\\\\", "/").contains("/pages/"))
                     || isController(ctx)) {

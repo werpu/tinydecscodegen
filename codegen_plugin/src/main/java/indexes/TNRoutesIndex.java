@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static indexes.IndexUtils.standardExclusions;
 import static supportive.reflectRefact.PsiWalkFunctions.TN_UIROUTER_MODULE_FOR_ROOT;
 
 public class TNRoutesIndex extends ScalarIndexExtension<String> {
@@ -30,7 +31,7 @@ public class TNRoutesIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if (inputData.getContentAsText().toString().contains("\"$routeProvider\"") &&
+            if ((!standardExclusions(inputData)) && inputData.getContentAsText().toString().contains("\"$routeProvider\"") &&
                     PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isTnConfig, true).size() > 0) {
                 return Collections.singletonMap(TN_UIROUTER_MODULE_FOR_ROOT, null);
             }

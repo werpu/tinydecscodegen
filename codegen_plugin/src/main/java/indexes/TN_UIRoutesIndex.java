@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static indexes.IndexUtils.standardExclusions;
 import static supportive.reflectRefact.PsiWalkFunctions.JS_STATE_MODULE_FOR_ROOT;
 import static supportive.reflectRefact.PsiWalkFunctions.TN_ROUTES_UIROUTER_MODULE_FOR_ROOT;
 
@@ -32,7 +33,7 @@ public class TN_UIRoutesIndex extends ScalarIndexExtension<String> {
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
             //if()
-            if (inputData.getContentAsText().toString().contains("\"$stateProvider\"") &&
+            if ((!standardExclusions(inputData)) && inputData.getContentAsText().toString().contains("\"$stateProvider\"") &&
                     PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isTnConfig, true).size() > 0) {
                 return Collections.singletonMap(TN_ROUTES_UIROUTER_MODULE_FOR_ROOT, null);
             }

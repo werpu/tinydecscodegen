@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static indexes.IndexUtils.standardExclusions;
 import static supportive.reflectRefact.PsiWalkFunctions.COMPONENT_ANN;
 
 public class ComponentIndex extends ScalarIndexExtension<String> {
@@ -30,7 +31,7 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if (isComponent(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
+            if ((!standardExclusions(inputData)) && isComponent(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
                 return Collections.singletonMap(ANN_MARKER, null);
             }
             return Collections.emptyMap();

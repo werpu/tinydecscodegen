@@ -72,7 +72,7 @@ public class CreateNgRoute extends AnAction {
         if (editorControllers.size() > 0 || defaultComponentData.isPresent()) {
             ComponentFileContext cData = defaultComponentData.get();
             mainForm.getCbComponent().setSelectedIndex(selectorIndex.indexOf(cData.getDisplayName()));
-            String componentClassName = cData.getComponentClassName();
+            String componentClassName = cData.getClazzName();
             String displayName = cData.getDisplayName();
             mainForm.getCbComponent().setSelectedItem(displayName);
             mainForm.getTxtRouteName().setText(StringUtils.toLowerDash(componentClassName).replaceAll("_component", ""));
@@ -184,7 +184,7 @@ public class CreateNgRoute extends AnAction {
         return new Route(
                         mainForm.getTxtRouteName().getText(),
                         mainForm.getTxtHref().getText(),
-                        selectorModel.getComponentFileContexts()[mainForm.getCbComponent().getSelectedIndex()].getComponentClassName(), this.getClass());
+                        selectorModel.getComponentFileContexts()[mainForm.getCbComponent().getSelectedIndex()].getClazzName(), this.getClass());
     }
 
 

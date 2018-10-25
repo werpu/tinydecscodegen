@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 
+import static indexes.IndexUtils.standardExclusions;
 import static supportive.reflectRefact.PsiWalkFunctions.JS_UIROUTER_MODULE_FOR_ROOT;
 
 public class NG_UIRoutesIndex extends ScalarIndexExtension<String> {
@@ -31,7 +32,7 @@ public class NG_UIRoutesIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if (inputData.getContentAsText().toString().contains(JS_UIROUTER_MODULE_FOR_ROOT) &&
+            if ((!standardExclusions(inputData)) && inputData.getContentAsText().toString().contains(JS_UIROUTER_MODULE_FOR_ROOT) &&
                     PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isRootNav, true).size() > 0) {
                 return Collections.singletonMap(JS_UIROUTER_MODULE_FOR_ROOT, null);
             }

@@ -47,7 +47,9 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
     @Override
     public void addRoute(Route routeData) {
 
+
         routeData.setComponent(appendImport(routeData.getComponent(), routeData.getComponentPath()));
+
 
         int cnt = 1;
         String origUrl = routeData.getUrl();
@@ -77,7 +79,6 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
     public boolean isRouteNameUsed(Route routeData) {
         return getPsiFile().getText().contains("name: '" + routeData.getRouteKey() + "'");
     }
-
 
 
     public boolean urlCheck(Route routeData, String fullText) {

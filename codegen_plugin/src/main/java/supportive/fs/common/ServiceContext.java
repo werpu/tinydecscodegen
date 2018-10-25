@@ -5,14 +5,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
-public class ServiceContext extends TypescriptResourceContext {
+import java.util.Optional;
 
-    @Getter
-    private String serviceClassName;
+import static supportive.reflectRefact.PsiWalkFunctions.*;
 
-    private PsiElement serviceAnnotation;
+public class ServiceContext extends AngularResourceContext {
+
 
     public ServiceContext(Project project, PsiFile psiFile, PsiElement element) {
         super(project, psiFile, element);
@@ -30,16 +30,32 @@ public class ServiceContext extends TypescriptResourceContext {
         super(fileContext, element);
     }
 
+    @Override
+    protected void postConstruct() {
+        super.postConstruct();
+        Optional<PsiElementContext> serviceClass = resolveClass();
+        Optional<PsiElementContext> psiServiceName = resolveName();
+        clazzName = serviceClass.get().getName();
+        artifactName = psiServiceName.isPresent() ? psiServiceName.get().getText() : clazzName;
 
-    public String getName() {
-        return "TODO";
+        findParentModule();
     }
 
-    public String getDisplayName() {
-        return "TODO";
+    private Optional<PsiElementContext> resolveName() {
+        return resolveClass().get().$q(SERVICE_ANN, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
     }
 
-    public NgModuleFileContext getParentModule() {
-        return null;
+    @NotNull
+    private Optional<PsiElementContext> resolveClass() {
+        Optional<PsiElementContext> serviceClass = $q(SERVICE_CLASS).findFirst();
+        if(!serviceClass.isPresent()) {
+            throw new RuntimeException("Service class not found");
+        }
+        return serviceClass;
     }
+
+
+
+
+
 }

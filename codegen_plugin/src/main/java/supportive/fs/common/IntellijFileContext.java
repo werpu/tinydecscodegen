@@ -37,6 +37,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import indexes.AngularIndex;
 import lombok.Getter;
+import org.apache.commons.lang3.ArrayUtils;
 import supportive.refactor.IRefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
 import supportive.utils.IntellijUtils;
@@ -61,7 +62,7 @@ import static supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
  * intellij deals with two levels of files
  * a) The virtual file
  * b) The Psi File parsing level
- *
+ * <p>
  * while this makes sense from a design point of view
  * often it is overly convoluted to juggle both levels
  * Hence we are going to introduce a context wich does most of the juggling
@@ -92,6 +93,8 @@ public class IntellijFileContext {
         this.virtualFile = psiFile.getVirtualFile();
         this.document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
         this.module = ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(virtualFile);
+
+        postConstruct();
     }
 
     public IntellijFileContext(Project project, VirtualFile virtualFile) {
@@ -101,6 +104,12 @@ public class IntellijFileContext {
         this.virtualFile = virtualFile;
         this.document = (psiFile != null) ? PsiDocumentManager.getInstance(project).getDocument(psiFile) : null;
         this.module = ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(virtualFile);
+
+        postConstruct();
+    }
+
+    protected void postConstruct() {
+
     }
 
     public String getText() {
@@ -119,7 +128,7 @@ public class IntellijFileContext {
 
     public String calculateRelPathTo(IntellijFileContext root) {
         Path routesFilePath = Paths.get(root.getVirtualFile().isDirectory() ?
-                root.getVirtualFile().getPath():
+                root.getVirtualFile().getPath() :
                 root.getVirtualFile().getParent().getPath());
         Path componentFilePath = Paths.get(getVirtualFile().getPath());
         Path relPath = routesFilePath.relativize(componentFilePath);
@@ -142,7 +151,7 @@ public class IntellijFileContext {
 
     public Optional<PsiElement> findPsiElement(Function<PsiElement, Boolean> psiElementVisitor) {
         List<PsiElement> found = findPsiElements(psiElementVisitor, true);
-        if(found.isEmpty()) {
+        if (found.isEmpty()) {
             return Optional.empty();
         } else {
             return Optional.ofNullable(found.get(0));
@@ -165,7 +174,6 @@ public class IntellijFileContext {
     }
 
 
-
     public void reformat() {
         CodeStyleManager.getInstance(project).reformat(psiFile);
     }
@@ -180,10 +188,10 @@ public class IntellijFileContext {
     public Optional<IntellijFileContext> getParent() {
         VirtualFile parent = this.virtualFile.getParent();
 
-        if(parent == null) {
+        if (parent == null) {
             return Optional.empty();
         } else {
-            if(!parent.getCanonicalPath().contains(project.getBaseDir().getCanonicalPath())) {
+            if (!parent.getCanonicalPath().contains(project.getBaseDir().getCanonicalPath())) {
                 return Optional.empty();
             }
             return Optional.ofNullable(new IntellijFileContext(project, parent));
@@ -197,14 +205,14 @@ public class IntellijFileContext {
 
     public List<IntellijFileContext> findFirstUpwards(Function<PsiFile, Boolean> psiElementVisitor) {
 
-        if(psiFile != null && psiElementVisitor.apply(this.psiFile)) {
+        if (psiFile != null && psiElementVisitor.apply(this.psiFile)) {
             return Arrays.asList(this);
         }
 
         List<IntellijFileContext> retVal = findInCurrentDir(psiElementVisitor);
-        if(retVal.isEmpty()) {
+        if (retVal.isEmpty()) {
             Optional<IntellijFileContext> parent = getParent();
-            if(!parent.isPresent()) {
+            if (!parent.isPresent()) {
                 return Collections.emptyList();
             }
             return parent.get().findFirstUpwards(psiElementVisitor);
@@ -214,32 +222,30 @@ public class IntellijFileContext {
 
     public List<IntellijFileContext> findInCurrentDir(Function<PsiFile, Boolean> psiElementVisitor) {
         return this.getChildren(vFile -> {
-                IntellijFileContext ctx = new IntellijFileContext(project, vFile);
-                if(ctx.getPsiFile() != null) {
-                    return psiElementVisitor.apply(ctx.getPsiFile());
-                } else {
-                    return false;
-                }
-            });
+            IntellijFileContext ctx = new IntellijFileContext(project, vFile);
+            if (ctx.getPsiFile() != null) {
+                return psiElementVisitor.apply(ctx.getPsiFile());
+            } else {
+                return false;
+            }
+        });
     }
-
-
 
 
     /**
      * goes an element tree upwards and finds all files/dirs triggered
      * by the visitor
-     * @param psiElementVisitor an element visitor which returns true once it has found everything
      *
-     * @param recurseOnceFound recurses deeper into the tree if set to true even if an element already is found
+     * @param psiElementVisitor an element visitor which returns true once it has found everything
+     * @param recurseOnceFound  recurses deeper into the tree if set to true even if an element already is found
      * @return
      */
     public List<IntellijFileContext> find(Function<PsiFile, Boolean> psiElementVisitor, boolean recurseOnceFound) {
-        if(psiFile != null && psiElementVisitor.apply(this.psiFile)) {
+        if (psiFile != null && psiElementVisitor.apply(this.psiFile)) {
             return Arrays.asList(this);
         }
         List<IntellijFileContext> retVal = findInCurrentDir(psiElementVisitor);
-        if(!recurseOnceFound && !retVal.isEmpty()) {
+        if (!recurseOnceFound && !retVal.isEmpty()) {
             return retVal;
         }
         return getChildren(virtualFile1 -> {
@@ -251,9 +257,8 @@ public class IntellijFileContext {
     }
 
 
-
-        public void refactorContent(List<IRefactorUnit> refactorings) throws IOException {
-        if(refactorings.isEmpty()) {
+    public void refactorContent(List<IRefactorUnit> refactorings) throws IOException {
+        if (refactorings.isEmpty()) {
             return;
         }
         //all refactorings must be of the same vFile TODO add check here
@@ -270,7 +275,7 @@ public class IntellijFileContext {
             retVal.add(refactoring.getRefactoredText());
             end = refactoring.getEndOffset();
         }
-        if(end < toSplit.length()) {
+        if (end < toSplit.length()) {
             retVal.add(toSplit.substring(end));
         }
         this.setText(Joiner.on("").join(retVal));
@@ -279,8 +284,7 @@ public class IntellijFileContext {
     protected List<PsiElement> findPsiElements(Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly) {
 
 
-
-        if(psiFile == null) {//not parseable
+        if (psiFile == null) {//not parseable
             return Collections.emptyList();
         }
 
@@ -296,7 +300,7 @@ public class IntellijFileContext {
     }
 
     public String getFolderPath() {
-        if(virtualFile == null || virtualFile.getParent() == null) {
+        if (virtualFile == null || virtualFile.getParent() == null) {
             return "____NaN____";
         }
         return virtualFile.isDirectory() ? virtualFile.getPath() : virtualFile.getParent().getPath();
@@ -307,26 +311,27 @@ public class IntellijFileContext {
         return refactorHandler.apply(this.psiFile);
     }
 
-    public  void copy(IntellijFileContext newDir) throws IOException {
-         if(!newDir.getVirtualFile().isDirectory())    {
-             throw new IOException("Target is not a dir");
-         }
-         if(!this.isPsiFile()) {
-             throw new IOException("Source is not a dir");
-         }
+    public void copy(IntellijFileContext newDir) throws IOException {
+        if (!newDir.getVirtualFile().isDirectory()) {
+            throw new IOException("Target is not a dir");
+        }
+        if (!this.isPsiFile()) {
+            throw new IOException("Source is not a dir");
+        }
 
-         PsiDirectoryFactory.getInstance(project).createDirectory(newDir.getVirtualFile()).add(this.psiFile);
+        PsiDirectoryFactory.getInstance(project).createDirectory(newDir.getVirtualFile()).add(this.psiFile);
     }
 
     /**
      * dectecs thr angular version with a package.json in its root
+     *
      * @return
      */
     public Optional<AngularVersion> getAngularVersion() {
 
-        if(AngularIndex.isBelowAngularVersion(this, NG)) {
+        if (AngularIndex.isBelowAngularVersion(this, NG)) {
             return Optional.of(NG);
-        } else if(AngularIndex.isBelowAngularVersion(this, TN_DEC)) {
+        } else if (AngularIndex.isBelowAngularVersion(this, TN_DEC)) {
             return Optional.of(TN_DEC);
         }
         return Optional.empty();
@@ -335,21 +340,21 @@ public class IntellijFileContext {
 
     public boolean isAngularChild(AngularVersion angularVersion) {
 
-            return AngularIndex.isBelowAngularVersion(this, angularVersion);
+        return AngularIndex.isBelowAngularVersion(this, angularVersion);
 
     }
 
     public boolean isAngularChild() {
 
         return AngularIndex.isBelowAngularVersion(this, AngularVersion.NG) ||
-           AngularIndex.isBelowAngularVersion(this, AngularVersion.TN_DEC);
+                AngularIndex.isBelowAngularVersion(this, AngularVersion.TN_DEC);
 
     }
 
     public Optional<IntellijFileContext> getAngularRoot() {
         Optional<IntellijFileContext> fileContext = findFirstUpwards(psiFile -> psiFile.getVirtualFile().getName().equals("package.json")).stream().findFirst();
 
-        if(!fileContext.isPresent()) {
+        if (!fileContext.isPresent()) {
             return Optional.empty();
         }
 
@@ -357,18 +362,30 @@ public class IntellijFileContext {
     }
 
 
-
-
     public boolean isChildOf(IntellijFileContext ctx) {
-        Path child =  Paths.get(getVirtualFile().isDirectory() ? this.getVirtualFile().getPath() : this.getVirtualFile().getParent().getPath());
+        Path child = Paths.get(getVirtualFile().isDirectory() ? this.getVirtualFile().getPath() : this.getVirtualFile().getParent().getPath());
         Path parent = Paths.get(ctx.getVirtualFile().isDirectory() ? ctx.getVirtualFile().getPath() : ctx.getVirtualFile().getParent().getPath());
 
         return child.startsWith(parent);
     }
 
 
-    public Stream<PsiElementContext> queryContent(Object ... items) {
+    public Stream<PsiElementContext> queryContent(Object... items) {
         return PsiWalkFunctions.queryContent(this.getPsiFile(), items);
+    }
+
+    public Stream<PsiElementContext> $q(Object... items) {
+        return PsiWalkFunctions.queryContent(this.getPsiFile(), items);
+    }
+
+
+    public Stream<PsiElementContext> $q(Object[] items, Object item) {
+        return PsiWalkFunctions.queryContent(this.getPsiFile(), ArrayUtils.add(items, item));
+    }
+
+    public Stream<PsiElementContext> $q(Object[]... items) {
+        Object[] all = Arrays.stream(items).reduce((items1, items2) -> Stream.concat(Arrays.stream(items1), Arrays.stream(items2)).toArray()).get();
+        return PsiWalkFunctions.queryContent(this.getPsiFile(), all);
     }
 
 
@@ -383,7 +400,7 @@ public class IntellijFileContext {
         return pThis.relativize(pOther).toString().isEmpty();
     }
 
-    public IntellijFileContext relative( PsiElement importStr) {
+    public IntellijFileContext relative(PsiElement importStr) {
         return new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(StringUtils.stripQuotes(importStr.getText()) + ".ts"));
     }
 

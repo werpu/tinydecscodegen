@@ -77,7 +77,7 @@ public class CreateTnDecRoute extends AnAction {
         if (editorControllers.size() > 0 || defaultComponentData.isPresent()) {
             ComponentFileContext cData = defaultComponentData.get();
             mainForm.getCbComponent().setSelectedIndex(selectorIndex.indexOf(cData.getDisplayName()));
-            String componentClassName = cData.getComponentClassName();
+            String componentClassName = cData.getClazzName();
             mainForm.getCbComponent().setSelectedItem(componentClassName);
             mainForm.getTxtRouteName().setText(StringUtils.toLowerDash(componentClassName).replaceAll("_component", ""));
         } else {
@@ -171,7 +171,7 @@ public class CreateTnDecRoute extends AnAction {
 
     //TODO element nearest
     public static List<ComponentFileContext> getControllers(IntellijFileContext ctx) {
-        return ComponentFileContext.getInstances(ctx);
+        return ComponentFileContext.getControllerInstances(ctx);
     }
 
     public Optional<ComponentFileContext> getDefaultComponentData(IntellijFileContext fileContext) {

@@ -2,6 +2,7 @@ package supportive.fs.common;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Streams;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.RangeMarker;
@@ -10,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import supportive.refactor.RefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
 
@@ -18,9 +20,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static com.google.common.collect.Streams.concat;
+import static java.util.stream.Stream.concat;
 import static supportive.reflectRefact.IntellijRefactor.NG_MODULE;
-import static supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
+import static supportive.reflectRefact.PsiWalkFunctions.*;
 import static supportive.utils.StringUtils.elVis;
 
 
@@ -33,7 +38,7 @@ import static supportive.utils.StringUtils.elVis;
  * <p>
  * ATM only one component def per file is possible
  */
-public class ComponentFileContext extends TypescriptResourceContext {
+public class ComponentFileContext extends AngularResourceContext {
 
     @Getter
     Optional<PsiElement> templateText = Optional.empty();
@@ -42,43 +47,40 @@ public class ComponentFileContext extends TypescriptResourceContext {
     @Getter
     Optional<TemplateFileContext> templateRef = Optional.empty();
 
-    @Getter
-    private String componentClassName;
-
     private PsiElement componentAnnotation;
 
-    @Getter
-    private NgModuleFileContext ngModule;
+    private AssociativeArraySection params;
+
 
     public ComponentFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
-        init();
+
     }
 
     public ComponentFileContext(AnActionEvent event) {
         super(event);
-        init();
+
     }
 
     public ComponentFileContext(Project project, VirtualFile virtualFile) {
         super(project, virtualFile);
-        init();
+        postConstruct();
     }
 
     public ComponentFileContext(IntellijFileContext fileContext) {
         super(fileContext);
-        init();
+
     }
 
     public ComponentFileContext(IntellijFileContext fileContext, PsiElement componentAnnotation) {
         super(fileContext);
         this.componentAnnotation = componentAnnotation;
-        init();
+
     }
 
 
     public String getDisplayName() {
-        return this.getComponentClassName() + ((ngModule == null) ? "" : "["+ngModule.getModuleName()+"]");
+        return this.getClazzName() + ((getParentModule() == null) ? "" : "["+ getParentModule().getModuleName()+"]");
     }
 
 
@@ -110,11 +112,12 @@ public class ComponentFileContext extends TypescriptResourceContext {
         return false;
     }
 
-    private void init() {
-        Optional<PsiElement> template = Optional.empty();
-        template = getTemplate();
+    @Override
+    protected void postConstruct() {
+        super.postConstruct();
+        Optional<PsiElement> template = getTemplate();
 
-        componentClassName = (componentAnnotation == null) ?
+        clazzName = (componentAnnotation == null) ?
                 findComponentClassName().get():
                 findComponentClassName(componentAnnotation).get();
 
@@ -128,8 +131,8 @@ public class ComponentFileContext extends TypescriptResourceContext {
                 templateRef = getTemplateRef(template.get());
             }
         }
-        List<IntellijFileContext> modules = findFirstUpwards(psiFile -> psiFile.getContainingFile().getText().contains(NG_MODULE));
-        this.ngModule = modules.isEmpty() ? null :  new NgModuleFileContext(modules.get(0));
+        findParentModule();
+        params = resolveParameters();
 
     }
 
@@ -213,21 +216,14 @@ public class ComponentFileContext extends TypescriptResourceContext {
     }
 
     public Optional<String> findComponentClassName() {
-        List<PsiElement> componentDefs = findPsiElements(PsiWalkFunctions::isComponent);
-        List<PsiElement> componentDefs2 = findPsiElements(PsiWalkFunctions::isController);
-        List<PsiElement> classDefs = findPsiElements(PsiWalkFunctions::isClass);
 
-        final List<PsiElement> componentControllerDefs = Lists.newArrayList(Iterables.concat(componentDefs, componentDefs2));
+        return concat($q(COMPONENT_CLASS), $q(CONTROLLER_CLASS))
+                .map(el -> el.getName())
+                .findFirst();
 
-        Optional<String> componentClassDef = classDefs.stream().filter(classDef -> {
-            for (PsiElement componentDef : componentControllerDefs) {
-                if (componentDef.getTextOffset() < classDef.getTextOffset()) return true;
-            }
-            return false;
-        }).map(el -> (String) elVis(el, "nameIdentifier", "text").get()).findFirst();
+    }
 
-        return componentClassDef;
-    }private PsiElement fetchStringContentElement(Optional<PsiElement> retVal) {
+    private PsiElement fetchStringContentElement(Optional<PsiElement> retVal) {
         return (PsiElement) retVal.get().getNode().getFirstChildNode().getTreeNext();
     }
 
@@ -244,17 +240,22 @@ public class ComponentFileContext extends TypescriptResourceContext {
 
 
     public static List<ComponentFileContext> getInstances(IntellijFileContext fileContext) {
-        List<PsiElement> componentElements = walkPsiTree(fileContext.getPsiFile(), PsiWalkFunctions::isComponent, false);
-        return componentElements.stream()
-                .map(el -> new ComponentFileContext(fileContext, el))
+        return fileContext.$q(COMPONENT_CLASS)
+                .map(el -> new ComponentFileContext(fileContext, el.getElement()))
                 .collect(Collectors.toList());
+
     }
 
     public static List<ComponentFileContext> getControllerInstances(IntellijFileContext fileContext) {
-        List<PsiElement> componentElements = walkPsiTree(fileContext.getPsiFile(), PsiWalkFunctions::isController, false);
-        return componentElements.stream()
-                .map(el -> new ComponentFileContext(fileContext, el))
+        return fileContext.$q(CONTROLLER_CLASS)
+                .map(el -> new ComponentFileContext(fileContext, el.getElement()))
                 .collect(Collectors.toList());
+    }
+
+
+    @NotNull
+    private AssociativeArraySection resolveParameters() {
+        return new AssociativeArraySection(project, psiFile, Streams.concat($q(COMPONENT_ARGS), $q(CONTROLLER_ARGS)).findFirst().get().getElement());
     }
 
     @Override

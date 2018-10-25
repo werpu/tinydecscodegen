@@ -14,6 +14,7 @@ import supportive.fs.common.*;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.RefactorUnit;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -60,6 +61,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     @Override
     public void addRoute(Route routeData) {
+
         routeData.setComponent(appendImport(routeData.getComponent(), routeData.getComponentPath()));
 
         int cnt = 1;

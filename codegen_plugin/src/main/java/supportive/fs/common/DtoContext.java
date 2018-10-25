@@ -6,7 +6,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 
-public class DtoContext extends TypescriptResourceContext {
+import static supportive.reflectRefact.PsiWalkFunctions.DTO_CLASS;
+import static supportive.reflectRefact.PsiWalkFunctions.TYPE_SCRIPT_CLASS;
+
+public class DtoContext extends AngularResourceContext {
     public DtoContext(Project project, PsiFile psiFile, PsiElement element) {
         super(project, psiFile, element);
     }
@@ -22,4 +25,25 @@ public class DtoContext extends TypescriptResourceContext {
     public DtoContext(IntellijFileContext fileContext, PsiElement element) {
         super(fileContext, element);
     }
+
+
+    @Override
+    protected void postConstruct() {
+        super.postConstruct();
+
+        resourceRoot = resolveClass();
+        clazzName = resolveClass().getName();
+        artifactName =  clazzName;
+
+        findParentModule();
+    }
+
+    private PsiElementContext resolveClass() {
+        String name = $q(DTO_CLASS).findFirst().get().getName();
+        return $q(TYPE_SCRIPT_CLASS)
+                .filter(clz -> name.startsWith(clz.getName()) && name.length() > clz.getName().length())
+                .findFirst()
+                .get();
+    }
+
 }
