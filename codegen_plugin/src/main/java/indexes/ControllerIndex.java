@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import static indexes.IndexUtils.standardExclusions;
 import static supportive.reflectRefact.PsiWalkFunctions.COMPONENT_ANN;
 import static supportive.reflectRefact.PsiWalkFunctions.CONTROLLER_ANN;
+import static supportive.utils.StringUtils.normalizePath;
 
 public class ControllerIndex extends ScalarIndexExtension<String> {
 
@@ -36,7 +37,7 @@ public class ControllerIndex extends ScalarIndexExtension<String> {
             IntellijFileContext ctx = new IntellijFileContext(inputData.getProject(), inputData.getFile());
             if ((!standardExclusions(inputData)) && (isComponent(ctx) &&
                     //TODO pages really?
-                    inputData.getFile().getPath().replaceAll("\\\\", "/").contains("/pages/"))
+                    normalizePath(inputData.getFile().getPath()).contains("/pages/"))
                     || isController(ctx)) {
                 return Collections.singletonMap(CONTROLLER, null);
             }

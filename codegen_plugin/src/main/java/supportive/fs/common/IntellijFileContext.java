@@ -57,6 +57,7 @@ import java.util.stream.Stream;
 import static supportive.fs.common.AngularVersion.NG;
 import static supportive.fs.common.AngularVersion.TN_DEC;
 import static supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
+import static supportive.utils.StringUtils.normalizePath;
 
 /**
  * intellij deals with two levels of files
@@ -133,8 +134,7 @@ public class IntellijFileContext {
         Path componentFilePath = Paths.get(getVirtualFile().getPath());
         Path relPath = routesFilePath.relativize(componentFilePath);
 
-        return ("./" + relPath.toString())
-                .replaceAll("\\\\", "/")
+        return normalizePath("./" + relPath.toString())
                 .replaceAll("" +
                         "//", "/");
     }

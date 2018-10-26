@@ -8,6 +8,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import static supportive.utils.StringUtils.normalizePath;
+
 
 @Getter
 @Setter
@@ -81,8 +83,7 @@ public class Route implements Cloneable, Serializable, Comparable{
     }
 
     public void setComponentPath(String componentPath) {
-        this.componentPath = componentPath
-                .replaceAll("\\\\", "/")
+        this.componentPath = normalizePath(componentPath)
                 .replaceAll("^(.*)\\.ts$", "$1");
     }
 

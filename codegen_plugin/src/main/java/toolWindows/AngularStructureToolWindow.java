@@ -2,9 +2,6 @@ package toolWindows;
 
 import com.google.common.base.Strings;
 import com.intellij.ide.CommonActionsManager;
-import com.intellij.ide.projectView.PresentationData;
-import com.intellij.ide.util.treeView.NodeRenderer;
-import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.CaretModel;
@@ -16,7 +13,6 @@ import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileContentsChangedAdapter;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -33,7 +29,6 @@ import com.intellij.util.ui.UIUtil;
 import indexes.AngularIndex;
 import indexes.ModuleIndex;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.*;
 import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
@@ -46,8 +41,6 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.file.Path;
@@ -58,6 +51,7 @@ import java.util.stream.Collectors;
 
 import static supportive.fs.common.AngularVersion.TN_DEC;
 import static supportive.utils.StringUtils.elVis;
+import static supportive.utils.StringUtils.normalizePath;
 
 
 public class AngularStructureToolWindow implements ToolWindowFactory {
@@ -70,106 +64,50 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     private TreeSpeedSearch searchPath = null;
     private TreeExpansionMonitor expansionMonitor = null;
 
+
     public AngularStructureToolWindow() {
 
-        final Icon ng = IconLoader.getIcon("/images/ng.png");
 
-        tree.setCellRenderer(new NodeRenderer() {
-            @Nullable
-            @Override
-            protected ItemPresentation getPresentation(Object node) {
-                ItemPresentation retVal = super.getPresentation(node);
-                if (node instanceof PsiRouteContext) {
-                    Route route = ((PsiRouteContext) node).getRoute();
-                    return new PresentationData(route.getRouteKey(), route.getUrl(), ng, null);
-                }
-                return retVal;
-            }
-        });
+        tree.setCellRenderer(new ContextNodeRenderer());
 
 
         tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Please Wait")));
 
 
-        tree.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
+        NodeKeyController<PsiRouteContext> keyCtrl = new NodeKeyController<>(tree,
+                this::goToComponent, this::goToRouteDcl, this::copyRouteLink);
+        tree.addKeyListener(keyCtrl);
 
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (!(tree.getLastSelectedPathComponent() instanceof SwingRouteTreeNode)) {
-                    return;
-                }
-                SwingRouteTreeNode selectedNode = (SwingRouteTreeNode) tree.getLastSelectedPathComponent();
-                if (e.isMetaDown() && e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    if (selectedNode.getUserObject() instanceof PsiRouteContext) {
-                        PsiRouteContext foundContext = (PsiRouteContext) selectedNode.getUserObject();
-                        goToComponent(foundContext);
-                    }
-                } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    if (selectedNode.getUserObject() instanceof PsiRouteContext) {
-                        PsiRouteContext foundContext = (PsiRouteContext) selectedNode.getUserObject();
-                        goToRouteDcl(foundContext);
-                    }
-                } else if (e.isMetaDown() && e.getKeyCode() == KeyEvent.VK_C) {
-                    if (selectedNode.getUserObject() instanceof PsiRouteContext) {
-                        PsiRouteContext foundContext = (PsiRouteContext) selectedNode.getUserObject();
-                        copyRouteLink(foundContext);
-                    }
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
-        });
 
     }
 
 
-    private void doMouseClicked(MouseEvent ev) {
-
-        TreePath tp = tree.getPathForLocation(ev.getX(), ev.getY());
-        if (tp == null) {
-            return;
-        }
-        Object selectedNode = ((DefaultMutableTreeNode) tp.getLastPathComponent()).getUserObject();
-        if (selectedNode == null) {
-            return;
-        }
-
-        if (selectedNode instanceof PsiRouteContext) {
-            PsiRouteContext foundContext = (PsiRouteContext) selectedNode;
 
 
-            if (SwingUtilities.isRightMouseButton(ev)) {
-                JPopupMenu popupMenu = new JPopupMenu();
-                JMenuItem go_to_route_declaration = new JMenuItem("Go to route declaration");
+    public void showPopup(PsiRouteContext foundContext, MouseEvent ev) {
 
-                go_to_route_declaration.addActionListener(actionEvent -> goToRouteDcl(foundContext));
-                popupMenu.add(go_to_route_declaration);
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem go_to_route_declaration = new JMenuItem("Go to route declaration");
 
-                JMenuItem go_to_component = new JMenuItem("Go to component");
-                go_to_component.addActionListener(actionEvent -> goToComponent(foundContext));
-                popupMenu.add(go_to_component);
+        go_to_route_declaration.addActionListener(actionEvent -> goToRouteDcl(foundContext));
+        popupMenu.add(go_to_route_declaration);
 
-                popupMenu.addSeparator();
-                JMenuItem copy_route_key = new JMenuItem("Copy Route Key");
-                copy_route_key.addActionListener(actionEvent -> copyRouteName(foundContext));
-                popupMenu.add(copy_route_key);
+        JMenuItem go_to_component = new JMenuItem("Go to component");
+        go_to_component.addActionListener(actionEvent -> goToComponent(foundContext));
+        popupMenu.add(go_to_component);
 
-                JMenuItem copy_route_link = new JMenuItem("Copy Route Link");
-                copy_route_link.addActionListener(actionEvent -> copyRouteLink(foundContext));
-                popupMenu.add(copy_route_link);
+        popupMenu.addSeparator();
+        JMenuItem copy_route_key = new JMenuItem("Copy Route Key");
+        copy_route_key.addActionListener(actionEvent -> copyRouteName(foundContext));
+        popupMenu.add(copy_route_key);
 
-                popupMenu.show(tree, ev.getX(), ev.getY());
-            }
-        }
+        JMenuItem copy_route_link = new JMenuItem("Copy Route Link");
+        copy_route_link.addActionListener(actionEvent -> copyRouteLink(foundContext));
+        popupMenu.add(copy_route_link);
+
+        popupMenu.show(tree, ev.getX(), ev.getY());
+
     }
-
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
@@ -246,7 +184,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
             try {
                 try {
                     projectRoot = new IntellijFileContext(project);
-                } catch(RuntimeException ex) {
+                } catch (RuntimeException ex) {
                     //TODO logging here, the project was not resolvable
                     tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Project structure cannot be determined atm. Please try again later.")));
                     return;
@@ -288,11 +226,9 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 if (searchPath == null) {
 
                     expansionMonitor = TreeExpansionMonitor.install(tree);
-                    tree.addMouseListener(new MouseAdapter() {
-                        public void mouseClicked(MouseEvent me) {
-                            doMouseClicked(me);
-                        }
-                    });
+                    MouseController<PsiRouteContext> contextMenuListener = new MouseController<>(tree, this::showPopup);
+                    tree.addMouseListener(contextMenuListener);
+
 
                     searchPath = new TreeSpeedSearch(tree, treePath -> {
                         treePath.getPath();
@@ -332,15 +268,15 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     }
 
     private void buildModulesTree(SwingRootParentNode routesHolder) {
-        if(!projectRoot.getAngularRoot().isPresent()) {
+        if (!projectRoot.getAngularRoot().isPresent()) {
             return;
         }
 
 
         List<PsiFile> modules_tn = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), TN_DEC).stream()
-                .flatMap(angRoot ->  ModuleIndex.getAllAffectedFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());
+                .flatMap(angRoot -> ModuleIndex.getAllAffectedFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());
         List<PsiFile> modules_ng = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), AngularVersion.NG).stream()
-                .flatMap(angRoot ->  ModuleIndex.getAllAffectedFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());
+                .flatMap(angRoot -> ModuleIndex.getAllAffectedFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());
 
 
 
@@ -378,7 +314,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         Path componentPath = Paths.get(route.getComponentPath());
         Path parent = Paths.get(Objects.requireNonNull(foundContext.getElement().getContainingFile().getParent()).getVirtualFile().getPath());
         Path rel = parent.relativize(componentPath);
-        VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(rel.toString().replaceAll("\\\\", "/") + ".ts");
+        VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(normalizePath(rel.toString()) + ".ts");
         if (virtualFile != null) {
             (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(virtualFile, true);
         }

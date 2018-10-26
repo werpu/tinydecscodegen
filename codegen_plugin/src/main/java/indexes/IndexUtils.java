@@ -15,6 +15,8 @@ import supportive.fs.common.IntellijFileContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static supportive.utils.StringUtils.normalizePath;
+
 public class IndexUtils {
     public static List<PsiFile> resolve(Project project, IntellijFileContext angularRoot, ID<String, Void> indexId, String indexMarker) {
         return FileBasedIndex.getInstance().getContainingFiles(indexId, indexMarker,
@@ -29,7 +31,7 @@ public class IndexUtils {
 
     public static boolean standardExclusions(@NotNull final FileContent inputData) {
         return inputData.getFile().isDirectory()
-                || inputData.getFile().getPath().replaceAll("\\\\", "/").contains("/node_modules/")
+                || normalizePath(inputData.getFile().getPath()).contains("/node_modules/")
                 || !inputData.getFile().getFileType().getDefaultExtension().equalsIgnoreCase("ts");
     }
 }

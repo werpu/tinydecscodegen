@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static supportive.utils.StringUtils.normalizePath;
+
 /**
  * A context pointing to a directory anywhere (jar etc...)
  * <p>
@@ -54,7 +56,7 @@ public class IntellijResourceDir {
 
     public List<ZipEntry> getAllFiles() {
 
-        String relPath = relativePath.replaceAll("\\\\", "/");
+        String relPath = normalizePath(relativePath);
         String rel = relPath.substring(relPath.indexOf("resources/") + "resources/".length());
 
 

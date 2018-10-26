@@ -88,6 +88,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static supportive.utils.StringUtils.normalizePath;
+
 /**
  * supportive class to simplify some of the intelli openapi apis
  */
@@ -666,7 +668,7 @@ public class IntellijUtils {
         final Collection<PsiFile> foundFiles = Arrays.asList(PsiSearchHelper.SERVICE.getInstance(project).findCommentsContainingIdentifier(searchStr, GlobalSearchScope.everythingScope(project)))
                 .stream()
                 .filter(item -> item.getContainingFile().getFileType().getDefaultExtension().equals(extension))
-                .filter(item -> !item.getContainingFile().getVirtualFile().getPath().replaceAll("\\\\", "/").contains("/generated-sources/"))
+                .filter(item -> !normalizePath(item.getContainingFile().getVirtualFile().getPath()).contains("/generated-sources/"))
                 .map(item -> item.getContainingFile())
                 .collect(Collectors.toSet());
         return foundFiles;

@@ -112,5 +112,12 @@ public class StringUtils {
         return m.find();
     }
 
+    public static String normalizePath(String in) {
+        if(in == null) {
+            return in;
+        }
+        return in.replaceAll("\\\\", "/");
+    }
+
 
 }
