@@ -29,12 +29,12 @@ import com.intellij.util.ui.UIUtil;
 import indexes.AngularIndex;
 import indexes.ModuleIndex;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.*;
 import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
 import supportive.fs.tn.TNUIRoutesFileContext;
 
-import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -66,10 +66,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
     public AngularStructureToolWindow() {
 
-
         tree.setCellRenderer(new ContextNodeRenderer());
-
-
         tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Please Wait")));
 
 
@@ -81,31 +78,15 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     }
 
 
-
-
     private void showPopup(PsiRouteContext foundContext, MouseEvent ev) {
 
-        JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem go_to_route_declaration = new JMenuItem("Go to route declaration");
-
-        go_to_route_declaration.addActionListener(actionEvent -> goToRouteDcl(foundContext));
-        popupMenu.add(go_to_route_declaration);
-
-        JMenuItem go_to_component = new JMenuItem("Go to component");
-        go_to_component.addActionListener(actionEvent -> goToComponent(foundContext));
-        popupMenu.add(go_to_component);
-
-        popupMenu.addSeparator();
-        JMenuItem copy_route_key = new JMenuItem("Copy Route Key");
-        copy_route_key.addActionListener(actionEvent -> copyRouteName(foundContext));
-        popupMenu.add(copy_route_key);
-
-        JMenuItem copy_route_link = new JMenuItem("Copy Route Link");
-        copy_route_link.addActionListener(actionEvent -> copyRouteLink(foundContext));
-        popupMenu.add(copy_route_link);
-
-        popupMenu.show(tree, ev.getX(), ev.getY());
-
+        PopupBuilder builder = new PopupBuilder();
+        builder.withMenuItem("Go to route declaration", actionEvent -> goToRouteDcl(foundContext))
+                .withMenuItem("Go to component", actionEvent -> goToComponent(foundContext))
+                .withSeparator()
+                .withMenuItem("Copy Route Link", actionEvent -> copyRouteLink(foundContext))
+                .withMenuItem("Copy Route Key", actionEvent -> copyRouteName(foundContext))
+                .show(tree, ev.getX(), ev.getY());
     }
 
     @Override
@@ -229,27 +210,29 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                     tree.addMouseListener(contextMenuListener);
 
 
-                    searchPath = new TreeSpeedSearch(tree, treePath -> {
-                        treePath.getPath();
-                        final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
-                        final Object userObject = node.getUserObject();
-                        TreePath nodePath = new TreePath(node.getPath());
-                        if (!tree.isExpanded(nodePath)) {
-                            tree.expandPath(nodePath);
-                        }
-
-                        if (userObject instanceof PsiRouteContext) {
-                            return ((PsiRouteContext) userObject).getRoute().getRouteVarName();
-                        }
-                        return null;
-
-                    });
+                    searchPath = new TreeSpeedSearch(tree, this::convertToSearchableString);
                 }
 
             } catch (IndexNotReadyException exception) {
                 refreshContent(project);
             }
         });
+    }
+
+    @Nullable
+    private String convertToSearchableString(TreePath treePath) {
+        treePath.getPath();
+        final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
+        final Object userObject = node.getUserObject();
+        TreePath nodePath = new TreePath(node.getPath());
+        if (!tree.isExpanded(nodePath)) {
+            tree.expandPath(nodePath);
+        }
+
+        if (userObject instanceof PsiRouteContext) {
+            return ((PsiRouteContext) userObject).getRoute().getRouteVarName();
+        }
+        return null;
     }
 
     private void buildRoutesTree(SwingRootParentNode routesHolder) {
