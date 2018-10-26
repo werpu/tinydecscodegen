@@ -59,6 +59,7 @@
 
 
         <toolWindow id="Angular Navigations" icon="/images/tt.png" anchor="left" factoryClass="toolWindows.AngularStructureToolWindow"/>
+        <toolWindow id="Angular Resources" icon="/images/tt.png" anchor="bottom" factoryClass="toolWindows.ResourceToolWindow"/>
 
     </extensions>
 

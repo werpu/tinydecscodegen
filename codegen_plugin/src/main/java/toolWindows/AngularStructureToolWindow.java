@@ -131,6 +131,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
 
     private void doMouseClicked(MouseEvent ev) {
+
         TreePath tp = tree.getPathForLocation(ev.getX(), ev.getY());
         if (tp == null) {
             return;
