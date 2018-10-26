@@ -41,7 +41,6 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -84,7 +83,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
 
 
-    public void showPopup(PsiRouteContext foundContext, MouseEvent ev) {
+    private void showPopup(PsiRouteContext foundContext, MouseEvent ev) {
 
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem go_to_route_declaration = new JMenuItem("Go to route declaration");
@@ -267,6 +266,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         });
     }
 
+    @SuppressWarnings("unused")
     private void buildModulesTree(SwingRootParentNode routesHolder) {
         if (!projectRoot.getAngularRoot().isPresent()) {
             return;

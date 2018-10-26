@@ -15,7 +15,7 @@ public class MouseController<T> implements MouseListener {
     Tree tree;
     ClickHandler<T, MouseEvent> rightMouseButton;
 
-    public void doMouseClicked(MouseEvent ev) {
+    private void doMouseClicked(MouseEvent ev) {
 
         TreePath tp = tree.getPathForLocation(ev.getX(), ev.getY());
         if (tp == null) {
@@ -37,7 +37,7 @@ public class MouseController<T> implements MouseListener {
 
     }
 
-    public boolean isInstanceOfT(Object userObj) {
+    private boolean isInstanceOfT(Object userObj) {
         try {
             T letItFail = (T) userObj;
         } catch (ClassCastException e) {

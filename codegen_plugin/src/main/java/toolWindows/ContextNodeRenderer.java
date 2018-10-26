@@ -17,7 +17,7 @@ import static supportive.utils.StringUtils.normalizePath;
  */
 public class ContextNodeRenderer extends NodeRenderer {
 
-    final Icon ng = IconLoader.getIcon("/images/ng.png");
+    private final Icon ng = IconLoader.getIcon("/images/ng.png");
 
     @Nullable
     @Override
