@@ -57,7 +57,9 @@ import java.util.stream.Stream;
 import static supportive.fs.common.AngularVersion.NG;
 import static supportive.fs.common.AngularVersion.TN_DEC;
 import static supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
+import static supportive.utils.IntellijUtils.getTsExtension;
 import static supportive.utils.StringUtils.normalizePath;
+import static supportive.utils.StringUtils.stripQuotes;
 
 /**
  * intellij deals with two levels of files
@@ -401,7 +403,7 @@ public class IntellijFileContext {
     }
 
     public IntellijFileContext relative(PsiElement importStr) {
-        return new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(StringUtils.stripQuotes(importStr.getText()) + ".ts"));
+        return new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(stripQuotes(importStr.getText()) + getTsExtension()));
     }
 
 

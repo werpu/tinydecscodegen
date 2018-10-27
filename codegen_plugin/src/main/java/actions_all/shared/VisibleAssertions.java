@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import static supportive.reflectRefact.PsiWalkFunctions.JS_ES_6_DECORATOR;
 import static supportive.reflectRefact.PsiWalkFunctions.PSI_ELEMENT_JS_IDENTIFIER;
+import static supportive.utils.IntellijUtils.getTsExtension;
 
 public class VisibleAssertions {
     public static boolean assertNotJavaRest(IntellijFileContext ctx) {
@@ -39,7 +40,7 @@ public class VisibleAssertions {
 
 
     public static boolean assertNotTs(IntellijFileContext ctx) {
-        return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getPath().endsWith(".ts");
+        return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getPath().endsWith(getTsExtension());
     }
 
 

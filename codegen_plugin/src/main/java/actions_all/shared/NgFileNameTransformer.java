@@ -4,6 +4,8 @@ package actions_all.shared;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static supportive.utils.IntellijUtils.getTsExtension;
+
 public class NgFileNameTransformer implements FileNameTransformer {
 
     private String postfix;
@@ -35,6 +37,6 @@ public class NgFileNameTransformer implements FileNameTransformer {
         }
         builder.append(className.substring(i, className.length()));
 
-        return builder.toString().toLowerCase()+"."+postfix+".ts";
+        return builder.toString().toLowerCase()+"."+postfix+getTsExtension();
     }
 }

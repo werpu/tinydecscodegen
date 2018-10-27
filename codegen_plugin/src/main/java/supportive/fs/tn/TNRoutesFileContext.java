@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 
 import static java.lang.Integer.valueOf;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
+import static supportive.utils.IntellijUtils.getTsExtension;
 import static supportive.utils.StringUtils.literalEquals;
 
 public abstract class  TNRoutesFileContext extends TypescriptFileContext implements IUIRoutesRoutesFileContext {
@@ -194,7 +195,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
         }
         //load class file and fetch the missing meta info from there (namy only)
 
-        IntellijFileContext pageController = new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(StringUtils.stripQuotes(importPath.get().getText()) + ".ts"));
+        IntellijFileContext pageController = new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(StringUtils.stripQuotes(importPath.get().getText()) + getTsExtension()));
 
         Optional<PsiElementContext> controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, "TEXT*:(@Controller)", JS_PROPERTY, "NAME:(name)", PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
 

@@ -26,6 +26,7 @@ import static com.google.common.collect.Streams.concat;
 import static java.util.stream.Stream.concat;
 import static supportive.reflectRefact.IntellijRefactor.NG_MODULE;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
+import static supportive.utils.IntellijUtils.getTsExtension;
 import static supportive.utils.StringUtils.elVis;
 
 
@@ -189,9 +190,9 @@ public class ComponentFileContext extends AngularResourceContext {
             }
             String importstr = psiImportString.get().getText().trim();
             importstr = importstr.substring(1, importstr.length() - 1);
-            if (!importstr.endsWith(".ts")) {
+            if (!importstr.endsWith(getTsExtension())) {
                 //TODO default typescript extension info from intellij
-                importstr = importstr + ".ts";
+                importstr = importstr + getTsExtension();
             }
 
 

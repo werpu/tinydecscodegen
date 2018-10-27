@@ -44,6 +44,7 @@ import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -704,19 +705,21 @@ public class IntellijUtils {
         });
     }
 
-    //https://stackoverflow.com/questions/14165517/processbuilder-forwarding-stdout-and-stderr-of-started-processes-without-blocki
-    static class StreamGobbler implements Runnable {
-        private InputStream inputStream;
-        private Consumer<String> consumeInputLine;
 
-        public StreamGobbler(InputStream inputStream, Consumer<String> consumeInputLine) {
-            this.inputStream = inputStream;
-            this.consumeInputLine = consumeInputLine;
+    public static String getTsExtension() {
+        String retVal = FileTypeManager.getInstance().getStdFileType("TypeScript").getDefaultExtension();
+        if(!retVal.startsWith(".")) {
+            retVal = "."+retVal;
         }
-
-        public void run() {
-            new BufferedReader(new InputStreamReader(inputStream)).lines().forEach(consumeInputLine);
-        }
+        return retVal;
     }
 
+
+    static String getJavaExtension() {
+        String retVal = FileTypeManager.getInstance().getStdFileType("Java").getDefaultExtension();
+        if(!retVal.startsWith(".")) {
+            retVal = "."+retVal;
+        }
+        return retVal;
+    }
 }

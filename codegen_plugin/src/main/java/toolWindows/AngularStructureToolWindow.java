@@ -46,6 +46,7 @@ import static actions_all.shared.Labels.*;
 import static actions_all.shared.Messages.*;
 import static supportive.fs.common.AngularVersion.NG;
 import static supportive.fs.common.AngularVersion.TN_DEC;
+import static supportive.utils.IntellijUtils.getTsExtension;
 import static supportive.utils.StringUtils.normalizePath;
 import static supportive.utils.SwingUtils.copyToClipboard;
 import static supportive.utils.SwingUtils.openEditor;
@@ -88,28 +89,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileContentsChangedAdapter() {
-            @Override
-            protected void onFileChange(@NotNull VirtualFile file) {
-                //TODO angular version dynamic depending on the project type
-                if (!file.getName().endsWith(".ts")) {
-                    return;
-                }
-
-                //document listener which refreshes every time a route file changes
-                getChangeListener().smartInvokeLater(() -> refreshContent(project, file));
-                //TODO add the same check for modules which handle all the artifacts
-            }
-
-            private DumbService getChangeListener() {
-                return DumbService.getInstance(projectRoot.getProject());
-            }
-
-            @Override
-            protected void onBeforeFileChange(@NotNull VirtualFile file) {
-
-            }
-        });
+        initChangeListener(project);
 
         SimpleToolWindowPanel panel = new SimpleToolWindowPanel(true, true);
 
@@ -133,6 +113,31 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         }
 
 
+    }
+
+    public void initChangeListener(@NotNull Project project) {
+        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileContentsChangedAdapter() {
+            @Override
+            protected void onFileChange(@NotNull VirtualFile file) {
+                //TODO angular version dynamic depending on the project type
+                if (!file.getName().endsWith(getTsExtension())) {
+                    return;
+                }
+
+                //document listener which refreshes every time a route file changes
+                getChangeListener().smartInvokeLater(() -> refreshContent(project, file));
+                //TODO add the same check for modules which handle all the artifacts
+            }
+
+            private DumbService getChangeListener() {
+                return DumbService.getInstance(projectRoot.getProject());
+            }
+
+            @Override
+            protected void onBeforeFileChange(@NotNull VirtualFile file) {
+
+            }
+        });
     }
 
     private void refreshContent( @NotNull Project project, VirtualFile file) {
@@ -289,7 +294,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         Path componentPath = Paths.get(route.getComponentPath());
         Path parent = Paths.get(Objects.requireNonNull(foundContext.getElement().getContainingFile().getParent()).getVirtualFile().getPath());
         Path rel = parent.relativize(componentPath);
-        VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(normalizePath(rel.toString()) + ".ts");
+        VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(normalizePath(rel.toString()) + getTsExtension());
         if(virtualFile != null) {
             openEditor(new IntellijFileContext(foundContext.getElement().getProject(), virtualFile));
         }

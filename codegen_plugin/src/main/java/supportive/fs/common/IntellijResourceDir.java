@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static supportive.utils.IntellijUtils.getTsExtension;
 import static supportive.utils.StringUtils.normalizePath;
 
 /**
@@ -98,7 +99,7 @@ public class IntellijResourceDir {
         return fileName.endsWith(".txt") ||
                 fileName.endsWith(".js") ||
                 fileName.endsWith(".md") ||
-                fileName.endsWith(".ts") ||
+                fileName.endsWith(getTsExtension()) ||
                 fileName.endsWith(".java") ||
                 fileName.endsWith(".html") ||
                 fileName.endsWith(".css") ||
