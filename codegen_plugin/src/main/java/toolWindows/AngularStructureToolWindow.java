@@ -55,6 +55,25 @@ import static supportive.utils.StringUtils.normalizePath;
 
 public class AngularStructureToolWindow implements ToolWindowFactory {
 
+    public static final String LBL_GO_TO_ROUTE_DECLARATION = "Go to route declaration";
+    public static final String LBL_GO_TO_COMPONENT = "Go to component";
+    public static final String LBL_COPY_ROUTE_LINK = "Copy Route Link";
+    public static final String LBL_COPY_ROUTE_KEY = "Copy Route Key";
+    public static final String LBL_ARTIFACTS = "Artifacts";
+    public static final String LBL_ROUTES = "Routes";
+    public static final String LBL_MODULES = "Modules";
+    public static final String LBL_COMPONENTS = "Components";
+    public static final String LBL_SERVICES = "Services";
+    public static final String MSG_NO_ROUTE_FOUND = "No route found";
+    public static final String LBL_ANGLUAR_NG_ROUTES = "Angluar NG  Routes";
+    public static final String LBL_TN_DEC_ROUTES = "TN Dec Routes";
+    public static final String MSG_PLEASE_WAIT = "Please Wait";
+    public static final String MSG_NO_COMP_PRES_CHECK_ROUTE = "No component determinable - please check your route declaration.";
+    public static final String PROP_EDITOR = "editor";
+    public static final String LBL_TN_DEC_UI_ROUTES = "TN Dec UI Routes";
+    public static final String HREF_TN_UIROUTES = "<a ui-sref=\"%s\" ui-sref-active=\"active\">%s</a>";
+    public static final String HREF_TN = "<a href=\"#!%s\">%s</a>";
+    public static final String HREF_NG_UI_ROUTES = "<a uiSref=\"%s\" uiSrefActive=\"active\">%s</a>";
     private Tree tree = new Tree();
 
     private gui.AngularStructureToolWindow contentPanel = new gui.AngularStructureToolWindow();
@@ -67,13 +86,12 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     public AngularStructureToolWindow() {
 
         tree.setCellRenderer(new ContextNodeRenderer());
-        tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Please Wait")));
+        tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(MSG_PLEASE_WAIT)));
 
 
         NodeKeyController<PsiRouteContext> keyCtrl = new NodeKeyController<>(tree,
                 this::goToComponent, this::goToRouteDcl, this::copyRouteLink);
         tree.addKeyListener(keyCtrl);
-
 
     }
 
@@ -81,11 +99,11 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     private void showPopup(PsiRouteContext foundContext, MouseEvent ev) {
 
         PopupBuilder builder = new PopupBuilder();
-        builder.withMenuItem("Go to route declaration", actionEvent -> goToRouteDcl(foundContext))
-                .withMenuItem("Go to component", actionEvent -> goToComponent(foundContext))
+        builder.withMenuItem(LBL_GO_TO_ROUTE_DECLARATION, actionEvent -> goToRouteDcl(foundContext))
+                .withMenuItem(LBL_GO_TO_COMPONENT, actionEvent -> goToComponent(foundContext))
                 .withSeparator()
-                .withMenuItem("Copy Route Link", actionEvent -> copyRouteLink(foundContext))
-                .withMenuItem("Copy Route Key", actionEvent -> copyRouteName(foundContext))
+                .withMenuItem(LBL_COPY_ROUTE_LINK, actionEvent -> copyRouteLink(foundContext))
+                .withMenuItem(LBL_COPY_ROUTE_KEY, actionEvent -> copyRouteName(foundContext))
                 .show(tree, ev.getX(), ev.getY());
     }
 
@@ -100,28 +118,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 }
 
                 //document listener which refreshes every time a route file changes
-                getChangeListener().smartInvokeLater(() -> {
-                    IntellijFileContext vFileContext = new IntellijFileContext(project, file);
-
-                    boolean routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
-                            .anyMatch(routeFile -> routeFile.equals(vFileContext));
-
-
-                    ContextFactory.getInstance(projectRoot).getProjectResources(projectRoot, TN_DEC);
-
-                    if (routeFileAffected) {
-                        refreshContent(projectRoot.getProject());
-                        return;
-                    }
-
-                    //ModuleIndex allModules = ModuleIndex.getAllAffectedFiles(, )
-                    routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
-                            .anyMatch(routeFile -> routeFile.equals(vFileContext));
-
-                    if (routeFileAffected) {
-                        refreshContent(projectRoot.getProject());
-                    }
-                });
+                getChangeListener().smartInvokeLater(() -> refreshContent(file, project, file));
                 //TODO add the same check for modules which handle all the artifacts
             }
 
@@ -159,6 +156,29 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
     }
 
+    private void refreshContent(@NotNull VirtualFile file, @NotNull Project project, VirtualFile file2) {
+        IntellijFileContext vFileContext = new IntellijFileContext(project, file2);
+
+        boolean routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
+                .anyMatch(routeFile -> routeFile.equals(vFileContext));
+
+
+        ContextFactory.getInstance(projectRoot).getProjectResources(projectRoot, TN_DEC);
+
+        if (routeFileAffected) {
+            refreshContent(projectRoot.getProject());
+            return;
+        }
+
+        //ModuleIndex allModules = ModuleIndex.getAllAffectedFiles(, )
+        routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
+                .anyMatch(routeFile -> routeFile.equals(vFileContext));
+
+        if (routeFileAffected) {
+            refreshContent(projectRoot.getProject());
+        }
+    }
+
     private void refreshContent(@NotNull Project project) {
         ApplicationManager.getApplication().invokeLater(() -> {
             try {
@@ -173,15 +193,15 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
                 List<IUIRoutesRoutesFileContext> routeFiles = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot);
                 if (routeFiles == null || routeFiles.isEmpty()) {
-                    tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("No route found")));
+                    tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(MSG_NO_ROUTE_FOUND)));
                     return;
                 }
 
-                SwingRootParentNode rootNode = new SwingRootParentNode("Artifacts");
-                SwingRootParentNode routesHolder = new SwingRootParentNode("Routes");
-                SwingRootParentNode modules = new SwingRootParentNode("Modules");
-                SwingRootParentNode components = new SwingRootParentNode("Components");
-                SwingRootParentNode services = new SwingRootParentNode("Services");
+                SwingRootParentNode rootNode = new SwingRootParentNode(LBL_ARTIFACTS);
+                SwingRootParentNode routesHolder = new SwingRootParentNode(LBL_ROUTES);
+                SwingRootParentNode modules = new SwingRootParentNode(LBL_MODULES);
+                SwingRootParentNode components = new SwingRootParentNode(LBL_COMPONENTS);
+                SwingRootParentNode services = new SwingRootParentNode(LBL_SERVICES);
 
 
                 rootNode.add(routesHolder);
@@ -240,9 +260,9 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
         routeFiles.forEach(ctx -> {
 
-            String node = ctx instanceof NG_UIRoutesRoutesFileContext ? "Angluar NG  Routes" :
-                    ctx instanceof TNAngularRoutesFileContext ? "TN Dec Routes" :
-                            "TN Dec UI Routes";
+            String node = ctx instanceof NG_UIRoutesRoutesFileContext ? LBL_ANGLUAR_NG_ROUTES :
+                    ctx instanceof TNAngularRoutesFileContext ? LBL_TN_DEC_ROUTES :
+                            LBL_TN_DEC_UI_ROUTES;
             DefaultMutableTreeNode routes = SwingRouteTreeFactory.createRouteTrees(ctx, node);
 
             routesHolder.add(routes);
@@ -281,8 +301,8 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
     private void openEditor(PsiRouteContext foundContext) {
         FileEditor[] editors = (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(foundContext.getElement().getContainingFile().getVirtualFile(), true);
-        if (editors.length > 0 && elVis(editors[0], "editor").isPresent()) {
-            CaretModel editor = ((Editor) elVis(editors[0], "editor").get()).getCaretModel();
+        if (editors.length > 0 && elVis(editors[0], PROP_EDITOR).isPresent()) {
+            CaretModel editor = ((Editor) elVis(editors[0], PROP_EDITOR).get()).getCaretModel();
             editor.moveToOffset(foundContext.getTextOffset());
             editor.moveCaretRelatively(0, 0, false, false, true);
         }
@@ -291,7 +311,8 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     private void goToComponent(PsiRouteContext foundContext) {
         Route route = foundContext.getRoute();
         if (Strings.isNullOrEmpty(route.getComponentPath())) {
-            Messages.showErrorDialog(this.tree.getRootPane(), "No component determinable - please check your route declaration.", actions_all.shared.Messages.ERR_OCCURRED);
+            Messages.showErrorDialog(this.tree.getRootPane(),
+                    MSG_NO_COMP_PRES_CHECK_ROUTE, actions_all.shared.Messages.ERR_OCCURRED);
             return;
         }
         Path componentPath = Paths.get(route.getComponentPath());
@@ -327,13 +348,17 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
             return;
         }
         StringSelection stringSelection;
+        String sRef;
+
         if (route.getOriginContext().equals(TNUIRoutesFileContext.class)) {
-            stringSelection = new StringSelection("<a ui-sref=\"" + route.getRouteKey() + "\" ui-sref-active=\"active\">" + route.getRouteVarName() + "</a>");
+            sRef = HREF_TN_UIROUTES;
         } else if (route.getOriginContext().equals(TNAngularRoutesFileContext.class)) {
-            stringSelection = new StringSelection("<a href=\"#" + route.getUrl() + "\">" + route.getRouteVarName() + "</a>");
+            sRef = HREF_TN;
         } else {
-            stringSelection = new StringSelection("<a uiSref=\"" + route.getRouteKey() + "\" uiSrefActive=\"active\">" + route.getRouteVarName() + "</a>");
+            sRef = HREF_NG_UI_ROUTES;
         }
+        stringSelection = new StringSelection(String.format(sRef,route.getUrl(), route.getRouteVarName()));
+
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(stringSelection, null);
     }
