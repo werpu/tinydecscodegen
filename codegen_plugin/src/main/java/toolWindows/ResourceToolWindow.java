@@ -3,7 +3,6 @@ package toolWindows;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
@@ -20,7 +19,6 @@ import com.intellij.openapi.wm.ex.ToolWindowEx;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.ComponentFileContext;
 import supportive.fs.common.ContextFactory;
@@ -30,7 +28,6 @@ import supportive.fs.common.NgModuleFileContext;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import java.awt.*;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -38,8 +35,7 @@ import static actions_all.shared.Labels.*;
 import static actions_all.shared.Messages.NO_PROJ_LATER;
 import static supportive.fs.common.AngularVersion.NG;
 import static supportive.fs.common.AngularVersion.TN_DEC;
-import static supportive.utils.IntellijUtils.getTsExtension;
-import static supportive.utils.IntellijUtils.invokeLater;
+import static supportive.utils.IntellijUtils.*;
 
 public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
@@ -114,8 +110,9 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         myThreeComponentsSplitter.setFirstSize(200);
         myThreeComponentsSplitter.setLastSize(100);
 
-        myThreeComponentsSplitter.setShowDividerControls(true);
-        myThreeComponentsSplitter.setDividerWidth(10);
+        myThreeComponentsSplitter.setShowDividerControls(false);
+        myThreeComponentsSplitter.setDividerWidth(1);
+
         myThreeComponentsSplitter.setOrientation(false);
 
 
@@ -131,17 +128,23 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         toolWindow.getContentManager().addContent(content);
 
         if (toolWindow instanceof ToolWindowEx) {
-            AnAction[] titleActions = new AnAction[]{
-                    CommonActionsManager.getInstance().createExpandAllHeaderAction(modulesTree),
-                    CommonActionsManager.getInstance().createCollapseAllHeaderAction(modulesTree),
+            final CommonActionsManager actionsManager = CommonActionsManager.getInstance();
+            AnAction[] titleActions = actions(
+                    actionGroup(
+                            actionsManager.createExpandAllHeaderAction(modulesTree),
+                            actionsManager.createCollapseAllHeaderAction(modulesTree)
+                    ),
 
-                    CommonActionsManager.getInstance().createExpandAllHeaderAction(componentsTree),
-                    CommonActionsManager.getInstance().createCollapseAllHeaderAction(componentsTree),
+                    actionGroup(
+                            actionsManager.createExpandAllHeaderAction(componentsTree),
+                            actionsManager.createCollapseAllHeaderAction(componentsTree)
+                    ),
 
-                    CommonActionsManager.getInstance().createExpandAllHeaderAction(otherResourcesTree),
-                    CommonActionsManager.getInstance().createCollapseAllHeaderAction(otherResourcesTree)
-
-            };
+                    actionGroup(
+                            actionsManager.createExpandAllHeaderAction(otherResourcesTree),
+                            actionsManager.createCollapseAllHeaderAction(otherResourcesTree)
+                    )
+            );
             ((ToolWindowEx) toolWindow).setTitleActions(titleActions);
         }
 
@@ -219,8 +222,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         target.setRootVisible(false);
         target.setModel(newModel);
     }
-
-
 
 
     private void displayLater() {

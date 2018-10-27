@@ -30,11 +30,10 @@ import com.intellij.diff.contents.DocumentContentImpl;
 import com.intellij.diff.requests.SimpleDiffRequest;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
+import com.intellij.ide.CommonActionsManager;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.Language;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.compiler.CompileContext;
@@ -725,5 +724,18 @@ public class IntellijUtils {
 
     public static void invokeLater(Runnable run) {
         ApplicationManager.getApplication().invokeLater(run);
+    }
+
+    public static ActionGroup actionGroup(AnAction... actions) {
+        return new ActionGroup() {
+            @NotNull
+            @Override
+            public AnAction[] getChildren(@Nullable AnActionEvent e) {
+                return actions;
+            }
+        };
+    }
+    public static AnAction[] actions(AnAction... actions) {
+        return actions;
     }
 }
