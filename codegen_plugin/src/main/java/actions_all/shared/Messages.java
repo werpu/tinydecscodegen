@@ -44,4 +44,5 @@ public class Messages {
     public static final String MSG_NO_ROUTE_FOUND = "No route found";
     public static final String MSG_PLEASE_WAIT = "Please Wait";
     public static final String MSG_NO_COMP_PRES_CHECK_ROUTE = "No component determinable - please check your route declaration.";
+    public static final String NO_PROJ_LATER = "Project structure cannot be determined atm. Please try again later.";
 }

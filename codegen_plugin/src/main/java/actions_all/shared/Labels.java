@@ -5,9 +5,13 @@ public class Labels {
     public static final String LBL_ROUTES = "Routes";
     public static final String LBL_MODULES = "Modules";
     public static final String LBL_COMPONENTS = "Components";
+    public static final String LBL_TN_DEC_COMPONENTS = "TN Dec Components";
+    public static final String LBL_NG_COMPONENTS = "Angluar NG Components";
     public static final String LBL_SERVICES = "Services";
-    public static final String LBL_ANGLUAR_NG_ROUTES = "Angluar NG  Routes";
+    public static final String LBL_ANGLUAR_NG_ROUTES = "Angluar NG Routes";
     public static final String LBL_TN_DEC_ROUTES = "TN Dec Routes";
+    public static final String LBL_TN_DEC_MODULES = "TN Dec Modules";
+    public static final String LBL_NG_MODULES = "Angular NG Modules";
     public static final String PROP_EDITOR = "editor";
     public static final String LBL_TN_DEC_UI_ROUTES = "TN Dec UI Routes";
     public static final String HREF_TN_UIROUTES = "<a ui-sref=\"%s\" ui-sref-active=\"active\">%s</a>";

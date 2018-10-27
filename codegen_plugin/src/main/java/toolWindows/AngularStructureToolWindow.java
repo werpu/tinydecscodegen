@@ -91,16 +91,16 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         initChangeListener(project);
 
-        SimpleToolWindowPanel panel = new SimpleToolWindowPanel(true, true);
+        SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
 
         refreshContent(project);
-        panel.setContent(contentPanel.getMainPanel());
-        panel.setBackground(UIUtil.getFieldForegroundColor());
+        toolWindowPanel.setContent(contentPanel.getMainPanel());
+        toolWindowPanel.setBackground(UIUtil.getFieldForegroundColor());
 
         contentPanel.getScollPanel().setViewportView(tree);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(panel, "", false);
+        Content content = contentFactory.createContent(toolWindowPanel, "", false);
         toolWindow.getContentManager().addContent(content);
 
 
@@ -159,7 +159,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 .anyMatch(routeFile -> routeFile.equals(vFileContext));
 
         if (routeFileAffected) {
-            refreshContent(projectRoot.getProject());
+            refreshContent(project);
         }
     }
 
@@ -170,7 +170,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                     projectRoot = new IntellijFileContext(project);
                 } catch (RuntimeException ex) {
                     //TODO logging here, the project was not resolvable
-                    tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Project structure cannot be determined atm. Please try again later.")));
+                    tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(NO_PROJ_LATER)));
                     return;
                 }
 

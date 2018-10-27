@@ -1,7 +1,9 @@
 package toolWindows;
 
 import com.jgoodies.common.base.Strings;
+import supportive.fs.common.ComponentFileContext;
 import supportive.fs.common.IUIRoutesRoutesFileContext;
+import supportive.fs.common.NgModuleFileContext;
 import supportive.fs.common.PsiRouteContext;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -44,5 +46,65 @@ public class SwingRouteTreeFactory {
         }
         return treeNodes;
     }
+
+
+    public static DefaultMutableTreeNode createModulesTree(List<NgModuleFileContext> ctx, String label) {
+        Map<String, SwingRouteTreeNode> _routeIdx = new HashMap<>();
+        DefaultMutableTreeNode treeNodes = new SwingRootParentNode(label);
+
+        //lets make the tree Nodes
+        List<NgModuleFileContext> sortedRoutes =  ctx.stream().sorted(Comparator.comparing(NgModuleFileContext::getModuleName)).collect(Collectors.toList());
+
+        for (NgModuleFileContext module : sortedRoutes) {
+
+            String moduleName = module.getModuleName();
+            /*String subKey = moduleName.contains(".") ? moduleName.substring(0,moduleName.lastIndexOf(".")) : "";
+            if(_routeIdx.containsKey(moduleName)) {
+                //route already processed
+                continue;
+            }*/
+            DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(module);
+            /*if(!Strings.isBlank(subKey) && _routeIdx.containsKey(subKey)) {
+                _routeIdx.get(subKey).add(newNode);
+                _routeIdx.put(moduleName, newNode);
+                continue;
+            }*/
+
+            treeNodes.add(newNode);
+            //_routeIdx.put(moduleName, newNode);
+
+        }
+        return treeNodes;
+    }
+
+    public static DefaultMutableTreeNode createComponentsTree(List<ComponentFileContext> ctx, String label) {
+        Map<String, SwingRouteTreeNode> _routeIdx = new HashMap<>();
+        DefaultMutableTreeNode treeNodes = new SwingRootParentNode(label);
+
+        //lets make the tree Nodes
+        List<ComponentFileContext> contexts =  ctx.stream().sorted(Comparator.comparing(ComponentFileContext::getDisplayName)).collect(Collectors.toList());
+
+        for (ComponentFileContext context : contexts) {
+
+            String displayName = context.getDisplayName();
+            /*String subKey = displayName.contains(".") ? displayName.substring(0,displayName.lastIndexOf(".")) : "";
+            if(_routeIdx.containsKey(displayName)) {
+                //route already processed
+                continue;
+            }*/
+            DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(context);
+            /*if(!Strings.isBlank(subKey) && _routeIdx.containsKey(subKey)) {
+                _routeIdx.get(subKey).add(newNode);
+                _routeIdx.put(displayName, newNode);
+                continue;
+            }*/
+
+            treeNodes.add(newNode);
+            //_routeIdx.put(displayName, newNode);
+
+        }
+        return treeNodes;
+    }
+
 
 }

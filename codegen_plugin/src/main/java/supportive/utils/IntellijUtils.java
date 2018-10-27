@@ -722,4 +722,8 @@ public class IntellijUtils {
         }
         return retVal;
     }
+
+    public static void invokeLater(Runnable run) {
+        ApplicationManager.getApplication().invokeLater(run);
+    }
 }
