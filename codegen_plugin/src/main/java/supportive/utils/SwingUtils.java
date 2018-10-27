@@ -22,17 +22,22 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package supportive.utils;
 
-import com.google.common.base.Strings;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.EditorSettings;
+import actions_all.shared.Labels;
+import com.intellij.openapi.editor.*;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import supportive.fs.common.IntellijFileContext;
+import supportive.fs.common.PsiElementContext;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+
+import static supportive.utils.StringUtils.elVis;
 
 public class SwingUtils {
 
@@ -93,5 +98,28 @@ public class SwingUtils {
         name = name.replaceAll("\\.+", "/");
 
         target.setText("/" + name);
+    }
+
+    public static void copyToClipboard(StringSelection stringSelection) {
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, null);
+    }
+
+    public static void openEditor(IntellijFileContext foundContext) {
+        FileEditor[] editors = (FileEditorManager.getInstance(foundContext.getProject())).openFile(foundContext.getVirtualFile(), true);
+        if (editors.length > 0 && elVis(editors[0], Labels.PROP_EDITOR).isPresent()) {
+            CaretModel editor = ((Editor) elVis(editors[0], Labels.PROP_EDITOR).get()).getCaretModel();
+            editor.moveToOffset(foundContext.getPsiFile().getTextOffset());
+            editor.moveCaretRelatively(0, 0, false, false, true);
+        }
+    }
+
+    public static void openEditor(PsiElementContext foundContext) {
+        FileEditor[] editors = (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(foundContext.getElement().getContainingFile().getVirtualFile(), true);
+        if (editors.length > 0 && elVis(editors[0], Labels.PROP_EDITOR).isPresent()) {
+            CaretModel editor = ((Editor) elVis(editors[0], Labels.PROP_EDITOR).get()).getCaretModel();
+            editor.moveToOffset(foundContext.getTextOffset());
+            editor.moveCaretRelatively(0, 0, false, false, true);
+        }
     }
 }

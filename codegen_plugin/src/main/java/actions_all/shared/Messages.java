@@ -41,4 +41,7 @@ public class Messages {
     public static final String ERR_PROJECT_DIR_CHOSEN = "A project dir must be selected";
     public static final String ERR_PROJECT_NO_NAME = "A project name must be chosen";
     public static final String ERR_TARGET_DIR_CHOSEN = "A target dir must be selected";
+    public static final String MSG_NO_ROUTE_FOUND = "No route found";
+    public static final String MSG_PLEASE_WAIT = "Please Wait";
+    public static final String MSG_NO_COMP_PRES_CHECK_ROUTE = "No component determinable - please check your route declaration.";
 }

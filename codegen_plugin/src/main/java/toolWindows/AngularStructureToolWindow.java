@@ -4,10 +4,6 @@ import com.google.common.base.Strings;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.CaretModel;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
@@ -38,8 +34,6 @@ import supportive.fs.tn.TNUIRoutesFileContext;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseEvent;
 import java.nio.file.Path;
@@ -48,32 +42,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static actions_all.shared.Labels.*;
+import static actions_all.shared.Messages.*;
+import static supportive.fs.common.AngularVersion.NG;
 import static supportive.fs.common.AngularVersion.TN_DEC;
-import static supportive.utils.StringUtils.elVis;
 import static supportive.utils.StringUtils.normalizePath;
+import static supportive.utils.SwingUtils.copyToClipboard;
+import static supportive.utils.SwingUtils.openEditor;
 
 
 public class AngularStructureToolWindow implements ToolWindowFactory {
 
-    public static final String LBL_GO_TO_ROUTE_DECLARATION = "Go to route declaration";
-    public static final String LBL_GO_TO_COMPONENT = "Go to component";
-    public static final String LBL_COPY_ROUTE_LINK = "Copy Route Link";
-    public static final String LBL_COPY_ROUTE_KEY = "Copy Route Key";
-    public static final String LBL_ARTIFACTS = "Artifacts";
-    public static final String LBL_ROUTES = "Routes";
-    public static final String LBL_MODULES = "Modules";
-    public static final String LBL_COMPONENTS = "Components";
-    public static final String LBL_SERVICES = "Services";
-    public static final String MSG_NO_ROUTE_FOUND = "No route found";
-    public static final String LBL_ANGLUAR_NG_ROUTES = "Angluar NG  Routes";
-    public static final String LBL_TN_DEC_ROUTES = "TN Dec Routes";
-    public static final String MSG_PLEASE_WAIT = "Please Wait";
-    public static final String MSG_NO_COMP_PRES_CHECK_ROUTE = "No component determinable - please check your route declaration.";
-    public static final String PROP_EDITOR = "editor";
-    public static final String LBL_TN_DEC_UI_ROUTES = "TN Dec UI Routes";
-    public static final String HREF_TN_UIROUTES = "<a ui-sref=\"%s\" ui-sref-active=\"active\">%s</a>";
-    public static final String HREF_TN = "<a href=\"#!%s\">%s</a>";
-    public static final String HREF_NG_UI_ROUTES = "<a uiSref=\"%s\" uiSrefActive=\"active\">%s</a>";
     private Tree tree = new Tree();
 
     private gui.AngularStructureToolWindow contentPanel = new gui.AngularStructureToolWindow();
@@ -118,7 +97,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 }
 
                 //document listener which refreshes every time a route file changes
-                getChangeListener().smartInvokeLater(() -> refreshContent(file, project, file));
+                getChangeListener().smartInvokeLater(() -> refreshContent(project, file));
                 //TODO add the same check for modules which handle all the artifacts
             }
 
@@ -156,8 +135,8 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
     }
 
-    private void refreshContent(@NotNull VirtualFile file, @NotNull Project project, VirtualFile file2) {
-        IntellijFileContext vFileContext = new IntellijFileContext(project, file2);
+    private void refreshContent( @NotNull Project project, VirtualFile file) {
+        IntellijFileContext vFileContext = new IntellijFileContext(project, file);
 
         boolean routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
                 .anyMatch(routeFile -> routeFile.equals(vFileContext));
@@ -278,7 +257,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
         List<PsiFile> modules_tn = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), TN_DEC).stream()
                 .flatMap(angRoot -> ModuleIndex.getAllAffectedFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());
-        List<PsiFile> modules_ng = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), AngularVersion.NG).stream()
+        List<PsiFile> modules_ng = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), NG).stream()
                 .flatMap(angRoot -> ModuleIndex.getAllAffectedFiles(projectRoot.getProject(), angRoot).stream()).collect(Collectors.toList());
 
 
@@ -299,29 +278,22 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         openEditor(foundContext);
     }
 
-    private void openEditor(PsiRouteContext foundContext) {
-        FileEditor[] editors = (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(foundContext.getElement().getContainingFile().getVirtualFile(), true);
-        if (editors.length > 0 && elVis(editors[0], PROP_EDITOR).isPresent()) {
-            CaretModel editor = ((Editor) elVis(editors[0], PROP_EDITOR).get()).getCaretModel();
-            editor.moveToOffset(foundContext.getTextOffset());
-            editor.moveCaretRelatively(0, 0, false, false, true);
-        }
-    }
 
     private void goToComponent(PsiRouteContext foundContext) {
         Route route = foundContext.getRoute();
         if (Strings.isNullOrEmpty(route.getComponentPath())) {
             Messages.showErrorDialog(this.tree.getRootPane(),
-                    MSG_NO_COMP_PRES_CHECK_ROUTE, actions_all.shared.Messages.ERR_OCCURRED);
+                    MSG_NO_COMP_PRES_CHECK_ROUTE, ERR_OCCURRED);
             return;
         }
         Path componentPath = Paths.get(route.getComponentPath());
         Path parent = Paths.get(Objects.requireNonNull(foundContext.getElement().getContainingFile().getParent()).getVirtualFile().getPath());
         Path rel = parent.relativize(componentPath);
         VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(normalizePath(rel.toString()) + ".ts");
-        if (virtualFile != null) {
-            (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(virtualFile, true);
+        if(virtualFile != null) {
+            openEditor(new IntellijFileContext(foundContext.getElement().getProject(), virtualFile));
         }
+
 
     }
 
@@ -334,8 +306,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
             return;
         }
         StringSelection stringSelection = new StringSelection(route.getRouteKey());
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(stringSelection, null);
+        copyToClipboard(stringSelection);
     }
 
     /**
@@ -359,8 +330,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         }
         stringSelection = new StringSelection(String.format(sRef,route.getUrl(), route.getRouteVarName()));
 
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(stringSelection, null);
+        copyToClipboard(stringSelection);
     }
 
 
