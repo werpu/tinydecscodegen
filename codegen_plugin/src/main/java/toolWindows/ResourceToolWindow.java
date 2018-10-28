@@ -3,16 +3,12 @@ package toolWindows;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.ThreeComponentsSplitter;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.IconLoader;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileContentsChangedAdapter;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ex.ToolWindowEx;
@@ -20,22 +16,24 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
-import supportive.fs.common.ComponentFileContext;
-import supportive.fs.common.ContextFactory;
-import supportive.fs.common.IntellijFileContext;
-import supportive.fs.common.NgModuleFileContext;
+import supportive.fs.common.*;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.function.Consumer;
 
 import static actions_all.shared.Labels.*;
-import static actions_all.shared.Messages.NO_PROJ_LATER;
 import static supportive.fs.common.AngularVersion.NG;
 import static supportive.fs.common.AngularVersion.TN_DEC;
 import static supportive.utils.IntellijUtils.*;
+import static supportive.utils.StringUtils.makeVarName;
+import static supportive.utils.SwingUtils.copyToClipboard;
+import static supportive.utils.SwingUtils.openEditor;
+import static toolWindows.SwingRouteTreeFactory.createComponentsTree;
+import static toolWindows.SwingRouteTreeFactory.createModulesTree;
 
 public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
@@ -54,12 +52,16 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
 
         modulesTree.setCellRenderer(new ContextNodeRenderer());
+        registerPopup(modulesTree);
+
         componentsTree.setCellRenderer(new ContextNodeRenderer());
+        registerPopup(componentsTree);
         otherResourcesTree.setCellRenderer(new ContextNodeRenderer());
+        registerPopup(otherResourcesTree);
 
         NodeKeyController<NgModuleFileContext> moduleKeyCtrl = createDefaultKeyController(modulesTree);
         NodeKeyController<ComponentFileContext> componentKeyController = createDefaultKeyController(componentsTree);
-        NodeKeyController<Object> otherResourcesKeyCtrl = createDefaultKeyController(otherResourcesTree);
+        NodeKeyController<IAngularFileContext> otherResourcesKeyCtrl = createDefaultKeyController(otherResourcesTree);
 
 
         modulesTree.addKeyListener(moduleKeyCtrl);
@@ -67,26 +69,70 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         otherResourcesTree.addKeyListener(otherResourcesKeyCtrl);
     }
 
+    public void registerPopup(Tree tree) {
+        MouseController<IAngularFileContext> contextMenuListener = new MouseController<>(tree, this::showPopup);
+        tree.addMouseListener(contextMenuListener);
+    }
+
     @NotNull
-    public <T> NodeKeyController<T> createDefaultKeyController(Tree tree) {
-        return new NodeKeyController<T>(tree,
+    public <T extends IAngularFileContext> NodeKeyController<T> createDefaultKeyController(Tree tree) {
+        return new NodeKeyController<>(tree,
                 this::gotToFile, this::goToParentModule, this::copyResourceName);
     }
 
-    private void copyResourceName(Object psiRouteContext) {
+    private void copyResourceName(IAngularFileContext fileContext) {
+        copyToClipboard(fileContext.getDisplayName());
     }
 
-    private void goToParentModule(Object psiRouteContext) {
+    private void copyResourceClass(IAngularFileContext fileContext) {
+        if (fileContext instanceof AngularResourceContext) {
+            AngularResourceContext ctx = (AngularResourceContext) fileContext;
+            copyToClipboard(ctx.getClazzName());
+        }
     }
 
-    private void gotToFile(Object psiRouteContext) {
+    private void copyServiceInject(IAngularFileContext fileContext) {
+        if (fileContext instanceof AngularResourceContext) {
+            AngularResourceContext ctx = (AngularResourceContext) fileContext;
+            String clazzName = ctx.getClazzName();
+            String varName = makeVarName(clazzName);
+
+            String serciceInject = String.format("@Inject(%s) private %s: %s ", clazzName, varName, clazzName);
+            copyToClipboard(serciceInject);
+        }
+    }
+
+    private void goToParentModule(IAngularFileContext fileContext) {
+        openEditor(fileContext.getParentModule().getResourceRoot());
+    }
+
+    private void gotToFile(IAngularFileContext fileContext) {
+        openEditor(new IntellijFileContext(fileContext.getPsiFile().getProject(), fileContext.getVirtualFile()));
+    }
+
+    private void showPopup(IAngularFileContext foundContext, MouseEvent ev) {
+
+        PopupBuilder builder = new PopupBuilder();
+        builder
+                .withMenuItem(LBL_GO_TO_REGISTRATION, actionEvent -> goToParentModule(foundContext))
+                .withMenuItem(LBL_GO_TO_RESOURCE, actionEvent -> gotToFile(foundContext))
+                .withSeparator()
+                .withMenuItem(LBL_COPY_RESOURCE_NAME, actionEvent -> copyResourceName(foundContext))
+                .withMenuItem(LBL_COPY_RESOURCE_CLASS, actionEvent -> copyResourceClass(foundContext));
+
+        if (foundContext instanceof ServiceContext) {
+            builder.withSeparator();
+            builder.withMenuItem(LBL_COPY_SERCICE_INJECTION, actionEvent -> copyServiceInject(foundContext));
+        }
+        builder.show(ev.getComponent(), ev.getX(), ev.getY());
+
     }
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 
 
-        initChangeListener(project);
+        onFileChange(project, () -> refreshContent(project));
 
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
         refreshContent(project);
@@ -107,8 +153,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         JScrollPane jPanelRight = contentPanel.getJPanelRight();
         myThreeComponentsSplitter.setLastComponent(jPanelRight);
 
-        myThreeComponentsSplitter.setFirstSize(200);
-        myThreeComponentsSplitter.setLastSize(100);
 
         myThreeComponentsSplitter.setShowDividerControls(false);
         myThreeComponentsSplitter.setDividerWidth(1);
@@ -120,12 +164,19 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         jPanelMiddle.setViewportView(componentsTree);
         jPanelRight.setViewportView(otherResourcesTree);
 
-        myThreeComponentsSplitter.doLayout();
 
         toolWindowPanel.setContent(myThreeComponentsSplitter);
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(toolWindowPanel, "", false);
         toolWindow.getContentManager().addContent(content);
+
+        invokeLater(() -> {
+            int origWidth = toolWindow.getComponent().getRootPane().getSize().width;
+            myThreeComponentsSplitter.setFirstSize(Math.round(origWidth / 3));
+            myThreeComponentsSplitter.setLastSize(Math.round(origWidth / 3));
+            myThreeComponentsSplitter.doLayout();
+        });
+
 
         if (toolWindow instanceof ToolWindowEx) {
             final CommonActionsManager actionsManager = CommonActionsManager.getInstance();
@@ -150,40 +201,16 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     }
 
-    private void initChangeListener(Project project) {
-
-        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileContentsChangedAdapter() {
-            @Override
-            protected void onFileChange(@NotNull VirtualFile file) {
-                //TODO angular version dynamic depending on the project type
-                if (!file.getName().endsWith(getTsExtension())) {
-                    return;
-                }
-
-                //document listener which refreshes every time a route file changes
-                getChangeListener().smartInvokeLater(() -> refreshContent(project));
-                //TODO add the same check for modules which handle all the artifacts
-            }
-
-            private DumbService getChangeListener() {
-                return DumbService.getInstance(project);
-            }
-
-            @Override
-            protected void onBeforeFileChange(@NotNull VirtualFile file) {
-
-            }
-        });
-    }
 
     private void refreshContent(Project project) {
         invokeLater(() -> {
             try {
                 assertNotInUse(project);
+
                 buildTree(modulesTree, LBL_MODULES, this::buildModulesTree);
                 buildTree(componentsTree, LBL_COMPONENTS, this::buildComponentsTree);
+                buildTree(otherResourcesTree, LBL_RESOURCES, this::buildResourcesTree);
 
-                //modulesTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("aga")));
             } catch (IndexNotReadyException exception) {
                 refreshContent(project);
             }
@@ -191,23 +218,38 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     }
 
     private void buildModulesTree(SwingRootParentNode parentTree) {
-        List<NgModuleFileContext> modules = ContextFactory.getInstance(projectRoot).getModules(projectRoot, TN_DEC);
-        List<NgModuleFileContext> modules2 = ContextFactory.getInstance(projectRoot).getModules(projectRoot, NG);
+        ContextFactory contextFactory = ContextFactory.getInstance(projectRoot);
+        List<NgModuleFileContext> modules = contextFactory.getModules(projectRoot, TN_DEC);
+        List<NgModuleFileContext> modules2 = contextFactory.getModules(projectRoot, NG);
 
-        DefaultMutableTreeNode nodes = SwingRouteTreeFactory.createModulesTree(modules, LBL_TN_DEC_MODULES);
+        DefaultMutableTreeNode nodes = createModulesTree(modules, LBL_TN_DEC_MODULES);
         parentTree.add(nodes);
-        nodes = SwingRouteTreeFactory.createModulesTree(modules2, LBL_NG_MODULES);
+        nodes = createModulesTree(modules2, LBL_NG_MODULES);
+        parentTree.add(nodes);
+
+    }
+
+
+    private void buildResourcesTree(SwingRootParentNode parentTree) {
+        ContextFactory contextFactory = ContextFactory.getInstance(projectRoot);
+        ResourceFilesContext itemsTn = contextFactory.getProjectResources(projectRoot, TN_DEC);
+        ResourceFilesContext itemsNg = contextFactory.getProjectResources(projectRoot, NG);
+
+        DefaultMutableTreeNode nodes = SwingRouteTreeFactory.createResourcesTree(itemsTn, LBL_TN_DEC_RESOURCES);
+        parentTree.add(nodes);
+        nodes = SwingRouteTreeFactory.createResourcesTree(itemsNg, LBL_NG_RESOURCES);
         parentTree.add(nodes);
 
     }
 
     private void buildComponentsTree(SwingRootParentNode parentTree) {
-        List<ComponentFileContext> components = ContextFactory.getInstance(projectRoot).getComponents(projectRoot, TN_DEC);
-        List<ComponentFileContext> components2 = ContextFactory.getInstance(projectRoot).getComponents(projectRoot, NG);
+        ContextFactory contextFactory = ContextFactory.getInstance(projectRoot);
+        List<ComponentFileContext> components = contextFactory.getComponents(projectRoot, TN_DEC);
+        List<ComponentFileContext> components2 = contextFactory.getComponents(projectRoot, NG);
 
-        DefaultMutableTreeNode nodes = SwingRouteTreeFactory.createComponentsTree(components, LBL_TN_DEC_COMPONENTS);
+        DefaultMutableTreeNode nodes = createComponentsTree(components, LBL_TN_DEC_COMPONENTS);
         parentTree.add(nodes);
-        nodes = SwingRouteTreeFactory.createComponentsTree(components2, LBL_NG_COMPONENTS);
+        nodes = createComponentsTree(components2, LBL_NG_COMPONENTS);
         parentTree.add(nodes);
     }
 
@@ -224,15 +266,9 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     }
 
 
-    private void displayLater() {
-        modulesTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(NO_PROJ_LATER)));
-        //componentsTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(NO_PROJ_LATER)));
-        //otherResourcesTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(NO_PROJ_LATER)));
-    }
-
     @Override
     public void init(ToolWindow window) {
-
+        System.out.println("init");
     }
 
     @Override

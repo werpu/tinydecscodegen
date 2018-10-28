@@ -100,9 +100,10 @@ public class SwingUtils {
         target.setText("/" + name);
     }
 
-    public static void copyToClipboard(StringSelection stringSelection) {
+
+    public static void copyToClipboard(String str) {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(stringSelection, null);
+        clipboard.setContents(new StringSelection(str), null);
     }
 
     public static void openEditor(IntellijFileContext foundContext) {

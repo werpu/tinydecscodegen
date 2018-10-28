@@ -49,6 +49,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.roots.OrderEnumerator;
@@ -56,6 +57,8 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileContentsChangedAdapter;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -738,4 +741,54 @@ public class IntellijUtils {
     public static AnAction[] actions(AnAction... actions) {
         return actions;
     }
+
+
+    public static void onFileChange(Project project, Runnable runnable) {
+        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileContentsChangedAdapter() {
+            @Override
+            protected void onFileChange(@NotNull VirtualFile file) {
+                //TODO angular version dynamic depending on the project type
+                if (!file.getName().endsWith(getTsExtension())) {
+                    return;
+                }
+
+                //document listener which refreshes every time a route file changes
+                getChangeListener().smartInvokeLater(() -> runnable.run());
+            }
+
+            private DumbService getChangeListener() {
+                return DumbService.getInstance(project);
+            }
+
+            @Override
+            protected void onBeforeFileChange(@NotNull VirtualFile file) {
+
+            }
+        });
+    }
+
+    public static void onFileChange(Project project, Consumer<VirtualFile> runnable) {
+        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileContentsChangedAdapter() {
+            @Override
+            protected void onFileChange(@NotNull VirtualFile file) {
+                //TODO angular version dynamic depending on the project type
+                if (!file.getName().endsWith(getTsExtension())) {
+                    return;
+                }
+
+                //document listener which refreshes every time a route file changes
+                getChangeListener().smartInvokeLater(() -> runnable.accept(file));
+            }
+
+            private DumbService getChangeListener() {
+                return DumbService.getInstance(project);
+            }
+
+            @Override
+            protected void onBeforeFileChange(@NotNull VirtualFile file) {
+
+            }
+        });
+    }
+
 }

@@ -55,7 +55,8 @@ public class ServiceContext extends AngularResourceContext {
     }
 
 
-
-
-
+    @Override
+    public String getResourceName() {
+        return getArtifactName();
+    }
 }

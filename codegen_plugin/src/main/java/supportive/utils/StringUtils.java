@@ -27,6 +27,10 @@ public class StringUtils {
         return sb.toString().replaceAll("[-/\\.]", "");
     }
 
+    public static String makeVarName(String in) {
+        return in.substring(0, 1).toLowerCase()+in.substring(1);
+    }
+
     public static String makeGet(String in) {
         return "get"+in.substring(0, 1).toUpperCase()+in.substring(1);
     }

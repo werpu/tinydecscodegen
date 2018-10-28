@@ -11,7 +11,7 @@ import java.util.List;
 
 import static supportive.reflectRefact.IntellijRefactor.NG_MODULE;
 
-public class AngularResourceContext extends TypescriptResourceContext {
+public abstract class AngularResourceContext extends TypescriptResourceContext implements IAngularFileContext {
     @Getter
     protected String clazzName;
     @Getter
@@ -60,4 +60,6 @@ public class AngularResourceContext extends TypescriptResourceContext {
     public String getDisplayName() {
         return artifactName+" ["+parentModule.getModuleName()+"]";
     }
+
+
 }

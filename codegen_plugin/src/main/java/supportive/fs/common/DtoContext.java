@@ -46,4 +46,8 @@ public class DtoContext extends AngularResourceContext {
                 .get();
     }
 
+    @Override
+    public String getResourceName() {
+        return getArtifactName();
+    }
 }

@@ -3,6 +3,7 @@ package toolWindows;
 import com.intellij.ui.treeStructure.Tree;
 import lombok.AllArgsConstructor;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.function.Consumer;
@@ -27,7 +28,7 @@ public class NodeKeyController<T> implements KeyListener {
         if (isBranch()) {
             return;
         }
-        SwingRouteTreeNode selectedNode = (SwingRouteTreeNode) tree.getLastSelectedPathComponent();
+        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 
         Object value = selectedNode.getUserObject();
         if (!isInstanceOfT(value)) return;
@@ -56,6 +57,6 @@ public class NodeKeyController<T> implements KeyListener {
     }
 
     private boolean isBranch() {
-        return !(tree.getLastSelectedPathComponent() instanceof SwingRouteTreeNode);
+        return !(tree.getLastSelectedPathComponent() instanceof DefaultMutableTreeNode);
     }
 }

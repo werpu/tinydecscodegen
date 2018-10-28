@@ -84,6 +84,11 @@ public class ComponentFileContext extends AngularResourceContext {
         return this.getClazzName() + ((getParentModule() == null) ? "" : "["+ getParentModule().getModuleName()+"]");
     }
 
+    @Override
+    public String getResourceName() {
+        return getArtifactName();
+    }
+
 
     private RangeMarker replaceText(Document doc, RangeMarker marker, String newText) {
         newText = "`" + newText + "`";

@@ -54,4 +54,9 @@ public class FilterPipeContext extends AngularResourceContext {
     public String getDisplayName() {
         return "TODO";
     }
+
+    @Override
+    public String getResourceName() {
+        return getArtifactName();
+    }
 }

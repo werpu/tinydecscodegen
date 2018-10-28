@@ -147,4 +147,8 @@ public class AssociativeArraySection extends AngularResourceContext{
     }
 
 
+    @Override
+    public String getResourceName() {
+        return "";
+    }
 }

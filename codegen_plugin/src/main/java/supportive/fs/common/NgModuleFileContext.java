@@ -125,4 +125,9 @@ public class NgModuleFileContext extends AngularResourceContext {
         });
         this.parentModule = modules.isEmpty() ? null :  new NgModuleFileContext(modules.get(0));
     }
+
+    @Override
+    public String getResourceName() {
+        return getModuleName();
+    }
 }
