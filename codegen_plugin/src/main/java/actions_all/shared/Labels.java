@@ -27,7 +27,7 @@ public class Labels {
     public static final String LBL_GO_TO_REGISTRATION = "Go to module registration";
     public static final String LBL_GO_TO_RESOURCE = "Go to  resource";
     public static final String LBL_COPY_RESOURCE_NAME = "Copy Resource Name";
-    public static final String LBL_COPY_RESOURCE_CLASS = "Copy Resource Name";
+    public static final String LBL_COPY_RESOURCE_CLASS = "Copy Resource Class Name";
     public static final String LBL_COPY_SERCICE_INJECTION = "Copy Service Injection";
     public static final String LBL_GO_TO_COMPONENT = "Go to component";
     public static final String LBL_COPY_ROUTE_LINK = "Copy Route Link";
