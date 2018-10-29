@@ -73,7 +73,10 @@ public class RoutingTest extends BaseTsTest {
         assertTrue(fileContext.isUrlInUse(route2));
 
         assertTrue(true);
-        assertTrue(fileContext.getRefactorUnits().size() == 2);
+
+        //not valid anymore, because the addRoute is in its own transaction now
+
+        //assertTrue(fileContext.getRefactorUnits().size() == 2);
 
     }
 

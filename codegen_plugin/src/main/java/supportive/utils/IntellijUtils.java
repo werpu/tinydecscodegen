@@ -763,6 +763,10 @@ public class IntellijUtils {
         ApplicationManager.getApplication().invokeLater(run);
     }
 
+    public static void writeTransaction(Project project, Runnable runnable) {
+        WriteCommandAction.runWriteCommandAction(project, runnable);
+    }
+
     /*
      * Action helpers to improve readability
      */

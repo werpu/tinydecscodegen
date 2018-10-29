@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static indexes.IndexUtils.standardExclusions;
+import static indexes.IndexUtils.standardSimpleFileExclusion;
 import static supportive.reflectRefact.PsiWalkFunctions.NPM_ROOT;
 
 /**
@@ -38,8 +38,7 @@ public class AngularIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if((!standardExclusions(inputData)) && inputData.getFile().getName().equals("package.json") &&
-                    !inputData.getFile().getPath().replaceAll("\\\\", "//").contains("node_modules")
+            if((!standardSimpleFileExclusion(inputData)) && inputData.getFile().getName().equals("package.json")
                     &&
                     (inputData.getPsiFile().getText().contains(NG_MARKER) ||
                             inputData.getPsiFile().getText().contains(TN_MARKER)

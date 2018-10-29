@@ -1,8 +1,6 @@
 package supportive.fs.common;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.RangeMarker;
@@ -20,11 +18,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.google.common.collect.Streams.concat;
 import static java.util.stream.Stream.concat;
-import static supportive.reflectRefact.IntellijRefactor.NG_MODULE;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
 import static supportive.utils.IntellijUtils.getTsExtension;
 import static supportive.utils.StringUtils.elVis;
@@ -261,7 +256,7 @@ public class ComponentFileContext extends AngularResourceContext {
 
     @NotNull
     private AssociativeArraySection resolveParameters() {
-        return new AssociativeArraySection(project, psiFile, Streams.concat($q(COMPONENT_ARGS), $q(CONTROLLER_ARGS)).findFirst().get().getElement());
+        return new AssociativeArraySection(project, psiFile, concat($q(COMPONENT_ARGS), $q(CONTROLLER_ARGS)).findFirst().get().getElement());
     }
 
     @Override

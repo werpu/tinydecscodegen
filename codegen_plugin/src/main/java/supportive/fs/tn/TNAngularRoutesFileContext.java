@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Integer.valueOf;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
+import static supportive.utils.IntellijUtils.writeTransaction;
 import static supportive.utils.StringUtils.elVis;
 import static supportive.utils.StringUtils.literalEquals;
 
@@ -58,18 +59,22 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
     @Override
     public void addRoute(Route routeData) {
         //find route provider inject
-        routeData.setComponent(super.appendImport(routeData.getComponent().replaceAll("\\[.*\\]+", ""), routeData.getComponentPath()));
 
-        for (PsiElementContext constructor : constructors) {
-            String routeProviderName = getStateOrRouteProviderName(constructor);
+        writeTransaction(getProject(),() -> {
+            routeData.setComponent(super.appendImport(routeData.getComponent().replaceAll("\\[.*\\]+", ""), routeData.getComponentPath()));
 
-
-            Optional<PsiElementContext> body = constructor.findPsiElement(PsiWalkFunctions::isJSBlock);
-            int insertPos = calculateRouteInsertPos(routeProviderName, constructor, body);
+            for (PsiElementContext constructor : constructors) {
+                String routeProviderName = getStateOrRouteProviderName(constructor);
 
 
-            addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(insertPos), toRoute(routeProviderName, routeData)));
-        }
+                Optional<PsiElementContext> body = constructor.findPsiElement(PsiWalkFunctions::isJSBlock);
+                int insertPos = calculateRouteInsertPos(routeProviderName, constructor, body);
+
+
+                addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(insertPos), toRoute(routeProviderName, routeData)));
+            }
+        });
+
     }
 
 

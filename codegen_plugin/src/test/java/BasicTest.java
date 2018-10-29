@@ -17,6 +17,7 @@ import java.util.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+@SuppressWarnings("unchecked")
 public class BasicTest extends LightCodeInsightFixtureTestCase {
 
     @Override

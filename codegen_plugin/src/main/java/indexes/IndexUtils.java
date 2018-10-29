@@ -1,6 +1,5 @@
 package indexes;
 
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -30,8 +29,12 @@ public class IndexUtils {
     }
 
     public static boolean standardExclusions(@NotNull final FileContent inputData) {
-        return inputData.getFile().isDirectory()
-                || normalizePath(inputData.getFile().getPath()).contains("/node_modules/")
+        return standardSimpleFileExclusion(inputData)
                 || !inputData.getFile().getFileType().getDefaultExtension().equalsIgnoreCase("ts");
+    }
+
+    public static boolean standardSimpleFileExclusion(@NotNull FileContent inputData) {
+        return inputData.getFile().isDirectory()
+                || normalizePath(inputData.getFile().getPath()).contains("/node_modules/");
     }
 }
