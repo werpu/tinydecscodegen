@@ -1,5 +1,7 @@
 package supportive.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -40,7 +42,14 @@ public class StringUtils {
     }
 
     public static String toLowerDash(String s) {
+        return toAnyDash(s, "_");
+    }
+    public static String toDash(String s) {
+        return toAnyDash(s, "-");
+    }
 
+    @NotNull
+    public static String toAnyDash(String s, String divider) {
         String camelCase = "[A-Z]";
         String lowerCase = "[a-z]";
 
@@ -52,7 +61,7 @@ public class StringUtils {
 
             capNext = regexIndexOf(lowerCase, String.valueOf(lastChar)) >= 0 &&  (regexIndexOf(camelCase,  String.valueOf(c)) >= 0); // explicit cast not needed
             cStr = (capNext)
-                    ? "_"+cStr
+                    ? divider+cStr
                     : cStr;
             sb.append(cStr.toLowerCase());
 

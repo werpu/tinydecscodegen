@@ -99,7 +99,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     }
 
     private void copyResourceName(IAngularFileContext fileContext) {
-        copyToClipboard(fileContext.getDisplayName());
+        copyToClipboard(fileContext.getResourceName());
     }
 
     private void copyResourceClass(IAngularFileContext fileContext) {

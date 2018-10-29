@@ -563,7 +563,10 @@ public class IntellijUtils {
             if (userObject instanceof PsiRouteContext) {
                 return ((PsiRouteContext) userObject).getRoute().getRouteVarName();
             } else if(userObject instanceof IAngularFileContext) {
-                return  ((IAngularFileContext) userObject).getDisplayName();
+                String resourcePath = ((IAngularFileContext) userObject).getVirtualFile().getPath();
+                String projectPath = ((IAngularFileContext) userObject).getPsiFile().getProject().getBasePath();
+                Path relPath = Paths.get(projectPath).relativize(Paths.get(resourcePath));
+                return  ((IAngularFileContext) userObject).getDisplayName()+ " "+  StringUtils.normalizePath(relPath.toString());
             }
             return null;
 

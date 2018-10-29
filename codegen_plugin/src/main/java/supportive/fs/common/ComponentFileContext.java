@@ -1,6 +1,7 @@
 package supportive.fs.common;
 
 
+import com.google.common.base.Strings;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.RangeMarker;
@@ -12,6 +13,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import supportive.refactor.RefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
+import supportive.utils.StringUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -48,6 +50,7 @@ public class ComponentFileContext extends AngularResourceContext {
     private AssociativeArraySection params;
 
 
+
     public ComponentFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
 
@@ -76,7 +79,7 @@ public class ComponentFileContext extends AngularResourceContext {
 
 
     public String getDisplayName() {
-        return this.getClazzName() + ((getParentModule() == null) ? "" : "["+ getParentModule().getModuleName()+"]");
+        return this.getClazzName() + ((getParentModule() == null) ? "" : " <"+this.getTagName()+"/> ["+ getParentModule().getModuleName()+"]");
     }
 
     @Override
@@ -265,6 +268,20 @@ public class ComponentFileContext extends AngularResourceContext {
             templateRef.get().commit();
         }
         super.commit();
+    }
+
+    public String getTagName() {
+        Optional<PsiElementContext> selector = null;
+        try {
+            selector = this.params.get("selector");
+            if(selector.isPresent()) {
+                return selector.get().getText();
+            }
+        } catch (IOException e) {
+           //NOOP for now
+        }
+
+        return StringUtils.toDash(Strings.nullToEmpty(clazzName));
     }
 
 }
