@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
 import supportive.fs.tn.TNUIRoutesFileContext;
+import supportive.utils.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -117,6 +118,25 @@ public class ContextFactory {
                 .map(module -> new NgModuleFileContext(projectRoot.getProject(), module))
                 .collect(Collectors.toList());
     }
+
+
+    @NotNull
+    public List<NgModuleFileContext> getModulesFor(IntellijFileContext projectRoot, AngularVersion angularVersion, String filterPath) {
+        List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
+        return angularRoots.stream().flatMap(angularRoot -> ModuleIndex
+                .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
+                .map(module -> new NgModuleFileContext(projectRoot.getProject(), module))
+                .filter(ngModuleFileContext -> {
+                    String mPath = StringUtils.normalizePath(ngModuleFileContext.getPsiFile().getParent().getVirtualFile().getPath());
+                    String filter = StringUtils.normalizePath(filterPath);
+
+                    return filter.toLowerCase().contains(mPath.toLowerCase());
+
+                })
+                .collect(Collectors.toList());
+    }
+
+
 
 
     @NotNull

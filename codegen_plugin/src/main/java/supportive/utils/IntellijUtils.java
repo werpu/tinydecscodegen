@@ -808,6 +808,15 @@ public class IntellijUtils {
         return editorManagerListener;
     }
 
+    /**
+     * callback registration for the onFileChange event or message
+     * note, will be triggered only on ts files for the time being
+     *
+     * @param project the project to watch
+     * @param runnable a runnable which triggers something on a file change
+     *
+     *
+     */
     public static void onFileChange(Project project, Runnable runnable) {
         // MessageBusFactory.newMessageBus(project).
         //TODO move this over to the message bus system
@@ -835,6 +844,10 @@ public class IntellijUtils {
         });
     }
 
+    /**
+     * same as before but for a consumer who gets the changed file passed in
+
+     */
     public static void onFileChange(Project project, Consumer<VirtualFile> runnable) {
         //TODO move this over to the message bus system
         //the listener system becomes deprecated soon

@@ -1,37 +1,35 @@
 package toolWindows;
 
+import com.google.common.collect.Streams;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.ThreeComponentsSplitter;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ex.ToolWindowEx;
-import com.intellij.packageDependencies.ui.TreeExpansionMonitor;
-import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.*;
 import supportive.utils.SearchableTree;
+import supportive.utils.StringUtils;
 import toolWindows.supportive.*;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Optional;
 
 import static actions_all.shared.Labels.*;
 import static supportive.fs.common.AngularVersion.NG;
@@ -40,21 +38,15 @@ import static supportive.utils.IntellijUtils.*;
 import static supportive.utils.StringUtils.makeVarName;
 import static supportive.utils.SwingUtils.copyToClipboard;
 import static supportive.utils.SwingUtils.openEditor;
-import static toolWindows.supportive.SwingRouteTreeFactory.createComponentsTree;
 import static toolWindows.supportive.SwingRouteTreeFactory.createModulesTree;
-
-
-
-
 
 
 public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
-    
+
     private SearchableTree<NgModuleFileContext> modules = new SearchableTree();
-    private SearchableTree<ComponentFileContext> components = new SearchableTree();
-    private SearchableTree<ResourceFilesContext> otherResources = new SearchableTree();;
-    
+    private SearchableTree<ResourceFilesContext> otherResources = new SearchableTree();
+    private SearchableTree<ResourceFilesContext> otherResourcesModule = new SearchableTree();
 
 
     private gui.ResourceToolWindow contentPanel = new gui.ResourceToolWindow();
@@ -70,22 +62,23 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         modules.getTree().setCellRenderer(new ContextNodeRenderer());
         registerPopup(modules.getTree());
 
-        components.getTree().setCellRenderer(new ContextNodeRenderer());
-        registerPopup(components.getTree());
         otherResources.getTree().setCellRenderer(new ContextNodeRenderer());
         registerPopup(otherResources.getTree());
+        otherResourcesModule.getTree().setCellRenderer(new ContextNodeRenderer());
+        registerPopup(otherResourcesModule.getTree());
 
         NodeKeyController<NgModuleFileContext> moduleKeyCtrl = createDefaultKeyController(modules.getTree());
-        NodeKeyController<ComponentFileContext> componentKeyController = createDefaultKeyController(components.getTree());
-        NodeKeyController<IAngularFileContext> otherResourcesKeyCtrl = createDefaultKeyController(otherResources.getTree());
+        NodeKeyController<IAngularFileContext> othKeyCtrl = createDefaultKeyController(otherResources.getTree());
+        NodeKeyController<IAngularFileContext> otherResourcesModuleKeyCtrl = createDefaultKeyController(otherResourcesModule.getTree());
 
 
         modules.addKeyListener(moduleKeyCtrl);
-        components.addKeyListener(componentKeyController);
-        otherResources.addKeyListener(otherResourcesKeyCtrl);
+        otherResources.addKeyListener(othKeyCtrl);
+        otherResourcesModule.addKeyListener(otherResourcesModuleKeyCtrl);
 
 
     }
+
 
     public void registerPopup(Tree tree) {
         MouseController<IAngularFileContext> contextMenuListener = new MouseController<>(tree, this::showPopup);
@@ -179,8 +172,8 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
 
         jPanelLeft.setViewportView(modules.getTree());
-        jPanelMiddle.setViewportView(components.getTree());
-        jPanelRight.setViewportView(otherResources.getTree());
+        jPanelMiddle.setViewportView(otherResources.getTree());
+        jPanelRight.setViewportView(otherResourcesModule.getTree());
 
 
         toolWindowPanel.setContent(myThreeComponentsSplitter);
@@ -205,28 +198,51 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                     ),
 
                     actionGroup(
-                            actionsManager.createExpandAllHeaderAction(components.getTree()),
-                            actionsManager.createCollapseAllHeaderAction(components.getTree())
+                            actionsManager.createExpandAllHeaderAction(otherResources.getTree()),
+                            actionsManager.createCollapseAllHeaderAction(otherResources.getTree())
                     ),
 
                     actionGroup(
-                            actionsManager.createExpandAllHeaderAction(otherResources.getTree()),
-                            actionsManager.createCollapseAllHeaderAction(otherResources.getTree())
+                            actionsManager.createExpandAllHeaderAction(otherResourcesModule.getTree()),
+                            actionsManager.createCollapseAllHeaderAction(otherResourcesModule.getTree())
                     )
             );
             ((ToolWindowEx) toolWindow).setTitleActions(titleActions);
         }
 
         modules.makeSearchable(this::showPopup);
-        components.makeSearchable(this::showPopup);
         otherResources.makeSearchable(this::showPopup);
+        otherResourcesModule.makeSearchable(this::showPopup);
 
-
+        onEditorChange(project, this::editorSwitched);
     }
 
 
+    private void editorSwitched(FileEditorManagerEvent evt) {
+        FileEditor editor = evt.getNewEditor();
+        if (editor == null) {
+            return;
+        }
+        VirtualFile currentFile = editor.getFile();
+        IntellijFileContext fileContext = new IntellijFileContext(evt.getManager().getProject(), currentFile);
 
+        Optional<NgModuleFileContext> ret = getNearestModule(fileContext);
 
+        if (ret.isPresent()) {
+            otherResourcesModule.filterTree(ret.get().getFolderPath());
+        }
+
+    }
+
+    private Optional<NgModuleFileContext> getNearestModule(IntellijFileContext fileContext) {
+        IntellijFileContext project = new IntellijFileContext(fileContext.getProject());
+        ContextFactory ctxf = ContextFactory.getInstance(project);
+        String filterStr = StringUtils.normalizePath(fileContext.getFolderPath());
+        return Streams.concat(
+                ctxf.getModulesFor(project, TN_DEC, filterStr).stream(),
+                ctxf.getModulesFor(project, NG, filterStr).stream()
+        ).reduce((el1,el2) -> el1.getFolderPath().length() > el2.getFolderPath().length() ? el1 : el2);
+    }
 
 
     private void refreshContent(Project project) {
@@ -235,8 +251,8 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                 assertNotInUse(project);
 
                 modules.refreshContent(LBL_MODULES, this::buildModulesTree);
-                components.refreshContent(LBL_COMPONENTS, this::buildComponentsTree);
-                otherResources.refreshContent(LBL_RESOURCES, this::buildResourcesTree);
+                otherResources.refreshContent(LBL_COMPONENTS, this::buildResourcesTree);
+                otherResourcesModule.refreshContent(LBL_RESOURCES, this::buildResourcesTree);
 
             } catch (IndexNotReadyException exception) {
                 refreshContent(project);
@@ -269,21 +285,9 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     }
 
-    private void buildComponentsTree(SwingRootParentNode parentTree) {
-        ContextFactory contextFactory = ContextFactory.getInstance(projectRoot);
-        List<ComponentFileContext> components = contextFactory.getComponents(projectRoot, TN_DEC);
-        List<ComponentFileContext> components2 = contextFactory.getComponents(projectRoot, NG);
-
-        DefaultMutableTreeNode nodes = createComponentsTree(components, LBL_TN_DEC_COMPONENTS);
-        parentTree.add(nodes);
-        nodes = createComponentsTree(components2, LBL_NG_COMPONENTS);
-        parentTree.add(nodes);
-    }
-
     private void assertNotInUse(Project project) {
         projectRoot = new IntellijFileContext(project);
     }
-
 
 
     @Override
