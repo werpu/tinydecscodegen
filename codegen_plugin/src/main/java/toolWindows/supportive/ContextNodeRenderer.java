@@ -1,4 +1,4 @@
-package toolWindows;
+package toolWindows.supportive;
 
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.NodeRenderer;

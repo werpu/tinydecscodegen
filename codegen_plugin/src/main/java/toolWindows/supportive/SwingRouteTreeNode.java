@@ -1,4 +1,4 @@
-package toolWindows;
+package toolWindows.supportive;
 
 import supportive.fs.common.PsiRouteContext;
 

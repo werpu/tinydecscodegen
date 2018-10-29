@@ -30,7 +30,6 @@ import com.intellij.diff.contents.DocumentContentImpl;
 import com.intellij.diff.requests.SimpleDiffRequest;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.ide.CommonActionsManager;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.*;
@@ -43,6 +42,8 @@ import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -63,22 +64,28 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiSearchHelper;
+import com.intellij.ui.treeStructure.Tree;
+import com.intellij.util.containers.Convertor;
 import configuration.ConfigSerializer;
 import gui.Confirm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reflector.SpringJavaRestReflector;
-import reflector.TypescriptRestGenerator;
 import reflector.utils.ReflectUtils;
 import rest.GenericClass;
 import rest.RestService;
 import supportive.dtos.ArtifactType;
 import supportive.dtos.ModuleElementScope;
+import supportive.fs.common.IAngularFileContext;
 import supportive.fs.common.IntellijFileContext;
+import supportive.fs.common.PsiRouteContext;
 import supportive.reflectRefact.*;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -89,6 +96,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static supportive.utils.StringUtils.normalizePath;
@@ -102,7 +110,6 @@ public class IntellijUtils {
     public static final String NPM_INSTALL_CONSOLE = "NPM Install Console";
 
     public static FileNameTransformer fileNameTransformer = new SimpleFileNameTransformer();
-
 
     /**
      * Generates or diffs a typescript file.
@@ -428,11 +435,11 @@ public class IntellijUtils {
     }
 
     public static VirtualFile create(Project project, VirtualFile folder, String str, String fileName) throws IOException {
-       VirtualFile virtualFile = createTempFile(fileName, str);
-       virtualFile.rename(project, fileName);
-       virtualFile.move(project, folder);
+        VirtualFile virtualFile = createTempFile(fileName, str);
+        virtualFile.rename(project, fileName);
+        virtualFile.move(project, folder);
 
-       return virtualFile;
+        return virtualFile;
 
         //PsiFile psiFile = PsiFileFactory.getInstance(project).createFileFromText(folder.getPath()+"/"+fileName, Language.findLanguageByID("XML"), str);
         //return psiFile.getVirtualFile();
@@ -484,17 +491,16 @@ public class IntellijUtils {
         boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
         GeneralCommandLine cmd = new GeneralCommandLine(isWindows ? "npm.cmd" : "npm", "install", "--verbose", "--no-progress");
         cmd.withWorkDirectory(projectDir);
-        if(!isWindows) {
-            cmd.withEnvironment("PATH", System.getenv("PATH")+":/usr/local/bin:/usr/bin:~/bin:/bin");
+        if (!isWindows) {
+            cmd.withEnvironment("PATH", System.getenv("PATH") + ":/usr/local/bin:/usr/bin:~/bin:/bin");
         }
 
         cmd.withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE);
 
 
-
         Process p2 = null;
         try {
-            p2 =  cmd.createProcess();
+            p2 = cmd.createProcess();
         } catch (ExecutionException e) {
             Messages.showErrorDialog(project, e.getMessage(), "Error calling npm install");
 
@@ -509,16 +515,16 @@ public class IntellijUtils {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
-                    while(p.isAlive()) {
+                    while (p.isAlive()) {
                         Thread.sleep(1000);
-                        if(progressIndicator.isCanceled()) {
+                        if (progressIndicator.isCanceled()) {
                             supportive.utils.IntellijUtils.showInfoMessage("npm install has been cancelled", "");
                             return;
                         }
                     }
                     supportive.utils.IntellijUtils.showInfoMessage(doneMessage, doneTitle);
                 } catch (InterruptedException e) {
-                    supportive.utils.IntellijUtils.showErrorDialog(project,e.getMessage(), "Error");
+                    supportive.utils.IntellijUtils.showErrorDialog(project, e.getMessage(), "Error");
                     e.printStackTrace();
                     p.destroy();
                     return;
@@ -535,6 +541,34 @@ public class IntellijUtils {
 
     }
 
+    /**
+     * a helper to generate a conversion function from a tree node
+     * to a searchable string for the Intellij tree search
+     *
+     * @param tree the tree which needs to be searched
+     * @return a conversion function on the current tree from node to searchable string
+     *
+     */
+    public static Convertor<TreePath, String> convertToSearchableString(Tree tree) {
+        return (TreePath treePath) -> {
+
+            treePath.getPath();
+            final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
+            final Object userObject = node.getUserObject();
+            TreePath nodePath = new TreePath(node.getPath());
+            if (!tree.isExpanded(nodePath)) {
+                tree.expandPath(nodePath);
+            }
+
+            if (userObject instanceof PsiRouteContext) {
+                return ((PsiRouteContext) userObject).getRoute().getRouteVarName();
+            } else if(userObject instanceof IAngularFileContext) {
+                return  ((IAngularFileContext) userObject).getDisplayName();
+            }
+            return null;
+
+        };
+    }
 
 
     static class ClassHolder {
@@ -710,8 +744,8 @@ public class IntellijUtils {
 
     public static String getTsExtension() {
         String retVal = FileTypeManager.getInstance().getStdFileType("TypeScript").getDefaultExtension();
-        if(!retVal.startsWith(".")) {
-            retVal = "."+retVal;
+        if (!retVal.startsWith(".")) {
+            retVal = "." + retVal;
         }
         return retVal;
     }
@@ -719,8 +753,8 @@ public class IntellijUtils {
 
     static String getJavaExtension() {
         String retVal = FileTypeManager.getInstance().getStdFileType("Java").getDefaultExtension();
-        if(!retVal.startsWith(".")) {
-            retVal = "."+retVal;
+        if (!retVal.startsWith(".")) {
+            retVal = "." + retVal;
         }
         return retVal;
     }
@@ -728,6 +762,10 @@ public class IntellijUtils {
     public static void invokeLater(Runnable run) {
         ApplicationManager.getApplication().invokeLater(run);
     }
+
+    /*
+     * Action helpers to improve readability
+     */
 
     public static ActionGroup actionGroup(AnAction... actions) {
         return new ActionGroup() {
@@ -738,12 +776,35 @@ public class IntellijUtils {
             }
         };
     }
+
     public static AnAction[] actions(AnAction... actions) {
         return actions;
     }
 
+    /**
+     * a simplified editor change event callback, which should
+     * improve readability
+     *
+     * @param project  the current project
+     * @param consumer a consumer function to adhere to java 8+ functional conventions
+     *                 this function provides the event callback
+     * @return the listener object for further processing
+     */
+    public static FileEditorManagerListener onEditorChange(Project project, Consumer<FileEditorManagerEvent> consumer) {
+        final FileEditorManagerListener editorManagerListener = new FileEditorManagerListener() {
+            @Override
+            public void selectionChanged(@NotNull FileEditorManagerEvent event) {
+                consumer.accept(event);
+            }
+        };
+        project.getMessageBus().connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, editorManagerListener);
+        return editorManagerListener;
+    }
 
     public static void onFileChange(Project project, Runnable runnable) {
+        // MessageBusFactory.newMessageBus(project).
+        //TODO move this over to the message bus system
+        //the listener system becomes deprecated soon
         VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileContentsChangedAdapter() {
             @Override
             protected void onFileChange(@NotNull VirtualFile file) {
@@ -768,6 +829,8 @@ public class IntellijUtils {
     }
 
     public static void onFileChange(Project project, Consumer<VirtualFile> runnable) {
+        //TODO move this over to the message bus system
+        //the listener system becomes deprecated soon
         VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileContentsChangedAdapter() {
             @Override
             protected void onFileChange(@NotNull VirtualFile file) {

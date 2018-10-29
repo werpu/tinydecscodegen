@@ -18,15 +18,14 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.*;
 import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
 import supportive.fs.tn.TNUIRoutesFileContext;
+import toolWindows.supportive.*;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseEvent;
 import java.nio.file.Path;
@@ -169,29 +168,13 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                     tree.addMouseListener(contextMenuListener);
 
 
-                    searchPath = new TreeSpeedSearch(tree, this::convertToSearchableString);
+                    searchPath = new TreeSpeedSearch(tree, convertToSearchableString(tree));
                 }
 
             } catch (IndexNotReadyException exception) {
                 refreshContent(project);
             }
         });
-    }
-
-    @Nullable
-    private String convertToSearchableString(TreePath treePath) {
-        treePath.getPath();
-        final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
-        final Object userObject = node.getUserObject();
-        TreePath nodePath = new TreePath(node.getPath());
-        if (!tree.isExpanded(nodePath)) {
-            tree.expandPath(nodePath);
-        }
-
-        if (userObject instanceof PsiRouteContext) {
-            return ((PsiRouteContext) userObject).getRoute().getRouteVarName();
-        }
-        return null;
     }
 
     private void buildRoutesTree(SwingRootParentNode routesHolder) {

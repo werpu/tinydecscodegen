@@ -24,12 +24,12 @@ public class Labels {
     public static final String HREF_TN = "<a href=\"#!%s\">%s</a>";
     public static final String HREF_NG_UI_ROUTES = "<a uiSref=\"%s\" uiSrefActive=\"active\">%s</a>";
     public static final String LBL_GO_TO_ROUTE_DECLARATION = "Go to route declaration";
-    public static final String LBL_GO_TO_REGISTRATION = "Go to module registration";
-    public static final String LBL_GO_TO_RESOURCE = "Go to  resource";
+    public static final String LBL_GO_TO_REGISTRATION = "Go to Module Registration";
+    public static final String LBL_GO_TO_RESOURCE = "Go to Resource";
     public static final String LBL_COPY_RESOURCE_NAME = "Copy Resource Name";
     public static final String LBL_COPY_RESOURCE_CLASS = "Copy Resource Class Name";
     public static final String LBL_COPY_SERCICE_INJECTION = "Copy Service Injection";
-    public static final String LBL_GO_TO_COMPONENT = "Go to component";
+    public static final String LBL_GO_TO_COMPONENT = "Go to Component";
     public static final String LBL_COPY_ROUTE_LINK = "Copy Route Link";
     public static final String LBL_COPY_ROUTE_KEY = "Copy Route Key";
 }

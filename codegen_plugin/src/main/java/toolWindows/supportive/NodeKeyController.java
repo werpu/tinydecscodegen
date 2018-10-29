@@ -1,4 +1,4 @@
-package toolWindows;
+package toolWindows.supportive;
 
 import com.intellij.ui.treeStructure.Tree;
 import lombok.AllArgsConstructor;

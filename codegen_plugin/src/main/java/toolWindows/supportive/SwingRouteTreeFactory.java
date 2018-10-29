@@ -1,4 +1,4 @@
-package toolWindows;
+package toolWindows.supportive;
 
 import com.jgoodies.common.base.Strings;
 import supportive.fs.common.*;
