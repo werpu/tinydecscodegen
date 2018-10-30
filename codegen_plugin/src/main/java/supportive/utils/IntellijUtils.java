@@ -57,6 +57,7 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileContentsChangedAdapter;
@@ -767,6 +768,10 @@ public class IntellijUtils {
         ApplicationManager.getApplication().invokeLater(run);
     }
 
+    public static void smartInvokeLater(Project project, Runnable run) {
+        DumbService.getInstance(project).smartInvokeLater(run);
+    }
+
     public static void writeTransaction(Project project, Runnable runnable) {
         WriteCommandAction.runWriteCommandAction(project, runnable);
     }
@@ -775,6 +780,9 @@ public class IntellijUtils {
         ApplicationManager.getApplication().runReadAction(runnable);
     }
 
+    public static <T>  T readAction(Computable<T> runnable) {
+        return ApplicationManager.getApplication().runReadAction(runnable);
+    }
     /*
      * Action helpers to improve readability
      */

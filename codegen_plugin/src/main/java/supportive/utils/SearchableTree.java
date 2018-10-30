@@ -8,6 +8,7 @@ import com.intellij.util.containers.ArrayListSet;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.IAngularFileContext;
 import toolWindows.supportive.ClickHandler;
 import toolWindows.supportive.MouseController;
@@ -21,6 +22,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static supportive.utils.IntellijUtils.convertToSearchableString;
 
@@ -86,6 +88,39 @@ public class SearchableTree<V> {
         tree.setModel(newModel);
     }
 
+    public DefaultMutableTreeNode cloneNodes(Function<DefaultMutableTreeNode, Boolean> filterCrit) {
+        DefaultMutableTreeNode source = (DefaultMutableTreeNode) tree.getModel().getRoot();
+
+        return cloneNodes(source, filterCrit);
+    }
+
+    @NotNull
+    private DefaultMutableTreeNode cloneNodes(DefaultMutableTreeNode source, Function<DefaultMutableTreeNode, Boolean> filterCrit) {
+        final Function<DefaultMutableTreeNode, Boolean> finalFilterFunc = (filterCrit != null) ? filterCrit : (node) -> true;
+
+        Enumeration<DefaultMutableTreeNode> en = source.breadthFirstEnumeration();
+        DefaultMutableTreeNode newRootNode = new DefaultMutableTreeNode(source.getUserObject());
+        final Map<TreeNode, DefaultMutableTreeNode> nodeIdx = new HashMap<>();
+
+        Collections.list(en).stream()
+                // .map(node ->  (DefaultMutableTreeNode) node)
+                .filter(node -> {
+                    if (node.getParent() == null) {
+                        return false;
+                    }
+                    return finalFilterFunc.apply(node);
+                })
+                .forEach(node -> {
+                    DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(node.getUserObject());
+                    nodeIdx.put(node, newNode);
+
+                    DefaultMutableTreeNode nodePar = Optional.ofNullable(nodeIdx.get(node.getParent())).orElse(newRootNode);
+                    nodePar.add(newNode);
+                });
+        return newRootNode;
+    }
+
+
     private void removeEmpties(DefaultMutableTreeNode source) {
         Enumeration<DefaultMutableTreeNode> en = source.depthFirstEnumeration();
 
@@ -112,32 +147,15 @@ public class SearchableTree<V> {
 
 
     private DefaultMutableTreeNode filteredClone(DefaultMutableTreeNode source, String pathFilter) {
-        Enumeration<DefaultMutableTreeNode> en = source.breadthFirstEnumeration();
-        DefaultMutableTreeNode newRootNode = new DefaultMutableTreeNode(source.getUserObject());
-        final Map<TreeNode, DefaultMutableTreeNode> nodeIdx = new HashMap<>();
-
-        Collections.list(en).stream()
-                // .map(node ->  (DefaultMutableTreeNode) node)
-                .filter(node -> {
-                    if (node.getParent() == null) {
-                        return false;
-                    }
+        return cloneNodes(source, node -> {
                     Object userObject = node.getUserObject();
                     if (userObject instanceof IAngularFileContext && node.isLeaf()) {
                         String vPATH = ((IAngularFileContext) userObject).getVirtualFile().getPath();
                         vPATH = StringUtils.normalizePath(vPATH);
                         return vPATH.toLowerCase().contains(pathFilter.toLowerCase());
                     }
-                    return (node.getChildCount() > 0);
-                })
-                .forEach(node -> {
-                    DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(node.getUserObject());
-                    nodeIdx.put(node, newNode);
-
-                    DefaultMutableTreeNode nodePar = Optional.ofNullable(nodeIdx.get(node.getParent())).orElse(newRootNode);
-                    nodePar.add(newNode);
+                    return node.getChildCount() > 0;
                 });
-        return newRootNode;
     }
 
 

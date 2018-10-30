@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -29,10 +30,13 @@ import toolWindows.supportive.*;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.function.Consumer;
 
 import static actions_all.shared.Labels.*;
 import static supportive.fs.common.AngularVersion.NG;
@@ -236,17 +240,20 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         if (editor == null) {
             return;
         }
-        readAction(() -> {
-            VirtualFile currentFile = editor.getFile();
+        smartInvokeLater(project, () -> {
+            readAction(() -> {
+                VirtualFile currentFile = editor.getFile();
 
-            IntellijFileContext fileContext = new IntellijFileContext(project, currentFile);
+                IntellijFileContext fileContext = new IntellijFileContext(project, currentFile);
 
-            Optional<NgModuleFileContext> ret = getNearestModule(fileContext);
+                Optional<NgModuleFileContext> ret = getNearestModule(fileContext);
 
-            if (ret.isPresent()) {
-                otherResourcesModule.filterTree(ret.get().getFolderPath(), LBL_RESOURCES + "[" + ret.get().getModuleName() + "]");
-            }
+                if (ret.isPresent()) {
+                    otherResourcesModule.filterTree(ret.get().getFolderPath(), LBL_RESOURCES + "[" + ret.get().getModuleName() + "]");
+                }
+            });
         });
+
     }
 
     private Optional<NgModuleFileContext> getNearestModule(IntellijFileContext fileContext) {
@@ -261,41 +268,62 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
 
     private void refreshContent(Project project) {
-        if(toolWindow == null || !toolWindow.isVisible()) {
+        if (toolWindow == null || !toolWindow.isVisible()) {
             return;
         }
-        invokeLater(() -> {
+        smartInvokeLater(project, () -> {
             try {
                 assertNotInUse(project);
 
-                Arrays.<Supplier<Boolean>>asList(() -> {
-                    readAction(() -> {
-                        modules.refreshContent(LBL_MODULES, this::buildModulesTree);
-                        modules.filterTree("", LBL_MODULES);
+                ContextFactory contextFactory = ContextFactory.getInstance(projectRoot);
+                ExecutorService executor = Executors.newFixedThreadPool(2);
+                FutureTask<ResourceFilesContext> fItemsTn = new FutureTask<>(() -> {
+                    return readAction(() -> contextFactory.getProjectResources(projectRoot, TN_DEC));
 
-                    });
-                    return Boolean.TRUE;
+                });
+                FutureTask<ResourceFilesContext> fItemsNg = new FutureTask<>(() -> {
+                    return readAction(() -> contextFactory.getProjectResources(projectRoot, NG));
+                });
 
-                }, () -> {
-                    readAction(() -> {
-                        otherResources.refreshContent(LBL_COMPONENTS, this::buildResourcesTree);
-                        otherResources.filterTree("", LBL_COMPONENTS);
-                    });
-                    return Boolean.TRUE;
-                }, () -> {
-                    readAction(() -> {
-                        otherResources.filterTree("", LBL_COMPONENTS);
-                        otherResourcesModule.refreshContent(LBL_RESOURCES, this::buildResourcesTree);
-                    });
+
+                readAction(() -> {
+                    ResourceFilesContext itemsTn;
+                    ResourceFilesContext itemsNg;
+
+
+                    executor.execute(fItemsTn);
+                    executor.execute(fItemsNg);
+
+                    try {
+                        itemsTn = fItemsTn.get();
+                        itemsNg = fItemsNg.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+
+
+                    modules.refreshContent(LBL_MODULES, this.buildModulesTree(itemsTn.getModules(), itemsNg.getModules()));
+                    modules.filterTree("", LBL_MODULES);
+
+                    otherResources.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
+                    otherResources.filterTree("", LBL_MODULES);
+
+
+                    //mem ops are always easier
+                    otherResources.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
+                    otherResources.filterTree("", LBL_MODULES);
+
                     FileEditor editor = FileEditorManagerImpl.getInstance(project).getSelectedEditor();
                     editorTreeRefresh(editor, project);
 
-                    return Boolean.TRUE;
-                }).parallelStream().map(runnable -> runnable.get()).reduce((e1, e2) -> e2);
+                });
 
 
             } catch (IndexNotReadyException exception) {
-                refreshContent(project);
+                DumbService.getInstance(project).smartInvokeLater(() -> {
+                    refreshContent(project);
+                });
             }
         });
     }
@@ -305,11 +333,21 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         List<NgModuleFileContext> modules = contextFactory.getModules(projectRoot, TN_DEC);
         List<NgModuleFileContext> modules2 = contextFactory.getModules(projectRoot, NG);
 
+        buildModulesTree(parentTree, modules, modules2);
+
+    }
+
+    private void buildModulesTree(SwingRootParentNode parentTree, List<NgModuleFileContext> modules, List<NgModuleFileContext> modules2) {
         DefaultMutableTreeNode nodes = createModulesTree(modules, LBL_TN_DEC_MODULES);
         parentTree.add(nodes);
         nodes = createModulesTree(modules2, LBL_NG_MODULES);
         parentTree.add(nodes);
+    }
 
+    public Consumer<SwingRootParentNode> buildModulesTree(List<NgModuleFileContext> itemsTn, List<NgModuleFileContext> itemsNg) {
+        return (parentTree) -> {
+            buildModulesTree(parentTree, itemsTn, itemsNg);
+        };
     }
 
 
@@ -317,6 +355,22 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         ContextFactory contextFactory = ContextFactory.getInstance(projectRoot);
         ResourceFilesContext itemsTn = contextFactory.getProjectResources(projectRoot, TN_DEC);
         ResourceFilesContext itemsNg = contextFactory.getProjectResources(projectRoot, NG);
+
+        DefaultMutableTreeNode nodes = SwingRouteTreeFactory.createResourcesTree(itemsTn, LBL_TN_DEC_RESOURCES);
+        parentTree.add(nodes);
+        nodes = SwingRouteTreeFactory.createResourcesTree(itemsNg, LBL_NG_RESOURCES);
+        parentTree.add(nodes);
+
+    }
+
+    public Consumer<SwingRootParentNode> buildResourcesTree(ResourceFilesContext itemsTn, ResourceFilesContext itemsNg) {
+        return (parentTree) -> {
+            buildResourcesTree(parentTree, itemsTn, itemsNg);
+        };
+    }
+
+    private void buildResourcesTree(SwingRootParentNode parentTree, ResourceFilesContext itemsTn, ResourceFilesContext itemsNg) {
+
 
         DefaultMutableTreeNode nodes = SwingRouteTreeFactory.createResourcesTree(itemsTn, LBL_TN_DEC_RESOURCES);
         parentTree.add(nodes);
