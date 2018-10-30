@@ -5,7 +5,6 @@ import com.intellij.ide.CommonActionsManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
 import com.intellij.openapi.project.IndexNotReadyException;
@@ -30,8 +29,10 @@ import toolWindows.supportive.*;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static actions_all.shared.Labels.*;
 import static supportive.fs.common.AngularVersion.NG;
@@ -231,15 +232,17 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         if (editor == null) {
             return;
         }
-        VirtualFile currentFile = editor.getFile();
+        readAction(() -> {
+            VirtualFile currentFile = editor.getFile();
 
-        IntellijFileContext fileContext = new IntellijFileContext(project, currentFile);
+            IntellijFileContext fileContext = new IntellijFileContext(project, currentFile);
 
-        Optional<NgModuleFileContext> ret = getNearestModule(fileContext);
+            Optional<NgModuleFileContext> ret = getNearestModule(fileContext);
 
-        if (ret.isPresent()) {
-            otherResourcesModule.filterTree(ret.get().getFolderPath(), LBL_RESOURCES+"["+ret.get().getModuleName()+"]");
-        }
+            if (ret.isPresent()) {
+                otherResourcesModule.filterTree(ret.get().getFolderPath(), LBL_RESOURCES + "[" + ret.get().getModuleName() + "]");
+            }
+        });
     }
 
     private Optional<NgModuleFileContext> getNearestModule(IntellijFileContext fileContext) {
@@ -249,7 +252,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         return Streams.concat(
                 ctxf.getModulesFor(project, TN_DEC, filterStr).stream(),
                 ctxf.getModulesFor(project, NG, filterStr).stream()
-        ).reduce((el1,el2) -> el1.getFolderPath().length() > el2.getFolderPath().length() ? el1 : el2);
+        ).reduce((el1, el2) -> el1.getFolderPath().length() > el2.getFolderPath().length() ? el1 : el2);
     }
 
 
@@ -258,13 +261,31 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
             try {
                 assertNotInUse(project);
 
-                modules.refreshContent(LBL_MODULES, this::buildModulesTree);
-                modules.filterTree("", LBL_COMPONENTS);
-                otherResources.refreshContent(LBL_COMPONENTS, this::buildResourcesTree);
-                otherResources.filterTree("", LBL_COMPONENTS);
-                otherResourcesModule.refreshContent(LBL_RESOURCES, this::buildResourcesTree);
-                FileEditor editor = FileEditorManagerImpl.getInstance(project).getSelectedEditor();
-                editorTreeRefresh(editor, project);
+                Arrays.<Supplier<Boolean>>asList(() -> {
+                    readAction(() -> {
+                        modules.refreshContent(LBL_MODULES, this::buildModulesTree);
+                        modules.filterTree("", LBL_COMPONENTS);
+
+                    });
+                    return Boolean.TRUE;
+
+                }, () -> {
+                    readAction(() -> {
+                        otherResources.refreshContent(LBL_COMPONENTS, this::buildResourcesTree);
+                        otherResources.filterTree("", LBL_COMPONENTS);
+                    });
+                    return Boolean.TRUE;
+                }, () -> {
+                    readAction(() -> {
+                        otherResources.filterTree("", LBL_COMPONENTS);
+                        otherResourcesModule.refreshContent(LBL_RESOURCES, this::buildResourcesTree);
+                    });
+                    FileEditor editor = FileEditorManagerImpl.getInstance(project).getSelectedEditor();
+                    editorTreeRefresh(editor, project);
+
+                    return Boolean.TRUE;
+                }).parallelStream().map(runnable -> runnable.get()).reduce((e1, e2) -> e2);
+
 
             } catch (IndexNotReadyException exception) {
                 refreshContent(project);
