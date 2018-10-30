@@ -5,7 +5,9 @@ import com.intellij.ide.CommonActionsManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -220,18 +222,24 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     private void editorSwitched(FileEditorManagerEvent evt) {
         FileEditor editor = evt.getNewEditor();
+        Project project = evt.getManager().getProject();
+        editorTreeRefresh(editor, project);
+
+    }
+
+    private void editorTreeRefresh(FileEditor editor, Project project) {
         if (editor == null) {
             return;
         }
         VirtualFile currentFile = editor.getFile();
-        IntellijFileContext fileContext = new IntellijFileContext(evt.getManager().getProject(), currentFile);
+
+        IntellijFileContext fileContext = new IntellijFileContext(project, currentFile);
 
         Optional<NgModuleFileContext> ret = getNearestModule(fileContext);
 
         if (ret.isPresent()) {
-            otherResourcesModule.filterTree(ret.get().getFolderPath());
+            otherResourcesModule.filterTree(ret.get().getFolderPath(), LBL_RESOURCES+"["+ret.get().getModuleName()+"]");
         }
-
     }
 
     private Optional<NgModuleFileContext> getNearestModule(IntellijFileContext fileContext) {
@@ -251,8 +259,12 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                 assertNotInUse(project);
 
                 modules.refreshContent(LBL_MODULES, this::buildModulesTree);
+                modules.filterTree("", LBL_COMPONENTS);
                 otherResources.refreshContent(LBL_COMPONENTS, this::buildResourcesTree);
+                otherResources.filterTree("", LBL_COMPONENTS);
                 otherResourcesModule.refreshContent(LBL_RESOURCES, this::buildResourcesTree);
+                FileEditor editor = FileEditorManagerImpl.getInstance(project).getSelectedEditor();
+                editorTreeRefresh(editor, project);
 
             } catch (IndexNotReadyException exception) {
                 refreshContent(project);

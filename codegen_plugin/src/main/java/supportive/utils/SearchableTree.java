@@ -1,10 +1,10 @@
 package supportive.utils;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.intellij.packageDependencies.ui.TreeExpansionMonitor;
 import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.treeStructure.Tree;
+import com.intellij.util.containers.ArrayListSet;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -37,6 +37,17 @@ public class SearchableTree<V> {
 
     private String label;
 
+
+
+
+    private void setTitle(DefaultMutableTreeNode root, String title) {
+        String newTitle = Strings.nullToEmpty(title);
+        Collections.list(root.children()).stream().forEach(node -> {
+            ((DefaultMutableTreeNode)node).setUserObject(newTitle);
+
+        });
+    }
+
     public void addKeyListener(KeyListener l) {
         this.tree.addKeyListener(l);
     }
@@ -59,31 +70,56 @@ public class SearchableTree<V> {
 
     }
 
-    public void filterTree(String filterStr) {
+    public void filterTree(String filterStr, String subTitle) {
         originalModel = (originalModel != null) ? originalModel : tree.getModel();
 
-        if (Strings.isNullOrEmpty(filterStr)) {
-            tree.setModel(originalModel);
-            return;
-        }
+        filterStr = Strings.nullToEmpty(filterStr);
 
 
         DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) originalModel.getRoot();
 
         //we need to double filter to get the empty branches out
-        DefaultMutableTreeNode filtered = filteredClone( filteredClone(rootNode, filterStr), filterStr);
+        DefaultMutableTreeNode filtered = filteredClone(rootNode, filterStr);
+        removeEmpties(filtered);
         DefaultTreeModel newModel = new DefaultTreeModel(filtered);
+        setTitle((DefaultMutableTreeNode) newModel.getRoot(), subTitle);
         tree.setModel(newModel);
     }
+
+    private void removeEmpties(DefaultMutableTreeNode source) {
+        Enumeration<DefaultMutableTreeNode> en = source.depthFirstEnumeration();
+
+        int depth = source.getDepth();
+        Set<DefaultMutableTreeNode> nodesToRemove = new ArrayListSet<>();
+
+        //we have to iterate depth times to cover all
+        //for(int cnt = 0; cnt < depth; cnt++) {
+        Collections.list(en)
+                .stream()
+                .forEach(node -> {
+                    boolean removalCandidate = !(node.getUserObject() instanceof IAngularFileContext) &&
+                            (node.getChildCount() == 0 ||
+                                    nodesToRemove.containsAll(Collections.list(node.children())));
+                    if (removalCandidate) {
+                        nodesToRemove.add(node);
+                    }
+
+                });
+        //}
+        nodesToRemove.forEach(DefaultMutableTreeNode::removeFromParent);
+
+    }
+
 
     private DefaultMutableTreeNode filteredClone(DefaultMutableTreeNode source, String pathFilter) {
         Enumeration<DefaultMutableTreeNode> en = source.breadthFirstEnumeration();
         DefaultMutableTreeNode newRootNode = new DefaultMutableTreeNode(source.getUserObject());
         final Map<TreeNode, DefaultMutableTreeNode> nodeIdx = new HashMap<>();
+
         Collections.list(en).stream()
-               // .map(node ->  (DefaultMutableTreeNode) node)
+                // .map(node ->  (DefaultMutableTreeNode) node)
                 .filter(node -> {
-                    if(node.getParent() == null) {
+                    if (node.getParent() == null) {
                         return false;
                     }
                     Object userObject = node.getUserObject();
