@@ -58,6 +58,8 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     private IntellijFileContext projectRoot = null;
 
+    ToolWindow toolWindow;
+
     public ResourceToolWindow() {
         final Icon ng = IconLoader.getIcon("/images/ng.png");
 
@@ -145,7 +147,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 
-
+        this.toolWindow = toolWindow;
         onFileChange(project, () -> refreshContent(project));
 
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
@@ -218,6 +220,8 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         otherResourcesModule.makeSearchable(this::showPopup);
 
         onEditorChange(project, this::editorSwitched);
+
+
     }
 
 
@@ -257,6 +261,9 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
 
     private void refreshContent(Project project) {
+        if(toolWindow == null || !toolWindow.isVisible()) {
+            return;
+        }
         invokeLater(() -> {
             try {
                 assertNotInUse(project);
@@ -264,7 +271,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                 Arrays.<Supplier<Boolean>>asList(() -> {
                     readAction(() -> {
                         modules.refreshContent(LBL_MODULES, this::buildModulesTree);
-                        modules.filterTree("", LBL_COMPONENTS);
+                        modules.filterTree("", LBL_MODULES);
 
                     });
                     return Boolean.TRUE;
