@@ -2,6 +2,7 @@ package toolWindows.supportive;
 
 import com.intellij.ui.treeStructure.Tree;
 import lombok.AllArgsConstructor;
+import supportive.fs.common.IAngularFileContext;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.KeyEvent;
@@ -31,7 +32,9 @@ public class NodeKeyController<T> implements KeyListener {
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 
         Object value = selectedNode.getUserObject();
-        if (!isInstanceOfT(value)) return;
+        if(!(value instanceof IAngularFileContext)) {
+            return;
+        }
         if (e.isMetaDown() && e.getKeyCode() == KeyEvent.VK_ENTER) {
                 goToCode.accept((T) value);
         } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -47,16 +50,9 @@ public class NodeKeyController<T> implements KeyListener {
 
     }
 
-    public boolean isInstanceOfT(Object userObj) {
-        try {
-           T letItFail = (T) userObj;
-        } catch (ClassCastException e) {
-            return false;
-        }
-        return true;
-    }
 
     private boolean isBranch() {
-        return !(tree.getLastSelectedPathComponent() instanceof DefaultMutableTreeNode);
+        return !(tree.getLastSelectedPathComponent() instanceof DefaultMutableTreeNode) ||
+                !((DefaultMutableTreeNode)tree.getLastSelectedPathComponent()).isLeaf();
     }
 }

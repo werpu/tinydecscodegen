@@ -320,11 +320,11 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                 modules.filterTree("", LBL_MODULES);
 
                 otherResources.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
-                otherResources.filterTree("", LBL_MODULES);
+                otherResources.filterTree("", LBL_RESOURCES);
 
                 //mem ops are always easier
                 otherResourcesModule.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
-                otherResourcesModule.filterTree("", LBL_MODULES);
+                otherResourcesModule.filterTree("", LBL_RESOURCES);
 
                 Arrays.<Runnable>asList(() -> modules.filterTree("", LBL_MODULES),
                         () -> otherResources.filterTree("", LBL_MODULES),
