@@ -22,6 +22,7 @@ import supportive.fs.common.*;
 import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
 import supportive.fs.tn.TNUIRoutesFileContext;
+import supportive.utils.IntellijRunUtils;
 import toolWindows.supportive.*;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -79,7 +80,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        onFileChange(project, (vFile) -> refreshContent(project, vFile));
+        IntellijRunUtils.onFileChange(project, (vFile) -> refreshContent(project, vFile));
 
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
 
@@ -128,7 +129,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     }
 
     private void refreshContent(@NotNull Project project) {
-        invokeLater(() -> {
+        IntellijRunUtils.invokeLater(() -> {
             try {
                 try {
                     projectRoot = new IntellijFileContext(project);

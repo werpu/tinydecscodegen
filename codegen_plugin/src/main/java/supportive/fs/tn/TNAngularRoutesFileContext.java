@@ -1,7 +1,6 @@
 package supportive.fs.tn;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -18,8 +17,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Integer.valueOf;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
-import static supportive.utils.IntellijUtils.onEditorChange;
-import static supportive.utils.IntellijUtils.writeTransaction;
+import static supportive.utils.IntellijRunUtils.writeTransaction;
 import static supportive.utils.StringUtils.elVis;
 import static supportive.utils.StringUtils.literalEquals;
 

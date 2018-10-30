@@ -1,9 +1,13 @@
 package toolWindows;
 
 import com.google.common.collect.Streams;
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
@@ -23,6 +27,7 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.*;
+import supportive.utils.IntellijRunUtils;
 import supportive.utils.SearchableTree;
 import supportive.utils.StringUtils;
 import toolWindows.supportive.*;
@@ -33,17 +38,15 @@ import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static actions_all.shared.Labels.*;
 import static supportive.fs.common.AngularVersion.NG;
 import static supportive.fs.common.AngularVersion.TN_DEC;
-import static supportive.utils.IntellijUtils.*;
+import static supportive.utils.IntellijRunUtils.*;
 import static supportive.utils.StringUtils.makeVarName;
 import static supportive.utils.SwingUtils.copyToClipboard;
 import static supportive.utils.SwingUtils.openEditor;
@@ -154,7 +157,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 
         this.toolWindow = toolWindow;
-        onFileChange(project, () -> refreshContent(project));
+        IntellijRunUtils.onFileChange(project, () -> refreshContent(project));
 
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
         refreshContent(project);
@@ -192,42 +195,74 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         Content content = contentFactory.createContent(toolWindowPanel, "", false);
         toolWindow.getContentManager().addContent(content);
 
-        invokeLater(() -> {
-            int origWidth = toolWindow.getComponent().getRootPane().getSize().width;
-            myThreeComponentsSplitter.setFirstSize(Math.round(origWidth / 3));
-            myThreeComponentsSplitter.setLastSize(Math.round(origWidth / 3));
-            myThreeComponentsSplitter.doLayout();
-        });
+        layout(toolWindow, myThreeComponentsSplitter);
 
 
-        if (toolWindow instanceof ToolWindowEx) {
-            final CommonActionsManager actionsManager = CommonActionsManager.getInstance();
-            AnAction[] titleActions = actions(
-                    actionGroup(
-                            actionsManager.createExpandAllHeaderAction(modules.getTree()),
-                            actionsManager.createCollapseAllHeaderAction(modules.getTree())
-                    ),
-
-                    actionGroup(
-                            actionsManager.createExpandAllHeaderAction(otherResources.getTree()),
-                            actionsManager.createCollapseAllHeaderAction(otherResources.getTree())
-                    ),
-
-                    actionGroup(
-                            actionsManager.createExpandAllHeaderAction(otherResourcesModule.getTree()),
-                            actionsManager.createCollapseAllHeaderAction(otherResourcesModule.getTree())
-                    )
-            );
-            ((ToolWindowEx) toolWindow).setTitleActions(titleActions);
-        }
+        setupActionBar(toolWindow, toolWindowPanel);
 
         modules.makeSearchable(this::showPopup);
         otherResources.makeSearchable(this::showPopup);
         otherResourcesModule.makeSearchable(this::showPopup);
 
-        onEditorChange(project, this::editorSwitched);
+        IntellijRunUtils.onEditorChange(project, this::editorSwitched);
 
 
+    }
+
+    private void setupActionBar(@NotNull ToolWindow toolWindow, SimpleToolWindowPanel panel) {
+        if (toolWindow instanceof ToolWindowEx) {
+            final CommonActionsManager actionsManager = CommonActionsManager.getInstance();
+            AnAction[] titleActions = IntellijRunUtils.actions(
+                    IntellijRunUtils.actionGroup(
+                            actionsManager.createExpandAllHeaderAction(modules.getTree()),
+                            actionsManager.createCollapseAllHeaderAction(modules.getTree())
+                    ),
+
+                    IntellijRunUtils.actionGroup(
+                            actionsManager.createExpandAllHeaderAction(otherResources.getTree()),
+                            actionsManager.createCollapseAllHeaderAction(otherResources.getTree())
+                    ),
+
+                    IntellijRunUtils.actionGroup(
+                            actionsManager.createExpandAllHeaderAction(otherResourcesModule.getTree()),
+                            actionsManager.createCollapseAllHeaderAction(otherResourcesModule.getTree())
+                    )
+            );
+            ((ToolWindowEx) toolWindow).setTitleActions(titleActions);
+
+
+            ActionToolbar otherActions = ActionManager.getInstance().createActionToolbar("All Actions", IntellijRunUtils.actionGroup(
+                    new AnAction("Reload", "Reload All Views", AllIcons.Actions.ForceRefresh) {
+                        @Override
+                        public void actionPerformed(AnActionEvent e) {
+                            refreshContent(projectRoot.getProject());
+                        }
+                    },
+
+                    actionsManager.createExpandAllHeaderAction(otherResourcesModule.getTree()),
+                    actionsManager.createCollapseAllHeaderAction(otherResourcesModule.getTree())
+            ), true);
+
+            otherActions.setTargetComponent(panel);
+            panel.setToolbar(otherActions.getComponent());
+            //splitter.getLastComponent().setToolb
+            //toolWindow.getContentManager()
+
+            /*((ToolWindowEx) toolWindow).(actionGroup(
+                    actionsManager.createExpandAllHeaderAction(otherResourcesModule.getTree()),
+                    actionsManager.createCollapseAllHeaderAction(otherResourcesModule.getTree())
+            ));*/
+
+        }
+    }
+
+    private void layout(@NotNull ToolWindow toolWindow, ThreeComponentsSplitter myThreeComponentsSplitter) {
+        IntellijRunUtils.invokeLater(() -> {
+            int origWidth = toolWindow.getComponent().getRootPane().getSize().width;
+            myThreeComponentsSplitter.setFirstSize(Math.round(origWidth / 3));
+            myThreeComponentsSplitter.setLastSize(Math.round(origWidth / 3));
+            myThreeComponentsSplitter.doLayout();
+        });
     }
 
 
@@ -243,7 +278,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
             return;
         }
         smartInvokeLater(project, () -> {
-            readAction(() -> {
+            IntellijRunUtils.readAction(() -> {
                 VirtualFile currentFile = editor.getFile();
 
                 IntellijFileContext fileContext = new IntellijFileContext(project, currentFile);
@@ -271,74 +306,56 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     AtomicBoolean refreshRunning = new AtomicBoolean(Boolean.FALSE);
 
+
     private void refreshContent(Project project) {
         if (toolWindow == null || !toolWindow.isVisible()) {
             return;
         }
 
-        //todo proper background push via the application api
-        //and also update only the subsections for additional performance (aka editor changes)
-        smartInvokeLater(project, () -> {
-            new Thread(() -> fullRefresh(project)).start();
-        });
+        runAsync(backgroundTask(project, "Reloading Resource View", progress -> fullRefresh(project)));
     }
 
     private void fullRefresh(Project project) {
         if (refreshRunning.get()) {
             return;
         }
+
         refreshRunning.set(true);
         try {
 
-            readAction(() -> {
+            DumbService.getInstance(project).runReadActionInSmartMode(() -> {
+
                 assertNotInUse(project);
 
                 ContextFactory contextFactory = ContextFactory.getInstance(projectRoot);
-                ExecutorService executor = Executors.newFixedThreadPool(2);
-
-                FutureTask<ResourceFilesContext> fItemsTn = newFutureRoTask(() -> contextFactory.getProjectResources(projectRoot, TN_DEC));
-                FutureTask<ResourceFilesContext> fItemsNg = newFutureRoTask(() -> contextFactory.getProjectResources(projectRoot, NG));
-
-                ResourceFilesContext itemsTn;
-                ResourceFilesContext itemsNg;
 
 
-                executor.execute(fItemsTn);
-                executor.execute(fItemsNg);
+                ResourceFilesContext itemsTn = contextFactory.getProjectResources(projectRoot, TN_DEC);
+                ResourceFilesContext itemsNg = contextFactory.getProjectResources(projectRoot, NG);
 
-                try {
-                    itemsTn = fItemsTn.get();
-                    itemsNg = fItemsNg.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                    refreshRunning.set(false);
-                    return;
-                }
 
 
                 modules.refreshContent(LBL_MODULES, this.buildModulesTree(itemsTn.getModules(), itemsNg.getModules()));
-                modules.filterTree("", LBL_MODULES);
-
                 otherResources.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
-                otherResources.filterTree("", LBL_RESOURCES);
-
-                //mem ops are always easier
                 otherResourcesModule.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
-                otherResourcesModule.filterTree("", LBL_RESOURCES);
+
 
                 Arrays.<Runnable>asList(() -> modules.filterTree("", LBL_MODULES),
-                        () -> otherResources.filterTree("", LBL_MODULES),
+                        () -> otherResources.filterTree("", LBL_RESOURCES),
                         () -> {
                             otherResourcesModule.filterTree("", LBL_MODULES);
                             FileEditor editor = FileEditorManagerImpl.getInstance(project).getSelectedEditor();
                             editorTreeRefresh(editor, project);
                         }).parallelStream()
-                        .forEach(runnable-> runnable.run());
+                        .forEach(runnable -> runnable.run());
+
+
             });
 
 
         } catch (IndexNotReadyException exception) {
-            DumbService.getInstance(project).smartInvokeLater(() -> {
+            refreshRunning.set(false);
+            smartInvokeLater(project, () -> {
                 refreshContent(project);
             });
         } finally {
@@ -347,14 +364,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     }
 
-    private void buildModulesTree(SwingRootParentNode parentTree) {
-        ContextFactory contextFactory = ContextFactory.getInstance(projectRoot);
-        List<NgModuleFileContext> modules = contextFactory.getModules(projectRoot, TN_DEC);
-        List<NgModuleFileContext> modules2 = contextFactory.getModules(projectRoot, NG);
-
-        buildModulesTree(parentTree, modules, modules2);
-
-    }
 
     private void buildModulesTree(SwingRootParentNode parentTree, List<NgModuleFileContext> modules, List<NgModuleFileContext> modules2) {
         DefaultMutableTreeNode nodes = createModulesTree(modules, LBL_TN_DEC_MODULES);
@@ -369,18 +378,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         };
     }
 
-
-    private void buildResourcesTree(SwingRootParentNode parentTree) {
-        ContextFactory contextFactory = ContextFactory.getInstance(projectRoot);
-        ResourceFilesContext itemsTn = contextFactory.getProjectResources(projectRoot, TN_DEC);
-        ResourceFilesContext itemsNg = contextFactory.getProjectResources(projectRoot, NG);
-
-        DefaultMutableTreeNode nodes = SwingRouteTreeFactory.createResourcesTree(itemsTn, LBL_TN_DEC_RESOURCES);
-        parentTree.add(nodes);
-        nodes = SwingRouteTreeFactory.createResourcesTree(itemsNg, LBL_NG_RESOURCES);
-        parentTree.add(nodes);
-
-    }
 
     public Consumer<SwingRootParentNode> buildResourcesTree(ResourceFilesContext itemsTn, ResourceFilesContext itemsNg) {
         return (parentTree) -> {
