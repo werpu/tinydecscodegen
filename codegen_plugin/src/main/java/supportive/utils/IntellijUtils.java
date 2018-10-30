@@ -81,6 +81,7 @@ import supportive.dtos.ModuleElementScope;
 import supportive.fs.common.IAngularFileContext;
 import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.PsiRouteContext;
+import supportive.fs.common.ResourceFilesContext;
 import supportive.reflectRefact.*;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -96,6 +97,8 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -887,4 +890,13 @@ public class IntellijUtils {
         });
     }
 
+    public  static <T> FutureTask<T> newFutureTask(Computable<T> runnable) {
+       return new FutureTask<>(() -> {
+            return runnable.compute();
+        });
+    }
+
+    public  static <T> FutureTask<T> newFutureRoTask(Computable<T> runnable) {
+        return new FutureTask<>(() -> readAction(runnable));
+    }
 }

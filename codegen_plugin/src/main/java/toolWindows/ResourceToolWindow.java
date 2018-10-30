@@ -30,12 +30,14 @@ import toolWindows.supportive.*;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static actions_all.shared.Labels.*;
@@ -267,65 +269,82 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     }
 
 
+    AtomicBoolean refreshRunning = new AtomicBoolean(Boolean.FALSE);
+
     private void refreshContent(Project project) {
         if (toolWindow == null || !toolWindow.isVisible()) {
             return;
         }
+
+        //todo proper background push via the application api
+        //and also update only the subsections for additional performance (aka editor changes)
         smartInvokeLater(project, () -> {
-            try {
+            new Thread(() -> fullRefresh(project)).start();
+        });
+    }
+
+    private void fullRefresh(Project project) {
+        if (refreshRunning.get()) {
+            return;
+        }
+        refreshRunning.set(true);
+        try {
+
+            readAction(() -> {
                 assertNotInUse(project);
 
                 ContextFactory contextFactory = ContextFactory.getInstance(projectRoot);
                 ExecutorService executor = Executors.newFixedThreadPool(2);
-                FutureTask<ResourceFilesContext> fItemsTn = new FutureTask<>(() -> {
-                    return readAction(() -> contextFactory.getProjectResources(projectRoot, TN_DEC));
 
-                });
-                FutureTask<ResourceFilesContext> fItemsNg = new FutureTask<>(() -> {
-                    return readAction(() -> contextFactory.getProjectResources(projectRoot, NG));
-                });
+                FutureTask<ResourceFilesContext> fItemsTn = newFutureRoTask(() -> contextFactory.getProjectResources(projectRoot, TN_DEC));
+                FutureTask<ResourceFilesContext> fItemsNg = newFutureRoTask(() -> contextFactory.getProjectResources(projectRoot, NG));
 
-
-                readAction(() -> {
-                    ResourceFilesContext itemsTn;
-                    ResourceFilesContext itemsNg;
+                ResourceFilesContext itemsTn;
+                ResourceFilesContext itemsNg;
 
 
-                    executor.execute(fItemsTn);
-                    executor.execute(fItemsNg);
+                executor.execute(fItemsTn);
+                executor.execute(fItemsNg);
 
-                    try {
-                        itemsTn = fItemsTn.get();
-                        itemsNg = fItemsNg.get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                        return;
-                    }
-
-
-                    modules.refreshContent(LBL_MODULES, this.buildModulesTree(itemsTn.getModules(), itemsNg.getModules()));
-                    modules.filterTree("", LBL_MODULES);
-
-                    otherResources.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
-                    otherResources.filterTree("", LBL_MODULES);
+                try {
+                    itemsTn = fItemsTn.get();
+                    itemsNg = fItemsNg.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                    refreshRunning.set(false);
+                    return;
+                }
 
 
-                    //mem ops are always easier
-                    otherResources.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
-                    otherResources.filterTree("", LBL_MODULES);
+                modules.refreshContent(LBL_MODULES, this.buildModulesTree(itemsTn.getModules(), itemsNg.getModules()));
+                modules.filterTree("", LBL_MODULES);
 
-                    FileEditor editor = FileEditorManagerImpl.getInstance(project).getSelectedEditor();
-                    editorTreeRefresh(editor, project);
+                otherResources.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
+                otherResources.filterTree("", LBL_MODULES);
 
-                });
+                //mem ops are always easier
+                otherResourcesModule.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
+                otherResourcesModule.filterTree("", LBL_MODULES);
+
+                Arrays.<Runnable>asList(() -> modules.filterTree("", LBL_MODULES),
+                        () -> otherResources.filterTree("", LBL_MODULES),
+                        () -> {
+                            otherResourcesModule.filterTree("", LBL_MODULES);
+                            FileEditor editor = FileEditorManagerImpl.getInstance(project).getSelectedEditor();
+                            editorTreeRefresh(editor, project);
+                        }).parallelStream()
+                        .forEach(runnable-> runnable.run());
+            });
 
 
-            } catch (IndexNotReadyException exception) {
-                DumbService.getInstance(project).smartInvokeLater(() -> {
-                    refreshContent(project);
-                });
-            }
-        });
+        } catch (IndexNotReadyException exception) {
+            DumbService.getInstance(project).smartInvokeLater(() -> {
+                refreshContent(project);
+            });
+        } finally {
+            refreshRunning.set(false);
+        }
+
     }
 
     private void buildModulesTree(SwingRootParentNode parentTree) {
