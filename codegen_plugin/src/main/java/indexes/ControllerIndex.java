@@ -48,11 +48,11 @@ public class ControllerIndex extends ScalarIndexExtension<String> {
     }
 
     public static boolean isComponent(IntellijFileContext ctx) {
-        return ctx.queryContent(COMPONENT_ANN).findFirst().isPresent();
+        return ctx.getText().contains("@Component") && ctx.queryContent(COMPONENT_ANN).findFirst().isPresent();
     }
 
     public static boolean isController(IntellijFileContext ctx) {
-        return ctx.queryContent(CONTROLLER_ANN).findFirst().isPresent();
+        return ctx.getText().contains("@Controller") && ctx.queryContent(CONTROLLER_ANN).findFirst().isPresent();
     }
 
     @NotNull

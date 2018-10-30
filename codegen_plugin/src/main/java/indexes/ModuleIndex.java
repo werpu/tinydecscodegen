@@ -33,7 +33,7 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
         public Map<String, Void> map(@NotNull final FileContent inputData) {
             String content = inputData.getContentAsText().toString();
             //speedup
-            if(!content.contains(ANN_MARKER) && !content.contains(".module")) {
+            if(!content.contains(ANN_MARKER)) {
                 return Collections.emptyMap();
             }
 
@@ -48,8 +48,7 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
     }
 
     public static boolean isModuleFile(IntellijFileContext ctx) {
-        return ctx.queryContent(MODULE_ANN).findFirst().isPresent() ||
-                ctx.queryContent(DEF_CALL("module")).findFirst().isPresent();
+        return ctx.getText().contains("@NgModule") && ctx.queryContent(MODULE_ANN).findFirst().isPresent();
     }
 
     @NotNull

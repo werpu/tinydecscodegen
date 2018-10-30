@@ -37,7 +37,7 @@ public class ServiceIndex  extends ScalarIndexExtension<String> {
     }
 
     public static boolean isMarked(IntellijFileContext ctx) {
-        return ctx.queryContent(SERVICE_ANN).findFirst().isPresent();
+        return ctx.getText().contains("@Injectable") && ctx.queryContent(SERVICE_ANN).findFirst().isPresent();
     }
 
     @NotNull

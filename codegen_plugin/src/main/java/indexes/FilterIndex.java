@@ -41,7 +41,7 @@ public class FilterIndex extends ScalarIndexExtension<String> {
     }
 
     public static boolean isFilter(IntellijFileContext ctx) {
-        return ctx.queryContent(FILTER_ANN).findFirst().isPresent();
+        return ctx.getText().contains("@Filter") && ctx.queryContent(FILTER_ANN).findFirst().isPresent();
     }
 
     @NotNull
