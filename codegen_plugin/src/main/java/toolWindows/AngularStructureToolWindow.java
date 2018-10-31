@@ -51,7 +51,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
     private IntellijFileContext projectRoot = null;
     private TreeSpeedSearch searchPath = null;
-    private TreeExpansionMonitor expansionMonitor = null;
+
 
 
     public AngularStructureToolWindow() {
@@ -156,21 +156,19 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
                 //now we restore the expansion state
 
-                if (expansionMonitor != null) {
-                    expansionMonitor.restore();
-                }
 
 
                 /*found this usefule helper in the jetbrains intellij sources*/
                 if (searchPath == null) {
 
-                    expansionMonitor = TreeExpansionMonitor.install(tree);
+
                     MouseController<PsiRouteContext> contextMenuListener = new MouseController<>(tree, this::showPopup);
                     tree.addMouseListener(contextMenuListener);
 
 
                     searchPath = new TreeSpeedSearch(tree, convertToSearchableString(tree));
                 }
+
 
             } catch (IndexNotReadyException exception) {
                 refreshContent(project);

@@ -375,6 +375,9 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
             //nnop we try another time
         } finally {
             refreshRunning.set(false);
+            modules.restoreExpansion();
+            otherResources.restoreExpansion();
+            otherResourcesModule.restoreExpansion();
         }
 
     }
@@ -385,6 +388,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         parentTree.add(nodes);
         nodes = createModulesTree(modules2, LBL_NG_MODULES);
         parentTree.add(nodes);
+
     }
 
     public Consumer<SwingRootParentNode> buildModulesTree(List<NgModuleFileContext> itemsTn, List<NgModuleFileContext> itemsNg) {

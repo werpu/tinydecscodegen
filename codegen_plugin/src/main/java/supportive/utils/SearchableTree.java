@@ -6,7 +6,6 @@ import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.containers.ArrayListSet;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.IAngularFileContext;
@@ -24,23 +23,27 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static supportive.utils.IntellijRunUtils.invokeLater;
+import static supportive.utils.IntellijRunUtils.readAction;
+import static supportive.utils.IntellijRunUtils.runReadSmart;
 import static supportive.utils.IntellijUtils.convertToSearchableString;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class SearchableTree<V> {
 
     private Tree tree = new Tree();
     private TreeSpeedSearch speedSearch;
-    private TreeExpansionMonitor expansionMonitor;
+    private ExpansionMonitor expansionMonitor;
 
     private TreeModel originalModel;
 
     private String label;
 
 
-
+    public SearchableTree() {
+        new ExpansionMonitor(tree);
+    }
 
     private void setTitle(DefaultMutableTreeNode root, String title) {
         String newTitle = Strings.nullToEmpty(title);
@@ -68,7 +71,7 @@ public class SearchableTree<V> {
 
     public void refreshContent(String label, Consumer<SwingRootParentNode> treeBuilder) {
         buildTree(tree, label, treeBuilder);
-
+        //restoreExpansion();
 
     }
 
@@ -165,20 +168,31 @@ public class SearchableTree<V> {
         DefaultTreeModel newModel = new DefaultTreeModel(rootNode);
         target.setRootVisible(false);
         target.setModel(newModel);
+
         originalModel = null;
         this.label = label;
+
     }
 
-    private <T> void attachSearch(Tree tree, ClickHandler<T, MouseEvent> cHandler, Consumer<TreeExpansionMonitor> applyExpansionMonitor, Consumer<TreeSpeedSearch> applySearchSearch) {
+    private <T> void attachSearch(Tree tree, ClickHandler<T, MouseEvent> cHandler, Consumer<ExpansionMonitor> applyExpansionMonitor, Consumer<TreeSpeedSearch> applySearchSearch) {
         /*found this useful helper in the jetbrains intellij sources*/
 
-        applyExpansionMonitor.accept(TreeExpansionMonitor.install(tree));
+        applyExpansionMonitor.accept(new ExpansionMonitor(tree));
 
 
         MouseController contextMenuListener = new MouseController(tree, cHandler);
         tree.addMouseListener(contextMenuListener);
 
         applySearchSearch.accept(new TreeSpeedSearch(tree, convertToSearchableString(tree)));
+
+    }
+
+    public void restoreExpansion() {
+        invokeLater(() -> {
+            readAction(() -> {
+                this.expansionMonitor.restore();
+            });
+        });
 
     }
 
