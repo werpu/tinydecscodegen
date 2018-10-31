@@ -1,7 +1,6 @@
 package supportive.utils;
 
 import com.google.common.base.Strings;
-import com.intellij.packageDependencies.ui.TreeExpansionMonitor;
 import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.containers.ArrayListSet;
@@ -25,7 +24,6 @@ import java.util.function.Function;
 
 import static supportive.utils.IntellijRunUtils.invokeLater;
 import static supportive.utils.IntellijRunUtils.readAction;
-import static supportive.utils.IntellijRunUtils.runReadSmart;
 import static supportive.utils.IntellijUtils.convertToSearchableString;
 
 @Getter

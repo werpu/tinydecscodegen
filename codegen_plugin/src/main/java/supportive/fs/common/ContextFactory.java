@@ -127,7 +127,15 @@ public class ContextFactory {
         List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
         return angularRoots.stream().flatMap(angularRoot -> ModuleIndex
                 .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
-                .map(module -> new NgModuleFileContext(projectRoot.getProject(), module))
+
+                .map(module -> {
+                    try {
+                        return new NgModuleFileContext(projectRoot.getProject(), module);
+                    } catch (Throwable e) {
+                        return null;
+                    }
+                })
+                .filter(e -> e != null)
                 .filter(ngModuleFileContext -> {
                     String mPath = StringUtils.normalizePath(ngModuleFileContext.getPsiFile().getParent().getVirtualFile().getPath());
                     String filter = StringUtils.normalizePath(filterPath);
@@ -146,7 +154,14 @@ public class ContextFactory {
         List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
         return angularRoots.stream().flatMap(angularRoot -> ComponentIndex
                 .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
-                .map(component -> new ComponentFileContext(projectRoot.getProject(), component))
+                .map(component -> {
+                    try {
+                        return new ComponentFileContext(projectRoot.getProject(), component);
+                    } catch (Throwable e) {
+                        return null;
+                    }
+                })
+                .filter(e -> e != null)
                 .collect(Collectors.toList());
     }
 
@@ -155,7 +170,14 @@ public class ContextFactory {
         List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
         return angularRoots.stream().flatMap(angularRoot -> ServiceIndex
                 .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
-                .map(service -> new ServiceContext(projectRoot.getProject(), service, service.getOriginalElement()))
+                .map(service -> {
+                    try {
+                        return new ServiceContext(projectRoot.getProject(), service, service.getOriginalElement());
+                    } catch (Throwable e) {
+                        return null;
+                    }
+                })
+                .filter(e -> e != null)
                 .collect(Collectors.toList());
     }
 
@@ -164,7 +186,14 @@ public class ContextFactory {
         List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
         return angularRoots.stream().flatMap(angularRoot -> ControllerIndex
                 .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
-                .map(component -> new ComponentFileContext(projectRoot.getProject(), component))
+                .map(controller -> {
+                    try {
+                        return new ComponentFileContext(projectRoot.getProject(), controller);
+                    } catch (Throwable e) {
+                        return null;
+                    }
+                })
+                .filter(e -> e != null)
                 .collect(Collectors.toList());
     }
 
@@ -173,7 +202,15 @@ public class ContextFactory {
         List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
         return angularRoots.stream().flatMap(angularRoot -> FilterIndex
                 .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
-                .map(filters -> new FilterPipeContext(projectRoot.getProject(), filters, filters.getOriginalElement()))
+                .map(filters -> {
+                    try {
+                        return new FilterPipeContext(projectRoot.getProject(), filters, filters.getOriginalElement());
+                    } catch (Throwable e) {
+                        return null;
+                    }
+                })
+                .filter(e -> e != null)
+
                 .collect(Collectors.toList());
     }
 

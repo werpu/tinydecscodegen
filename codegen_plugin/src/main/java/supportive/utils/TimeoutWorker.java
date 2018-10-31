@@ -2,7 +2,6 @@ package supportive.utils;
 
 import com.intellij.openapi.diagnostic.Logger;
 import lombok.RequiredArgsConstructor;
-import supportive.fs.tn.TNUIRoutesFileContext;
 
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -17,7 +16,7 @@ public class TimeoutWorker {
 
     private static final Logger log = Logger.getInstance(TimeoutWorker.class);
 
-    private static final long TIME_PERIOD = 30l * 1000l;
+    private static final long TIME_PERIOD = 10l * 1000l;
     final private Consumer<TimeoutWorker> runner;
 
 
