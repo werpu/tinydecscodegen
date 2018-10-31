@@ -36,11 +36,11 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import static actions_all.shared.Labels.*;
@@ -52,6 +52,79 @@ import static supportive.utils.SwingUtils.copyToClipboard;
 import static supportive.utils.SwingUtils.openEditor;
 import static toolWindows.supportive.SwingRouteTreeFactory.createModulesTree;
 
+
+
+class ResourcesWatcher {
+
+
+    public static final long TIME_PERIOD = 30l * 1000l;
+    private ResourceToolWindow resourceToolWindow;
+
+    AtomicLong lastRequest = new AtomicLong(-1);
+    AtomicBoolean stop = new AtomicBoolean(false);
+    AtomicBoolean end = new AtomicBoolean(false);
+
+
+    Thread watcher;
+
+
+    public ResourcesWatcher(ResourceToolWindow resourceToolWindow) {
+        this.resourceToolWindow = resourceToolWindow;
+    }
+
+    public void start() {
+        stop.set(false);
+        if(watcher == null) {
+            initThread();
+            watcher.start();
+        }
+    }
+
+    public void notifyOfChange() {
+        this.lastRequest.set(new Date().getTime());
+    }
+
+    public void changeDone() {
+        lastRequest.set(new Date().getTime()+100000000000000000l);
+    }
+
+    public void pause() {
+       stop.set(true);
+    }
+
+    public void end() {
+        end.set(true);
+    }
+
+    private void initThread() {
+        watcher = new Thread(() -> {
+            while(true) {
+                try {
+                    try {
+                        Thread.sleep(TIME_PERIOD);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if(end.get()) {
+                        watcher = null;
+                        return;
+                    }
+                    if(stop.get()) {
+                        break;
+                    }
+                    if(lastRequest.get() == -1 || new Date().getTime() > (lastRequest.get()+TIME_PERIOD)) {
+                        changeDone();
+                        resourceToolWindow.refreshContent();
+                    }
+                } catch (Throwable e) {
+                    //noop
+                }
+
+            }
+
+        });
+    }
+}
 
 public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
@@ -66,6 +139,8 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
 
     private IntellijFileContext projectRoot = null;
+
+    ResourcesWatcher resourcesWatcher;
 
     ToolWindow toolWindow;
 
@@ -157,10 +232,17 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 
         this.toolWindow = toolWindow;
-        IntellijRunUtils.onFileChange(project, () -> refreshContent(project));
+        assertNotInUse(project);
+        try {
+            initWatcherThread(project);
+        } catch (IndexNotReadyException ex) {
+            runReadSmart(project, () -> {
+                initWatcherThread(project);
+            });
+        }
 
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
-        refreshContent(project);
+
 
 
         ThreeComponentsSplitter myThreeComponentsSplitter = new ThreeComponentsSplitter(false, true) {
@@ -209,6 +291,16 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     }
 
+    private void initWatcherThread(@NotNull Project project) {
+        resourcesWatcher = new ResourcesWatcher(this);
+        resourcesWatcher.start();
+        IntellijRunUtils.onFileChange(project, () -> onEditChange());
+    }
+
+    private void onEditChange() {
+        resourcesWatcher.notifyOfChange();
+    }
+
     private void setupActionBar(@NotNull ToolWindow toolWindow, SimpleToolWindowPanel panel) {
         if (toolWindow instanceof ToolWindowEx) {
             final CommonActionsManager actionsManager = CommonActionsManager.getInstance();
@@ -235,7 +327,8 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                     new AnAction("Reload", "Reload All Views", AllIcons.Actions.ForceRefresh) {
                         @Override
                         public void actionPerformed(AnActionEvent e) {
-                            refreshContent(projectRoot.getProject());
+                            resourcesWatcher.changeDone();
+                            refreshContent();
                         }
                     },
 
@@ -307,11 +400,11 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     AtomicBoolean refreshRunning = new AtomicBoolean(Boolean.FALSE);
 
 
-    private void refreshContent(Project project) {
+    public void refreshContent() {
         if (toolWindow == null || !toolWindow.isVisible()) {
             return;
         }
-
+        final Project project = projectRoot.getProject();
         runAsync(backgroundTask(project, "Reloading Resource View", progress -> fullRefresh(project)));
     }
 
@@ -326,6 +419,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
             DumbService.getInstance(project).runReadActionInSmartMode(() -> {
 
                 assertNotInUse(project);
+
 
                 ContextFactory contextFactory = ContextFactory.getInstance(projectRoot);
 
@@ -354,10 +448,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
 
         } catch (IndexNotReadyException exception) {
-            refreshRunning.set(false);
-            smartInvokeLater(project, () -> {
-                refreshContent(project);
-            });
+            //nnop we try another time
         } finally {
             refreshRunning.set(false);
         }
