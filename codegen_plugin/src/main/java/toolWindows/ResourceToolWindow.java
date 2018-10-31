@@ -421,7 +421,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     @Override
     public void init(ToolWindow window) {
-        System.out.println("init");
+
     }
 
     @Override
