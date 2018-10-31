@@ -11,10 +11,7 @@ import supportive.utils.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static supportive.fs.common.AngularVersion.NG;
@@ -186,13 +183,12 @@ public class ContextFactory {
 
         resourceFilesContext.getRoutes().addAll(getRouteFiles(projectRoot, angularVersion));
 
-/*        ExecutorService executor = Executors.newFixedThreadPool(5);
+        ExecutorService executor = Executors.newCachedThreadPool();
 
         FutureTask<List<NgModuleFileContext>> fModulesTn = newFutureRoTask(() -> getModules(projectRoot, angularVersion));
         FutureTask<List<ComponentFileContext>> fComp = newFutureRoTask(() -> getComponents(projectRoot, angularVersion));
         FutureTask<List<ComponentFileContext>> fCtrl = newFutureRoTask(() -> getController(projectRoot, angularVersion));
         FutureTask<List<ServiceContext>> fservice = newFutureRoTask(() -> getServices(projectRoot, angularVersion));
-
         FutureTask<List<FilterPipeContext>> fFilters = newFutureRoTask(() -> getFilters(projectRoot, angularVersion));
 
         executor.execute(fModulesTn);
@@ -201,24 +197,29 @@ public class ContextFactory {
         executor.execute(fservice);
         executor.execute(fFilters);
 
-        executor.shutdown();*/
+        executor.shutdown();
+        try {
+            executor.awaitTermination(1000, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
 
-
-        List<NgModuleFileContext> modulesTn = getModules(projectRoot, angularVersion);
+        /*List<NgModuleFileContext> modulesTn = getModules(projectRoot, angularVersion);
         List<ComponentFileContext> componentsTn = getComponents(projectRoot, angularVersion);
         List<ComponentFileContext> controllersTn = getController(projectRoot, angularVersion);
         List<ServiceContext> service = getServices(projectRoot, angularVersion);
-        List<FilterPipeContext> filters = getFilters(projectRoot, angularVersion);
+        List<FilterPipeContext> filters = getFilters(projectRoot, angularVersion);*/
 
-        //try {
-            resourceFilesContext.getModules().addAll(modulesTn);
-            resourceFilesContext.getComponents().addAll(componentsTn);
-            resourceFilesContext.getServices().addAll(service);
-            resourceFilesContext.getControllers().addAll(controllersTn);
-            resourceFilesContext.getFiltersPipes().addAll(filters);
-       // } catch (InterruptedException | ExecutionException e) {
-       //     e.printStackTrace();
-       // }
+        try {
+            resourceFilesContext.getModules().addAll(fModulesTn.get());
+            resourceFilesContext.getComponents().addAll(fComp.get());
+            resourceFilesContext.getServices().addAll(fservice.get());
+            resourceFilesContext.getControllers().addAll(fCtrl.get());
+            resourceFilesContext.getFiltersPipes().addAll(fFilters.get());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
 
         return resourceFilesContext;
     }

@@ -28,6 +28,7 @@ import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.*;
 import supportive.utils.IntellijRunUtils;
+import supportive.utils.TimeoutWorker;
 import supportive.utils.SearchableTree;
 import supportive.utils.StringUtils;
 import toolWindows.supportive.*;
@@ -36,11 +37,9 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import static actions_all.shared.Labels.*;
@@ -52,79 +51,6 @@ import static supportive.utils.SwingUtils.copyToClipboard;
 import static supportive.utils.SwingUtils.openEditor;
 import static toolWindows.supportive.SwingRouteTreeFactory.createModulesTree;
 
-
-
-class ResourcesWatcher {
-
-
-    public static final long TIME_PERIOD = 30l * 1000l;
-    private ResourceToolWindow resourceToolWindow;
-
-    AtomicLong lastRequest = new AtomicLong(-1);
-    AtomicBoolean stop = new AtomicBoolean(false);
-    AtomicBoolean end = new AtomicBoolean(false);
-
-
-    Thread watcher;
-
-
-    public ResourcesWatcher(ResourceToolWindow resourceToolWindow) {
-        this.resourceToolWindow = resourceToolWindow;
-    }
-
-    public void start() {
-        stop.set(false);
-        if(watcher == null) {
-            initThread();
-            watcher.start();
-        }
-    }
-
-    public void notifyOfChange() {
-        this.lastRequest.set(new Date().getTime());
-    }
-
-    public void changeDone() {
-        lastRequest.set(new Date().getTime()+100000000000000000l);
-    }
-
-    public void pause() {
-       stop.set(true);
-    }
-
-    public void end() {
-        end.set(true);
-    }
-
-    private void initThread() {
-        watcher = new Thread(() -> {
-            while(true) {
-                try {
-                    try {
-                        Thread.sleep(TIME_PERIOD);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if(end.get()) {
-                        watcher = null;
-                        return;
-                    }
-                    if(stop.get()) {
-                        break;
-                    }
-                    if(lastRequest.get() == -1 || new Date().getTime() > (lastRequest.get()+TIME_PERIOD)) {
-                        changeDone();
-                        resourceToolWindow.refreshContent();
-                    }
-                } catch (Throwable e) {
-                    //noop
-                }
-
-            }
-
-        });
-    }
-}
 
 public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
@@ -140,7 +66,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     private IntellijFileContext projectRoot = null;
 
-    ResourcesWatcher resourcesWatcher;
+    TimeoutWorker resourcesWatcher;
 
     ToolWindow toolWindow;
 
@@ -244,7 +170,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
 
 
-
         ThreeComponentsSplitter myThreeComponentsSplitter = new ThreeComponentsSplitter(false, true) {
             @Override
             public void doLayout() {
@@ -292,7 +217,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     }
 
     private void initWatcherThread(@NotNull Project project) {
-        resourcesWatcher = new ResourcesWatcher(this);
+        resourcesWatcher = new TimeoutWorker(worker -> refreshContent());
         resourcesWatcher.start();
         IntellijRunUtils.onFileChange(project, () -> onEditChange());
     }
@@ -327,7 +252,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                     new AnAction("Reload", "Reload All Views", AllIcons.Actions.ForceRefresh) {
                         @Override
                         public void actionPerformed(AnActionEvent e) {
-                            resourcesWatcher.changeDone();
+                            resourcesWatcher.stop();
                             refreshContent();
                         }
                     },
@@ -426,7 +351,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
                 ResourceFilesContext itemsTn = contextFactory.getProjectResources(projectRoot, TN_DEC);
                 ResourceFilesContext itemsNg = contextFactory.getProjectResources(projectRoot, NG);
-
 
 
                 modules.refreshContent(LBL_MODULES, this.buildModulesTree(itemsTn.getModules(), itemsNg.getModules()));
