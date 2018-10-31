@@ -306,6 +306,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                 if (ret.isPresent()) {
                     otherResourcesModule.filterTree(ret.get().getFolderPath(), LBL_RESOURCES + "[" + ret.get().getModuleName() + "]");
                 }
+                otherResourcesModule.restoreExpansion();
             });
         });
 
