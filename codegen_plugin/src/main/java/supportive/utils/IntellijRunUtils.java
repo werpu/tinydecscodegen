@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import supportive.fs.common.IAngularFileContext;
 
+import java.util.Arrays;
 import java.util.concurrent.FutureTask;
 import java.util.function.Consumer;
 
@@ -38,6 +39,23 @@ public class IntellijRunUtils {
 
     public static void invokeLater(Runnable run) {
         ApplicationManager.getApplication().invokeLater(run);
+    }
+
+
+
+    public static void invokeLater(Runnable ... run) {
+
+        if(run.length == 0) {
+            return;
+        }
+
+        invokeLater(() -> {
+            run[0].run();
+            if(run.length == 1) {
+                return;
+            }
+            invokeLater(Arrays.copyOfRange(run, 1, run.length));
+        });
     }
 
     public static void invokeLater(Runnable run, ModalityState modalityState) {

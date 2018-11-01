@@ -27,7 +27,6 @@ import actions_all.shared.VisibleAssertions;
 import com.intellij.lang.html.HTMLLanguage;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.command.impl.UndoManagerImpl;
 import com.intellij.openapi.command.undo.UndoManager;
@@ -35,13 +34,11 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorTabbedContainer;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
 import com.intellij.openapi.fileEditor.impl.EditorsSplitters;
-import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -60,7 +57,7 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import static supportive.utils.IntellijRunUtils.smartInvokeLater;
+import static supportive.utils.IntellijRunUtils.invokeLater;
 import static supportive.utils.SwingUtils.createHtmlEditor;
 
 
@@ -123,31 +120,25 @@ public class EditTemplate extends AnAction implements EditorCallback {
             EditorsSplitters splitters = FileEditorManagerEx.getInstanceEx(fileContext.getProject()).getSplitters();
             final VirtualFile virtualFile = workFile.getVirtualFile();
 
-            if(!currentWindow.inSplitter()) {
+            if (!currentWindow.inSplitter()) {
                 edManager.createSplitter(SwingConstants.VERTICAL, currentWindow);
 
-
-                smartInvokeLater(fileContext.getProject(), () -> {
+                invokeLater(() -> {
                     recalculatedNewWindowPos(currentWindow, splitters);
-                    FileEditor[] editors = FileEditorManager.getInstance(fileContext.getProject()).openFile(virtualFile, true, true);
+                    FileEditorManager.getInstance(fileContext.getProject()).openFile(virtualFile, true, true);
                     closeOldEditor(fileContext.getProject(), title);
-                });
+                }, () -> appendBehavior(fileContext, ediOrig, title, doubleBuffer));
 
             } else {
+                //if we have a split open we basically can reuse the split
+                //for the html template
                 recalculatedNewWindowPos(currentWindow, splitters);
-                smartInvokeLater(fileContext.getProject(), () -> {
-                    FileEditor[] editors = FileEditorManager.getInstance(fileContext.getProject()).openFile(virtualFile, true, true);
-                });
+                invokeLater(
+                        () -> FileEditorManager.getInstance(fileContext.getProject()).openFile(virtualFile, true, true),
+                        () -> appendBehavior(fileContext, ediOrig, title, doubleBuffer)
+                );
             }
 
-
-
-
-            //ComponentFileContext fileContext2 = new ComponentFileContext(e.getProject(), fileEditor[0].getFile());
-
-            ApplicationManager.getApplication().invokeLater(() -> {
-                    appendBehavior(fileContext, ediOrig, title, doubleBuffer);
-            });
 
         });
     }
@@ -155,14 +146,14 @@ public class EditTemplate extends AnAction implements EditorCallback {
     private void recalculatedNewWindowPos(EditorWindow currentWindow, EditorsSplitters splitters) {
         int pos = 0;
         int cnt = 0;
-        for(EditorWindow w : splitters.getWindows()) {
-            if(w == currentWindow) {
+        for (EditorWindow w : splitters.getWindows()) {
+            if (w == currentWindow) {
                 pos = cnt;
                 break;
             }
             cnt++;
         }
-        if(pos != splitters.getWindows().length - 1) {
+        if (pos != splitters.getWindows().length - 1) {
             pos = pos + 1;
         } else {
             pos = pos - 1;
@@ -172,7 +163,8 @@ public class EditTemplate extends AnAction implements EditorCallback {
     }
 
     //https://www.jetbrains.org/intellij/sdk/docs/tutorials/editor_basics/editor_events.html
-    public void appendBehavior(ComponentFileContext fileContext, Editor ediOrig, String title, Document doubleBuffer) {
+    public void appendBehavior(ComponentFileContext fileContext, Editor ediOrig, String title, Document
+            doubleBuffer) {
         DocumentListener closeListener = newCloseListener(fileContext, ediOrig, title);
 
         doubleBuffer.addDocumentListener(new DocumentListener() {
@@ -209,12 +201,12 @@ public class EditTemplate extends AnAction implements EditorCallback {
                 if (tab.getText().equalsIgnoreCase(title.substring(TEMPLATE_OF.length()))) {
                     editorPos = cnt;
                 }
-                if(tab.getText().equalsIgnoreCase(title)) {
+                if (tab.getText().equalsIgnoreCase(title)) {
                     htmlPos = cnt;
                 }
             }
-            if(editorPos != -1 || htmlPos != -1) {
-                 executor.apply(editorPos, htmlPos, ed, tabbedPane);
+            if (editorPos != -1 || htmlPos != -1) {
+                executor.apply(editorPos, htmlPos, ed, tabbedPane);
 
             }
         });
@@ -224,7 +216,7 @@ public class EditTemplate extends AnAction implements EditorCallback {
     void closeOldEditor(Project project, String title) {
 
         executeOntabs(project, title, (editorPos, htmlPos, ed, tabbedPane) -> {
-            if(editorPos != -1 && htmlPos != -1) {
+            if (editorPos != -1 && htmlPos != -1) {
                 tabbedPane.removeTabAt(editorPos, (htmlPos < editorPos) ? htmlPos : htmlPos - 1);
             }
         });
@@ -260,11 +252,11 @@ public class EditTemplate extends AnAction implements EditorCallback {
                     }
 
                     executeOntabs(project, title, (editorPos, htmlPos, ed, tabbedPane) -> {
-                        if(htmlPos != -1) {
+                        if (htmlPos != -1) {
                             if (tabbedPane.getTabCount() == 1) {
                                 ed.closeFile(ed.getSelectedFile());
                             } else {
-                                tabbedPane.removeTabAt(htmlPos, Math.max(0,(editorPos != -1)? editorPos : htmlPos-1));
+                                tabbedPane.removeTabAt(htmlPos, Math.max(0, (editorPos != -1) ? editorPos : htmlPos - 1));
                             }
                             ediOrig.getDocument().removeDocumentListener(this);
                         }
@@ -293,7 +285,7 @@ public class EditTemplate extends AnAction implements EditorCallback {
     }
 
     interface TabExecutor {
-        void apply(int editorPos, int htmlEditorPos,EditorWindow ed, EditorTabbedContainer tabbedPane);
+        void apply(int editorPos, int htmlEditorPos, EditorWindow ed, EditorTabbedContainer tabbedPane);
     }
 
 }
