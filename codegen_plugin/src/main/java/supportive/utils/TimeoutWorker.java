@@ -76,4 +76,20 @@ public class TimeoutWorker {
 
     }
 
+    /**
+     * a defer routine similar to the javascript
+     * setTimeout
+     *
+     * @param runner
+     * @param timeoutInMs
+     * @return
+     */
+    public static ScheduledFuture<?> setTimeout(Runnable runner, long timeoutInMs) {
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        return executor.schedule(() -> {
+            runner.run();
+            return null;
+        }, timeoutInMs, TimeUnit.MILLISECONDS);
+    }
+
 }

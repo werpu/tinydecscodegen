@@ -49,6 +49,7 @@ import static supportive.utils.IntellijRunUtils.*;
 import static supportive.utils.StringUtils.makeVarName;
 import static supportive.utils.SwingUtils.copyToClipboard;
 import static supportive.utils.SwingUtils.openEditor;
+import static supportive.utils.TimeoutWorker.setTimeout;
 import static toolWindows.supportive.SwingRouteTreeFactory.createModulesTree;
 
 
@@ -147,14 +148,14 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                 .withMenuItem(LBL_GO_TO_RESOURCE, actionEvent -> gotToFile(foundContext))
                 .withMenuItem(LBL_GO_TO_REGISTRATION, actionEvent -> goToParentModule(foundContext))
                 .withSeparator();
-                if (foundContext instanceof ServiceContext) {
+        if (foundContext instanceof ServiceContext) {
 
-                    builder.withMenuItem(LBL_COPY_SERCICE_INJECTION, actionEvent -> copyServiceInject(foundContext));
-                    builder.withSeparator();
-                }
+            builder.withMenuItem(LBL_COPY_SERCICE_INJECTION, actionEvent -> copyServiceInject(foundContext));
+            builder.withSeparator();
+        }
 
-                builder.withMenuItem(LBL_COPY_RESOURCE_NAME, actionEvent -> copyResourceName(foundContext))
-                        .withMenuItem(LBL_COPY_RESOURCE_CLASS, actionEvent -> copyResourceClass(foundContext));
+        builder.withMenuItem(LBL_COPY_RESOURCE_NAME, actionEvent -> copyResourceName(foundContext))
+                .withMenuItem(LBL_COPY_RESOURCE_CLASS, actionEvent -> copyResourceClass(foundContext));
 
 
         builder.show(ev.getComponent(), ev.getX(), ev.getY());
@@ -169,9 +170,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         try {
             initWatcherThread(project);
         } catch (IndexNotReadyException ex) {
-            runReadSmart(project, () -> {
-                initWatcherThread(project);
-            });
+            runReadSmart(project, () -> initWatcherThread(project));
         }
 
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
@@ -282,12 +281,14 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     }
 
     private void layout(@NotNull ToolWindow toolWindow, ThreeComponentsSplitter myThreeComponentsSplitter) {
-        IntellijRunUtils.invokeLater(() -> {
-            int origWidth = toolWindow.getComponent().getRootPane().getSize().width;
-            myThreeComponentsSplitter.setFirstSize(Math.round(origWidth / 3));
-            myThreeComponentsSplitter.setLastSize(Math.round(origWidth / 3));
-            myThreeComponentsSplitter.doLayout();
-        });
+        //setTimeout(() -> {
+            IntellijRunUtils.invokeLater(() -> {
+                int origWidth = toolWindow.getComponent().getParent().getWidth();
+                myThreeComponentsSplitter.setFirstSize(Math.round(origWidth / 3));
+                myThreeComponentsSplitter.setLastSize(Math.round(origWidth / 3));
+                myThreeComponentsSplitter.doLayout();
+            });
+
     }
 
 
@@ -400,16 +401,14 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     }
 
     public Consumer<SwingRootParentNode> buildModulesTree(List<NgModuleFileContext> itemsTn, List<NgModuleFileContext> itemsNg) {
-        return (parentTree) -> {
-            buildModulesTree(parentTree, itemsTn, itemsNg);
-        };
+        return (parentTree) ->
+                buildModulesTree(parentTree, itemsTn, itemsNg);
     }
 
 
     public Consumer<SwingRootParentNode> buildResourcesTree(ResourceFilesContext itemsTn, ResourceFilesContext itemsNg) {
-        return (parentTree) -> {
-            buildResourcesTree(parentTree, itemsTn, itemsNg);
-        };
+        return (parentTree) ->
+                buildResourcesTree(parentTree, itemsTn, itemsNg);
     }
 
     private void buildResourcesTree(SwingRootParentNode parentTree, ResourceFilesContext itemsTn, ResourceFilesContext itemsNg) {
