@@ -4,10 +4,7 @@ import com.google.common.collect.Streams;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
@@ -34,7 +31,10 @@ import supportive.utils.TimeoutWorker;
 import toolWindows.supportive.*;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
@@ -49,20 +49,20 @@ import static supportive.utils.IntellijRunUtils.*;
 import static supportive.utils.StringUtils.makeVarName;
 import static supportive.utils.SwingUtils.copyToClipboard;
 import static supportive.utils.SwingUtils.openEditor;
-import static supportive.utils.TimeoutWorker.setTimeout;
 import static toolWindows.supportive.SwingRouteTreeFactory.createModulesTree;
 
 
 public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
 
+    public static final int ACTION_PADDING = 3;
     private SearchableTree<NgModuleFileContext> modules = new SearchableTree();
     private SearchableTree<ResourceFilesContext> otherResources = new SearchableTree();
     private SearchableTree<ResourceFilesContext> otherResourcesModule = new SearchableTree();
 
 
     private gui.ResourceToolWindow contentPanel = new gui.ResourceToolWindow();
-
+    private ThreeComponentsSplitter myThreeComponentsSplitter;
 
     private IntellijFileContext projectRoot = null;
 
@@ -176,7 +176,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
 
 
-        ThreeComponentsSplitter myThreeComponentsSplitter = new ThreeComponentsSplitter(false, true) {
+        myThreeComponentsSplitter = new ThreeComponentsSplitter(false, true) {
             @Override
             public void doLayout() {
                 super.doLayout();
@@ -185,11 +185,11 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         };
         Disposer.register(this, myThreeComponentsSplitter);
         JScrollPane jPanelLeft = contentPanel.getJPanelLeft();
-        myThreeComponentsSplitter.setFirstComponent(jPanelLeft);
+        myThreeComponentsSplitter.setFirstComponent(wrapPanelBorderLayout(jPanelLeft));
         JScrollPane jPanelMiddle = contentPanel.getJPanelMiddle();
-        myThreeComponentsSplitter.setInnerComponent(jPanelMiddle);
+        myThreeComponentsSplitter.setInnerComponent(wrapPanelBorderLayout(jPanelMiddle));
         JScrollPane jPanelRight = contentPanel.getJPanelRight();
-        myThreeComponentsSplitter.setLastComponent(jPanelRight);
+        myThreeComponentsSplitter.setLastComponent(wrapPanelBorderLayout(jPanelRight));
 
 
         myThreeComponentsSplitter.setShowDividerControls(false);
@@ -222,6 +222,15 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     }
 
+    @NotNull
+    private JPanel wrapPanelBorderLayout(JScrollPane jPanelLeft) {
+        JPanel wrapper = new JPanel();
+
+        wrapper.setLayout(new BorderLayout());
+        wrapper.add(jPanelLeft, BorderLayout.CENTER);
+        return wrapper;
+    }
+
     private void initWatcherThread(@NotNull Project project) {
         resourcesWatcher = new TimeoutWorker(worker -> refreshContent());
         resourcesWatcher.start();
@@ -236,26 +245,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         if (toolWindow instanceof ToolWindowEx) {
             final CommonActionsManager actionsManager = CommonActionsManager.getInstance();
             AnAction[] titleActions = IntellijRunUtils.actions(
-                    IntellijRunUtils.actionGroup(
-                            actionsManager.createExpandAllHeaderAction(modules.getTree()),
-                            actionsManager.createCollapseAllHeaderAction(modules.getTree())
-                    ),
-
-                    IntellijRunUtils.actionGroup(
-                            actionsManager.createExpandAllHeaderAction(otherResources.getTree()),
-                            actionsManager.createCollapseAllHeaderAction(otherResources.getTree())
-                    ),
-
-                    IntellijRunUtils.actionGroup(
-                            actionsManager.createExpandAllHeaderAction(otherResourcesModule.getTree()),
-                            actionsManager.createCollapseAllHeaderAction(otherResourcesModule.getTree())
-                    )
-            );
-            ((ToolWindowEx) toolWindow).setTitleActions(titleActions);
-
-
-            ActionToolbar otherActions = ActionManager.getInstance().createActionToolbar("All Actions", IntellijRunUtils.actionGroup(
-                    new AnAction("Reload", "Reload All Views", AllIcons.Actions.ForceRefresh) {
+                    new AnAction("Reload All", "Reload All Views", AllIcons.Actions.ForceRefresh) {
                         @Override
                         public void actionPerformed(AnActionEvent e) {
                             resourcesWatcher.stop();
@@ -263,21 +253,88 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                         }
                     },
 
+
+
+                    new AnAction("Expand All", "Expand All Views", AllIcons.Actions.Expandall) {
+                        ActionGroup expandAll = IntellijRunUtils.actionGroup(
+                                actionsManager.createExpandAllHeaderAction(modules.getTree()),
+                                actionsManager.createExpandAllHeaderAction(otherResources.getTree()),
+                                actionsManager.createExpandAllHeaderAction(otherResourcesModule.getTree())
+                                );
+
+                        @Override
+                        public void actionPerformed(AnActionEvent e) {
+
+                            Arrays.stream(expandAll.getChildren(e)).forEach(a -> a.actionPerformed(e));
+                        }
+                    },
+
+                    new AnAction("Collapse All", "Collapse All Views", AllIcons.Actions.Collapseall) {
+                        ActionGroup collapseAll = IntellijRunUtils.actionGroup(
+                                actionsManager.createCollapseAllHeaderAction(modules.getTree()),
+                                actionsManager.createCollapseAllHeaderAction(otherResources.getTree()),
+                                actionsManager.createCollapseAllHeaderAction(otherResourcesModule.getTree())
+                        );
+
+                        @Override
+                        public void actionPerformed(AnActionEvent e) {
+
+                            Arrays.stream(collapseAll.getChildren(e)).forEach(a -> a.actionPerformed(e));
+                        }
+                    }
+            );
+            ((ToolWindowEx) toolWindow).setTitleActions(titleActions);
+
+
+            ActionToolbar actions = ActionManager.getInstance().createActionToolbar("Module Actions", IntellijRunUtils.actionGroup(
+                    actionsManager.createExpandAllHeaderAction(modules.getTree()),
+                    actionsManager.createCollapseAllHeaderAction(modules.getTree())
+            ), false);
+
+            actions.setTargetComponent(myThreeComponentsSplitter.getFirstComponent());
+            myThreeComponentsSplitter.getFirstComponent().add(wrapActionBar(actions.getComponent()), BorderLayout.WEST);
+            myThreeComponentsSplitter.getFirstComponent().add(wrapHeader(new JLabel("Modules")), BorderLayout.NORTH);
+
+            actions = ActionManager.getInstance().createActionToolbar("Resource Actions", IntellijRunUtils.actionGroup(
+                    actionsManager.createExpandAllHeaderAction(otherResources.getTree()),
+                    actionsManager.createCollapseAllHeaderAction(otherResources.getTree())
+            ), false);
+
+            actions.setTargetComponent(myThreeComponentsSplitter.getInnerComponent());
+            myThreeComponentsSplitter.getInnerComponent().add(wrapActionBar(actions.getComponent()), BorderLayout.WEST);
+            myThreeComponentsSplitter.getInnerComponent().add(wrapHeader(new JLabel("Resources")), BorderLayout.NORTH);
+
+
+            actions = ActionManager.getInstance().createActionToolbar("Editor Resource Actions", IntellijRunUtils.actionGroup(
                     actionsManager.createExpandAllHeaderAction(otherResourcesModule.getTree()),
                     actionsManager.createCollapseAllHeaderAction(otherResourcesModule.getTree())
-            ), true);
+            ), false);
 
-            otherActions.setTargetComponent(panel);
-            panel.setToolbar(otherActions.getComponent());
-            //splitter.getLastComponent().setToolb
-            //toolWindow.getContentManager()
+            actions.setTargetComponent(myThreeComponentsSplitter.getLastComponent());
+            myThreeComponentsSplitter.getLastComponent().add(wrapActionBar(actions.getComponent()), BorderLayout.WEST);
+            myThreeComponentsSplitter.getLastComponent().add(wrapHeader(new JLabel("Current Resources")), BorderLayout.NORTH);
 
-            /*((ToolWindowEx) toolWindow).(actionGroup(
-                    actionsManager.createExpandAllHeaderAction(otherResourcesModule.getTree()),
-                    actionsManager.createCollapseAllHeaderAction(otherResourcesModule.getTree())
-            ));*/
+
 
         }
+    }
+
+    JPanel wrapActionBar(Component component) {
+        JPanel wrapper = new JPanel();
+        wrapper.setBorder(BorderFactory.createCompoundBorder( new MatteBorder(0,0,0, 1, Color.LIGHT_GRAY), new EmptyBorder(ACTION_PADDING, ACTION_PADDING, ACTION_PADDING, ACTION_PADDING)));
+        wrapper.setLayout(new BorderLayout());
+        wrapper.add(component, BorderLayout.CENTER);
+        return wrapper;
+    }
+
+    JPanel wrapHeader(JLabel component) {
+        JPanel wrapper = new JPanel();
+        Font f = component.getFont();
+        component.setFont(new Font(f.getName(), f.getStyle(), f.getSize() - 1));
+        wrapper.setBorder(BorderFactory.createCompoundBorder( new MatteBorder(0,0,1, 0, Color.LIGHT_GRAY), new EmptyBorder(2, 7, 2, 7)));
+        wrapper.setLayout(new BorderLayout());
+        wrapper.add(component, BorderLayout.CENTER);
+        return wrapper;
     }
 
     private void layout(@NotNull ToolWindow toolWindow, ThreeComponentsSplitter myThreeComponentsSplitter) {
