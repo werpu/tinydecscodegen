@@ -10,15 +10,16 @@ import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.IAngularFileContext;
 import toolWindows.supportive.ClickHandler;
 import toolWindows.supportive.MouseController;
+import toolWindows.supportive.NodeKeyController;
 import toolWindows.supportive.SwingRootParentNode;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
+import javax.swing.tree.*;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -192,6 +193,66 @@ public class SearchableTree<V> {
             });
         });
 
+    }
+
+
+    static AtomicLong lastClick = new AtomicLong(-1);
+    /**
+     * registers the default behavior for click and double click
+     * @param singleClickAction the click action to be performed
+     * @param doubleClickAction the double click action to be performed
+     * @param <T> must be of instance IAngularFileContext
+     */
+    public <T extends IAngularFileContext> void createDefaultClickHandlers(Consumer<T> singleClickAction, Consumer<T> doubleClickAction) {
+        MouseListener ml = new MouseAdapter() {
+            public void mouseReleased(MouseEvent e) {
+                int selRow = tree.getRowForLocation(e.getX(), e.getY());
+                if(selRow != -1) {
+                    TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath.getLastPathComponent();
+
+                    if(!e.isConsumed()) {
+                        e.consume();
+                        if (detectDoubleClick()) return;
+
+                        Object userObject = node.getUserObject();
+                        if(!(userObject instanceof IAngularFileContext)) {
+                            return;
+                        }
+                        doubleClickAction.accept((T) userObject);
+                    }
+                }
+            }
+        };
+        tree.addMouseListener(ml);
+    }
+
+    /**
+     * double click detection does not seem to work in swing
+     * we roll our own
+     *
+     * @return
+     */
+    private boolean detectDoubleClick() {
+        long currTime = new Date().getTime();
+        if((currTime - lastClick.get()) >  500) {
+            lastClick.set(currTime);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param enter  enter key pressed handler
+     * @param altEnter alt enter key pressed handler
+     * @param copy
+     * @param <T> must be of instance IAngularFileContext
+     */
+    public <T extends IAngularFileContext> void  createDefaultKeyController(Consumer<T> enter, Consumer<T> altEnter, Consumer<T> copy) {
+        NodeKeyController<T> retVal = new NodeKeyController<>(tree,
+                enter, altEnter, copy);
+        this.addKeyListener(retVal);
     }
 
 

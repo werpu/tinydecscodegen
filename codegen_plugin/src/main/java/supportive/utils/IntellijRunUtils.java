@@ -20,6 +20,7 @@ import com.intellij.openapi.vfs.VirtualFileContentsChangedAdapter;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import supportive.fs.common.IAngularFileContext;
 
 import java.util.concurrent.FutureTask;
 import java.util.function.Consumer;
@@ -27,7 +28,13 @@ import java.util.function.Consumer;
 public class IntellijRunUtils {
 
 
+    public static Consumer NOOP_CONSUMER = (Object fileSelected) -> {
 
+    };
+
+    public static Runnable NOOP_RUNNABLE = () -> {
+
+    };
 
     public static void invokeLater(Runnable run) {
         ApplicationManager.getApplication().invokeLater(run);

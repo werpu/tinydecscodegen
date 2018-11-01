@@ -28,9 +28,9 @@ import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.*;
 import supportive.utils.IntellijRunUtils;
-import supportive.utils.TimeoutWorker;
 import supportive.utils.SearchableTree;
 import supportive.utils.StringUtils;
+import supportive.utils.TimeoutWorker;
 import toolWindows.supportive.*;
 
 import javax.swing.*;
@@ -61,7 +61,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
 
     private gui.ResourceToolWindow contentPanel = new gui.ResourceToolWindow();
-    //private gui.AngularStructureToolWindow contentPanel = new gui.AngularStructureToolWindow();
 
 
     private IntellijFileContext projectRoot = null;
@@ -82,15 +81,20 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         otherResourcesModule.getTree().setCellRenderer(new ContextNodeRenderer());
         registerPopup(otherResourcesModule.getTree());
 
-        NodeKeyController<NgModuleFileContext> moduleKeyCtrl = createDefaultKeyController(modules.getTree());
-        NodeKeyController<IAngularFileContext> othKeyCtrl = createDefaultKeyController(otherResources.getTree());
-        NodeKeyController<IAngularFileContext> otherResourcesModuleKeyCtrl = createDefaultKeyController(otherResourcesModule.getTree());
+        Consumer<IAngularFileContext> gotToFile = this::gotToFile;
+        Consumer<IAngularFileContext> goToParentModule = this::goToParentModule;
+        Consumer<IAngularFileContext> copyResourceName = this::copyResourceName;
+
+        modules.createDefaultKeyController(gotToFile, goToParentModule, copyResourceName);
+        otherResources.createDefaultKeyController(gotToFile, goToParentModule, copyResourceName);
+        otherResourcesModule.createDefaultKeyController(gotToFile, goToParentModule, copyResourceName);
 
 
-        modules.addKeyListener(moduleKeyCtrl);
-        otherResources.addKeyListener(othKeyCtrl);
-        otherResourcesModule.addKeyListener(otherResourcesModuleKeyCtrl);
+        modules.createDefaultClickHandlers((fileSelected) -> {
 
+        }, gotToFile);
+        otherResources.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
+        otherResourcesModule.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
 
     }
 
@@ -123,8 +127,8 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
             String clazzName = ctx.getClazzName();
             String varName = makeVarName(clazzName);
 
-            String serciceInject = String.format("@Inject(%s) private %s: %s ", clazzName, varName, clazzName);
-            copyToClipboard(serciceInject);
+            String serviceInject = String.format("@Inject(%s) private %s: %s ", clazzName, varName, clazzName);
+            copyToClipboard(serviceInject);
         }
     }
 
@@ -140,16 +144,19 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
         PopupBuilder builder = new PopupBuilder();
         builder
-                .withMenuItem(LBL_GO_TO_REGISTRATION, actionEvent -> goToParentModule(foundContext))
                 .withMenuItem(LBL_GO_TO_RESOURCE, actionEvent -> gotToFile(foundContext))
-                .withSeparator()
-                .withMenuItem(LBL_COPY_RESOURCE_NAME, actionEvent -> copyResourceName(foundContext))
-                .withMenuItem(LBL_COPY_RESOURCE_CLASS, actionEvent -> copyResourceClass(foundContext));
+                .withMenuItem(LBL_GO_TO_REGISTRATION, actionEvent -> goToParentModule(foundContext))
+                .withSeparator();
+                if (foundContext instanceof ServiceContext) {
 
-        if (foundContext instanceof ServiceContext) {
-            builder.withSeparator();
-            builder.withMenuItem(LBL_COPY_SERCICE_INJECTION, actionEvent -> copyServiceInject(foundContext));
-        }
+                    builder.withMenuItem(LBL_COPY_SERCICE_INJECTION, actionEvent -> copyServiceInject(foundContext));
+                    builder.withSeparator();
+                }
+
+                builder.withMenuItem(LBL_COPY_RESOURCE_NAME, actionEvent -> copyResourceName(foundContext))
+                        .withMenuItem(LBL_COPY_RESOURCE_CLASS, actionEvent -> copyResourceClass(foundContext));
+
+
         builder.show(ev.getComponent(), ev.getX(), ev.getY());
 
     }

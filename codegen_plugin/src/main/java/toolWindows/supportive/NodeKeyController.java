@@ -14,8 +14,8 @@ import java.util.function.Consumer;
 public class NodeKeyController<T> implements KeyListener {
 
     Tree tree;
-    Consumer<T> goToCode;
-    Consumer<T> goToRegistration;
+    Consumer<T> enter;
+    Consumer<T> altEnter;
     Consumer<T> copy;
 
 
@@ -32,15 +32,15 @@ public class NodeKeyController<T> implements KeyListener {
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 
         Object value = selectedNode.getUserObject();
-        if(!(value instanceof IAngularFileContext)) {
+        if (!(value instanceof IAngularFileContext)) {
             return;
         }
         if (e.isMetaDown() && e.getKeyCode() == KeyEvent.VK_ENTER) {
-                goToCode.accept((T) value);
+            altEnter.accept((T) value);
         } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                goToRegistration.accept((T) value);
+            enter.accept((T) value);
         } else if (e.isMetaDown() && e.getKeyCode() == KeyEvent.VK_C) {
-                copy.accept((T) value);
+            copy.accept((T) value);
         }
     }
 
@@ -53,6 +53,6 @@ public class NodeKeyController<T> implements KeyListener {
 
     private boolean isBranch() {
         return !(tree.getLastSelectedPathComponent() instanceof DefaultMutableTreeNode) ||
-                !((DefaultMutableTreeNode)tree.getLastSelectedPathComponent()).isLeaf();
+                !((DefaultMutableTreeNode) tree.getLastSelectedPathComponent()).isLeaf();
     }
 }
