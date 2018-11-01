@@ -35,10 +35,13 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorTabbedContainer;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
+import com.intellij.openapi.fileEditor.impl.EditorsSplitters;
+import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -57,6 +60,7 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import static supportive.utils.IntellijRunUtils.smartInvokeLater;
 import static supportive.utils.SwingUtils.createHtmlEditor;
 
 
@@ -116,17 +120,55 @@ public class EditTemplate extends AnAction implements EditorCallback {
             final FileEditorManagerEx edManager = (FileEditorManagerEx) FileEditorManagerEx.getInstance(fileContext.getProject());
 
             EditorWindow currentWindow = edManager.getCurrentWindow();
-            edManager.createSplitter(SwingConstants.VERTICAL, currentWindow);
+            EditorsSplitters splitters = FileEditorManagerEx.getInstanceEx(fileContext.getProject()).getSplitters();
             final VirtualFile virtualFile = workFile.getVirtualFile();
-            FileEditorManager.getInstance(fileContext.getProject()).openFile(virtualFile, true);
 
-            closeOldEditor(fileContext.getProject(), title);
+            if(!currentWindow.inSplitter()) {
+                edManager.createSplitter(SwingConstants.VERTICAL, currentWindow);
+
+
+                smartInvokeLater(fileContext.getProject(), () -> {
+                    recalculatedNewWindowPos(currentWindow, splitters);
+                    FileEditor[] editors = FileEditorManager.getInstance(fileContext.getProject()).openFile(virtualFile, true, true);
+                    closeOldEditor(fileContext.getProject(), title);
+                });
+
+            } else {
+                recalculatedNewWindowPos(currentWindow, splitters);
+                smartInvokeLater(fileContext.getProject(), () -> {
+                    FileEditor[] editors = FileEditorManager.getInstance(fileContext.getProject()).openFile(virtualFile, true, true);
+                });
+            }
+
+
+
+
+            //ComponentFileContext fileContext2 = new ComponentFileContext(e.getProject(), fileEditor[0].getFile());
 
             ApplicationManager.getApplication().invokeLater(() -> {
                     appendBehavior(fileContext, ediOrig, title, doubleBuffer);
             });
 
         });
+    }
+
+    private void recalculatedNewWindowPos(EditorWindow currentWindow, EditorsSplitters splitters) {
+        int pos = 0;
+        int cnt = 0;
+        for(EditorWindow w : splitters.getWindows()) {
+            if(w == currentWindow) {
+                pos = cnt;
+                break;
+            }
+            cnt++;
+        }
+        if(pos != splitters.getWindows().length - 1) {
+            pos = pos + 1;
+        } else {
+            pos = pos - 1;
+        }
+
+        splitters.getWindows()[pos].setAsCurrentWindow(true);
     }
 
     //https://www.jetbrains.org/intellij/sdk/docs/tutorials/editor_basics/editor_events.html

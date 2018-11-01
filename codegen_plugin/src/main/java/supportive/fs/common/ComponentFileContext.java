@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.util.Optional.empty;
 import static java.util.stream.Stream.concat;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
 import static supportive.utils.IntellijUtils.getTsExtension;
@@ -39,11 +40,11 @@ import static supportive.utils.StringUtils.elVis;
 public class ComponentFileContext extends AngularResourceContext {
 
     @Getter
-    Optional<PsiElement> templateText = Optional.empty();
+    Optional<PsiElement> templateText;
     @Getter
-    Optional<RangeMarker> rangeMarker = Optional.empty();
+    Optional<RangeMarker> rangeMarker;
     @Getter
-    Optional<TemplateFileContext> templateRef = Optional.empty();
+    Optional<TemplateFileContext> templateRef;
 
     private PsiElement componentAnnotation;
 
@@ -119,6 +120,15 @@ public class ComponentFileContext extends AngularResourceContext {
     @Override
     protected void postConstruct() {
         super.postConstruct();
+        if(templateText == null) {
+            this.templateText = empty();
+        }
+        if(templateRef == null) {
+            this.templateRef = empty();
+        }
+        if(rangeMarker == null) {
+            this.rangeMarker = empty();
+        }
         Optional<PsiElement> template = getTemplate();
 
         clazzName = (componentAnnotation == null) ?
@@ -173,7 +183,7 @@ public class ComponentFileContext extends AngularResourceContext {
                 }
             }
         }
-        return Optional.empty();
+        return empty();
     }
 
 
@@ -189,7 +199,7 @@ public class ComponentFileContext extends AngularResourceContext {
             Optional<PsiElement> psiImportString = findImportString(templateVarName);
 
             if (!psiImportString.isPresent()) {
-                return Optional.empty();
+                return empty();
             }
             String importstr = psiImportString.get().getText().trim();
             importstr = importstr.substring(1, importstr.length() - 1);
@@ -202,12 +212,12 @@ public class ComponentFileContext extends AngularResourceContext {
             //now we have an import string lets open a file on that one
             TemplateFileContext ref = new TemplateFileContext(templateVarName, getProject(), getVirtualFile().getParent().findFileByRelativePath(importstr));
             if (!ref.getVirtualFile().exists()) {
-                return Optional.empty();
+                return empty();
             }
 
             return Optional.of(ref);
         }
-        return Optional.empty();
+        return empty();
     }
 
     public Optional<String> findComponentClassName(PsiElement componentAnnotation) {
