@@ -27,9 +27,9 @@ import actions_all.shared.VisibleAssertions;
 import com.intellij.lang.html.HTMLLanguage;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.command.impl.UndoManagerImpl;
 import com.intellij.openapi.command.undo.UndoManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -57,12 +57,14 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 import static supportive.utils.IntellijRunUtils.invokeLater;
 import static supportive.utils.SwingUtils.createHtmlEditor;
 
 
 public class EditTemplate extends AnAction implements EditorCallback {
 
+    private static final Logger log = Logger.getInstance(EditTemplate.class);
 
     public static final String TEMPLATE_OF = "Template of: ";
 
@@ -98,7 +100,7 @@ public class EditTemplate extends AnAction implements EditorCallback {
         final Editor ediOrig = IntellijUtils.getEditor(e);
 
 
-        WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
+        runWriteCommandAction(fileContext.getProject(), () -> {
 
             //We basically do the same as the intellij fragment editor
             //I could not find any decent docs how to do that
@@ -170,10 +172,7 @@ public class EditTemplate extends AnAction implements EditorCallback {
         doubleBuffer.addDocumentListener(new DocumentListener() {
             @Override
             public void documentChanged(DocumentEvent event) {
-                //ApplicationManager.getApplication().invokeLater(() -> {
-
-
-                WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
+                runWriteCommandAction(fileContext.getProject(), () -> {
                     UndoManager undoManager = UndoManagerImpl.getInstance(fileContext.getProject());
                     if (undoManager.isUndoInProgress() || undoManager.isRedoInProgress()) {
                         return;
@@ -247,7 +246,7 @@ public class EditTemplate extends AnAction implements EditorCallback {
                             return;
                         }
                     } catch (TimeoutException | ExecutionException e) {
-                        e.printStackTrace();
+
                         return;
                     }
 
@@ -260,9 +259,7 @@ public class EditTemplate extends AnAction implements EditorCallback {
                             }
                             ediOrig.getDocument().removeDocumentListener(this);
                         }
-
                     });
-
                 }
             }
         };

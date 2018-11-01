@@ -213,12 +213,17 @@ public class SearchableTree<V> {
 
                     if(!e.isConsumed()) {
                         e.consume();
-                        if (detectDoubleClick()) return;
+
 
                         Object userObject = node.getUserObject();
                         if(!(userObject instanceof IAngularFileContext)) {
                             return;
                         }
+                        if (detectDoubleClick()) {
+                            singleClickAction.accept((T) userObject);
+                            return;
+                        }
+
                         doubleClickAction.accept((T) userObject);
                     }
                 }

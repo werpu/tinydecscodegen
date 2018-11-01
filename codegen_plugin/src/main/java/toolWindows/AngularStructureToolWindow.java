@@ -3,6 +3,7 @@ package toolWindows;
 import com.google.common.base.Strings;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -11,11 +12,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ex.ToolWindowEx;
-import com.intellij.packageDependencies.ui.TreeExpansionMonitor;
 import com.intellij.ui.TreeSpeedSearch;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.*;
@@ -23,6 +23,7 @@ import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
 import supportive.fs.tn.TNUIRoutesFileContext;
 import supportive.utils.IntellijRunUtils;
+import supportive.utils.SearchableTree;
 import toolWindows.supportive.*;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -36,8 +37,12 @@ import java.util.Objects;
 
 import static actions_all.shared.Labels.*;
 import static actions_all.shared.Messages.*;
+import static com.intellij.util.ui.tree.TreeUtil.expandAll;
 import static supportive.fs.common.AngularVersion.TN_DEC;
-import static supportive.utils.IntellijUtils.*;
+import static supportive.utils.IntellijRunUtils.NOOP_CONSUMER;
+import static supportive.utils.IntellijRunUtils.invokeLater;
+import static supportive.utils.IntellijUtils.convertToSearchableString;
+import static supportive.utils.IntellijUtils.getTsExtension;
 import static supportive.utils.StringUtils.normalizePath;
 import static supportive.utils.SwingUtils.copyToClipboard;
 import static supportive.utils.SwingUtils.openEditor;
@@ -45,24 +50,23 @@ import static supportive.utils.SwingUtils.openEditor;
 
 public class AngularStructureToolWindow implements ToolWindowFactory {
 
-    private Tree tree = new Tree();
+    private static final Logger log = Logger.getInstance(AngularStructureToolWindow.class);
 
-    private gui.AngularStructureToolWindow contentPanel = new gui.AngularStructureToolWindow();
+
+    private SearchableTree<PsiRouteContext> routes = new SearchableTree();
+
 
     private IntellijFileContext projectRoot = null;
     private TreeSpeedSearch searchPath = null;
 
 
-
     public AngularStructureToolWindow() {
 
-        tree.setCellRenderer(new ContextNodeRenderer());
-        tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(MSG_PLEASE_WAIT)));
+        routes.getTree().setCellRenderer(new ContextNodeRenderer());
+        routes.getTree().setModel(new DefaultTreeModel(new DefaultMutableTreeNode(MSG_PLEASE_WAIT)));
 
-
-        NodeKeyController<PsiRouteContext> keyCtrl = new NodeKeyController<>(tree,
-                this::goToComponent, this::goToRouteDcl, this::copyRouteLink);
-        tree.addKeyListener(keyCtrl);
+        routes.createDefaultClickHandlers(NOOP_CONSUMER, this::goToComponent);
+        routes.createDefaultKeyController(this::goToComponent, this::goToRouteDcl, this::copyRouteLink);
 
     }
 
@@ -70,12 +74,12 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     private void showPopup(PsiRouteContext foundContext, MouseEvent ev) {
 
         PopupBuilder builder = new PopupBuilder();
-        builder.withMenuItem(LBL_GO_TO_ROUTE_DECLARATION, actionEvent -> goToRouteDcl(foundContext))
-                .withMenuItem(LBL_GO_TO_COMPONENT, actionEvent -> goToComponent(foundContext))
+        builder.withMenuItem(LBL_GO_TO_COMPONENT, actionEvent -> goToComponent(foundContext))
+                .withMenuItem(LBL_GO_TO_ROUTE_DECLARATION, actionEvent -> goToRouteDcl(foundContext))
                 .withSeparator()
                 .withMenuItem(LBL_COPY_ROUTE_LINK, actionEvent -> copyRouteLink(foundContext))
                 .withMenuItem(LBL_COPY_ROUTE_KEY, actionEvent -> copyRouteName(foundContext))
-                .show(tree, ev.getX(), ev.getY());
+                .show(routes.getTree(), ev.getX(), ev.getY());
     }
 
     @Override
@@ -85,10 +89,11 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
 
         refreshContent(project);
-        toolWindowPanel.setContent(contentPanel.getMainPanel());
+        JBScrollPane mainPanel = new JBScrollPane();
+        toolWindowPanel.setContent(mainPanel);
         toolWindowPanel.setBackground(UIUtil.getFieldForegroundColor());
 
-        contentPanel.getScollPanel().setViewportView(tree);
+        mainPanel.setViewportView(routes.getTree());
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(toolWindowPanel, "", false);
@@ -97,14 +102,14 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
 
         if (toolWindow instanceof ToolWindowEx) {
             AnAction[] titleActions = new AnAction[]{
-                    CommonActionsManager.getInstance().createExpandAllHeaderAction(tree),
-                    CommonActionsManager.getInstance().createCollapseAllHeaderAction(tree)
+                    CommonActionsManager.getInstance().createExpandAllHeaderAction(routes.getTree()),
+                    CommonActionsManager.getInstance().createCollapseAllHeaderAction(routes.getTree())
             };
             ((ToolWindowEx) toolWindow).setTitleActions(titleActions);
         }
     }
 
-    private void refreshContent( @NotNull Project project, VirtualFile file) {
+    private void refreshContent(@NotNull Project project, VirtualFile file) {
         IntellijFileContext vFileContext = new IntellijFileContext(project, file);
 
         boolean routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
@@ -129,20 +134,20 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     }
 
     private void refreshContent(@NotNull Project project) {
-        IntellijRunUtils.invokeLater(() -> {
+        invokeLater(() -> {
             try {
                 try {
                     projectRoot = new IntellijFileContext(project);
                 } catch (RuntimeException ex) {
                     //TODO logging here, the project was not resolvable
-                    tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(NO_PROJ_LATER)));
+                    routes.getTree().setModel(new DefaultTreeModel(new DefaultMutableTreeNode(NO_PROJ_LATER)));
                     return;
                 }
 
 
                 List<IUIRoutesRoutesFileContext> routeFiles = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot);
                 if (routeFiles == null || routeFiles.isEmpty()) {
-                    tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(MSG_NO_ROUTE_FOUND)));
+                    routes.getTree().setModel(new DefaultTreeModel(new DefaultMutableTreeNode(MSG_NO_ROUTE_FOUND)));
                     return;
                 }
 
@@ -151,8 +156,8 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 DefaultTreeModel newModel = new DefaultTreeModel(routesHolder);
                 buildRoutesTree(routesHolder);
 
-                tree.setRootVisible(false);
-                tree.setModel(newModel);
+                routes.getTree().setRootVisible(false);
+                routes.getTree().setModel(newModel);
 
                 //now we restore the expansion state
 
@@ -162,13 +167,14 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
                 if (searchPath == null) {
 
 
-                    MouseController<PsiRouteContext> contextMenuListener = new MouseController<>(tree, this::showPopup);
-                    tree.addMouseListener(contextMenuListener);
+                    MouseController<PsiRouteContext> contextMenuListener = new MouseController<>(routes.getTree(), this::showPopup);
+                    routes.getTree().addMouseListener(contextMenuListener);
 
 
-                    searchPath = new TreeSpeedSearch(tree, convertToSearchableString(tree));
+                    searchPath = new TreeSpeedSearch(routes.getTree(), convertToSearchableString(routes.getTree()));
                 }
 
+                expandAll(routes.getTree());
 
             } catch (IndexNotReadyException exception) {
                 refreshContent(project);
@@ -199,7 +205,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     private void goToComponent(PsiRouteContext foundContext) {
         Route route = foundContext.getRoute();
         if (Strings.isNullOrEmpty(route.getComponentPath())) {
-            Messages.showErrorDialog(this.tree.getRootPane(),
+            Messages.showErrorDialog(this.routes.getTree().getRootPane(),
                     MSG_NO_COMP_PRES_CHECK_ROUTE, ERR_OCCURRED);
             return;
         }
@@ -207,7 +213,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         Path parent = Paths.get(Objects.requireNonNull(foundContext.getElement().getContainingFile().getParent()).getVirtualFile().getPath());
         Path rel = parent.relativize(componentPath);
         VirtualFile virtualFile = foundContext.getElement().getContainingFile().getParent().getVirtualFile().findFileByRelativePath(normalizePath(rel.toString()) + getTsExtension());
-        if(virtualFile != null) {
+        if (virtualFile != null) {
             openEditor(new IntellijFileContext(foundContext.getElement().getProject(), virtualFile));
         }
 
