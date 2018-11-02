@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Stream.concat;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
 import static supportive.utils.StringUtils.elVis;
 import static supportive.utils.StringUtils.literalContains;
@@ -60,7 +61,7 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
         }
 
 
-        addRefactoring(new RefactorUnit(super.getPsiFile(), new DummyInsertPsiElement(getRoutesDeclaration().get().getRootElement().getElement().getTextOffset()), routeData.toStringNg2()));
+        addRefactoring(new RefactorUnit(super.getPsiFile(), new DummyInsertPsiElement(getRoutesDeclaration().get().getRootElement().getElement().getTextOffset()), routeData.toStringNg2UIRoutes()));
         addNavVar(routeData.getRouteVarName());
     }
 
@@ -126,22 +127,30 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
      * @return
      */
     public List<PsiRouteContext> getRoutes() {
-        List<PsiElementContext> foundIdentifiers = getNavigationalArray().get().queryContent(JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER).collect(Collectors.toList());
-        List<PsiElementContext> foundParseableBlocks = getNavigationalArray().get().queryContent(JS_OBJECT_LITERAL_EXPRESSION).collect(Collectors.toList());
+
+        //<TODO subroutes>
+        //nav array not proper iot cannot handle subroutes
+        List<PsiElementContext> foundIdentifiers =
+                concat(this.$q(TYPE_SCRIPT_VARIABLE, JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, NAME_EQ("views"), PARENTS_EQ(TYPE_SCRIPT_VARIABLE)),
+                        this.$q(TYPE_SCRIPT_VARIABLE,JS_OBJECT_LITERAL_EXPRESSION,  JS_PROPERTY, NAME_EQ("component"), PARENTS_EQ(TYPE_SCRIPT_VARIABLE)))
+                .distinct()
+               .collect(Collectors.toList());
+
+
+       // List<PsiElementContext> foundIdentifiers = getNavigationalArray().get().queryContent(JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER).collect(Collectors.toList());
+        //List<PsiElementContext> foundParseableBlocks = getNavigationalArray().get().queryContent(JS_OBJECT_LITERAL_EXPRESSION).collect(Collectors.toList());
 
         //part a we try to resolve the variables locally
         List<PsiRouteContext> retVal = Lists.newArrayList();
 
 
-        retVal.addAll(foundIdentifiers.stream().flatMap(identifier -> {
-            return queryContent(JS_VAR_STATEMENT, TYPE_SCRIPT_VARIABLE, "NAME:(" + identifier.getText() + ")");
-        })
+        retVal.addAll(foundIdentifiers.stream()
                 .map(psiElementContext -> ContextFactory.createRouteContext(this, psiElementContext, this.getClass())).filter(found -> found != null)
                 .collect(Collectors.toList()));
 
-        retVal.addAll(foundParseableBlocks.stream()
+        /*retVal.addAll(foundParseableBlocks.stream()
                 .map(psiElementContext -> ContextFactory.createRouteContext(this, psiElementContext, this.getClass())).filter(found -> found != null)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList()));*/
 
         return retVal;
 

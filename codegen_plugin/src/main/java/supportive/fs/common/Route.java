@@ -81,6 +81,17 @@ public class Route implements Cloneable, Serializable, Comparable{
         }
 
     }
+    public String toStringNg2UIRoutes() {
+
+        if (component != null) {
+            String routeTemplatesSimple = "let %s: Ng2StateDeclaration = {name: '%s', url: '%s', component: %s }; \n";
+            return String.format(routeTemplatesSimple, getRouteVarName(), routeKey, url, component);
+        } else {
+            String routeTemplatesSimple = "let %s: Ng2StateDeclaration = {name: '%s', url: '%s' }; \n";
+            return String.format(routeTemplatesSimple, getRouteVarName(), routeKey, url);
+        }
+
+    }
 
     public void setComponentPath(String componentPath) {
         this.componentPath = normalizePath(componentPath)

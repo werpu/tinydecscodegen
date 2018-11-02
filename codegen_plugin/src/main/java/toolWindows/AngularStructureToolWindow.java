@@ -41,11 +41,13 @@ import static com.intellij.util.ui.tree.TreeUtil.expandAll;
 import static supportive.fs.common.AngularVersion.TN_DEC;
 import static supportive.utils.IntellijRunUtils.NOOP_CONSUMER;
 import static supportive.utils.IntellijRunUtils.invokeLater;
+import static supportive.utils.IntellijRunUtils.smartInvokeLater;
 import static supportive.utils.IntellijUtils.convertToSearchableString;
 import static supportive.utils.IntellijUtils.getTsExtension;
 import static supportive.utils.StringUtils.normalizePath;
 import static supportive.utils.SwingUtils.copyToClipboard;
 import static supportive.utils.SwingUtils.openEditor;
+import static toolWindows.supportive.SwingRouteTreeFactory.createRouteTrees;
 
 
 public class AngularStructureToolWindow implements ToolWindowFactory {
@@ -134,7 +136,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     }
 
     private void refreshContent(@NotNull Project project) {
-        invokeLater(() -> {
+        smartInvokeLater(project, () -> {
             try {
                 try {
                     projectRoot = new IntellijFileContext(project);
@@ -190,7 +192,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
             String node = ctx instanceof NG_UIRoutesRoutesFileContext ? LBL_ANGLUAR_NG_ROUTES :
                     ctx instanceof TNAngularRoutesFileContext ? LBL_TN_DEC_ROUTES :
                             LBL_TN_DEC_UI_ROUTES;
-            DefaultMutableTreeNode routes = SwingRouteTreeFactory.createRouteTrees(ctx, node);
+            DefaultMutableTreeNode routes = createRouteTrees(ctx, node);
 
             routesHolder.add(routes);
         });

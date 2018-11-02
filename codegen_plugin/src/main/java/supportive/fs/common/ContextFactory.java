@@ -32,7 +32,7 @@ public class ContextFactory {
     public static PsiRouteContext createRouteContext(TypescriptFileContext routesFile, PsiElementContext psiElementContext, Class origin) {
         Optional<PsiElementContext> name = psiElementContext.queryContent(JS_PROPERTY, "NAME:(name)", PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
         Optional<PsiElementContext> url = psiElementContext.queryContent(JS_PROPERTY, "NAME:(url)", PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
-        Optional<PsiElementContext> component = psiElementContext.queryContent(JS_PROPERTY, "NAME:(component)", PSI_ELEMENT_JS_IDENTIFIER).reduce((el1, el2) -> el2);
+        Optional<PsiElementContext> component = psiElementContext.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("component"), PARENTS_EQ(JS_PROPERTY), JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
         String sName = "";
         String sUrl = "";
         String sComponent = "";
@@ -47,13 +47,16 @@ public class ContextFactory {
             found = true;
         }
 
+
         String sImport = "";
         if (component.isPresent()) {
             sComponent = component.get().getText();
             //now we try to find the include
 
+
             List<String> imports = routesFile.getImportIdentifiers(sComponent).stream().
-                    flatMap(item -> item.queryContent(JS_ES_6_FROM_CLAUSE, PSI_ELEMENT_JS_STRING_LITERAL).map(fromImport -> fromImport.getText())).collect(Collectors.toList());
+                    flatMap(item -> item.queryContent(PARENTS_EQ(JS_ES_6_IMPORT_DECLARATION), JS_ES_6_FROM_CLAUSE, PSI_ELEMENT_JS_STRING_LITERAL).map(fromImport -> fromImport.getText())).collect(Collectors.toList());
+
 
             sImport = imports.isEmpty() ? "" : imports.get(0);
             found = true;
@@ -61,9 +64,10 @@ public class ContextFactory {
 
         //TODO component defined in the same file
 
+        final String modulePath = StringUtils.normalizePath(routesFile.getFolderPath());
 
         if (found) {
-            return new PsiRouteContext(psiElementContext.getElement(), new Route(sName, sUrl, sComponent, psiElementContext.getName(), sImport, origin));
+            return new PsiRouteContext(psiElementContext.getElement(), new Route(sName, sUrl, sComponent, psiElementContext.getName(), modulePath+"/"+sImport, origin));
         }
         return null;
     }
@@ -82,7 +86,8 @@ public class ContextFactory {
 
         if (angularVersion == NG) {
             routeFiles.addAll(NG_UIRoutesIndex.getAllAffectedFiles(projectRoot.getProject(), projectRoot).stream()
-                    .map(psiFile -> new NG_UIRoutesRoutesFileContext(projectRoot.getProject(), psiFile)).distinct().collect(Collectors.toList()));
+                    .map(psiFile -> new NG_UIRoutesRoutesFileContext(projectRoot.getProject(), psiFile))
+                    .distinct().collect(Collectors.toList()));
 
             routeFiles.addAll(TNRoutesIndex.getAllAffectedFiles(projectRoot.getProject(), projectRoot).stream()
                     .map(psiFile -> new TNAngularRoutesFileContext(projectRoot.getProject(), psiFile))

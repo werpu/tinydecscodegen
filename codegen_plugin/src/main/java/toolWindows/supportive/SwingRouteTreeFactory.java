@@ -15,7 +15,9 @@ import static actions_all.shared.Labels.*;
 
 public class SwingRouteTreeFactory {
 
-
+    /**
+     * creates a rout tree node from a given route file context
+     */
     public static DefaultMutableTreeNode createRouteTrees(IUIRoutesRoutesFileContext ctx, String label) {
         Map<String, SwingRouteTreeNode> _routeIdx = new HashMap<>();
         DefaultMutableTreeNode treeNodes = new SwingRootParentNode(label);

@@ -5,7 +5,7 @@
  * import localRoutesProvider(<your routes>)
  */
 import {FirstPageComponent} from "./firstpage/first-page-module/pages/first-page/first-page.component";
-import {UIRouterModule} from "@uirouter/angular";
+import {UIRouterModule, Ng2StateDeclaration} from "@uirouter/angular";
 import {MainPageComponent} from "./firstpage/first-page-module/pages/main-page/main-page.component";
 import {ModuleWithProviders} from "@angular/core";
 import {StatesModule} from "@uirouter/angular/lib/uiRouterNgModule";
@@ -13,10 +13,10 @@ import {StatesModule} from "@uirouter/angular/lib/uiRouterNgModule";
 /*
  * add your global route definitions here
  */
-const defaultPageState: any = {name: 'default', url: '', component: MainPageComponent};
-const mainPageState: any = {name: 'mainpage', url: '/mainpage', component: MainPageComponent};
-const subRoute: any = {name: 'mainpage.sub', url: '/mainpage/sub', component: MainPageComponent};
-const aboutState: any = {name: 'firstpage', url: '/firstpage', component: FirstPageComponent};
+const defaultPageState: Ng2StateDeclaration = {name: 'default', url: '', component: MainPageComponent};
+const mainPageState: Ng2StateDeclaration = {name: 'mainpage', url: '/mainpage', component: MainPageComponent};
+const subRoute: Ng2StateDeclaration = {name: 'mainpage.sub', url: '/mainpage/sub', component: MainPageComponent};
+const aboutState: Ng2StateDeclaration = {name: 'firstpage', url: '/firstpage', component: FirstPageComponent};
 
 /**
  *
