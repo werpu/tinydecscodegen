@@ -2,8 +2,10 @@ package supportive.fs.common;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.intellij.openapi.vfs.InvalidVirtualFileAccessException;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.util.MessageBusUtil;
 import com.intellij.util.gist.GistManagerImpl;
 import com.intellij.util.gist.PsiFileGist;
 import com.intellij.util.io.DataExternalizer;
@@ -93,7 +95,17 @@ public class ComponentFileGist {
     }
 
     public static AngularArtifactGist getFileData(@NotNull PsiFile file) {
-        return psiFileGist.getFileData(file);
+        try {
+            return psiFileGist.getFileData(file);
+        } catch(InvalidVirtualFileAccessException ex) {
+            //force a refresh
+
+            final GistListener afterPublisher =
+                    file.getProject().getMessageBus().syncPublisher(GistListener.FILE_NOT_REACHABLE);
+            afterPublisher.fileNotReachable(file.getVirtualFile());
+            return new AngularArtifactGist("", "", "", "");
+        }
+
     }
 
 

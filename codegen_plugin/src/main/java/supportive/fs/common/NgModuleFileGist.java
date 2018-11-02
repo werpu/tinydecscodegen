@@ -2,6 +2,7 @@ package supportive.fs.common;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.intellij.openapi.vfs.InvalidVirtualFileAccessException;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.gist.GistManagerImpl;
 import com.intellij.util.gist.PsiFileGist;
@@ -81,13 +82,17 @@ public class NgModuleFileGist {
                     return new AngularArtifactGist(readUTF(in), readUTF(in), readUTF(in), readUTF(in));
                 }
             }, (PsiFile in) -> {
-                String componentName = _findModuleName(in);
-                String componentTagName = "";
-                String className = componentName;
+                try {
+                    String componentName = _findModuleName(in);
+                    String componentTagName = "";
+                    String className = componentName;
 
-                String filePath = in.getVirtualFile().getPath();
-                AngularArtifactGist retVal = new AngularArtifactGist(componentName, componentTagName, className, filePath);
-                return retVal;
+                    String filePath = in.getVirtualFile().getPath();
+                    AngularArtifactGist retVal = new AngularArtifactGist(componentName, componentTagName, className, filePath);
+                    return retVal;
+                } catch (RuntimeException ex) {
+                    return null;
+                }
             });
             initialized.set(true);
         }
@@ -95,7 +100,16 @@ public class NgModuleFileGist {
     }
 
     public static AngularArtifactGist getFileData(@NotNull PsiFile file) {
-        return psiFileGist.getFileData(file);
+        try {
+            return psiFileGist.getFileData(file);
+        } catch(InvalidVirtualFileAccessException ex) {
+            //force a refresh
+
+            final GistListener afterPublisher =
+                    file.getProject().getMessageBus().syncPublisher(GistListener.FILE_NOT_REACHABLE);
+            afterPublisher.fileNotReachable(file.getVirtualFile());
+            return new AngularArtifactGist("", "", "", "");
+        }
     }
 
 

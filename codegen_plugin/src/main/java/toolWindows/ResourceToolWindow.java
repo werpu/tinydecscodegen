@@ -106,7 +106,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     private ResourcePanels resourcePanels;
 
     public ResourceToolWindow() {
-        final Icon ng = IconLoader.getIcon("/images/ng.png");
+
 
         modules.getTree().setCellRenderer(new ContextNodeRenderer());
         registerPopup(modules.getTree());
@@ -150,6 +150,8 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         otherResources.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
         otherResourcesModule.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
         otherResourcesActiveEditorModule.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
+
+
 
     }
 
@@ -223,6 +225,8 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+
+        project.getMessageBus().connect().subscribe(GistListener.FILE_NOT_REACHABLE, virtualFile -> refreshContent());
 
         this.toolWindow = toolWindow;
         this.resourcePanels = new ResourcePanels();
@@ -540,15 +544,11 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                 executor.execute(run4);
                 executor.shutdown();
 
-                try {
+                /*try {
                     executor.awaitTermination(1000, TimeUnit.SECONDS);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
-                get(run1);
-                get(run2);
-                get(run3);
-                get(run4);
+                }*/
 
 
             });
