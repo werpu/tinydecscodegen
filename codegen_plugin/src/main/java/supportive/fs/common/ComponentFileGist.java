@@ -1,16 +1,22 @@
 package supportive.fs.common;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.gist.GistManagerImpl;
 import com.intellij.util.gist.PsiFileGist;
 import com.intellij.util.io.DataExternalizer;
 import org.jetbrains.annotations.NotNull;
+import supportive.reflectRefact.PsiWalkFunctions;
 import supportive.utils.StringUtils;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.intellij.util.io.IOUtil.readUTF;
@@ -18,10 +24,34 @@ import static com.intellij.util.io.IOUtil.writeUTF;
 import static java.util.stream.Stream.concat;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
 
+/**
+ * Gists are  caches
+ * which can be used to speed up operations
+ * which normally would take a significant time
+ * working on the vfs or on the index.
+ * They are more lightweight on the index
+ * because they only store a subset of the data. But also
+ * they only can read data committed.
+ * Hence they are ideal for small amounts of data which is read multiple times.
+ * On top of that I have added a volatile secondary thread save
+ * memory cache for data requested multiple times but which does not
+ * have tu survive in the cache anyway.
+ *
+ * This is my implementation of a gist which stores
+ * component data
+ *
+ */
 public class ComponentFileGist {
     //gist cache for the components to speed things up
     private static PsiFileGist<AngularArtifactGist> psiFileGist = null;
     private static AtomicBoolean initialized = new AtomicBoolean(false);
+
+    /**
+     * secondary ram only cache
+     */
+    private static Cache<String, Object> volatileData = CacheBuilder.newBuilder()      .weakValues()
+            .expireAfterAccess(300, TimeUnit.SECONDS)
+            .build();
 
     public static synchronized void init() {
 
@@ -39,6 +69,7 @@ public class ComponentFileGist {
                 writeUTF(out, value.getTagName());
                 writeUTF(out, value.getClassName());
                 writeUTF(out, value.getFilePath());
+                volatileData.invalidateAll();
 
             }
 
@@ -112,5 +143,24 @@ public class ComponentFileGist {
         }
 
         return StringUtils.toDash(_findComponentClassName(file).toString());
+    }
+
+    public static Optional<PsiElement> getTemplate(PsiFile file, PsiElement componentAnn) {
+        int hash = file.getVirtualFile().getPath().hashCode();
+        String key = hash + "$$TPL_CTX";
+        Object data = volatileData.getIfPresent(key);
+        if(data != null) {
+            return (Optional<PsiElement>) data;
+        } else {
+            Optional<PsiElement> template;
+            if (componentAnn == null) {
+                template = new IntellijFileContext(file.getProject(), file).findPsiElements(PsiWalkFunctions::isTemplate).stream().findFirst();
+            } else {
+                template = Arrays.stream(componentAnn.getChildren()).filter(PsiWalkFunctions::isTemplate).findFirst();
+            }
+
+            return template;
+        }
+
     }
 }

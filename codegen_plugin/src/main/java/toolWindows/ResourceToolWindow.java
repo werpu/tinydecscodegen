@@ -45,6 +45,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -123,30 +124,43 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         Consumer<IAngularFileContext> goToParentModule = this::goToParentModule;
         Consumer<IAngularFileContext> copyResourceName = this::copyResourceName;
 
-        modules.createDefaultKeyController(gotToFile, goToParentModule, copyResourceName);
+        Consumer<IAngularFileContext> updateSecTree = (fileSelected) -> invokeLater(() -> {
+            //TODO filter the components tree
+            if (fileSelected instanceof NgModuleFileContext) {
+                updateSecondaryTree((NgModuleFileContext) fileSelected);
+            }
+        });
+        Consumer<IAngularFileContext> moduleUpdateAndGoToFile = (fileSelected) -> invokeLater(() -> {
+            //TODO filter the components tree
+            if (fileSelected instanceof NgModuleFileContext) {
+                updateSecondaryTree((NgModuleFileContext) fileSelected);
+                gotToFile(fileSelected);
+            }
+        });
+
+
+        modules.createDefaultKeyController(moduleUpdateAndGoToFile, goToParentModule, copyResourceName);
         otherResources.createDefaultKeyController(gotToFile, goToParentModule, copyResourceName);
         otherResourcesModule.createDefaultKeyController(gotToFile, goToParentModule, copyResourceName);
         otherResourcesActiveEditorModule.createDefaultKeyController(gotToFile, goToParentModule, copyResourceName);
 
 
-        modules.createDefaultClickHandlers((fileSelected) -> {
-            invokeLater(() -> {
-                //TODO filter the components tree
-                if (fileSelected instanceof NgModuleFileContext) {
-                    invokeLater(() -> {
-                        NgModuleFileContext module = (NgModuleFileContext) fileSelected;
-                        String moduleFileName = module.getParent().get().getFolderPath();
-                        moduleFileName = normalizePath(moduleFileName);
-                        otherResourcesModule.filterTree(moduleFileName, "Resources " + "[" + module.getModuleName() + "]");
-                        runReadSmart(module.getProject(), () -> otherResourcesModule.restoreExpansion());
-                    });
-                }
-            });
-        }, gotToFile);
+
+        modules.createDefaultClickHandlers(updateSecTree, gotToFile);
         otherResources.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
         otherResourcesModule.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
         otherResourcesActiveEditorModule.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
 
+    }
+
+    private void updateSecondaryTree(NgModuleFileContext fileSelected) {
+        invokeLater(() -> {
+            NgModuleFileContext module = fileSelected;
+            String moduleFileName = module.getParent().get().getFolderPath();
+            moduleFileName = normalizePath(moduleFileName);
+            otherResourcesModule.filterTree(moduleFileName, "Resources " + "[" + module.getModuleName() + "]");
+            runReadSmart(module.getProject(), () -> otherResourcesModule.restoreExpansion());
+        });
     }
 
 
@@ -490,40 +504,41 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                 otherResourcesActiveEditorModule.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
 
 
-                //FutureTask<Boolean> run1 = newFutureRoTask(() -> {
-                modules.filterTree("", LBL_MODULES);
-                smartInvokeLater(project, () -> expandAll(modules.getTree()));
+                FutureTask<Boolean> run1 = newFutureRoTask(() -> {
+                    modules.filterTree("", LBL_MODULES);
+                    smartInvokeLater(project, () -> expandAll(modules.getTree()));
 
-                //        return Boolean.TRUE;
-                //    });
+                    return Boolean.TRUE;
+                });
 
-                //FutureTask<Boolean> run2 = newFutureRoTask(() -> {
-                otherResources.filterTree("", LBL_RESOURCES);
-                smartInvokeLater(project,
-                        () -> expandAll(otherResources.getTree()));
-                //         return Boolean.TRUE;
-                //     });
+                FutureTask<Boolean> run2 = newFutureRoTask(() -> {
+                    otherResources.filterTree("", LBL_RESOURCES);
+                    smartInvokeLater(project,
+                            () -> expandAll(otherResources.getTree()));
+                    return Boolean.TRUE;
+                });
 
-                // FutureTask<Boolean> run3 = newFutureRoTask(() -> {
-                otherResourcesModule.filterTree("", LBL_RESOURCES);
-                smartInvokeLater(project, () -> expandAll(otherResourcesModule.getTree()));
-                //         return Boolean.TRUE;
-                //     });
+                FutureTask<Boolean> run3 = newFutureRoTask(() -> {
+                    otherResourcesModule.filterTree("", LBL_RESOURCES);
+                    smartInvokeLater(project, () -> expandAll(otherResourcesModule.getTree()));
+                    return Boolean.TRUE;
+                });
 
-                //FutureTask<Boolean> run4 = newFutureRoTask(() -> {
-                otherResourcesActiveEditorModule.filterTree("", LBL_MODULES);
-                FileEditor editor = FileEditorManagerImpl.getInstance(project).getSelectedEditor();
-                editorTreeRefresh(editor, project);
-                smartInvokeLater(project, () -> expandAll(otherResourcesActiveEditorModule.getTree()));
-                //    return Boolean.TRUE;
-                //    });
+                FutureTask<Boolean> run4 = newFutureRoTask(() -> {
+                    otherResourcesActiveEditorModule.filterTree("", LBL_MODULES);
+                    FileEditor editor = FileEditorManagerImpl.getInstance(project).getSelectedEditor();
+                    editorTreeRefresh(editor, project);
+                    smartInvokeLater(project, () -> expandAll(otherResourcesActiveEditorModule.getTree()));
+                    return Boolean.TRUE;
+                });
 
-               /* ExecutorService executor = Executors.newCachedThreadPool();
+                ExecutorService executor = Executors.newCachedThreadPool();
 
                 executor.execute(run1);
                 executor.execute(run2);
                 executor.execute(run3);
                 executor.execute(run4);
+                executor.shutdown();
 
                 try {
                     executor.awaitTermination(1000, TimeUnit.SECONDS);
@@ -533,7 +548,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                 get(run1);
                 get(run2);
                 get(run3);
-                get(run4);*/
+                get(run4);
 
 
             });
@@ -551,7 +566,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     }
 
-    /*
+
     private void get(FutureTask<Boolean> run1) {
         try {
             run1.get();
@@ -559,7 +574,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
             e.printStackTrace();
         }
     }
-    */
 
 
     private void buildModulesTree(SwingRootParentNode parentTree, List<NgModuleFileContext> modules, List<NgModuleFileContext> modules2) {

@@ -1,5 +1,6 @@
 package supportive.fs.common;
 
+import com.google.common.base.Strings;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -58,7 +59,9 @@ public abstract class AngularResourceContext extends TypescriptResourceContext i
     }
 
     public String getDisplayName() {
-        return artifactName+" ["+parentModule.getModuleName()+"]";
+        String finalArtifactName = Strings.nullToEmpty(artifactName);
+        String finalModuleName = parentModule != null ? parentModule.getModuleName() : "";
+        return finalArtifactName+" ["+finalModuleName+"]";
     }
 
 

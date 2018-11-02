@@ -168,13 +168,7 @@ public class ComponentFileContext extends AngularResourceContext {
 
 
     private Optional<PsiElement> getTemplate() {
-        Optional<PsiElement> template;
-        if (componentAnnotation == null) {
-            template = super.findPsiElements(PsiWalkFunctions::isTemplate).stream().findFirst();
-        } else {
-            template = Arrays.stream(componentAnnotation.getChildren()).filter(PsiWalkFunctions::isTemplate).findFirst();
-        }
-        return template;
+        return ComponentFileGist.getTemplate(psiFile, componentAnnotation);
     }
 
 

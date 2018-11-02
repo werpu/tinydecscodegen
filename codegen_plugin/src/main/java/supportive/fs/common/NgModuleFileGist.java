@@ -1,5 +1,7 @@
 package supportive.fs.common;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.gist.GistManagerImpl;
 import com.intellij.util.gist.PsiFileGist;
@@ -13,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.intellij.util.io.IOUtil.readUTF;
@@ -20,14 +23,37 @@ import static com.intellij.util.io.IOUtil.writeUTF;
 import static java.util.stream.Stream.concat;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
 
-//TODO introduce a secondary cache for volatile data like a param section
-//which cannot be stored
+/**
+ * Gists are  caches
+ * which can be used to speed up operations
+ * which normally would take a significant time
+ * working on the vfs or on the index.
+ * They are more lightweight on the index
+ * because they only store a subset of the data. But also
+ * they only can read data committed.
+ * Hence they are ideal for small amounts of data which is read multiple times.
+ * On top of that I have added a volatile secondary thread save
+ * memory cache for data requested multiple times but which does not
+ * have tu survive in the cache anyway.
+ *
+ * This is my implementation of a gist which stores
+ * module file data
+ *
+ */
 public class NgModuleFileGist {
     //gist cache for the components to speed things up
     private static PsiFileGist<AngularArtifactGist> psiFileGist = null;
+
+
     private static AtomicBoolean initialized = new AtomicBoolean(false);
 
-    private static Map<String, Object> volatileData = new ConcurrentHashMap<>();
+    /**
+     * secondary ram only cache
+     */
+    private static Cache<String, Object> volatileData = CacheBuilder.newBuilder()
+            .weakValues()
+            .expireAfterAccess(300, TimeUnit.SECONDS)
+            .build();
 
     public static synchronized void init() {
 
@@ -45,7 +71,7 @@ public class NgModuleFileGist {
                     writeUTF(out, value.getTagName());
                     writeUTF(out, value.getClassName());
                     writeUTF(out, value.getFilePath());
-                    volatileData.clear();
+                    volatileData.invalidateAll();
 
                 }
 
@@ -97,8 +123,9 @@ public class NgModuleFileGist {
     public static PsiElementContext getResourceRoot(PsiFile file) {
         int hash = file.getVirtualFile().getPath().hashCode();
         String key = hash + "$$ROOT_CTX";
-        if(volatileData.containsKey(key)) {
-            return (PsiElementContext) volatileData.get(key);
+        Object data = volatileData.getIfPresent(key);
+        if(data != null) {
+            return (PsiElementContext) data;
         } else {
             PsiElementContext clazz = _resolveClass(file);
             volatileData.put(key, clazz);
@@ -110,8 +137,9 @@ public class NgModuleFileGist {
     public static AssociativeArraySection resolveParameters(PsiFile file) {
         int hash = file.getVirtualFile().getPath().hashCode();
         String key = hash + "$$PARAMS_CTX";
-        if(volatileData.containsKey(key)) {
-            return (AssociativeArraySection) volatileData.get(key);
+        Object data = volatileData.getIfPresent(key);
+        if(data != null) {
+            return (AssociativeArraySection) data;
         } else {
             IntellijFileContext ctx = new IntellijFileContext(file.getProject(), file);
             AssociativeArraySection section = new AssociativeArraySection(file.getProject(), file, ctx.$q(MODULE_ARGS).findFirst().get().getElement());
