@@ -1,7 +1,6 @@
 package supportive.fs.common;
 
 
-import com.google.common.base.Strings;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.RangeMarker;
@@ -9,27 +8,38 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.util.gist.GistManagerImpl;
+import com.intellij.util.gist.PsiFileGist;
+import com.intellij.util.io.DataExternalizer;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import supportive.refactor.RefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
 import supportive.utils.StringUtils;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.intellij.util.io.IOUtil.readUTF;
+import static com.intellij.util.io.IOUtil.writeUTF;
 import static java.util.Optional.empty;
 import static java.util.stream.Stream.concat;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
 import static supportive.utils.IntellijUtils.getTsExtension;
-import static supportive.utils.StringUtils.elVis;
 
 
 //TODO handle files with html refs instead of embedded and typescript variable refs
 //TODO clean this mess up
+
+
 
 /**
  * Component file context
@@ -49,6 +59,7 @@ public class ComponentFileContext extends AngularResourceContext {
     private PsiElement componentAnnotation;
 
     private AssociativeArraySection params;
+
 
 
 
@@ -79,8 +90,10 @@ public class ComponentFileContext extends AngularResourceContext {
     }
 
 
+
+
     public String getDisplayName() {
-        return this.getClazzName() + ((getParentModule() == null) ? "" : " <"+this.getTagName()+"/> ["+ getParentModule().getModuleName()+"]");
+        return this.getClazzName() + ((getParentModule() == null) ? "" : " <" +ComponentFileGist.getFileData(psiFile).getTagName()+ "/> [" + getParentModule().getModuleName() + "]");
     }
 
     @Override
@@ -112,7 +125,7 @@ public class ComponentFileContext extends AngularResourceContext {
         }
         if (this.rangeMarker.isPresent()) {
             RangeMarker rangeMarker = this.rangeMarker.get();
-            return rangeMarker.getStartOffset() <= pos && pos <rangeMarker.getEndOffset();
+            return rangeMarker.getStartOffset() <= pos && pos < rangeMarker.getEndOffset();
         }
         return false;
     }
@@ -120,20 +133,23 @@ public class ComponentFileContext extends AngularResourceContext {
     @Override
     protected void postConstruct() {
         super.postConstruct();
-        if(templateText == null) {
+
+         ComponentFileGist.init();
+
+
+
+        if (templateText == null) {
             this.templateText = empty();
         }
-        if(templateRef == null) {
+        if (templateRef == null) {
             this.templateRef = empty();
         }
-        if(rangeMarker == null) {
+        if (rangeMarker == null) {
             this.rangeMarker = empty();
         }
         Optional<PsiElement> template = getTemplate();
 
-        clazzName = (componentAnnotation == null) ?
-                findComponentClassName().get():
-                findComponentClassName(componentAnnotation).get();
+        clazzName = ComponentFileGist.getFileData(getPsiFile()).getClassName();
 
         if (template.isPresent()) {
             Optional<PsiElement> templateString = Arrays.stream(template.get().getChildren())
@@ -150,6 +166,7 @@ public class ComponentFileContext extends AngularResourceContext {
 
     }
 
+
     private Optional<PsiElement> getTemplate() {
         Optional<PsiElement> template;
         if (componentAnnotation == null) {
@@ -159,7 +176,6 @@ public class ComponentFileContext extends AngularResourceContext {
         }
         return template;
     }
-
 
 
     public Optional<String> getTemplateTextAsStr() {
@@ -176,7 +192,6 @@ public class ComponentFileContext extends AngularResourceContext {
                 templateRef = getTemplateRef(template.get());
 
 
-
                 if (templateRef.isPresent()) {
                     String templateRefText = this.templateRef.get().getTemplateTextAsStr().get();
                     return Optional.ofNullable(templateRefText.substring(1, templateRefText.length() - 1));
@@ -185,7 +200,6 @@ public class ComponentFileContext extends AngularResourceContext {
         }
         return empty();
     }
-
 
 
     private Optional<TemplateFileContext> getTemplateRef(PsiElement template) {
@@ -220,37 +234,12 @@ public class ComponentFileContext extends AngularResourceContext {
         return empty();
     }
 
-    public Optional<String> findComponentClassName(PsiElement componentAnnotation) {
-        List<PsiElement> classDefs = findPsiElements(PsiWalkFunctions::isClass);
-        Optional<String> componentClassDef = classDefs.stream()
-                .filter(classDef -> componentAnnotation.getTextOffset() < classDef.getTextOffset())
-                .map(el -> (String) elVis(el, "nameIdentifier", "text").get()).findFirst();
 
-        return componentClassDef;
-    }
 
     public Optional<String> findComponentClassName() {
-
-        return concat($q(COMPONENT_CLASS), $q(CONTROLLER_CLASS))
-                .map(el -> el.getName())
-                .findFirst();
-
+        return Optional.ofNullable(ComponentFileGist.getFileData(psiFile).getClassName());
     }
 
-    private PsiElement fetchStringContentElement(Optional<PsiElement> retVal) {
-        return (PsiElement) retVal.get().getNode().getFirstChildNode().getTreeNext();
-    }
-
-    public void setTemplateText(String newText) {
-        if (!templateText.isPresent() && !templateRef.isPresent()) {
-            return;
-        }
-        if (templateRef.isPresent()) {
-            templateRef.get().setTemplateText(newText);
-            return;
-        }
-        super.addRefactoring(new RefactorUnit(getPsiFile(), this.templateText.get(), "`" + newText + "`"));
-    }
 
 
     public static List<ComponentFileContext> getInstances(IntellijFileContext fileContext) {
@@ -272,6 +261,9 @@ public class ComponentFileContext extends AngularResourceContext {
         return new AssociativeArraySection(project, psiFile, concat($q(COMPONENT_ARGS), $q(CONTROLLER_ARGS)).findFirst().get().getElement());
     }
 
+
+
+
     @Override
     public void commit() throws IOException {
         if (templateRef.isPresent()) {
@@ -280,18 +272,11 @@ public class ComponentFileContext extends AngularResourceContext {
         super.commit();
     }
 
-    public String getTagName() {
-        Optional<PsiElementContext> selector = null;
-        try {
-            selector = this.params.get("selector");
-            if(selector.isPresent()) {
-                return selector.get().getText();
-            }
-        } catch (IOException e) {
-           //NOOP for now
-        }
 
-        return StringUtils.toDash(Strings.nullToEmpty(clazzName));
+
+
+    public String getTagName() {
+       return ComponentFileGist.getFileData(getPsiFile()).getTagName();
     }
 
 }

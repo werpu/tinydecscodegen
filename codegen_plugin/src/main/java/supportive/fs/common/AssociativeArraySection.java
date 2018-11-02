@@ -1,6 +1,7 @@
 package supportive.fs.common;
 
-import com.google.common.collect.Streams;
+
+
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -10,6 +11,7 @@ import supportive.refactor.RefactorUnit;
 import java.io.IOException;
 import java.util.Optional;
 
+import static java.util.stream.Stream.concat;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
 
 /**
@@ -70,7 +72,7 @@ public class AssociativeArraySection extends AngularResourceContext{
 
     public Optional<PsiElementContext> get(String sectionName) throws IOException {
         //PsiElement(JS:COMMA)
-        return Streams.concat($q(JS_PROPERTY, NAME_EQ(sectionName), JS_ARRAY_LITERAL_EXPRESSION),
+        return concat($q(JS_PROPERTY, NAME_EQ(sectionName), JS_ARRAY_LITERAL_EXPRESSION),
                 $q(JS_PROPERTY, NAME_EQ(sectionName), JS_LITERAL_EXPRESSION)).findFirst();
     }
 

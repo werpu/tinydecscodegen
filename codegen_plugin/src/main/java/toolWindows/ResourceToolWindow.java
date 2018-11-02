@@ -1,6 +1,5 @@
 package toolWindows;
 
-import com.google.common.collect.Streams;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.openapi.Disposable;
@@ -38,7 +37,6 @@ import supportive.utils.TimeoutWorker;
 import toolWindows.supportive.*;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
@@ -47,8 +45,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -440,9 +436,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
             Optional<NgModuleFileContext> ret = getNearestModule(fileContext);
 
-            ret.ifPresent(ngModuleFileContext -> {
-                otherResourcesActiveEditorModule.filterTree(ngModuleFileContext.getFolderPath(), LBL_RESOURCES + "[" + ngModuleFileContext.getModuleName() + "]");
-            });
+            ret.ifPresent(ngModuleFileContext -> otherResourcesActiveEditorModule.filterTree(ngModuleFileContext.getFolderPath(), LBL_RESOURCES + "[" + ngModuleFileContext.getModuleName() + "]"));
             otherResourcesActiveEditorModule.restoreExpansion();
         }));
 

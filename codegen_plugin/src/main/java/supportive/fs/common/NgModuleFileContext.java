@@ -53,9 +53,11 @@ public class NgModuleFileContext extends AngularResourceContext {
     protected void postConstruct() {
         super.postConstruct();
 
-        resourceRoot = resolveClass(getPsiFile());
-        clazzName = findClassName().get();
-        artifactName =  getModuleName();
+        NgModuleFileGist.init();
+
+        resourceRoot = NgModuleFileGist.getResourceRoot(psiFile);
+        clazzName = NgModuleFileGist.getFileData(psiFile).getClassName();
+        artifactName =  NgModuleFileGist.getFileData(psiFile).getArtifactName();
         paramSection = resolveParameters();
 
         findParentModule();
@@ -63,7 +65,7 @@ public class NgModuleFileContext extends AngularResourceContext {
 
     @NotNull
     private AssociativeArraySection resolveParameters() {
-        return new AssociativeArraySection(project, psiFile, $q(MODULE_ARGS).findFirst().get().getElement());
+        return NgModuleFileGist.resolveParameters(psiFile);
     }
 
 
@@ -76,22 +78,21 @@ public class NgModuleFileContext extends AngularResourceContext {
         return clazz.get();
     }
 
+
+
+
     protected void init() {
 
     }
 
 
     public String getModuleName() {
-        Optional<String> moduleClassName = findClassName();
-        if(moduleClassName.isPresent()) {
-            return  moduleClassName.get();
-        }
-        return "";
+       return  NgModuleFileGist.getFileData(psiFile).getArtifactName();
     }
 
 
     public Optional<String> findClassName() {
-        return Optional.ofNullable(resolveClass(getPsiFile()).getName());
+        return  Optional.ofNullable(NgModuleFileGist.getFileData(psiFile).getClassName());
     }
 
     public void appendDeclaration(String variableName) throws IOException {
