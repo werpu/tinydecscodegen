@@ -323,7 +323,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         if (toolWindow instanceof ToolWindowEx) {
             final CommonActionsManager actionsManager = CommonActionsManager.getInstance();
             AnAction[] titleActions = IntellijRunUtils.actions(
-                    new AnAction("Reload All", "Reload All Views", AllIcons.Actions.Restart) {
+                    new AnAction("Reload All", "Reload All Views", AllIcons.Actions.Refresh) {
                         @Override
                         public void actionPerformed(AnActionEvent e) {
                             resourcesWatcher.stop();
