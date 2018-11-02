@@ -1,5 +1,6 @@
 package supportive.fs.common;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -7,6 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.util.Optional;
 
 import static supportive.reflectRefact.PsiWalkFunctions.*;
@@ -58,5 +60,10 @@ public class ServiceContext extends AngularResourceContext {
     @Override
     public String getResourceName() {
         return getArtifactName();
+    }
+
+    @Override
+    public Icon getIcon() {
+        return AllIcons.Webreferences.Server;
     }
 }

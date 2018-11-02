@@ -1,9 +1,11 @@
 package supportive.fs.common;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,5 +66,9 @@ public class ResourceFilesContext extends IntellijFileContext {
         routes = new ArrayList<>();
         services = new ArrayList<>();
         filtersPipes = new ArrayList<>();
+    }
+
+    public Icon getIcon() {
+        return AllIcons.Nodes.AbstractClass;
     }
 }

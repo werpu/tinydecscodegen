@@ -1,11 +1,13 @@
 package supportive.fs.common;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import javax.swing.*;
 
 
 @EqualsAndHashCode(callSuper=false)
@@ -44,5 +46,7 @@ public class PsiRouteContext extends PsiElementContext implements IAngularFileCo
         return element.getContainingFile();
     }
 
-
+    public Icon getIcon() {
+        return AllIcons.Nodes.Jsf.NavigationCase;
+    }
 }

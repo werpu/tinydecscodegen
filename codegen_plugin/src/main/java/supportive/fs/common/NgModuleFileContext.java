@@ -1,5 +1,6 @@
 package supportive.fs.common;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -10,6 +11,7 @@ import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.RefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -130,5 +132,9 @@ public class NgModuleFileContext extends AngularResourceContext {
     @Override
     public String getResourceName() {
         return getModuleName();
+    }
+
+    public Icon getIcon() {
+        return AllIcons.Javaee.EjbModule;
     }
 }

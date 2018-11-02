@@ -23,24 +23,28 @@ public class ContextNodeRenderer extends NodeRenderer {
     @Override
     protected ItemPresentation getPresentation(Object node) {
         ItemPresentation retVal = super.getPresentation(node);
+        Icon icon = ng;
+        if(node instanceof IAngularFileContext) {
+            icon = ((IAngularFileContext)node).getIcon();
+        }
         if (node instanceof PsiRouteContext) {
             Route route = ((PsiRouteContext) node).getRoute();
-            return new PresentationData(route.getRouteKey(), route.getUrl(), ng, null);
+            return new PresentationData(route.getRouteKey(), route.getUrl(), icon, null);
         } else if (node instanceof NgModuleFileContext) {
             NgModuleFileContext data = (NgModuleFileContext) node;
-            return  new PresentationData(data.getModuleName(), normalizePath(data.getVirtualFile().getPath()),ng, null);
+            return  new PresentationData(data.getModuleName(), normalizePath(data.getVirtualFile().getPath()),icon, null);
         } else if (node instanceof ComponentFileContext) {
             ComponentFileContext data = (ComponentFileContext) node;
-            return  new PresentationData(data.getDisplayName(), normalizePath(data.getVirtualFile().getPath()),ng, null);
+            return  new PresentationData(data.getDisplayName(), normalizePath(data.getVirtualFile().getPath()),icon, null);
         } else if (node instanceof FilterPipeContext) {
             FilterPipeContext data = (FilterPipeContext) node;
-            return  new PresentationData(data.getDisplayName(), normalizePath(data.getVirtualFile().getPath()),ng, null);
+            return  new PresentationData(data.getDisplayName(), normalizePath(data.getVirtualFile().getPath()),icon, null);
         } else if (node instanceof ServiceContext) {
             ServiceContext data = (ServiceContext) node;
-            return  new PresentationData(data.getDisplayName(), normalizePath(data.getVirtualFile().getPath()),ng, null);
+            return  new PresentationData(data.getDisplayName(), normalizePath(data.getVirtualFile().getPath()),icon, null);
         }  else if (node instanceof DtoContext) {
             DtoContext data = (DtoContext) node;
-            return  new PresentationData(data.getDisplayName(), normalizePath(data.getVirtualFile().getPath()),ng, null);
+            return  new PresentationData(data.getDisplayName(), normalizePath(data.getVirtualFile().getPath()),icon, null);
         }
         return retVal;
     }

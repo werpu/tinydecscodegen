@@ -1,10 +1,13 @@
 package supportive.fs.common;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+
+import javax.swing.*;
 
 import static supportive.reflectRefact.PsiWalkFunctions.DTO_CLASS;
 import static supportive.reflectRefact.PsiWalkFunctions.TYPE_SCRIPT_CLASS;
@@ -50,4 +53,11 @@ public class DtoContext extends AngularResourceContext {
     public String getResourceName() {
         return getArtifactName();
     }
+
+    @Override
+    public Icon getIcon() {
+        return AllIcons.Nodes.Jsf.ManagedBean;
+    }
+
+
 }

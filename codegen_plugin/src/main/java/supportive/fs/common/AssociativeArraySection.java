@@ -2,12 +2,14 @@ package supportive.fs.common;
 
 
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.RefactorUnit;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -152,5 +154,10 @@ public class AssociativeArraySection extends AngularResourceContext{
     @Override
     public String getResourceName() {
         return "";
+    }
+
+    @Override
+    public Icon getIcon() {
+        return AllIcons.Nodes.NewParameter;
     }
 }

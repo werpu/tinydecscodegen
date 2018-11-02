@@ -64,5 +64,7 @@ public abstract class AngularResourceContext extends TypescriptResourceContext i
         return finalArtifactName+" ["+finalModuleName+"]";
     }
 
+    
+
 
 }

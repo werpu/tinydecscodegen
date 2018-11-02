@@ -1,6 +1,7 @@
 package supportive.fs.common;
 
 import com.google.common.collect.Streams;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -8,6 +9,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.apache.commons.lang3.ArrayUtils;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,5 +60,9 @@ public class FilterPipeContext extends AngularResourceContext {
     @Override
     public String getResourceName() {
         return getArtifactName();
+    }
+
+    public Icon getIcon() {
+        return AllIcons.General.Filter;
     }
 }

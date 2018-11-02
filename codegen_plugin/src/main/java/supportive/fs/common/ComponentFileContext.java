@@ -1,6 +1,7 @@
 package supportive.fs.common;
 
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.RangeMarker;
@@ -19,6 +20,7 @@ import supportive.refactor.RefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
 import supportive.utils.StringUtils;
 
+import javax.swing.*;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -273,4 +275,8 @@ public class ComponentFileContext extends AngularResourceContext {
        return ComponentFileGist.getFileData(getPsiFile()).getTagName();
     }
 
+
+    public Icon getIcon() {
+        return AllIcons.Nodes.Artifact;
+    }
 }
