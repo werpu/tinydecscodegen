@@ -52,6 +52,9 @@ public class CreateTnDecRoute extends AnAction {
         final gui.CreateRoute mainForm = new gui.CreateRoute();
         ComponentSelectorModel selectorModel = null;
 
+        //this is only for angular ng, angular 1 does not have a module isolation system
+        mainForm.getLblRegisterIntoModule().setVisible(false);
+        mainForm.getCbRegisterIntoModule().setVisible(false);
 
         DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(fileContext.getProject(), mainForm.getRootPanel())
                 .withDimensionKey("AnnRoute").withValidator(() -> {

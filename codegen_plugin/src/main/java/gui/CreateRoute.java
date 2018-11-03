@@ -19,6 +19,8 @@ public class CreateRoute {
     private JCheckBox cbSyncHref;
     private JComboBox cbComponent;
     private JPanel rootPanel;
+    private JComboBox cbRegisterIntoModule;
+    private JLabel lblRegisterIntoModule;
 
     public CreateRoute() {
 

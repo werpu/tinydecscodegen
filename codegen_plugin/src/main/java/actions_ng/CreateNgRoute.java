@@ -12,14 +12,12 @@ import com.intellij.psi.PsiFile;
 import gui.CreateRoute;
 import indexes.AngularIndex;
 import indexes.ControllerIndex;
+import indexes.ModuleIndex;
 import indexes.NG_UIRoutesIndex;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import supportive.fs.common.AngularVersion;
-import supportive.fs.common.ComponentFileContext;
-import supportive.fs.common.IntellijFileContext;
-import supportive.fs.common.Route;
+import supportive.fs.common.*;
 import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.utils.StringUtils;
 
@@ -36,6 +34,7 @@ import java.util.stream.Stream;
 import static actions_all.shared.FormAssertions.*;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
+import static supportive.utils.StringUtils.normalizePath;
 
 public class CreateNgRoute extends AnAction {
 
@@ -51,7 +50,7 @@ public class CreateNgRoute extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
 
-        IntellijFileContext fileContext = new IntellijFileContext(event);
+        final IntellijFileContext fileContext = new IntellijFileContext(event);
         final gui.CreateRoute mainForm = new gui.CreateRoute();
         final ComponentSelectorModel selectorModel;
 
@@ -69,6 +68,25 @@ public class CreateNgRoute extends AnAction {
         List<String> selectorIndex = Arrays.asList(selectorModel.getContextNames());
         mainForm.getCbComponent().setModel(new ListComboBoxModel(selectorIndex));
         Optional<ComponentFileContext> defaultComponentData = getDefaultComponentData(fileContext);
+
+        List<PsiFile> files = ModuleIndex.getAllAffectedFiles(event.getProject(), fileContext.getAngularRoot().get());
+        //add all modules to have one selected
+        if(files != null && files.size() > 0) {
+            List<NgModuleFileContext> modules = files.stream().map(psiFile -> new NgModuleFileContext(event.getProject(), psiFile)).collect(Collectors.toList());
+            List<String>     cbModel = modules.stream().map(module -> module.getDisplayName()).collect(Collectors.toList());
+
+            mainForm.getCbRegisterIntoModule().setModel(new ListComboBoxModel(cbModel));
+            NgModuleFileContext nearestModule = modules.stream()
+                    .filter(module -> {
+                        String fileFolderPath = normalizePath(fileContext.getFolderPath());
+                        String moduleFolderPath = normalizePath(module.getFolderPath());
+                        return fileFolderPath.indexOf(moduleFolderPath) != -1  && moduleFolderPath.length() <= fileFolderPath.length();
+                    })
+                    .reduce((e1, e2) -> e1.getFolderPath().length() > e2.getFolderPath().length() ? e1 : e2).get();
+            NgModuleFileContext parentModule = nearestModule;
+            mainForm.getCbRegisterIntoModule().setSelectedItem(parentModule.getDisplayName());
+        }
+
         if (editorControllers.size() > 0 || defaultComponentData.isPresent()) {
             ComponentFileContext cData = defaultComponentData.get();
             mainForm.getCbComponent().setSelectedIndex(selectorIndex.indexOf(cData.getDisplayName()));
