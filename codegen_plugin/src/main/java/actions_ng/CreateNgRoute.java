@@ -39,6 +39,8 @@ import static supportive.utils.StringUtils.normalizePath;
 public class CreateNgRoute extends AnAction {
 
 
+    public static final String ROOT_MODULE = "[]";
+
     @Override
     public void update(AnActionEvent anActionEvent) {
         VisibleAssertions.ngVisible(anActionEvent);
@@ -75,9 +77,10 @@ public class CreateNgRoute extends AnAction {
             List<NgModuleFileContext> modules = files.stream().map(psiFile -> new NgModuleFileContext(event.getProject(), psiFile)).collect(Collectors.toList());
             List<String>     cbModel = modules.stream().map(module -> module.getDisplayName()).collect(Collectors.toList());
 
+            NgModuleFileContext rootModule = modules.stream().filter(m -> m.getDisplayName().endsWith(ROOT_MODULE)).findFirst().get();
+
             mainForm.getCbRegisterIntoModule().setModel(new ListComboBoxModel(cbModel));
-            NgModuleFileContext nearestModule = fileContext.getNearestModule().get();
-            NgModuleFileContext parentModule = nearestModule;
+            NgModuleFileContext parentModule = fileContext.getNearestModule().get();
             mainForm.getCbRegisterIntoModule().setSelectedItem(parentModule.getDisplayName());
         }
 
@@ -151,7 +154,18 @@ public class CreateNgRoute extends AnAction {
                         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
                             try {
                                 route.setComponentPath(compContext.calculateRelPathTo(rContext));
-                                rContext.addRoute(route);
+                                String selectedModule = (String) mainForm.getCbRegisterIntoModule().getSelectedItem();
+
+                                if(mainForm.getRbRootNavigation().isSelected() || selectedModule.endsWith(ROOT_MODULE)) {
+                                    rContext.addRoute(route);
+                                } else {
+                                    NgModuleFileContext moduleFileContext = files.stream()
+                                            .map(psiFile -> new NgModuleFileContext(event.getProject(), psiFile))
+                                            .filter(ngModuleFileContext -> ngModuleFileContext.getDisplayName().equals(selectedModule))
+                                            .findFirst().get();
+                                    rContext.addRoute(route, moduleFileContext);
+                                }
+
 
                                 rContext.commit();
                                 supportive.utils.IntellijUtils.showInfoMessage("The new route has been added", "Info");

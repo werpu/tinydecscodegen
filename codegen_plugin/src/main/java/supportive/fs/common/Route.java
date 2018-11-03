@@ -1,12 +1,13 @@
 package supportive.fs.common;
 
 import com.google.common.base.Strings;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import static supportive.utils.StringUtils.normalizePath;
 
@@ -14,7 +15,7 @@ import static supportive.utils.StringUtils.normalizePath;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class Route implements Cloneable, Serializable, Comparable{
+public class Route implements Cloneable, Serializable, Comparable {
 
     @NonNull
     private String routeKey;
@@ -58,7 +59,6 @@ public class Route implements Cloneable, Serializable, Comparable{
     }
 
 
-
     public String toStringTnNg1() {
         String routeTemplateStr = "\n\n$stateProvider.state('%s',\n" +
                 "    MetaData.routeData(%s,\n" +
@@ -67,7 +67,7 @@ public class Route implements Cloneable, Serializable, Comparable{
                 "        }\n" +
                 "    )\n" +
                 ");\n";
-        return String.format(routeTemplateStr, routeKey, component,  url, component);
+        return String.format(routeTemplateStr, routeKey, component, url, component);
     }
 
     public String toStringNg2() {
@@ -81,17 +81,24 @@ public class Route implements Cloneable, Serializable, Comparable{
         }
 
     }
+
     public String toStringNg2UIRoutes() {
 
         if (component != null) {
-            String routeTemplatesSimple = "let %s: Ng2StateDeclaration = {name: '%s', url: '%s', component: %s }; \n";
+            String routeTemplatesSimple = "export let %s: Ng2StateDeclaration = {name: '%s', url: '%s', component: %s }; \n";
             return String.format(routeTemplatesSimple, getRouteVarName(), routeKey, url, component);
         } else {
-            String routeTemplatesSimple = "let %s: Ng2StateDeclaration = {name: '%s', url: '%s' }; \n";
+            String routeTemplatesSimple = "export let %s: Ng2StateDeclaration = {name: '%s', url: '%s' }; \n";
             return String.format(routeTemplatesSimple, getRouteVarName(), routeKey, url);
         }
 
     }
+
+    public String toLocalRoutes() {
+        String routeTemplatesSimple = "export let %s: ModuleWithProviders = UIRouterModule.forChild({states: [%s]}); \n";
+        return String.format(routeTemplatesSimple, getLocalRouteDeclName(), getRouteVarName());
+    }
+
 
     public void setComponentPath(String componentPath) {
         this.componentPath = normalizePath(componentPath)
@@ -112,9 +119,13 @@ public class Route implements Cloneable, Serializable, Comparable{
         return url.replaceAll("\\/", ".");
     }
 
+    public String getLocalRouteDeclName() {
+        return "lRte_"+getRouteVarName();
+    }
+
     @Override
     public int compareTo(@NotNull Object o) {
-        if(!(o instanceof Route)) {
+        if (!(o instanceof Route)) {
             return -1;
         }
         int routeKey = Strings.nullToEmpty(((Route) o).getRouteKey()).compareTo(Strings.nullToEmpty(getRouteKey()));
@@ -122,10 +133,10 @@ public class Route implements Cloneable, Serializable, Comparable{
         int component = Strings.nullToEmpty(((Route) o).getComponent()).compareTo(Strings.nullToEmpty(getComponent()));
 
         int weight = routeKey * 256 + url * 16 + component;
-        return (weight > 0) ? -1:  (weight == 0) ? 0 : 1;
+        return (weight > 0) ? -1 : (weight == 0) ? 0 : 1;
     }
 
     public Route clone() throws CloneNotSupportedException {
-       return (Route) super.clone();
+        return (Route) super.clone();
     }
 }

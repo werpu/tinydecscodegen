@@ -9,7 +9,10 @@ import supportive.utils.SwingUtils;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 @Getter
 @Setter
@@ -21,6 +24,10 @@ public class CreateRoute {
     private JPanel rootPanel;
     private JComboBox cbRegisterIntoModule;
     private JLabel lblRegisterIntoModule;
+    private JLabel lblNavigationType;
+    private JRadioButton rbRootNavigation;
+    private JRadioButton rbModuleNavigation;
+
 
     public CreateRoute() {
 
@@ -28,16 +35,19 @@ public class CreateRoute {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 updateHref();
+                updateNavButtons();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
                 updateHref();
+                updateNavButtons();
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
                 updateHref();
+                updateNavButtons();
             }
         });
 
@@ -45,7 +55,23 @@ public class CreateRoute {
 
         cbComponent.addItemListener(e -> {
             updateRouteName(e);
+            updateNavButtons();
         });
+        rbModuleNavigation.addItemListener((e) -> {
+            if(e.getStateChange() == ItemEvent.SELECTED) {
+                lblRegisterIntoModule.setVisible(true);
+                cbRegisterIntoModule.setVisible(true);
+            }
+        });
+        rbRootNavigation.addItemListener((e) -> {
+            if(e.getStateChange() == ItemEvent.SELECTED) {
+                lblRegisterIntoModule.setVisible(false);
+                cbRegisterIntoModule.setVisible(false);
+            }
+        });
+
+        cbRegisterIntoModule.setVisible(false);
+        lblRegisterIntoModule.setVisible(false);
     }
 
     public void updateRouteName(ItemEvent e) {
@@ -62,5 +88,16 @@ public class CreateRoute {
             return;
         }
         SwingUtils.update(txtHref, txtRouteName);
+    }
+
+    public void updateNavButtons() {
+        if(txtRouteName.getText().contains(".")) {
+            rbRootNavigation.setSelected(false);
+            rbModuleNavigation.setSelected(true);
+        }
+    }
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
     }
 }

@@ -10,15 +10,22 @@ import supportive.fs.common.*;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.RefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
+import supportive.utils.StringUtils;
 
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Stream.concat;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
+import static supportive.utils.IntellijUtils.getTsExtension;
 import static supportive.utils.StringUtils.elVis;
 import static supportive.utils.StringUtils.literalContains;
+import static supportive.utils.StringUtils.normalizePath;
 
 /**
  * helper context to deal with routes and subroutes
@@ -63,6 +70,43 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
 
         addRefactoring(new RefactorUnit(super.getPsiFile(), new DummyInsertPsiElement(getRoutesDeclaration().get().getRootElement().getElement().getTextOffset()), routeData.toStringNg2UIRoutes()));
         addNavVar(routeData.getRouteVarName());
+    }
+
+    public void addRoute(Route routeData, NgModuleFileContext module) {
+
+
+        routeData.setComponent(appendImport(routeData.getComponent(), routeData.getComponentPath()));
+
+
+        int cnt = 1;
+        String origUrl = routeData.getUrl();
+
+        while (isUrlInUse(routeData)) {
+            routeData.setUrl(origUrl + "_" + cnt);
+            cnt++;
+        }
+
+
+        addRefactoring(new RefactorUnit(super.getPsiFile(), new DummyInsertPsiElement(getRoutesDeclaration().get().getRootElement().getElement().getTextOffset()), routeData.toStringNg2UIRoutes()));
+        addRefactoring(new RefactorUnit(super.getPsiFile(), new DummyInsertPsiElement(getRoutesDeclaration().get().getRootElement().getElement().getTextOffset()), routeData.toLocalRoutes()));
+
+        try {
+            module.appendImports(routeData.getLocalRouteDeclName());
+            Path routeFilePath = Paths.get(this.getVirtualFile().getPath());
+            Path moduleFilePath = Paths.get(module.getFolderPath());
+            String rel = normalizePath(moduleFilePath.relativize(routeFilePath).toString());
+            if(rel.endsWith(getTsExtension())) {
+                rel = rel.substring(0, rel.length() - getTsExtension().length());
+            }
+
+            module.appendImport(routeData.getLocalRouteDeclName(), rel);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addNavVar(NgModuleFileContext target, Route routeData) {
+
     }
 
     @Override
