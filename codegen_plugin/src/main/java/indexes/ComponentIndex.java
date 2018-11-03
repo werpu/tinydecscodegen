@@ -2,10 +2,7 @@ package indexes;
 
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
@@ -15,10 +12,10 @@ import supportive.fs.common.IntellijFileContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static indexes.IndexUtils.standardExclusions;
 import static supportive.reflectRefact.PsiWalkFunctions.COMPONENT_ANN;
+import static supportive.utils.StringUtils.normalizePath;
 
 public class ComponentIndex extends ScalarIndexExtension<String> {
 
@@ -31,7 +28,9 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if ((!standardExclusions(inputData)) && isComponent(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
+            if ((!standardExclusions(inputData)) &&
+                    (!normalizePath(inputData.getFile().getPath()).contains("/pages/")) && isComponent(new IntellijFileContext(inputData.getProject(), inputData.getFile()))
+            ) {
                 return Collections.singletonMap(ANN_MARKER, null);
             }
             return Collections.emptyMap();
