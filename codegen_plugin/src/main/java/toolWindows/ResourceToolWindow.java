@@ -452,7 +452,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
             IntellijFileContext fileContext = new IntellijFileContext(project, currentFile);
 
-            Optional<NgModuleFileContext> ret = getNearestModule(fileContext);
+            Optional<NgModuleFileContext> ret = fileContext.getNearestModule();
 
             ret.ifPresent(ngModuleFileContext -> otherResourcesActiveEditorModule.filterTree(ngModuleFileContext.getFolderPath(), LBL_RESOURCES + "[" + ngModuleFileContext.getModuleName() + "]"));
             otherResourcesActiveEditorModule.restoreExpansion();
@@ -460,15 +460,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     }
 
-    private Optional<NgModuleFileContext> getNearestModule(IntellijFileContext fileContext) {
-        IntellijFileContext project = new IntellijFileContext(fileContext.getProject());
-        ContextFactory ctxf = ContextFactory.getInstance(project);
-        String filterStr = StringUtils.normalizePath(fileContext.getFolderPath());
-        return concat(
-                ctxf.getModulesFor(project, TN_DEC, filterStr).stream(),
-                ctxf.getModulesFor(project, NG, filterStr).stream()
-        ).reduce((el1, el2) -> el1.getFolderPath().length() > el2.getFolderPath().length() ? el1 : el2);
-    }
+
 
 
     private AtomicBoolean refreshRunning = new AtomicBoolean(Boolean.FALSE);

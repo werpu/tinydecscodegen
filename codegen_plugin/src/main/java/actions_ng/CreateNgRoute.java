@@ -76,13 +76,7 @@ public class CreateNgRoute extends AnAction {
             List<String>     cbModel = modules.stream().map(module -> module.getDisplayName()).collect(Collectors.toList());
 
             mainForm.getCbRegisterIntoModule().setModel(new ListComboBoxModel(cbModel));
-            NgModuleFileContext nearestModule = modules.stream()
-                    .filter(module -> {
-                        String fileFolderPath = normalizePath(fileContext.getFolderPath());
-                        String moduleFolderPath = normalizePath(module.getFolderPath());
-                        return fileFolderPath.indexOf(moduleFolderPath) != -1  && moduleFolderPath.length() <= fileFolderPath.length();
-                    })
-                    .reduce((e1, e2) -> e1.getFolderPath().length() > e2.getFolderPath().length() ? e1 : e2).get();
+            NgModuleFileContext nearestModule = fileContext.getNearestModule().get();
             NgModuleFileContext parentModule = nearestModule;
             mainForm.getCbRegisterIntoModule().setSelectedItem(parentModule.getDisplayName());
         }

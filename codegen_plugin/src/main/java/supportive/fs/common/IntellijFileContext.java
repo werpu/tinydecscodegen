@@ -54,6 +54,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.google.common.collect.Streams.concat;
 import static supportive.fs.common.AngularVersion.NG;
 import static supportive.fs.common.AngularVersion.TN_DEC;
 import static supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
@@ -406,5 +407,17 @@ public class IntellijFileContext {
         return new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(stripQuotes(importStr.getText()) + getTsExtension()));
     }
 
-
+    public  Optional<NgModuleFileContext> getNearestModule() {
+        IntellijFileContext project = new IntellijFileContext(this.getProject());
+        ContextFactory ctxf = ContextFactory.getInstance(project);
+        String filterStr = StringUtils.normalizePath(this.getFolderPath());
+        return concat(
+                ctxf.getModulesFor(project, TN_DEC, filterStr).stream(),
+                ctxf.getModulesFor(project, NG, filterStr).stream()
+        ).reduce((el1, el2) -> {
+            String folderPathFile = el1.getFolderPath();
+            String folderPathModule = el2.getFolderPath();
+            return folderPathFile.length() > folderPathModule.length() ? el1 : el2;
+        });
+    }
 }
