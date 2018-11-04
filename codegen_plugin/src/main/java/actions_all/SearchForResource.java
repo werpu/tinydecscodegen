@@ -136,6 +136,9 @@ public class SearchForResource extends AnAction {
         dialog.pack();
 
         invokeLater(() -> {
+
+
+            resourceSearchPanel.getTxtSearch().getTextArea().setFocusable(true);
             resourceSearchPanel.getTxtSearch().getTextArea().requestFocusInWindow();
         });
         dialog.setVisible(true);
