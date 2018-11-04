@@ -22,6 +22,8 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 
 import static java.awt.event.KeyEvent.*;
+import static supportive.fs.common.AngularVersion.NG;
+import static supportive.fs.common.AngularVersion.TN_DEC;
 import static supportive.utils.IntellijRunUtils.invokeLater;
 import static supportive.utils.IntellijRunUtils.smartInvokeLater;
 import static supportive.utils.SwingUtils.addMouseClickedHandler;
@@ -44,11 +46,11 @@ public class SearchForResource extends AnAction {
         if (!e.getPresentation().isEnabledAndVisible()) {
             return;
         }
-        VisibleAssertions.tnVisible(e);
+        VisibleAssertions.hasAngularVersion(e, TN_DEC);
         if (e.getPresentation().isEnabledAndVisible()) {
             return;
         }
-        VisibleAssertions.ngVisible(e);
+        VisibleAssertions.hasAngularVersion(e, NG);
     }
 
     @Override
@@ -76,7 +78,7 @@ public class SearchForResource extends AnAction {
         resourceSearchPanel.getCbFilters().addActionListener((ev) -> searchRefresh(resourceSearchPanel, project, fileContext));
 
         final JTable tblResults = resourceSearchPanel.getTblResults();
-        resourceSearchPanel.getTxtSearch().addKeyListener(new KeyListener() {
+        resourceSearchPanel.getTxtSearch().getTextArea().addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
 
@@ -134,7 +136,7 @@ public class SearchForResource extends AnAction {
         dialog.pack();
 
         invokeLater(() -> {
-            resourceSearchPanel.getTxtSearch().requestFocusInWindow();
+            resourceSearchPanel.getTxtSearch().getTextArea().requestFocusInWindow();
         });
         dialog.setVisible(true);
 
@@ -154,7 +156,7 @@ public class SearchForResource extends AnAction {
     }
 
     private void searchRefresh(ResourceSearch resourceSearchPanel, IntellijFileContext project, IntellijFileContext targetFile) {
-        String searchValue = resourceSearchPanel.getTxtSearch().getText();
+        String searchValue = resourceSearchPanel.getTxtSearch().getTextArea().getText();
         smartInvokeLater(project.getProject(), () -> {
             performSearch(resourceSearchPanel, project, targetFile, searchValue);
 
@@ -163,7 +165,7 @@ public class SearchForResource extends AnAction {
     }
 
     private void performSearch(ResourceSearch target, IntellijFileContext project, IntellijFileContext targetFile, String searchValue) {
-        ResourceFilesContext tnResources = ContextFactory.getInstance(project).getProjectResourcesCached(project, AngularVersion.TN_DEC);
+        ResourceFilesContext tnResources = ContextFactory.getInstance(project).getProjectResourcesCached(project, TN_DEC);
         ResourceFilesContext ngResources = ContextFactory.getInstance(project).getProjectResourcesCached(project, AngularVersion.NG);
 
         tnResources = tnResources.search(searchValue);

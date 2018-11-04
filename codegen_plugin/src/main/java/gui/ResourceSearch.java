@@ -1,5 +1,6 @@
 package gui;
 
+import com.intellij.find.SearchTextArea;
 import gui.support.AngularResourceFileTableCellRenderer;
 import gui.support.AngularResourceModuleTableCellRenderer;
 import gui.support.AngularResourceNameTableCellRenderer;
@@ -13,8 +14,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
-
-import static supportive.utils.TimeoutWorker.setTimeout;
 
 class RoTableModel extends DefaultTableModel {
 
@@ -55,7 +54,6 @@ public class ResourceSearch {
     private JCheckBox cbComponents;
     private JCheckBox cbServices;
     private JCheckBox cbFilters;
-    private JTextField txtSearch;
     private JTable tblResults;
     private JPanel panelEditorHolder;
     private JScrollPane panelScroll;
@@ -63,12 +61,14 @@ public class ResourceSearch {
     private JRadioButton rbInModule;
     private JPanel mainPanel;
     private JCheckBox cbModules;
+    private SearchTextArea txtSearch;
 
     AngularResourceFileTableCellRenderer col2Renderer = new AngularResourceFileTableCellRenderer();
     AngularResourceModuleTableCellRenderer col1Renderer = new AngularResourceModuleTableCellRenderer();
     AngularResourceNameTableCellRenderer col0Renderer = new AngularResourceNameTableCellRenderer();
 
     public ResourceSearch() {
+
 
 
     }
@@ -100,6 +100,15 @@ public class ResourceSearch {
         columnModel.getColumn(1).setPreferredWidth(100);
         columnModel.getColumn(2).setCellRenderer(col2Renderer);
         columnModel.getColumn(2).setPreferredWidth(400);
+    }
+
+    public void createUIComponents() {
+
+        JTextArea txtSearch2 = new JTextArea();
+        txtSearch2.setColumns(25);
+        txtSearch2.setRows(1);
+        txtSearch = new SearchTextArea((JTextArea) txtSearch2, true, false);
+        txtSearch.setMultilineEnabled(false);
     }
 
 }
