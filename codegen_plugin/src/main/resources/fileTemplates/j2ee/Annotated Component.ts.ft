@@ -1,4 +1,4 @@
-import {Component, Inject, Input, Both, AString, Func} from "TinyDecorations";
+import {AString, Both, Component, Func, Inject, Input} from "TinyDecorations";
 import IScope = angular.IScope;
 
 /**

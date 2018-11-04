@@ -5,7 +5,7 @@
  * import localRoutesProvider(<your routes>)
  */
 import {FirstPageComponent} from "./firstpage/first-page-module/pages/first-page/first-page.component";
-import {UIRouterModule, Ng2StateDeclaration} from "@uirouter/angular";
+import {Ng2StateDeclaration, UIRouterModule} from "@uirouter/angular";
 import {MainPageComponent} from "./firstpage/first-page-module/pages/main-page/main-page.component";
 import {ModuleWithProviders} from "@angular/core";
 import {StatesModule} from "@uirouter/angular/lib/uiRouterNgModule";

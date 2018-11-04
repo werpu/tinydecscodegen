@@ -1,6 +1,4 @@
-import { TestBed, inject } from '@angular/core/testing';
-
-import { ${CLASS_NAME} } from './${FILE_NAME}';
+import {inject, TestBed} from '@angular/core/testing';
 
 describe('${CLASS_NAME}', () => {
     beforeEach(() => {

@@ -340,7 +340,11 @@
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="R" keymap="$default"/>
             </action>
 
-
+            <separator/>
+            <action id="TT_SearchArtifact" class="actions_all.SearchForResource" text="Search For Resource"
+                    icon="/images/tt.png">
+                <keyboard-shortcut first-keystroke="control alt T" second-keystroke="F" keymap="$default"/>
+            </action>
             <separator/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </group>

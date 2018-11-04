@@ -1,4 +1,5 @@
 import {APP_INITIALIZER} from '@angular/core';
+
 /**
  * This is a startup deferring application init function
  * it can be used to preload data

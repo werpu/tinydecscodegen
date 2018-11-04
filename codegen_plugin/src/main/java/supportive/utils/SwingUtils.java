@@ -29,6 +29,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import supportive.fs.common.IAngularFileContext;
 import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.PsiElementContext;
 
@@ -36,12 +37,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Date;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 import static supportive.utils.StringUtils.elVis;
 
 public class SwingUtils {
 
 
+    public static AtomicLong lastClick = new AtomicLong(-1);
 
     public static void centerOnParent(final Window child, final boolean absolute) {
         child.pack();
@@ -122,5 +129,56 @@ public class SwingUtils {
             editor.moveToOffset(foundContext.getTextOffset());
             editor.moveCaretRelatively(0, 0, false, false, true);
         }
+    }
+
+    /**
+     * double click detection does not seem to work in swing
+     * we roll our own
+     *
+     * @return
+     */
+    public static boolean singleClickOnly() {
+        long currTime = new Date().getTime();
+        if((currTime - lastClick.get()) >  500) {
+            lastClick.set(currTime);
+            return true;
+        }
+        return false;
+    }
+
+
+    public static MouseListener addMouseClickedHandler(Consumer<MouseEvent> singleClick, Consumer<MouseEvent> doubleClick) {
+        return new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.isConsumed()) {
+                    return;
+                }
+                if(!e.isConsumed() && !singleClickOnly()) {
+                    doubleClick.accept(e);
+                }
+                singleClick.accept(e);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        };
     }
 }

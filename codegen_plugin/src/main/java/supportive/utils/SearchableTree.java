@@ -19,7 +19,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -196,7 +195,6 @@ public class SearchableTree<V> {
     }
 
 
-    static AtomicLong lastClick = new AtomicLong(-1);
     /**
      * registers the default behavior for click and double click
      * @param singleClickAction the click action to be performed
@@ -219,7 +217,7 @@ public class SearchableTree<V> {
                         if(!(userObject instanceof IAngularFileContext)) {
                             return;
                         }
-                        if (detectDoubleClick()) {
+                        if (SwingUtils.singleClickOnly()) {
                             singleClickAction.accept((T) userObject);
                             return;
                         }
@@ -230,21 +228,6 @@ public class SearchableTree<V> {
             }
         };
         tree.addMouseListener(ml);
-    }
-
-    /**
-     * double click detection does not seem to work in swing
-     * we roll our own
-     *
-     * @return
-     */
-    private boolean detectDoubleClick() {
-        long currTime = new Date().getTime();
-        if((currTime - lastClick.get()) >  500) {
-            lastClick.set(currTime);
-            return true;
-        }
-        return false;
     }
 
     /**

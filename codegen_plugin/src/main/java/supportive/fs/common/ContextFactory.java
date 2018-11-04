@@ -1,5 +1,7 @@
 package supportive.fs.common;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import indexes.*;
 import org.jetbrains.annotations.NotNull;
@@ -11,6 +13,7 @@ import supportive.utils.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static supportive.fs.common.AngularVersion.NG;
@@ -23,6 +26,10 @@ import static supportive.reflectRefact.PsiWalkFunctions.*;
 public class ContextFactory {
 
     IntellijFileContext project;
+
+    private static Cache<String, ResourceFilesContext> volatileData = CacheBuilder.newBuilder()
+            .build();
+
 
     protected ContextFactory(IntellijFileContext project) {
         this.project = project;
@@ -215,28 +222,21 @@ public class ContextFactory {
                 .collect(Collectors.toList());
     }
 
+    public ResourceFilesContext getProjectResourcesCached(IntellijFileContext projectRoot, AngularVersion angularVersion) {
+        ResourceFilesContext retVal = volatileData.getIfPresent(angularVersion.name());
+        if(retVal != null) {
+            return  retVal;
+        }
+        return getProjectResources(projectRoot, angularVersion);
+
+    }
+
     public ResourceFilesContext getProjectResources(IntellijFileContext projectRoot, AngularVersion angularVersion) {
         ResourceFilesContext resourceFilesContext = new ResourceFilesContext(projectRoot.getProject());
 
 
         resourceFilesContext.getRoutes().addAll(getRouteFiles(projectRoot, angularVersion));
 
-/*        ExecutorService executor = Executors.newFixedThreadPool(5);
-
-        FutureTask<List<NgModuleFileContext>> fModulesTn = newFutureRoTask(() -> getModules(projectRoot, angularVersion));
-        FutureTask<List<ComponentFileContext>> fComp = newFutureRoTask(() -> getComponents(projectRoot, angularVersion));
-        FutureTask<List<ComponentFileContext>> fCtrl = newFutureRoTask(() -> getController(projectRoot, angularVersion));
-        FutureTask<List<ServiceContext>> fservice = newFutureRoTask(() -> getServices(projectRoot, angularVersion));
-
-        FutureTask<List<FilterPipeContext>> fFilters = newFutureRoTask(() -> getFilters(projectRoot, angularVersion));
-
-        executor.execute(fModulesTn);
-        executor.execute(fComp);
-        executor.execute(fCtrl);
-        executor.execute(fservice);
-        executor.execute(fFilters);
-
-        executor.shutdown();*/
 
 
         List<NgModuleFileContext> modulesTn = getModules(projectRoot, angularVersion);
@@ -251,6 +251,9 @@ public class ContextFactory {
         resourceFilesContext.getServices().addAll(service);
         resourceFilesContext.getControllers().addAll(controllersTn);
         resourceFilesContext.getFiltersPipes().addAll(filters);
+
+
+        volatileData.put(angularVersion.name(), resourceFilesContext);
 
         return resourceFilesContext;
     }

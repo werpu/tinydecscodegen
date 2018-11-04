@@ -1,10 +1,5 @@
-import IPromise = angular.IPromise;
-import {Injectable, extended} from "TinyDecorations";
-import Rest = extended.Rest
-import Restable = extended.Restable;
-import PathVariable = extended.PathVariable;
-import RequestBody = extended.RequestBody;
-import RequestParam = extended.RequestParam;
+import Rest = extended.Rest;
+import Restable = extended.Restable;import {extended, Injectable} from "TinyDecorations";
 
 /**
  * Rest service ${service.serviceName}

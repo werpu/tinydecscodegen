@@ -1,5 +1,4 @@
-import {Component, Directive, Inject, Input, Both, AString, Func} from "TinyDecorations";
-
+import {AString, Both, Component, Directive, Func, Inject, Input} from "TinyDecorations";
 import IScope = angular.IScope;
 import IAttributes = angular.IAttributes;
 
