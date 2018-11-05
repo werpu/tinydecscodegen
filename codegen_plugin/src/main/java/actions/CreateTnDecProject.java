@@ -24,6 +24,7 @@ import gui.CreateTnProject;
 import gui.support.UIActionSequence;
 import gui.support.InputDialogWrapperBuilder;
 import org.jetbrains.annotations.NotNull;
+import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.IntellijResourceDir;
 import supportive.fs.common.TextTransformer;
 import supportive.utils.IntellijUtils;
@@ -70,7 +71,7 @@ public class CreateTnDecProject extends AnAction {
 
         final Project project = IntellijUtils.getProject(anActionEvent);
 
-        VirtualFile file = anActionEvent.getDataContext().getData(DataKeys.VIRTUAL_FILE);
+        VirtualFile file = new IntellijFileContext(anActionEvent).getVirtualFile();
         if(file == null) {
             IntellijUtils.showInfoMessage("You need to select a parent directory for your project", "Info");
             return;
