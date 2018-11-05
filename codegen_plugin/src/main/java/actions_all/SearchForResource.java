@@ -1,9 +1,17 @@
 package actions_all;
 
 import actions_all.shared.VisibleAssertions;
+import com.intellij.ide.IdeEventQueue;
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonShortcuts;
+import com.intellij.openapi.project.DumbAwareAction;
+import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
+import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.wm.WindowManager;
+import com.intellij.ui.WindowMoveListener;
 import gui.ResourceSearch;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,10 +23,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Vector;
+import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.awt.event.KeyEvent.*;
@@ -60,13 +66,45 @@ public class SearchForResource extends AnAction {
 
         IntellijFileContext project = new IntellijFileContext(fileContext.getProject());
 
-
-        JOptionPane mainFraime = new JOptionPane();
-        mainFraime.setLayout(new BorderLayout());
+        //JOptionPane mainFraime = new JOptionPane();
+        //mainFraime.setLayout(new BorderLayout());
         ResourceSearch resourceSearchPanel = new ResourceSearch();
-        mainFraime.add(resourceSearchPanel.getMainPanel(), BorderLayout.CENTER);
-        JDialog dialog = mainFraime.createDialog(WindowManager.getInstance().getFrame(project.getProject()).getRootPane(), "Find Resource" );
+
+
+        JComponent parentWindow = WindowManager.getInstance().getIdeFrame(e.getProject()).getComponent();
+        JPanel mainPanel = resourceSearchPanel.getMainPanel();
+        final ComponentPopupBuilder builder = JBPopupFactory.getInstance().createComponentPopupBuilder(mainPanel, parentWindow);
+
+
+        JBPopup popup = builder.setProject(e.getProject())
+                .setMovable(true)
+                .setResizable(true)
+                .setMayBeParent(true)
+                .setCancelOnClickOutside(true)
+
+                .setRequestFocus(true)
+                .setCancelKeyEnabled(false)
+
+                .setCancelCallback(() -> {
+                    List<JBPopup> popups = JBPopupFactory.getInstance().getChildPopups(parentWindow);
+                    if (!popups.isEmpty()) {
+                        for (JBPopup thePopup : popups) {
+                            thePopup.cancel();
+                        }
+                        return false;
+                    }
+                    return true;
+                }).createPopup();
+
+
+        //mainFraime.add(resourceSearchPanel.getMainPanel(), BorderLayout.CENTER);
+        //JDialog dialog = mainFraime.createDialog(WindowManager.getInstance().getFrame(project.getProject()).getRootPane(), "Find Resource");
         resourceSearchPanel.setupTable();
+
+        registerCloseAction(popup);
+        WindowMoveListener windowListener = new WindowMoveListener(popup.getContent());
+        mainPanel.addMouseListener(windowListener);
+        mainPanel.addMouseMotionListener(windowListener);
 
 
         resourceSearchPanel.getRbInProject().addActionListener((ev) -> searchRefresh(resourceSearchPanel, project, fileContext));
@@ -88,7 +126,7 @@ public class SearchForResource extends AnAction {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == VK_ENTER) {
-                    openEditor(project, dialog, tblResults);
+                    openEditor(project, popup, tblResults);
                     return;
                 }
             }
@@ -97,17 +135,11 @@ public class SearchForResource extends AnAction {
             public void keyReleased(KeyEvent e) {
                 switch (e.getKeyCode()) {
                     case VK_DOWN: {
-                        int selRow = tblResults.getSelectedRow();
-                        selRow++;
-                        selRow = Math.max(0, Math.min(tblResults.getRowCount() - 1, selRow));
-                        tblResults.setRowSelectionInterval(selRow, selRow);
+                        rowDown();
                         return;
                     }
                     case VK_UP: {
-                        int selRow = tblResults.getSelectedRow();
-                        selRow--;
-                        selRow = Math.max(0, selRow);
-                        tblResults.setRowSelectionInterval(selRow, selRow);
+                        rowUp();
                         return;
                     }
                     case VK_LEFT: {
@@ -116,10 +148,22 @@ public class SearchForResource extends AnAction {
                     case VK_RIGHT: {
                         return;
                     }
-
-
                 }
                 searchRefresh(resourceSearchPanel, project, fileContext);
+            }
+
+            private void rowUp() {
+                int selRow = tblResults.getSelectedRow();
+                selRow--;
+                selRow = Math.max(0, selRow);
+                tblResults.setRowSelectionInterval(selRow, selRow);
+            }
+
+            private void rowDown() {
+                int selRow = tblResults.getSelectedRow();
+                selRow++;
+                selRow = Math.max(0, Math.min(tblResults.getRowCount() - 1, selRow));
+                tblResults.setRowSelectionInterval(selRow, selRow);
             }
         });
 
@@ -127,26 +171,38 @@ public class SearchForResource extends AnAction {
         tblResults.addMouseListener(addMouseClickedHandler((ev) -> {
         }, (ev) -> {
             ev.consume();
-            openEditor(project, dialog, tblResults);
+            openEditor(project, popup, tblResults);
         }));
 
         searchRefresh(resourceSearchPanel, project, fileContext);
 
-        dialog.setResizable(true);
-        dialog.pack();
+       // dialog.setResizable(true);
+
 
         invokeLater(() -> {
-
-
             resourceSearchPanel.getTxtSearch().getTextArea().setFocusable(true);
             resourceSearchPanel.getTxtSearch().getTextArea().requestFocusInWindow();
         });
-        dialog.setVisible(true);
+        IdeEventQueue.getInstance().getPopupManager().closeAllPopups(false);
+        popup.showCenteredInCurrentWindow(e.getProject());
 
 
     }
 
-    private void openEditor(IntellijFileContext project, JDialog dialog, JTable tblResults) {
+    private void registerCloseAction(JBPopup popup) {
+        final AnAction escape = ActionManager.getInstance().getAction("EditorEscape");
+        DumbAwareAction closeAction = new DumbAwareAction() {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                if (popup != null && popup.isVisible()) {
+                    popup.cancel();
+                }
+            }
+        };
+        closeAction.registerCustomShortcutSet(escape == null ? CommonShortcuts.ESCAPE : escape.getShortcutSet(), popup.getContent(), popup);
+    }
+
+    private void openEditor(IntellijFileContext project, JBPopup popup, JTable tblResults) {
         int row = tblResults.getSelectedRow();
         if (row == -1) {
             return;
@@ -154,8 +210,7 @@ public class SearchForResource extends AnAction {
         IAngularFileContext ctx = (IAngularFileContext) tblResults.getModel().getValueAt(row, 0);
 
         SwingUtils.openEditor(new IntellijFileContext(project.getProject(), ctx.getPsiFile()));
-        dialog.setVisible(false);
-        dialog.dispose();
+        IdeEventQueue.getInstance().getPopupManager().closeAllPopups(false);
     }
 
     private void searchRefresh(ResourceSearch resourceSearchPanel, IntellijFileContext project, IntellijFileContext targetFile) {
