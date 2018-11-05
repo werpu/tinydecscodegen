@@ -1,6 +1,7 @@
 package toolWindows.supportive;
 
-import com.jgoodies.common.base.Strings;
+
+import com.google.common.base.Strings;
 import supportive.fs.common.*;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -34,7 +35,7 @@ public class SwingRouteTreeFactory {
                 continue;
             }
             SwingRouteTreeNode newNode = new SwingRouteTreeNode(route);
-            if (!Strings.isBlank(subKey) && _routeIdx.containsKey(subKey)) {
+            if (!Strings.isNullOrEmpty(subKey) && _routeIdx.containsKey(subKey)) {
                 _routeIdx.get(subKey).add(newNode);
                 _routeIdx.put(routeKey, newNode);
                 continue;

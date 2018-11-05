@@ -2,6 +2,7 @@ package actions_all;
 
 import actions_all.shared.JavaFileContext;
 import actions_all.shared.Messages;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -17,7 +18,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
-import com.jgoodies.common.base.Strings;
+
 import configuration.ConfigSerializer;
 import configuration.TinyDecsConfiguration;
 import factories.TnDecGroupFactory;
@@ -123,7 +124,7 @@ public class CreateRestEndpoint extends AnAction  {
             String restPath = mainForm.getTxtRestPath().getText();
 
             String returnType = mainForm.getTxtReturnType().getText();
-            returnType = (Strings.isBlank(returnType)) ? "void" : returnType;
+            returnType = (Strings.isNullOrEmpty(returnType)) ? "void" : returnType;
             boolean isList = mainForm.getCbList().isSelected();
             if (isList) {
                 returnType = "List<" + returnType + ">";

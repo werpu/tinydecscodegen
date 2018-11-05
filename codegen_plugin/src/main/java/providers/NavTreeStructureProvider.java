@@ -1,9 +1,11 @@
 package providers;
 
+import com.google.common.base.Strings;
 import com.intellij.ide.projectView.TreeStructureProvider;
 import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
-import com.jgoodies.common.base.Strings;
+
+
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +52,7 @@ public class NavTreeStructureProvider implements TreeStructureProvider {
                 continue;
             }
             RouteTreeNode newNode = new RouteTreeNode(ctx.getProject(), route);
-            if(!Strings.isBlank(subKey) && _routeIdx.containsKey(subKey)) {
+            if(!Strings.isNullOrEmpty(subKey) && _routeIdx.containsKey(subKey)) {
                 _routeIdx.get(subKey).getChildren().add(newNode);
                 _routeIdx.put(routeKey, newNode);
                 continue;
