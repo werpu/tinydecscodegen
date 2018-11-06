@@ -53,10 +53,15 @@ public class PsiWalkFunctions {
     public static final String TN_CONFIG = "@Config";
     public static final String TN_CONTROLLER = "@Controller";
     public static final String TYPE_SCRIPT_CLASS = "TypeScriptClass";
+    public static final String TYPE_SCRIPT_FIELD = "TypeScriptField";
+    public static final String TYPE_SCRIPT_NEW_EXPRESSION = "TypeScriptNewExpression";
     public static final String TYPE_SCRIPT_VARIABLE = "TypeScriptVariable";
     public static final String TYPE_SCRIPT_PARAM = "TypeScriptParameter";
     public static final String TYPE_SCRIPT_FUNC = "TypeScriptFunction";
-    public static final String PSI_METHOD = "PsiMethod:";
+    public static final String TYPE_SCRIPT_FUNC_EXPR = "TypeScriptFunctionExpression";
+    public static final String TYPE_SCRIPT_PARAMETER_LIST = "TypeScriptParameterList";
+    public static final String PSI_METHOD = "PsiMethod";
+    public static final String TYPESCRIPT_FUNCTION_EXPRESSION = "TypeScriptFunctionExpression";
     public static final String JS_ES_6_IMPORT_DECLARATION = "ES6ImportDeclaration";
     public static final String JS_ES_6_IMPORT_SPECIFIER = "ES6ImportSpecifier";
 
@@ -74,6 +79,7 @@ public class PsiWalkFunctions {
     public static final String JS_PROPERTY = "JSProperty";
     public static final String JS_ARRAY_LITERAL_EXPRESSION = "JSArrayLiteralExpression";
     public static final String JS_ARGUMENTS_LIST = "JSArgumentList";
+    public static final String JS_PARAMETER_BLOCK = "JSParameterBlock";
 
     public static final String JS_VAR_STATEMENT = "JSVarStatement";
     public static final String P_PARENTS = ":PARENTS";
@@ -127,6 +133,15 @@ public class PsiWalkFunctions {
 
     public static final String CHILD_ELEM = ">";
     /*prdefined queries end*/
+
+
+    /*Specific queries used by the transformations*/
+
+    public static final Object[] ANG1_MODULE_DCL = {JS_CALL_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("module"), P_PARENTS, JS_CALL_EXPRESSION};
+    //module name starting from DCL
+    public static final Object[] ANG1_MODULE_NAME = {JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
+    //requires starting from DCL
+    public static final Object[] ANG1_MODULE_REQUIRES = {JS_ARRAY_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL};
 
 
     /*helpers*/
