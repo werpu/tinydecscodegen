@@ -109,10 +109,10 @@ public class RoutingTest extends BaseTsTest {
         if (!assertTestable()) {
             return;
         }
-        PsiFile fs = myFixture.configureByFile("pages/main-page.component.ts");
+        PsiFile[] fs = myFixture.configureByFiles("pages/main-page.component.ts","pages/main-page.component.html");
         Project prj = myFixture.getProject();
 
-        ComponentFileContext componentFileContext = new ComponentFileContext(prj, fs);
+        ComponentFileContext componentFileContext = new ComponentFileContext(prj, fs[0]);
 
         Optional<String> classNameEl = componentFileContext.findComponentClassName();
 

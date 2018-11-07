@@ -37,6 +37,7 @@ public class PsiWalkFunctions {
 
     /*ElementTypes*/
     public static final String JS_PROP_TEMPLATE = "template";
+    public static final String JS_PROP_TEMPLATE_URL = "templateUrl";
     public static final String NG_TYPE_COMPONENT = "Component";
     public static final String NG_TYPE_DIRECTIVE = "Directive";
     public static final String NG_TYPE_CONTROLLER = "Controller";
@@ -234,7 +235,10 @@ public class PsiWalkFunctions {
     public static boolean isTemplate(PsiElement element) {
         return (element != null
                 && getName(element).equals(JS_PROP_TYPE)
-                && getText(element).equals(JS_PROP_TEMPLATE)
+                && (
+                    getText(element).equals(JS_PROP_TEMPLATE) ||
+                    getText(element).equals(JS_PROP_TEMPLATE_URL)
+                )
                 && (isIn(element, NG_TYPE_COMPONENT)
                 || isIn(element, NG_TYPE_DIRECTIVE)
                 || isIn(element, NG_TYPE_CONTROLLER)));

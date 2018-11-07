@@ -92,8 +92,8 @@ public class ComponentFileContext extends AngularResourceContext {
     }
 
 
-    private RangeMarker replaceText(Document doc, RangeMarker marker, String newText) {
-        newText = "`" + newText + "`";
+    private RangeMarker replaceText(Document doc, RangeMarker marker, String newText, String quot) {
+        newText = quot+ newText+ quot;
         doc.replaceString(marker.getStartOffset(), marker.getEndOffset(), newText);
 
         return doc.createRangeMarker(marker.getStartOffset(), marker.getStartOffset() + newText.length());
@@ -105,7 +105,7 @@ public class ComponentFileContext extends AngularResourceContext {
             return;
         }
         if (this.rangeMarker.isPresent()) {
-            rangeMarker = Optional.of(replaceText(getDocument(), rangeMarker.get(), text));
+            rangeMarker = Optional.of(replaceText(getDocument(), rangeMarker.get(), text, rangeMarker.get().getStartOffset() == 0 ? "" : "`"));
         }
     }
 
@@ -149,6 +149,9 @@ public class ComponentFileContext extends AngularResourceContext {
                 this.rangeMarker = Optional.of(getDocument().createRangeMarker(templateString.get().getTextRange()));
             } else {
                 templateRef = getTemplateRef(template.get());
+                if(!templateRef.isPresent()) {
+                    templateRef = getTemplateHtmlRef(template.get());
+                }
             }
         }
         findParentModule();
@@ -179,6 +182,12 @@ public class ComponentFileContext extends AngularResourceContext {
                 if (templateRef.isPresent()) {
                     String templateRefText = this.templateRef.get().getTemplateTextAsStr().get();
                     return Optional.ofNullable(templateRefText.substring(1, templateRefText.length() - 1));
+                } else {
+                    templateRef = getTemplateHtmlRef(template.get());
+                    if(templateRef.isPresent()) {
+                        String templateRefText = this.templateRef.get().getTemplateTextAsStr().get();
+                        return Optional.ofNullable(templateRefText);
+                    }
                 }
             }
         }
@@ -187,9 +196,9 @@ public class ComponentFileContext extends AngularResourceContext {
 
 
     private Optional<TemplateFileContext> getTemplateRef(PsiElement template) {
-        Optional<PsiElement> templateRef = Arrays.stream(template.getChildren())
-                .filter(el -> PsiWalkFunctions.isTemplateRef(el))
-                .findFirst();
+        PsiElementContext psiElementContext = new PsiElementContext(template);
+        Optional<PsiElementContext> templateRef = psiElementContext.$q(JS_REFERENCE_EXPRESSION).findFirst();
+
 
         if (templateRef.isPresent()) {
             final String templateVarName = templateRef.get().getText();
@@ -209,6 +218,21 @@ public class ComponentFileContext extends AngularResourceContext {
 
             //now we have an import string lets open a file on that one
             TemplateFileContext ref = new TemplateFileContext(templateVarName, getProject(), getVirtualFile().getParent().findFileByRelativePath(importstr));
+            if (!ref.getVirtualFile().exists()) {
+                return empty();
+            }
+
+            return Optional.of(ref);
+        }
+        return empty();
+    }
+
+    private Optional<TemplateFileContext> getTemplateHtmlRef(PsiElement template) {
+        PsiElementContext psiElementContext = new PsiElementContext(template);
+        Optional<PsiElementContext> templateFile = psiElementContext.$q(PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+        if (templateFile.isPresent()) {
+            final String templateFileName = templateFile.get().getText();
+            TemplateFileContext ref = new TemplateFileContext(templateFileName, getProject(), getVirtualFile().getParent().findFileByRelativePath(templateFileName));
             if (!ref.getVirtualFile().exists()) {
                 return empty();
             }

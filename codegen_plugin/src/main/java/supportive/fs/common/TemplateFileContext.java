@@ -66,13 +66,13 @@ public class TemplateFileContext extends TypescriptFileContext {
 
     public void directUpdateTemplate(String text) {
         if(this.rangeMarker.isPresent()) {
-            rangeMarker = Optional.of(replaceText(document, rangeMarker.get(), text));
+            rangeMarker = Optional.of(replaceText(document, rangeMarker.get(), text, rangeMarker.get().getStartOffset() == 0 ? "" : "`"));
         }
     }
 
 
-    private RangeMarker replaceText(Document doc, RangeMarker marker, String newText) {
-        newText = "`"+newText+"`";
+    private RangeMarker replaceText(Document doc, RangeMarker marker, String newText, String quot) {
+        newText = quot+newText+quot;
         doc.replaceString(marker.getStartOffset(), marker.getEndOffset(), newText);
 
         return doc.createRangeMarker(marker.getStartOffset(), marker.getStartOffset()+newText.length());
@@ -89,7 +89,8 @@ public class TemplateFileContext extends TypescriptFileContext {
                 return Optional.of(elCtx.get().element);
             }
         }
-        return Optional.empty();
+        //last fallback, entire file
+        return Optional.of(getPsiFile().getOriginalElement());
 
         /*Optional<PsiElement> el = super.findPsiElements(el2 -> el2.toString().equals("TypeScriptVariable:"+refName)).stream()
           .filter(el2 -> el2.getChildren().length > 0 &&
