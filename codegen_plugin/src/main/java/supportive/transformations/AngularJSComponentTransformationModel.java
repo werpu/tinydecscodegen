@@ -162,7 +162,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     private void parseSelectorName() {
-        String className = this.$q(TYPE_SCRIPT_CLASS).findFirst().map(el -> el.getName()).orElse("NO_CLASS_DEF");
+        String className = this.$q(TYPE_SCRIPT_CLASS).findFirst().map(el -> el.getName()).orElse("????");
 
         selectorName = super.findFirstUpwards(el -> {
             Optional<PsiElementContext> ctx = new IntellijFileContext(getProject(), el).$q(getComponentName(className)).findFirst();

@@ -49,7 +49,14 @@ public class CreateSpringRestController extends AnAction  {
         final Project project = IntellijUtils.getProject(event);
 
         VirtualFile folder = IntellijUtils.getFolderOrFile(event);
+        if(folder == null) {
+            event.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
+
         VirtualFile srcRoot = ProjectFileIndex.getInstance(project).getSourceRootForFile(folder);
+
+
 
         //PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(srcRoot);
         //boolean isJavaSourceRoot = dir.getContext() instanceof PsiJavaDirectoryImpl;
