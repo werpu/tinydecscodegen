@@ -6,13 +6,15 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
-import org.fest.util.Lists;
+
+
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.*;
 import supportive.reflectRefact.PsiWalkFunctions;
 import supportive.utils.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -27,7 +29,7 @@ import static supportive.utils.StringUtils.literalEquals;
 
 public abstract class  TNRoutesFileContext extends TypescriptFileContext implements IUIRoutesRoutesFileContext {
     @Getter
-    List<PsiElementContext> constructors = Lists.emptyList();
+    List<PsiElementContext> constructors = Collections.emptyList();
 
     String routeProviderName;
 

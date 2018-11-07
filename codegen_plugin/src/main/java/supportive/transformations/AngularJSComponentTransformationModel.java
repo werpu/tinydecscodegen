@@ -1,12 +1,13 @@
 package supportive.transformations;
 
+import com.google.common.base.Strings;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.fest.util.Strings;
+
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.PsiElementContext;
