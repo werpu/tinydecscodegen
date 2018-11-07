@@ -70,6 +70,7 @@ public class PsiWalkFunctions {
     public static final String JS_UIROUTER_MODULE_FOR_ROOT = "UIRouterModule.forRoot";
     public static final String JS_ROUTER_MODULE_FOR_ROOT = "$routeProvider.when";
     public static final String JS_STATE_MODULE_FOR_ROOT = "$stateProvider.route";
+    public static final String JS_RETURN_STATEMENT = "JSReturnStatement";
     public static final String TN_UIROUTER_MODULE_FOR_ROOT = "TN_RootRouter";
     public static final String TN_ROUTES_UIROUTER_MODULE_FOR_ROOT = "TN_RoutesRootRouter";
     public static final String NPM_ROOT = "package.json";

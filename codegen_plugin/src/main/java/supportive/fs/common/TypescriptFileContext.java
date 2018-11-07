@@ -184,7 +184,9 @@ public class TypescriptFileContext extends IntellijFileContext {
         return this.findImportString(this, templateVarName);
     }
 
-    protected Optional<PsiElement> findImportString(TypescriptFileContext ctxm, String templateVarName) {
+
+
+    protected static Optional<PsiElement> findImportString(TypescriptFileContext ctxm, String templateVarName) {
         Optional<PsiElement> theImport = ctxm.findPsiElements(PsiWalkFunctions::isImport).stream()
                 .filter(
                         el -> Arrays.stream(el.getChildren())
@@ -194,7 +196,7 @@ public class TypescriptFileContext extends IntellijFileContext {
         return getPsiImportString(theImport);
     }
 
-    protected Optional<PsiElement> getPsiImportString(Optional<PsiElement> theImport) {
+    protected static  Optional<PsiElement> getPsiImportString(Optional<PsiElement> theImport) {
 
         if(!theImport.isPresent()) {
             return theImport;

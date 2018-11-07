@@ -148,7 +148,7 @@ public class ComponentFileContext extends AngularResourceContext {
                 this.templateText = templateString;
                 this.rangeMarker = Optional.of(getDocument().createRangeMarker(templateString.get().getTextRange()));
             } else {
-                templateRef = getTemplateRef(template.get());
+                templateRef = getTemplateRef(this, template.get());
                 if(!templateRef.isPresent()) {
                     templateRef = getTemplateHtmlRef(template.get());
                 }
@@ -176,7 +176,7 @@ public class ComponentFileContext extends AngularResourceContext {
 
                 return Optional.ofNullable(this.templateText.get().getText().substring(1, this.templateText.get().getText().length() - 1));
             } else {
-                templateRef = getTemplateRef(template.get());
+                templateRef = getTemplateRef(this, template.get());
 
 
                 if (templateRef.isPresent()) {
@@ -195,7 +195,7 @@ public class ComponentFileContext extends AngularResourceContext {
     }
 
 
-    private Optional<TemplateFileContext> getTemplateRef(PsiElement template) {
+    public  static Optional<TemplateFileContext> getTemplateRef(TypescriptFileContext root, PsiElement template) {
         PsiElementContext psiElementContext = new PsiElementContext(template);
         Optional<PsiElementContext> templateRef = psiElementContext.$q(JS_REFERENCE_EXPRESSION).findFirst();
 
@@ -203,7 +203,7 @@ public class ComponentFileContext extends AngularResourceContext {
         if (templateRef.isPresent()) {
             final String templateVarName = templateRef.get().getText();
             //now lets find the imports
-            Optional<PsiElement> psiImportString = findImportString(templateVarName);
+            Optional<PsiElement> psiImportString = findImportString(root, templateVarName);
 
             if (!psiImportString.isPresent()) {
                 return empty();
@@ -217,7 +217,7 @@ public class ComponentFileContext extends AngularResourceContext {
 
 
             //now we have an import string lets open a file on that one
-            TemplateFileContext ref = new TemplateFileContext(templateVarName, getProject(), getVirtualFile().getParent().findFileByRelativePath(importstr));
+            TemplateFileContext ref = new TemplateFileContext(templateVarName, root.getProject(), root.getVirtualFile().getParent().findFileByRelativePath(importstr));
             if (!ref.getVirtualFile().exists()) {
                 return empty();
             }
