@@ -102,7 +102,7 @@ public class NgModuleFileGist {
     public static AngularArtifactGist getFileData(@NotNull PsiFile file) {
         try {
             return psiFileGist.getFileData(file);
-        } catch(InvalidVirtualFileAccessException ex) {
+        } catch(InvalidVirtualFileAccessException | AssertionError ex /*project not active anymore can happen in case of stale cashes*/) {
             //force a refresh
 
             final GistListener afterPublisher =
