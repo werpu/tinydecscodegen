@@ -86,7 +86,15 @@ public class IntellijFileContext {
     }
 
     public IntellijFileContext(Project project) {
-        this(project, project.getProjectFile());
+        this(project, getProjectFile(project));
+    }
+
+    public static VirtualFile getProjectFile(Project project) {
+        VirtualFile projectFile = project.getProjectFile();
+        if(projectFile == null) {
+            projectFile = project.getBaseDir();
+        }
+        return projectFile;
     }
 
     //todo inherently problematic because sometimes the psi file does not exist
