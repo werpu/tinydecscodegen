@@ -200,7 +200,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
          */
 
 
-        if (routeName.isPresent() && controller.isPresent() && parmsCall.isPresent() && routeName.get().getTextOffset() < parmsCall.get().getTextOffset()) {
+        if (parmsMap.isPresent() && routeName.isPresent() && controller.isPresent() && parmsCall.isPresent() && routeName.get().getTextOffset() < parmsCall.get().getTextOffset()) {
             //route name and parms call
             Optional<IntellijFileContext> pageController = resolveController(controller);
             Route target = new Route(routeName.get().getText(), "", controller.get().getText(), this.getClass());
@@ -208,6 +208,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
                 target.setComponentPath(pageController.get().getVirtualFile().getPath());
                 //TODO error log to identify the issue
             }
+
 
             Optional<PsiElementContext> views = resolveObjectProp(parmsMap.get(), "views");
             if (!views.isPresent()) {
