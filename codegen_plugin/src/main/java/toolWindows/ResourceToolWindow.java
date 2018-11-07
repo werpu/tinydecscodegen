@@ -14,7 +14,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.ThreeComponentsSplitter;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -31,8 +30,8 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.*;
 import supportive.utils.IntellijRunUtils;
+import supportive.utils.IntellijUtils;
 import supportive.utils.SearchableTree;
-import supportive.utils.StringUtils;
 import supportive.utils.TimeoutWorker;
 import toolWindows.supportive.*;
 
@@ -45,12 +44,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static actions_all.shared.Labels.*;
-import static com.google.common.collect.Streams.concat;
 import static com.intellij.util.ui.tree.TreeUtil.expandAll;
 import static supportive.fs.common.AngularVersion.NG;
 import static supportive.fs.common.AngularVersion.TN_DEC;
@@ -195,7 +196,12 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     }
 
     private void goToParentModule(IAngularFileContext fileContext) {
-        openEditor(fileContext.getParentModule().getResourceRoot());
+        NgModuleFileContext parentModule = fileContext.getParentModule();
+        if(parentModule != null) {
+            openEditor(parentModule.getResourceRoot());
+        } else {
+            IntellijUtils.showInfoMessage("Parent module could not be found", "Info");
+        }
     }
 
     private void gotToFile(IAngularFileContext fileContext) {

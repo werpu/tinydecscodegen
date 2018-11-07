@@ -7,7 +7,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.PsiElementContext;

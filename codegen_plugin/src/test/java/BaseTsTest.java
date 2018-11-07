@@ -1,7 +1,6 @@
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
-import org.junit.Before;
 import util.TestUtils;
 
 public abstract class BaseTsTest extends LightCodeInsightFixtureTestCase {

@@ -29,7 +29,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import supportive.fs.common.IAngularFileContext;
 import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.PsiElementContext;
 

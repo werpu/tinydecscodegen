@@ -1,6 +1,5 @@
 package supportive.utils;
 
-import com.intellij.util.containers.ContainerUtil;
 import supportive.fs.common.IAngularFileContext;
 
 import javax.swing.*;

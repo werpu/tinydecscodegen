@@ -8,7 +8,6 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.errors.ResourceClassNotFound;
 
-
 import javax.swing.*;
 import java.io.IOException;
 import java.util.List;

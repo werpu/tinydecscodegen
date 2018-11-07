@@ -2,7 +2,6 @@ package gui.support;
 
 import supportive.fs.common.IAngularFileContext;
 
-import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.nio.file.Path;
 import java.nio.file.Paths;

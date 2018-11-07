@@ -1,10 +1,7 @@
 package gui.support;
 
-import com.google.common.base.Strings;
 import supportive.fs.common.IAngularFileContext;
-import supportive.fs.common.NgModuleFileContext;
 
-import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 
 /**

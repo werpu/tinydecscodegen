@@ -1,7 +1,6 @@
 package actions;
 
 import actions_all.shared.VisibleAssertions;
-import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.intellij.ide.SaveAndSyncHandlerImpl;
 import com.intellij.ide.fileTemplates.FileTemplate;
@@ -9,7 +8,6 @@ import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
@@ -21,12 +19,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import factories.TnDecGroupFactory;
 import gui.CreateTnProject;
-import gui.support.UIActionSequence;
 import gui.support.InputDialogWrapperBuilder;
+import gui.support.UIActionSequence;
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.IntellijFileContext;
 import supportive.fs.common.IntellijResourceDir;
-import supportive.fs.common.TextTransformer;
 import supportive.utils.IntellijUtils;
 
 import java.awt.*;

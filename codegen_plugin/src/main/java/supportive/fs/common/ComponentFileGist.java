@@ -5,7 +5,6 @@ import com.google.common.cache.CacheBuilder;
 import com.intellij.openapi.vfs.InvalidVirtualFileAccessException;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.util.MessageBusUtil;
 import com.intellij.util.gist.GistManagerImpl;
 import com.intellij.util.gist.PsiFileGist;
 import com.intellij.util.io.DataExternalizer;

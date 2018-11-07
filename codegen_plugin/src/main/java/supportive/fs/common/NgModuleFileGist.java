@@ -19,7 +19,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.intellij.util.io.IOUtil.readUTF;
 import static com.intellij.util.io.IOUtil.writeUTF;
-import static supportive.reflectRefact.PsiWalkFunctions.*;
+import static supportive.reflectRefact.PsiWalkFunctions.MODULE_ARGS;
+import static supportive.reflectRefact.PsiWalkFunctions.MODULE_CLASS;
 
 /**
  * Gists are  caches

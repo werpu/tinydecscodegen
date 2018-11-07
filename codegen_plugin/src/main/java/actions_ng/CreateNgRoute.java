@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 import static actions_all.shared.FormAssertions.*;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
-import static supportive.utils.StringUtils.normalizePath;
 
 public class CreateNgRoute extends AnAction {
 

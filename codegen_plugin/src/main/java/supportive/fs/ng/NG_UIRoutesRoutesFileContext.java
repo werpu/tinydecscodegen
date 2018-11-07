@@ -10,8 +10,6 @@ import supportive.fs.common.*;
 import supportive.refactor.DummyInsertPsiElement;
 import supportive.refactor.RefactorUnit;
 import supportive.reflectRefact.PsiWalkFunctions;
-import supportive.utils.StringUtils;
-
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -23,9 +21,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Stream.concat;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
 import static supportive.utils.IntellijUtils.getTsExtension;
-import static supportive.utils.StringUtils.elVis;
-import static supportive.utils.StringUtils.literalContains;
-import static supportive.utils.StringUtils.normalizePath;
+import static supportive.utils.StringUtils.*;
 
 /**
  * helper context to deal with routes and subroutes

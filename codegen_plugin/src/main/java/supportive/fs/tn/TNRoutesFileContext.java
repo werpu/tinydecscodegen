@@ -6,8 +6,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
-
-
 import org.jetbrains.annotations.NotNull;
 import supportive.fs.common.*;
 import supportive.reflectRefact.PsiWalkFunctions;

@@ -3,7 +3,6 @@ package supportive.fs.common;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import javax.swing.*;

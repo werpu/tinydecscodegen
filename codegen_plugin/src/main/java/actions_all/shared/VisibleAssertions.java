@@ -1,7 +1,6 @@
 package actions_all.shared;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
 import indexes.AngularIndex;
 import supportive.fs.common.AngularVersion;
 import supportive.fs.common.IntellijFileContext;

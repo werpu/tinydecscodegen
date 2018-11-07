@@ -1,15 +1,15 @@
-import com.intellij.psi.*;
+import com.intellij.psi.PsiJavaFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.junit.Test;
 import probes.EnumProbe;
-import rest.*;
+import rest.GenericClass;
+import rest.GenericEnum;
 import supportive.reflectRefact.IntellijDtoReflector;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static util.TestUtils.JAVA_TEST_PROBES_PATH;
 
 public class EnumTest extends LightCodeInsightFixtureTestCase {

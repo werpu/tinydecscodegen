@@ -1,4 +1,4 @@
-import com.intellij.psi.*;
+import com.intellij.psi.PsiJavaFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.junit.Test;
 import reflector.utils.ReflectUtils;
@@ -12,10 +12,9 @@ import supportive.reflectRefact.IntellijJaxRsReflector;
 import supportive.reflectRefact.IntellijSpringRestReflector;
 import util.TestUtils;
 
-import java.util.*;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @SuppressWarnings("unchecked")
 public class BasicTest extends LightCodeInsightFixtureTestCase {

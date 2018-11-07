@@ -2,10 +2,7 @@ package indexes;
 
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
@@ -15,10 +12,8 @@ import supportive.fs.common.IntellijFileContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static indexes.IndexUtils.standardExclusions;
-import static supportive.reflectRefact.PsiWalkFunctions.DEF_CALL;
 import static supportive.reflectRefact.PsiWalkFunctions.MODULE_ANN;
 
 public class ModuleIndex extends ScalarIndexExtension<String> {

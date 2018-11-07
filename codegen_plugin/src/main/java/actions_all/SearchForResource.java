@@ -20,11 +20,9 @@ import supportive.fs.common.*;
 import supportive.utils.SwingUtils;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.*;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.awt.event.KeyEvent.*;

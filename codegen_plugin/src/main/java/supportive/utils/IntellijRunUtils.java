@@ -20,7 +20,6 @@ import com.intellij.openapi.vfs.VirtualFileContentsChangedAdapter;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import supportive.fs.common.IAngularFileContext;
 
 import java.util.Arrays;
 import java.util.concurrent.FutureTask;

@@ -18,7 +18,6 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
-
 import configuration.ConfigSerializer;
 import configuration.TinyDecsConfiguration;
 import factories.TnDecGroupFactory;
