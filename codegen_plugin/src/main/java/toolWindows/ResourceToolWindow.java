@@ -232,6 +232,9 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 
+        /**
+         * if a file is not reachable anymore we need to update the tree
+         */
         project.getMessageBus().connect().subscribe(GistListener.FILE_NOT_REACHABLE, virtualFile -> refreshContent());
 
         this.toolWindow = toolWindow;
