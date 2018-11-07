@@ -8,20 +8,17 @@ import com.intellij.util.gist.GistManagerImpl;
 import com.intellij.util.gist.PsiFileGist;
 import com.intellij.util.io.DataExternalizer;
 import org.jetbrains.annotations.NotNull;
+import supportive.fs.common.errors.ResourceClassNotFound;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.intellij.util.io.IOUtil.readUTF;
 import static com.intellij.util.io.IOUtil.writeUTF;
-import static java.util.stream.Stream.concat;
 import static supportive.reflectRefact.PsiWalkFunctions.*;
 
 /**
@@ -179,7 +176,7 @@ public class NgModuleFileGist {
     private static PsiElementContext _resolveClass(PsiFile in) {
         Optional<PsiElementContext> clazz = new PsiElementContext(in).$q(MODULE_CLASS).findFirst();
         if(!clazz.isPresent()) {
-            throw new RuntimeException("Module class not found");
+            throw new ResourceClassNotFound("Module class not found");
         }
         return clazz.get();
     }

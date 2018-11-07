@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import indexes.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import supportive.fs.common.errors.ResourceClassNotFound;
 import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import supportive.fs.tn.TNAngularRoutesFileContext;
 import supportive.fs.tn.TNUIRoutesFileContext;
@@ -13,7 +14,6 @@ import supportive.utils.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static supportive.fs.common.AngularVersion.NG;
@@ -127,7 +127,15 @@ public class ContextFactory {
         List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
         return angularRoots.stream().flatMap(angularRoot -> ModuleIndex
                 .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
-                .map(module -> new NgModuleFileContext(projectRoot.getProject(), module))
+                .filter(file -> file.getVirtualFile().exists())
+                .map(module -> {
+                    try {
+                        return new NgModuleFileContext(projectRoot.getProject(), module);
+                    } catch (ResourceClassNotFound ex) { //broken modules, old module style without ngclass etc
+                        return null;
+                    }
+                })
+                .filter(e -> e != null)
                 .collect(Collectors.toList());
     }
 
@@ -137,7 +145,7 @@ public class ContextFactory {
         List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
         return angularRoots.stream().flatMap(angularRoot -> ModuleIndex
                 .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
-
+                .filter(file -> file.getVirtualFile().exists())
                 .map(module -> {
                     try {
                         return new NgModuleFileContext(projectRoot.getProject(), module);
@@ -162,6 +170,7 @@ public class ContextFactory {
         List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
         return angularRoots.stream().flatMap(angularRoot -> ComponentIndex
                 .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
+                .filter(file -> file.getVirtualFile().exists())
                 .map(component -> {
                     try {
                         return new ComponentFileContext(projectRoot.getProject(), component);
@@ -178,6 +187,7 @@ public class ContextFactory {
         List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
         return angularRoots.stream().flatMap(angularRoot -> ServiceIndex
                 .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
+                .filter(file -> file.getVirtualFile().exists())
                 .map(service -> {
                     try {
                         return new ServiceContext(projectRoot.getProject(), service, service.getOriginalElement());
@@ -194,6 +204,7 @@ public class ContextFactory {
         List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
         return angularRoots.stream().flatMap(angularRoot -> ControllerIndex
                 .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
+                .filter(file -> file.getVirtualFile().exists())
                 .map(controller -> {
                     try {
                         return new ComponentFileContext(projectRoot.getProject(), controller);
@@ -210,6 +221,7 @@ public class ContextFactory {
         List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
         return angularRoots.stream().flatMap(angularRoot -> FilterIndex
                 .getAllAffectedFiles(projectRoot.getProject(), angularRoot).stream())
+                .filter(file -> file.getVirtualFile().exists())
                 .map(filters -> {
                     try {
                         return new FilterPipeContext(projectRoot.getProject(), filters, filters.getOriginalElement());

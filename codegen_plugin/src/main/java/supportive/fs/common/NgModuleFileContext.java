@@ -4,22 +4,18 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
-import supportive.refactor.DummyInsertPsiElement;
-import supportive.refactor.RefactorUnit;
-import supportive.reflectRefact.PsiWalkFunctions;
+import supportive.fs.common.errors.ResourceClassNotFound;
+
 
 import javax.swing.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static com.google.common.collect.Streams.concat;
 import static supportive.reflectRefact.IntellijRefactor.NG_MODULE;
-import static supportive.reflectRefact.PsiWalkFunctions.*;
-import static supportive.utils.StringUtils.elVis;
+import static supportive.reflectRefact.PsiWalkFunctions.MODULE_CLASS;
 
 
 /**
@@ -58,8 +54,10 @@ public class NgModuleFileContext extends AngularResourceContext {
         NgModuleFileGist.init();
 
         resourceRoot = NgModuleFileGist.getResourceRoot(psiFile);
-        clazzName = NgModuleFileGist.getFileData(psiFile).getClassName();
-        artifactName =  NgModuleFileGist.getFileData(psiFile).getArtifactName();
+        AngularArtifactGist fileData = NgModuleFileGist.getFileData(psiFile);
+
+        clazzName = fileData.getClassName();
+        artifactName =  fileData.getArtifactName();
         paramSection = resolveParameters();
 
         findParentModule();
@@ -89,7 +87,11 @@ public class NgModuleFileContext extends AngularResourceContext {
 
 
     public String getModuleName() {
-       return  NgModuleFileGist.getFileData(psiFile).getArtifactName();
+        AngularArtifactGist fileData = NgModuleFileGist.getFileData(psiFile);
+        if(fileData == null) {
+            return "";
+        }
+        return  fileData.getArtifactName();
     }
 
 
@@ -119,14 +121,18 @@ public class NgModuleFileContext extends AngularResourceContext {
 
 
     protected void findParentModule() {
-        final PsiFile _this = this.psiFile;
-        List<IntellijFileContext> modules = findFirstUpwards(psiFile -> {
-            if(_this == psiFile) {
-                return false;
-            }
-            return psiFile.getContainingFile().getText().contains(NG_MODULE);
-        });
-        this.parentModule = modules.isEmpty() ? null :  new NgModuleFileContext(modules.get(0));
+        try {
+            final PsiFile _this = this.psiFile;
+            List<IntellijFileContext> modules = findFirstUpwards(psiFile -> {
+                if (_this == psiFile) {
+                    return false;
+                }
+                return psiFile.getContainingFile().getText().contains(NG_MODULE);
+            });
+            this.parentModule = modules.isEmpty() ? null : new NgModuleFileContext(modules.get(0));
+        } catch (ResourceClassNotFound ex) {
+            this.parentModule = null;
+        }
     }
 
     @Override
