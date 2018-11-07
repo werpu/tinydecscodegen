@@ -153,7 +153,7 @@ public class ComponentFileGist {
             //NOOP for now
         }
 
-        return StringUtils.toDash(_findComponentClassName(file).toString());
+        return StringUtils.toDash(_findComponentClassName(file).orElse("????"));
     }
 
     public static Optional<PsiElement> getTemplate(PsiFile file, PsiElement componentAnn) {

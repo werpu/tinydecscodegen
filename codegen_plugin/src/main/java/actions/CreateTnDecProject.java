@@ -69,7 +69,7 @@ public class CreateTnDecProject extends AnAction {
         final Project project = IntellijUtils.getProject(anActionEvent);
 
         VirtualFile file = new IntellijFileContext(anActionEvent).getVirtualFile();
-        if(file == null) {
+        if (file == null) {
             IntellijUtils.showInfoMessage("You need to select a parent directory for your project", "Info");
             return;
         }
@@ -87,9 +87,10 @@ public class CreateTnDecProject extends AnAction {
 
     /**
      * setup the dialog
-     * @param project the project coming from the action
+     *
+     * @param project       the project coming from the action
      * @param projectFolder the folder hosting the new project
-     * @param targetFolder the target folder for the build targets
+     * @param targetFolder  the target folder for the build targets
      */
     private void createDialog(Project project, String projectFolder, String targetFolder) {
         final gui.CreateTnProject mainForm = new gui.CreateTnProject();
@@ -242,10 +243,9 @@ public class CreateTnDecProject extends AnAction {
     /**
      * create a new run configuratin
      *
-     * @param project the intellij project
-     * @param template template name
+     * @param project       the intellij project
+     * @param template      template name
      * @param projectFolder the project target folder
-     *
      * @throws IOException some internal ops might bomb with an io ex
      */
     protected void createRunner(Project project, String template, String projectName, String projectFolder) throws IOException {
@@ -265,7 +265,7 @@ public class CreateTnDecProject extends AnAction {
         String str = FileTemplateUtil.mergeTemplate(attrs, vslTemplate.getText(), false);
         String fileName = ("Client Start - " + projectName + " [" + angularType + "].xml").replaceAll("\\s", "_");
 
-        if(runConfigPath.toFile().mkdirs()) {
+        if (runConfigPath.toFile().mkdirs()) {
             //noop maybe a log later
         }
         SaveAndSyncHandlerImpl.getInstance().refreshOpenFiles();

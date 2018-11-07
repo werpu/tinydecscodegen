@@ -17,7 +17,6 @@ public class TimeoutWorker {
     private static final Logger log = Logger.getInstance(TimeoutWorker.class);
 
     private static final long TIME_PERIOD = 10l * 1000l;
-    public static final int STARTING_DELAY = 1000;
     final private Consumer<TimeoutWorker> runner;
 
 
@@ -37,7 +36,8 @@ public class TimeoutWorker {
         if (f != null) {
             f.cancel(false);
         }
-        f = executor.scheduleAtFixedRate(() -> {
+
+        f = executor.schedule(() -> {
             try {
                 runner.accept(this);
             } catch (Throwable ex) {
@@ -45,7 +45,8 @@ public class TimeoutWorker {
             } finally {
                 f = null;
             }
-        }, STARTING_DELAY, TIME_PERIOD, TimeUnit.MILLISECONDS);
+            return null;
+        }, TIME_PERIOD, TimeUnit.MILLISECONDS);
     }
 
     private void waitUntilDone() {

@@ -323,6 +323,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     }
 
     private void initWatcherThread(@NotNull Project project) {
+        refreshContent();
         resourcesWatcher = new TimeoutWorker(worker -> refreshContent());
         resourcesWatcher.start();
         onFileChange(project, this::onEditChange);
