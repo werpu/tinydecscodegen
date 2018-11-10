@@ -39,7 +39,7 @@ import static actions_all.shared.FormAssertions.*;
  * Create a Tiny Decs artefact.
  * The idea is that every created artifact should auto register if possible
  */
-public class CreateTnDecModule extends AnAction  {
+public class CreateTnDecModule extends AnAction {
 
 
     public static final String EXPORT = "___EXPORT___";
@@ -86,7 +86,6 @@ public class CreateTnDecModule extends AnAction  {
                 .withDimensionKey("AnnModule").withValidator(() -> Arrays.asList(
                         validateInput(mainForm)
                 ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
-
 
 
         dialogWrapper.setTitle("Create Module");
@@ -154,7 +153,7 @@ public class CreateTnDecModule extends AnAction  {
             attrs.put("CLASS_NAME", className);
             attrs.put("NAME", name);
 
-            if(export) {
+            if (export) {
                 attrs.put(EXPORT, export);
             }
 
@@ -169,7 +168,7 @@ public class CreateTnDecModule extends AnAction  {
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
         List<ModuleElementScope> scope = Lists.newArrayList();
 
-        if(attrs.containsKey(EXPORT)) {
+        if (attrs.containsKey(EXPORT)) {
             scope.add(ModuleElementScope.EXPORT);
         } else {
             scope.add(ModuleElementScope.IMPORT);

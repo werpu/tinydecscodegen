@@ -10,12 +10,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public class CreateNgProject extends CreateTnDecProject {
 
+    public static final String NG_PROJECT_LAYOUT = "/resources/projectLayout/ngPro";
+
     @Override
     public void update(AnActionEvent anActionEvent) {
         VisibleAssertions.tnNoProject(anActionEvent);
     }
-
-    public static final String NG_PROJECT_LAYOUT = "/resources/projectLayout/ngPro";
 
     @NotNull
     protected String getResourcePath() {

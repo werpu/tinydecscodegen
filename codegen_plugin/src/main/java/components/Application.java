@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
 
 /**
  * Application wide registration
- *
+ * <p>
  * for now we just register our file templates
  * defined by teh group which itself
  * is an extension point in the xml (wtf??)
@@ -23,25 +23,6 @@ public class Application implements ApplicationComponent {
     public static final String TEMPLATE_PATH = "/fileTemplates/Tiny Decorations/";
 
     public Application() {
-    }
-
-
-
-    @Override
-    public void initComponent() {
-        addFileTemplate(TnDecGroupFactory.TPL_ANNOTATED_COMPONENT, TnDecGroupFactory.TPL_EXT);
-        addFileTemplate(TnDecGroupFactory.TPL_ANNOTATED_CONTROLLER, TnDecGroupFactory.TPL_EXT);
-    }
-
-    @Override
-    public void disposeComponent() {
-
-    }
-
-    @Override
-    @NotNull
-    public String getComponentName() {
-        return "Tiny Decorations";
     }
 
     //we need to register the template file content
@@ -62,5 +43,22 @@ public class Application implements ApplicationComponent {
                 System.out.println(ex);
             }
         }
+    }
+
+    @Override
+    public void initComponent() {
+        addFileTemplate(TnDecGroupFactory.TPL_ANNOTATED_COMPONENT, TnDecGroupFactory.TPL_EXT);
+        addFileTemplate(TnDecGroupFactory.TPL_ANNOTATED_CONTROLLER, TnDecGroupFactory.TPL_EXT);
+    }
+
+    @Override
+    public void disposeComponent() {
+
+    }
+
+    @Override
+    @NotNull
+    public String getComponentName() {
+        return "Tiny Decorations";
     }
 }

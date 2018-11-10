@@ -19,7 +19,6 @@ public class IntellijRestGenerator {
      * Main entry point for the generator
      *
      * @param restServices the parsing model which needs to be templated
-     *
      * @return a string with the service or errors in case of parsing errors
      */
     public static String generate(Project project, List<RestService> restServices, boolean ng) {

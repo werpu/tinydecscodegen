@@ -68,7 +68,7 @@ public class IntellijResourceDir {
 
     public void copyTo(File targetDir, TextTransformer transformer) {
 
-        if(!targetDir.exists()) {
+        if (!targetDir.exists()) {
             targetDir.mkdirs();
         }
 

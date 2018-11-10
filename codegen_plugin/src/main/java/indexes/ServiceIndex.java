@@ -16,28 +16,18 @@ import java.util.Map;
 import static indexes.IndexUtils.standardExclusions;
 import static supportive.reflectRefact.PsiWalkFunctions.SERVICE_ANN;
 
-public class ServiceIndex  extends ScalarIndexExtension<String> {
+public class ServiceIndex extends ScalarIndexExtension<String> {
 
     public static final ID<String, Void> NAME = ID.create("TN_NG_ServiceIndex");
     public static final String ANNOTATION_MARKER = "@Injectable";
     private final ServiceIndex.MyDataIndexer myDataIndexer = new ServiceIndex.MyDataIndexer();
 
-    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
-        @Override
-        @NotNull
-        public Map<String, Void> map(@NotNull final FileContent inputData) {
-
-            if ((!standardExclusions(inputData)) && isMarked(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
-                return Collections.singletonMap(ANNOTATION_MARKER, null);
-            }
-            return Collections.emptyMap();
-
-
-        }
-    }
-
     public static boolean isMarked(IntellijFileContext ctx) {
         return ctx.getText().contains("@Injectable") && ctx.queryContent(SERVICE_ANN).findFirst().isPresent();
+    }
+
+    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
+        return IndexUtils.resolve(project, angularRoot, NAME, ANNOTATION_MARKER);
     }
 
     @NotNull
@@ -75,7 +65,17 @@ public class ServiceIndex  extends ScalarIndexExtension<String> {
         return true;
     }
 
-    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
-        return IndexUtils.resolve(project, angularRoot, NAME, ANNOTATION_MARKER);
+    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
+        @Override
+        @NotNull
+        public Map<String, Void> map(@NotNull final FileContent inputData) {
+
+            if ((!standardExclusions(inputData)) && isMarked(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
+                return Collections.singletonMap(ANNOTATION_MARKER, null);
+            }
+            return Collections.emptyMap();
+
+
+        }
     }
 }

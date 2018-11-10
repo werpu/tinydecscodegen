@@ -25,16 +25,18 @@ public class UIActionSequence {
     @NonNull
     private final Project project;
     @NonNull
-    private final String  indicatorLabel;
+    private final String indicatorLabel;
 
-    List<Consumer<ProgressIndicator>> sequences= new ArrayList<>();
-    Consumer<ProgressIndicator> onFinishedOk = (indicator) -> {};
+    List<Consumer<ProgressIndicator>> sequences = new ArrayList<>();
+    Consumer<ProgressIndicator> onFinishedOk = (indicator) -> {
+    };
 
 
     public UIActionSequence withSequence(Consumer<ProgressIndicator> sequence) {
         sequences.add(sequence);
         return this;
     }
+
     public UIActionSequence and(Consumer<ProgressIndicator> sequence) {
         sequences.add(sequence);
         return this;
@@ -74,7 +76,6 @@ public class UIActionSequence {
 
         ProgressManager.getInstance().runProcessWithProgressAsynchronously(myTask, myProcessIndicator);
     }
-
 
 
 }

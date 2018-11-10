@@ -249,7 +249,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
         String routeLink = "";
         if (route.getOriginContext().equals(TNUIRoutesFileContext.class)) {
             sRef = HREF_TN_UIROUTES;
-            routeLink =  String.format(sRef, route.getRouteKey(), route.getRouteVarName());
+            routeLink = String.format(sRef, route.getRouteKey(), route.getRouteVarName());
         } else if (route.getOriginContext().equals(TNAngularRoutesFileContext.class)) {
             sRef = HREF_TN;
             routeLink = String.format(sRef, route.getUrl(), route.getRouteKey());
@@ -257,7 +257,6 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
             sRef = HREF_NG_UI_ROUTES;
             routeLink = String.format(sRef, route.getRouteKey(), route.getRouteVarName());
         }
-
 
 
         copyToClipboard(routeLink);

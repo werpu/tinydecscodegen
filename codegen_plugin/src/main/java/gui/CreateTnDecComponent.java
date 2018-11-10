@@ -39,33 +39,27 @@ import static reflector.TransclusionReflector.hasTransclude;
  */
 @Getter
 public class CreateTnDecComponent {
+    public JPanel rootPanel;
+    public JScrollPane pnEditorHolder;
+    boolean selectorValid = false;
+    boolean controllerAsValid = false;
+    Function<ComponentJson, Boolean> okFunc;
+    Function<ComponentJson, Boolean> cancelFunc;
     private JFormattedTextField txtName;
     private JTextArea txtTemplate;
     private JButton cancelButton;
     private JButton okButton;
     private JTextField txtControllerAs;
-    public JPanel rootPanel;
     private JLabel lblSelector;
     private JLabel lblTemplate;
     private JLabel lblControllerAs;
     private JLabel lblTitle;
-
-
-    public JScrollPane pnEditorHolder;
     private JLabel lblExport;
     private JCheckBox cbExport;
     private JCheckBox cbCreateDir;
     private JCheckBox cbCreateStructure;
     private JLabel lblCreateDir;
     private JLabel lblCreateStructue;
-
-    boolean selectorValid = false;
-    boolean controllerAsValid = false;
-
-    Function<ComponentJson, Boolean> okFunc;
-    Function<ComponentJson, Boolean> cancelFunc;
-
-
     private JComponent txtTemplate2;
 
     public CreateTnDecComponent() {
@@ -101,8 +95,6 @@ public class CreateTnDecComponent {
     }
 
 
-
-
     /**
      * We have some special behavior like required fields and formatted inputs
      */
@@ -121,7 +113,6 @@ public class CreateTnDecComponent {
 
 
     }
-
 
 
 }

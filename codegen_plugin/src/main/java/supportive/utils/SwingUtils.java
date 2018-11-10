@@ -53,8 +53,8 @@ public class SwingUtils {
         child.pack();
         boolean useChildsOwner = child.getOwner() != null ? ((child.getOwner() instanceof JFrame) || (child.getOwner() instanceof JDialog)) : false;
         final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        final Dimension parentSize = useChildsOwner ? child.getOwner().getSize() : screenSize ;
-        final Point parentLocationOnScreen = useChildsOwner ? child.getOwner().getLocationOnScreen() : new Point(0,0) ;
+        final Dimension parentSize = useChildsOwner ? child.getOwner().getSize() : screenSize;
+        final Point parentLocationOnScreen = useChildsOwner ? child.getOwner().getLocationOnScreen() : new Point(0, 0);
         final Dimension childSize = child.getSize();
         childSize.width = Math.min(childSize.width, screenSize.width);
         childSize.height = Math.min(childSize.height, screenSize.height);
@@ -138,7 +138,7 @@ public class SwingUtils {
      */
     public static boolean singleClickOnly() {
         long currTime = new Date().getTime();
-        if((currTime - lastClick.get()) >  500) {
+        if ((currTime - lastClick.get()) > 500) {
             lastClick.set(currTime);
             return true;
         }
@@ -150,10 +150,10 @@ public class SwingUtils {
         return new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(e.isConsumed()) {
+                if (e.isConsumed()) {
                     return;
                 }
-                if(!e.isConsumed() && !singleClickOnly()) {
+                if (!e.isConsumed() && !singleClickOnly()) {
                     doubleClick.accept(e);
                 }
                 singleClick.accept(e);

@@ -3,7 +3,7 @@ package toolWindows.supportive;
 import java.util.Objects;
 
 @FunctionalInterface
-public interface ClickHandler<T,V> {
+public interface ClickHandler<T, V> {
 
     /**
      * Performs this operation on the given argument.
@@ -26,6 +26,9 @@ public interface ClickHandler<T,V> {
      */
     default ClickHandler<T, V> andThen(ClickHandler after) {
         Objects.requireNonNull(after);
-        return (T t, V  v) -> { accept(t, v); after.accept(t, v); };
+        return (T t, V v) -> {
+            accept(t, v);
+            after.accept(t, v);
+        };
     }
 }

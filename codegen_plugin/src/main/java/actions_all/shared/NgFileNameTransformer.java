@@ -26,17 +26,17 @@ public class NgFileNameTransformer implements FileNameTransformer {
         while (matcher.find()) {
             String replacement = matcher.group(1);
             builder.append(className.substring(i, matcher.start()));
-            if(first) {
+            if (first) {
                 first = false;
                 builder.append(replacement);
             } else {
-                builder.append("-"+replacement);
+                builder.append("-" + replacement);
             }
 
             i = matcher.end();
         }
         builder.append(className.substring(i, className.length()));
 
-        return builder.toString().toLowerCase()+"."+postfix+getTsExtension();
+        return builder.toString().toLowerCase() + "." + postfix + getTsExtension();
     }
 }

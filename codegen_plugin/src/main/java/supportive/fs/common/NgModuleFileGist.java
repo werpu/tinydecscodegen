@@ -34,10 +34,9 @@ import static supportive.reflectRefact.PsiWalkFunctions.MODULE_CLASS;
  * On top of that I have added a volatile secondary thread save
  * memory cache for data requested multiple times but which does not
  * have tu survive in the cache anyway.
- *
+ * <p>
  * This is my implementation of a gist which stores
  * module file data
- *
  */
 public class NgModuleFileGist {
     //gist cache for the components to speed things up
@@ -100,7 +99,7 @@ public class NgModuleFileGist {
     public static AngularArtifactGist getFileData(@NotNull PsiFile file) {
         try {
             return psiFileGist.getFileData(file);
-        } catch(InvalidVirtualFileAccessException | AssertionError ex /*project not active anymore can happen in case of stale cashes*/) {
+        } catch (InvalidVirtualFileAccessException | AssertionError ex /*project not active anymore can happen in case of stale cashes*/) {
             //force a refresh
 
             final GistListener afterPublisher =
@@ -136,7 +135,7 @@ public class NgModuleFileGist {
         int hash = file.getVirtualFile().getPath().hashCode();
         String key = hash + "$$ROOT_CTX";
         Object data = volatileData.getIfPresent(key);
-        if(data != null) {
+        if (data != null) {
             return (PsiElementContext) data;
         } else {
             PsiElementContext clazz = _resolveClass(file);
@@ -150,7 +149,7 @@ public class NgModuleFileGist {
         int hash = file.getVirtualFile().getPath().hashCode();
         String key = hash + "$$PARAMS_CTX";
         Object data = volatileData.getIfPresent(key);
-        if(data != null) {
+        if (data != null) {
             return (AssociativeArraySection) data;
         } else {
             IntellijFileContext ctx = new IntellijFileContext(file.getProject(), file);
@@ -164,7 +163,7 @@ public class NgModuleFileGist {
 
     @NotNull
     private static String _findClazzName(PsiFile in) {
-        final ScalarValue <String> retVal = new ScalarValue<>("");
+        final ScalarValue<String> retVal = new ScalarValue<>("");
         _resolveClassCtx(in).ifPresent(present -> retVal.setValue(present.getName()));
         return retVal.getValue();
     }
@@ -176,7 +175,7 @@ public class NgModuleFileGist {
 
     private static PsiElementContext _resolveClass(PsiFile in) {
         Optional<PsiElementContext> clazz = new PsiElementContext(in).$q(MODULE_CLASS).findFirst();
-        if(!clazz.isPresent()) {
+        if (!clazz.isPresent()) {
             throw new ResourceClassNotFound("Module class not found");
         }
         return clazz.get();

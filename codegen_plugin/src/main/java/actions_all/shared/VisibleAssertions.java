@@ -56,7 +56,7 @@ public class VisibleAssertions {
     }
 
     public static void tnVisible(AnActionEvent anActionEvent) {
-        if(IntellijUtils.getFolderOrFile(anActionEvent) == null) {
+        if (IntellijUtils.getFolderOrFile(anActionEvent) == null) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
@@ -72,7 +72,7 @@ public class VisibleAssertions {
     }
 
     public static void ngVisible(AnActionEvent anActionEvent) {
-        if(IntellijUtils.getFolderOrFile(anActionEvent) == null) {
+        if (IntellijUtils.getFolderOrFile(anActionEvent) == null) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
@@ -86,12 +86,12 @@ public class VisibleAssertions {
     }
 
     public static void tnNoProject(AnActionEvent anActionEvent) {
-        if(IntellijUtils.getFolderOrFile(anActionEvent) == null) {
+        if (IntellijUtils.getFolderOrFile(anActionEvent) == null) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
-;
+        ;
         if (ctx.isAngularChild()) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
@@ -101,7 +101,7 @@ public class VisibleAssertions {
     }
 
     public static void tsOnlyVisible(AnActionEvent anActionEvent) {
-        if(IntellijUtils.getFolderOrFile(anActionEvent) == null) {
+        if (IntellijUtils.getFolderOrFile(anActionEvent) == null) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
@@ -118,7 +118,7 @@ public class VisibleAssertions {
 
 
     public static boolean refOnlyVisible(AnActionEvent anActionEvent) {
-        if(assertNotRef(new IntellijFileContext(anActionEvent))) {
+        if (assertNotRef(new IntellijFileContext(anActionEvent))) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return true;
         }

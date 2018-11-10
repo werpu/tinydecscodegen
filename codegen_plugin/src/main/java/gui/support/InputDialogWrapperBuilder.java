@@ -17,13 +17,12 @@ import static com.intellij.openapi.ui.DialogWrapper.IdeModalityType.PROJECT;
 
 /**
  * Builder for our standardized input dialog wrapper
- *
  */
 public class InputDialogWrapperBuilder {
 
     Project project;
     JPanel mainPanel;
-    String dimensionKey = Math.random()+"";
+    String dimensionKey = Math.random() + "";
     String dlgTitle;
 
     Dimension dlgPreferredSize;
@@ -76,7 +75,7 @@ public class InputDialogWrapperBuilder {
     }
 
 
-    public InputDialogWrapperBuilder withValidator(Supplier<List<ValidationInfo>>  validator) {
+    public InputDialogWrapperBuilder withValidator(Supplier<List<ValidationInfo>> validator) {
         this.validator = validator;
         return this;
     }
@@ -111,7 +110,6 @@ public class InputDialogWrapperBuilder {
     }
 
 
-
     DialogWrapper wrap(Project project, JPanel mainPanel, String dimensionKey, Supplier<List<ValidationInfo>> validator, DialogWrapper.IdeModalityType modalityType, boolean canBeParent) {
         return new DialogWrapper(project, canBeParent, modalityType) {
 
@@ -137,9 +135,9 @@ public class InputDialogWrapperBuilder {
 
             @Override
             protected void doOKAction() {
-                if(okHandler != null && okHandler.getAsBoolean()) {
+                if (okHandler != null && okHandler.getAsBoolean()) {
                     super.doOKAction();
-                } else if(okHandler == null) {
+                } else if (okHandler == null) {
                     super.doOKAction();
                 }
             }
@@ -147,9 +145,9 @@ public class InputDialogWrapperBuilder {
 
             @Override
             public void doCancelAction() {
-                if(cancelHandler != null && cancelHandler.getAsBoolean()) {
+                if (cancelHandler != null && cancelHandler.getAsBoolean()) {
                     super.doCancelAction();
-                } else if(cancelHandler == null) {
+                } else if (cancelHandler == null) {
                     super.doCancelAction();
                 }
             }
@@ -160,11 +158,11 @@ public class InputDialogWrapperBuilder {
             }
 
             public void show() {
-                if(dlgTitle != null) {
+                if (dlgTitle != null) {
                     this.setTitle(dlgTitle);
                 }
 
-                if(dlgPreferredSize != null)  {
+                if (dlgPreferredSize != null) {
                     this.getWindow().setPreferredSize(dlgPreferredSize);
                 }
                 this.init();

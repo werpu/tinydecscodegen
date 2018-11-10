@@ -101,9 +101,8 @@ import static supportive.utils.StringUtils.normalizePath;
  */
 public class IntellijUtils {
 
-    private static final Logger log = Logger.getInstance(IntellijUtils.class);
     public static final String NPM_INSTALL_CONSOLE = "NPM Install Console";
-
+    private static final Logger log = Logger.getInstance(IntellijUtils.class);
     public static FileNameTransformer fileNameTransformer = new SimpleFileNameTransformer();
 
     /**
@@ -505,7 +504,7 @@ public class IntellijUtils {
         final Process p = p2;
         ConsoleFactory.getInstance(p, project, NPM_INSTALL_CONSOLE);
 
-        final Task.Backgroundable myTask = backgroundTask(project,"calling npm install", (progressIndicator) -> {
+        final Task.Backgroundable myTask = backgroundTask(project, "calling npm install", (progressIndicator) -> {
             try {
                 while (p.isAlive()) {
                     Thread.sleep(1000);
@@ -537,7 +536,6 @@ public class IntellijUtils {
      *
      * @param tree the tree which needs to be searched
      * @return a conversion function on the current tree from node to searchable string
-     *
      */
     public static Convertor<TreePath, String> convertToSearchableString(Tree tree) {
         return (TreePath treePath) -> {
@@ -552,20 +550,15 @@ public class IntellijUtils {
 
             if (userObject instanceof PsiRouteContext) {
                 return ((PsiRouteContext) userObject).getRoute().getRouteVarName();
-            } else if(userObject instanceof IAngularFileContext) {
+            } else if (userObject instanceof IAngularFileContext) {
                 String resourcePath = ((IAngularFileContext) userObject).getVirtualFile().getPath();
                 String projectPath = ((IAngularFileContext) userObject).getPsiFile().getProject().getBasePath();
                 Path relPath = Paths.get(projectPath).relativize(Paths.get(resourcePath));
-                return  ((IAngularFileContext) userObject).getDisplayName()+ " "+  StringUtils.normalizePath(relPath.toString());
+                return ((IAngularFileContext) userObject).getDisplayName() + " " + StringUtils.normalizePath(relPath.toString());
             }
             return null;
 
         };
-    }
-
-
-    static class ClassHolder {
-        public Class hierarchyEndpoint = null;
     }
 
     public static boolean generateDto(Project project, Module module, String className, PsiFile javaFile, URLClassLoader urlClassLoader) throws ClassNotFoundException {
@@ -616,7 +609,6 @@ public class IntellijUtils {
 
         return true;
     }
-
 
     public static boolean generateDto(Project project, Module module, PsiJavaFile javaFile) throws ClassNotFoundException {
         final AtomicBoolean retVal = new AtomicBoolean(true);
@@ -670,7 +662,6 @@ public class IntellijUtils {
         return retVal.get();
     }
 
-
     /**
      * search in the comments of a given filetype for refs
      *
@@ -704,7 +695,6 @@ public class IntellijUtils {
         return foundFiles;
     }
 
-
     public static Collection<PsiFile> searchFiles(Project project, String extension, String searchStr) {
         List<PsiFile> foundFiles = Lists.newLinkedList();
 
@@ -734,7 +724,6 @@ public class IntellijUtils {
         });
     }
 
-
     public static String getTsExtension() {
         String retVal = FileTypeManager.getInstance().getStdFileType("TypeScript").getDefaultExtension();
         if (!retVal.startsWith(".")) {
@@ -743,13 +732,16 @@ public class IntellijUtils {
         return retVal;
     }
 
-
     static String getJavaExtension() {
         String retVal = FileTypeManager.getInstance().getStdFileType("Java").getDefaultExtension();
         if (!retVal.startsWith(".")) {
             retVal = "." + retVal;
         }
         return retVal;
+    }
+
+    static class ClassHolder {
+        public Class hierarchyEndpoint = null;
     }
 
     /*

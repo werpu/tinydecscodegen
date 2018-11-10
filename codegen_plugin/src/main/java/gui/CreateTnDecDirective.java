@@ -39,12 +39,16 @@ import static reflector.TransclusionReflector.hasTransclude;
  */
 @Getter
 public class CreateTnDecDirective {
+    public JPanel rootPanel;
+    boolean selectorValid = false;
+    boolean controllerAsValid = false;
+    Function<ComponentJson, Boolean> okFunc;
+    Function<ComponentJson, Boolean> cancelFunc;
     private JFormattedTextField txtName;
     private JTextArea txtTemplate;
     private JButton cancelButton;
     private JButton okButton;
     private JTextField txtControllerAs;
-    public JPanel rootPanel;
     private JLabel lblSelector;
     private JLabel lblTemplate;
     private JLabel lblControllerAs;
@@ -55,13 +59,6 @@ public class CreateTnDecDirective {
     private JCheckBox classCheckBox;
     private JCheckBox commentCheckBox;
     private JCheckBox cbExport;
-
-    boolean selectorValid = false;
-    boolean controllerAsValid = false;
-
-    Function<ComponentJson, Boolean> okFunc;
-    Function<ComponentJson, Boolean> cancelFunc;
-
     private JComponent txtTemplate2;
 
     public CreateTnDecDirective() {
@@ -113,7 +110,6 @@ public class CreateTnDecDirective {
     public String getControllerAs() {
         return txtControllerAs.getText();
     }
-
 
 
 }

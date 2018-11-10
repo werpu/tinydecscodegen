@@ -18,7 +18,7 @@ public class SwingRootParentNode extends DefaultMutableTreeNode {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof DefaultMutableTreeNode) {
+        if (obj instanceof DefaultMutableTreeNode) {
             return this.getUserObject().equals(((DefaultMutableTreeNode) obj).getUserObject());
         } else {
             return false;

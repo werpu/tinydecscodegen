@@ -26,18 +26,14 @@ public class TNRoutesIndex extends ScalarIndexExtension<String> {
     public static final ID<String, Void> NAME = ID.create("TN_MainRoutesIndex");
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 
-    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
-        @Override
-        @NotNull
-        public Map<String, Void> map(@NotNull final FileContent inputData) {
-
-            if ((!standardExclusions(inputData)) && inputData.getContentAsText().toString().contains("\"$routeProvider\"") &&
-                    PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isTnConfig, true).size() > 0) {
-                return Collections.singletonMap(TN_UIROUTER_MODULE_FOR_ROOT, null);
-            }
-
-            return Collections.emptyMap();
-        }
+    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
+        return FileBasedIndex.getInstance().getContainingFiles(NAME, TN_UIROUTER_MODULE_FOR_ROOT,
+                GlobalSearchScope.projectScope(project)).stream()
+                .filter(VirtualFile::isValid)
+                .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).startsWith("..")))
+                .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
+                .filter(psiFile -> psiFile != null && psiFile.getText().contains("@meta: rootRouteConfig"))
+                .collect(Collectors.toList());
     }
 
     @NotNull
@@ -74,15 +70,18 @@ public class TNRoutesIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
+    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
+        @Override
+        @NotNull
+        public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
-        return FileBasedIndex.getInstance().getContainingFiles(NAME, TN_UIROUTER_MODULE_FOR_ROOT,
-                GlobalSearchScope.projectScope(project)).stream()
-                .filter(VirtualFile::isValid)
-                .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).startsWith("..")))
-                .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
-                .filter(psiFile -> psiFile != null && psiFile.getText().contains("@meta: rootRouteConfig"))
-                .collect(Collectors.toList());
+            if ((!standardExclusions(inputData)) && inputData.getContentAsText().toString().contains("\"$routeProvider\"") &&
+                    PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isTnConfig, true).size() > 0) {
+                return Collections.singletonMap(TN_UIROUTER_MODULE_FOR_ROOT, null);
+            }
+
+            return Collections.emptyMap();
+        }
     }
 
 }

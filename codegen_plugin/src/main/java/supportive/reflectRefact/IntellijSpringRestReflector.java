@@ -40,8 +40,6 @@ import java.util.stream.Collectors;
 public class IntellijSpringRestReflector {
 
 
-
-
     public static boolean isRestService(List<PsiClass> toReflect) {
         return toReflect.stream().filter(IntellijSpringRestReflector::isRestService).findFirst().isPresent();
     }
@@ -132,17 +130,17 @@ public class IntellijSpringRestReflector {
         //TODO multiple methods possible
         String method = PsiAnnotationUtils.getAttr(mapping, "method");
         //TODO multiple consumes possible
-        if(method.contains(".")) {
-            method = method.substring(method.lastIndexOf(".")+1);
+        if (method.contains(".")) {
+            method = method.substring(method.lastIndexOf(".") + 1);
         }
 
-        String comment = m.getDocComment() != null ? m.getDocComment().getText(): "";
+        String comment = m.getDocComment() != null ? m.getDocComment().getText() : "";
         String consumes = PsiAnnotationUtils.getAttr(mapping, "consumes");
         List<RestVar> params = getRestVars(m);
 
         RestVar returnType = PsiAnnotationUtils.getRestReturnType(m, returnValueNestingDepth);
 
-        if(Strings.isNullOrEmpty(method)) {
+        if (Strings.isNullOrEmpty(method)) {
             method = RestType.GET.name();
         }
         return new RestMethod(path, name, RestType.valueOf(method.toUpperCase()), Optional.ofNullable(returnType), params, comment);

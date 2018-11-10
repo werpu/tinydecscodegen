@@ -18,60 +18,6 @@ public class BorderlessFrame extends JDialog {
         postInit();
     }
 
-    private void postInit() {
-        setUndecorated(true);
-        this.addMouseListener(new MouseAdapter() {
-
-            int posX;
-            int posY;
-            boolean mouseDown = false;
-
-            public void mousePressed(MouseEvent e)
-            {
-                posX=e.getX();
-                posY=e.getY();
-                mouseDown = true;
-            }
-
-            public void mouseReleased(MouseEvent ev) {
-                mouseDown = false;
-            }
-
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                if(!mouseDown) {
-                    return;
-                }
-                setLocation (e.getXOnScreen()-posX,e.getYOnScreen()-posY);
-            }
-        });
-        this.getRootPane().addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    setVisible(false);
-                    dispose();
-                }
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    setVisible(false);
-                    dispose();
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    setVisible(false);
-                    dispose();
-                }
-            }
-        });
-    }
-
     public BorderlessFrame(Frame owner, boolean modal) {
         super(owner, modal);
         postInit();
@@ -140,5 +86,58 @@ public class BorderlessFrame extends JDialog {
     public BorderlessFrame(Window owner, String title, ModalityType modalityType, GraphicsConfiguration gc) {
         super(owner, title, modalityType, gc);
         postInit();
+    }
+
+    private void postInit() {
+        setUndecorated(true);
+        this.addMouseListener(new MouseAdapter() {
+
+            int posX;
+            int posY;
+            boolean mouseDown = false;
+
+            public void mousePressed(MouseEvent e) {
+                posX = e.getX();
+                posY = e.getY();
+                mouseDown = true;
+            }
+
+            public void mouseReleased(MouseEvent ev) {
+                mouseDown = false;
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                if (!mouseDown) {
+                    return;
+                }
+                setLocation(e.getXOnScreen() - posX, e.getYOnScreen() - posY);
+            }
+        });
+        this.getRootPane().addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    setVisible(false);
+                    dispose();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    setVisible(false);
+                    dispose();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    setVisible(false);
+                    dispose();
+                }
+            }
+        });
     }
 }

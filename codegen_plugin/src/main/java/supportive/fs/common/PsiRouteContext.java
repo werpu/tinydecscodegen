@@ -10,7 +10,7 @@ import lombok.Getter;
 import javax.swing.*;
 
 
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class PsiRouteContext extends PsiElementContext implements IAngularFileContext {
 
     @Getter

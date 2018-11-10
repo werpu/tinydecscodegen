@@ -39,8 +39,6 @@ public class RouteTreeNode extends AbstractTreeNode<PsiRouteContext> {
     }
 
 
-
-
     //TODO check how to handle go to component
     @Override
     protected VirtualFile getVirtualFile() {
@@ -62,8 +60,6 @@ public class RouteTreeNode extends AbstractTreeNode<PsiRouteContext> {
     protected void update(PresentationData presentationData) {
 
     }
-
-
 
 
 }

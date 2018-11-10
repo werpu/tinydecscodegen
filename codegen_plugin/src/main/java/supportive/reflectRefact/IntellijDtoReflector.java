@@ -65,14 +65,12 @@ public class IntellijDtoReflector {
             parent = reflectDto(Arrays.asList(clazz.getSuperClass()), includingEndpoint).get(0);
         }
         PsiTypeParameter[] tp = ((PsiClassImpl) clazz).getTypeParameterList().getTypeParameters();
-        String generics = (tp != null && tp.length > 0) ? "<"+Arrays.stream(tp).map(el -> el.getName()).reduce((e1, e2) -> e1+","+e2).get()+">" : "";
+        String generics = (tp != null && tp.length > 0) ? "<" + Arrays.stream(tp).map(el -> el.getName()).reduce((e1, e2) -> e1 + "," + e2).get() + ">" : "";
 
-         GenericType classDescriptor = ReflectUtils.buildGenericTypes(clazz.getQualifiedName()+generics).get(0);
+        GenericType classDescriptor = ReflectUtils.buildGenericTypes(clazz.getQualifiedName() + generics).get(0);
 
         return new GenericClass(classDescriptor, parent, Collections.emptyList(), props.stream().collect(Collectors.toList()));
     }
-
-
 
 
     public static GenericClass reflectEnum(String includingEndpoint, PsiClass clazz) {
@@ -254,9 +252,9 @@ public class IntellijDtoReflector {
 
         return Arrays.stream(methods).filter(m -> m.getParameterList().getParameters().length == 0 &&
                 !m.getName().equals("getClass") &&
-                (m.getName().startsWith("get") ||  m.getName().startsWith("is")) &&
+                (m.getName().startsWith("get") || m.getName().startsWith("is")) &&
                 m.hasModifierProperty(PsiModifier.PUBLIC)).map(m -> {
-            String name = m.getName().startsWith("get") ? m.getName().replaceFirst("get", "") :  m.getName().replaceFirst("is", "");
+            String name = m.getName().startsWith("get") ? m.getName().replaceFirst("get", "") : m.getName().replaceFirst("is", "");
             String prefix = name.substring(0, 1);
             String postFix = name.substring(1);
             name = prefix.toLowerCase() + postFix;

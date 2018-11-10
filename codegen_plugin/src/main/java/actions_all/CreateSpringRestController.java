@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 import static actions_all.shared.FormAssertions.assertNotNullOrEmpty;
 
-public class CreateSpringRestController extends AnAction  {
+public class CreateSpringRestController extends AnAction {
 
 
     @Override
@@ -45,13 +45,12 @@ public class CreateSpringRestController extends AnAction  {
         final Project project = IntellijUtils.getProject(event);
 
         VirtualFile folder = IntellijUtils.getFolderOrFile(event);
-        if(folder == null) {
+        if (folder == null) {
             event.getPresentation().setEnabledAndVisible(false);
             return;
         }
 
         VirtualFile srcRoot = ProjectFileIndex.getInstance(project).getSourceRootForFile(folder);
-
 
 
         //PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(srcRoot);
@@ -130,11 +129,11 @@ public class CreateSpringRestController extends AnAction  {
 
                         IntellijUtils.fileNameTransformer = new SimpleFileNameTransformer();
 
-                        PsiJavaFile javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(ctx.getVirtualFile().findFileByRelativePath("./"+className+".java"));
+                        PsiJavaFile javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(ctx.getVirtualFile().findFileByRelativePath("./" + className + ".java"));
 
-                        if(mainForm.getCbCreate().isSelected()) {
+                        if (mainForm.getCbCreate().isSelected()) {
                             try {
-                                IntellijUtils.generateService(project, ctx.getModule(),javaFile, mainForm.getCbNg().isSelected());
+                                IntellijUtils.generateService(project, ctx.getModule(), javaFile, mainForm.getCbNg().isSelected());
                             } catch (ClassNotFoundException e) {
                                 e.printStackTrace();
                             }

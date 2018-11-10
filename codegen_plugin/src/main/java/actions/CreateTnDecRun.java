@@ -35,7 +35,7 @@ import static actions_all.shared.FormAssertions.*;
  * Create a Tiny Decs artefact.
  * The idea is that every created artifact should auto register if possible
  */
-public class CreateTnDecRun extends AnAction  {
+public class CreateTnDecRun extends AnAction {
 
 
     public CreateTnDecRun() {

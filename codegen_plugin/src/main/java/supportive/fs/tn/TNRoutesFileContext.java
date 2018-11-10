@@ -25,7 +25,7 @@ import static supportive.reflectRefact.PsiWalkFunctions.*;
 import static supportive.utils.IntellijUtils.getTsExtension;
 import static supportive.utils.StringUtils.literalEquals;
 
-public abstract class  TNRoutesFileContext extends TypescriptFileContext implements IUIRoutesRoutesFileContext {
+public abstract class TNRoutesFileContext extends TypescriptFileContext implements IUIRoutesRoutesFileContext {
     @Getter
     List<PsiElementContext> constructors = Collections.emptyList();
 
@@ -73,7 +73,6 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
     /**
      * returns all route param arrays in the context
      *
-     *
      * @return
      */
     public List<PsiElementContext> getRouteParams() {
@@ -84,6 +83,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
     /**
      * searches for an @Inject("$stateProvider")
+     *
      * @param constructor
      * @return
      */
@@ -94,7 +94,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         if (!retVal.isPresent()) {
             retVal = constructor.queryContent(PSI_ELEMENT_JS_IDENTIFIER,
-                    (Predicate<PsiElementContext>)  ident -> isStateProvider(ident.getText())).findFirst();
+                    (Predicate<PsiElementContext>) ident -> isStateProvider(ident.getText())).findFirst();
         }
 
         return retVal;
@@ -108,7 +108,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         if (!retVal.isPresent()) {
             retVal = constructor.queryContent(PSI_ELEMENT_JS_IDENTIFIER,
-                    (Predicate<PsiElementContext>)  ident -> isRouteProvider(ident.getText())).findFirst();
+                    (Predicate<PsiElementContext>) ident -> isRouteProvider(ident.getText())).findFirst();
         }
 
         return retVal;
@@ -223,6 +223,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
     /**
      * resolves the incoming arguments list accordingly
+     *
      * @return
      */
     @NotNull
@@ -232,7 +233,6 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
             return args.stream().map(arg -> mapArg(call, arg));
         };
     }
-
 
 
     @NotNull
@@ -256,9 +256,9 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
             Optional<PsiElementContext> routeProviderDef = getSateOrRouteProviderDef(constructor);
             String routeProviderName = getStateOrRouteProviderName(constructor);
 
-           // if (!isRouteProvider(routeProviderName)) {//no url support in case of stateproviders
-           //     return false;
-           // }
+            // if (!isRouteProvider(routeProviderName)) {//no url support in case of stateproviders
+            //     return false;
+            // }
 
             if (urlMatch(routeData, constructor, routeProviderName)) {
                 return true;

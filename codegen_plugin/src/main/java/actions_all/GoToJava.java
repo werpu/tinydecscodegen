@@ -16,7 +16,7 @@ public class GoToJava extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
         JavaFileContext javaFileContext = new JavaFileContext(anActionEvent);
-        if(javaFileContext.isError()) {
+        if (javaFileContext.isError()) {
             return;
         }
         FileEditorManager.getInstance(javaFileContext.getProject()).openFile(javaFileContext.getJavaFile().getVirtualFile(), true);

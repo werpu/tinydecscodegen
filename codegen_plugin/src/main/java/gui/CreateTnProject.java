@@ -16,24 +16,14 @@ import java.awt.event.ActionListener;
 public class CreateTnProject {
     public JPanel rootPanel;
     public JTextField projectDir;
-    private JButton btProjectDir;
     public JTextField targetDir;
+    Project project;
+    Module module;
+    private JButton btProjectDir;
     private JButton btTargetDir;
     private JLabel lblTitle;
     private JTextField txtProjectName;
     private JCheckBox cbCreateDir;
-
-
-    Project project;
-    Module module;
-
-    public void setProject(Project project) {
-        this.project = project;
-    }
-
-    public void setModule(Module module) {
-        this.module = module;
-    }
 
     public CreateTnProject() {
         btProjectDir.addActionListener(new ActionListener() {
@@ -66,5 +56,13 @@ public class CreateTnProject {
                 targetDir.setText(Strings.nullToEmpty(vfile.getPath()));
             }
         });
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public void setModule(Module module) {
+        this.module = module;
     }
 }

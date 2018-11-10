@@ -79,7 +79,7 @@ public class DummyInsertPsiElement implements PsiElement {
 
     @Override
     public TextRange getTextRange() {
-        return new TextRange(pos,pos);
+        return new TextRange(pos, pos);
     }
 
     @Override

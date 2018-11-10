@@ -26,7 +26,6 @@ public class NavTreeStructureProvider implements TreeStructureProvider {
     List<RouteTreeNode> treeNodes = new LinkedList<>();
 
 
-
     public NavTreeStructureProvider(NG_UIRoutesRoutesFileContext ctx) {
         this.ctx = ctx;
 
@@ -44,13 +43,13 @@ public class NavTreeStructureProvider implements TreeStructureProvider {
         for (PsiRouteContext route : sortedRoutes) {
 
             String routeKey = route.getRoute().getRouteKey();
-            String subKey = routeKey.contains(".") ? routeKey.substring(0,routeKey.lastIndexOf(".")) : "";
-            if(_routeIdx.containsKey(routeKey)) {
+            String subKey = routeKey.contains(".") ? routeKey.substring(0, routeKey.lastIndexOf(".")) : "";
+            if (_routeIdx.containsKey(routeKey)) {
                 //route already processed
                 continue;
             }
             RouteTreeNode newNode = new RouteTreeNode(ctx.getProject(), route);
-            if(!Strings.isNullOrEmpty(subKey) && _routeIdx.containsKey(subKey)) {
+            if (!Strings.isNullOrEmpty(subKey) && _routeIdx.containsKey(subKey)) {
                 _routeIdx.get(subKey).getChildren().add(newNode);
                 _routeIdx.put(routeKey, newNode);
                 continue;

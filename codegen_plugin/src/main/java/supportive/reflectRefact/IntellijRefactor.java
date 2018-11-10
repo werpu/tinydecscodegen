@@ -18,11 +18,10 @@ public class IntellijRefactor {
 
         List<IntellijFileContext> annotatedModules = fileContext.findFirstUpwards(psiFile -> psiFile.getContainingFile().getText()
                 .contains(NG_MODULE) && !psiFile.getVirtualFile().getPath()
-                .replaceAll("\\\\","/").equals(fileContext.getVirtualFile().getPath()));
+                .replaceAll("\\\\", "/").equals(fileContext.getVirtualFile().getPath()));
 
         for (IntellijFileContext angularModule : annotatedModules) {
             NgModuleFileContext moduleFileContext = new NgModuleFileContext(angularModule);
-
 
 
             String relativePath = (fileContext.calculateRelPathTo(moduleFileContext))

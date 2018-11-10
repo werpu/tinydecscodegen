@@ -105,6 +105,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     private ToolWindow toolWindow;
 
     private ResourcePanels resourcePanels;
+    private AtomicBoolean refreshRunning = new AtomicBoolean(Boolean.FALSE);
 
     public ResourceToolWindow() {
 
@@ -146,12 +147,10 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         otherResourcesActiveEditorModule.createDefaultKeyController(gotToFile, goToParentModule, copyResourceName);
 
 
-
         modules.createDefaultClickHandlers(updateSecTree, gotToFile);
         otherResources.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
         otherResourcesModule.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
         otherResourcesActiveEditorModule.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
-
 
 
     }
@@ -166,12 +165,10 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         });
     }
 
-
     public void registerPopup(Tree tree) {
         MouseController<IAngularFileContext> contextMenuListener = new MouseController<>(tree, this::showPopup);
         tree.addMouseListener(contextMenuListener);
     }
-
 
     private void copyResourceName(IAngularFileContext fileContext) {
         copyToClipboard(fileContext.getResourceName());
@@ -197,7 +194,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     private void goToParentModule(IAngularFileContext fileContext) {
         NgModuleFileContext parentModule = fileContext.getParentModule();
-        if(parentModule != null) {
+        if (parentModule != null) {
             openEditor(parentModule.getResourceRoot());
         } else {
             IntellijUtils.showInfoMessage("Parent module could not be found", "Info");
@@ -445,7 +442,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     }
 
-
     private void editorSwitched(FileEditorManagerEvent evt) {
         FileEditor editor = evt.getNewEditor();
         Project project = evt.getManager().getProject();
@@ -469,12 +465,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         }));
 
     }
-
-
-
-
-    private AtomicBoolean refreshRunning = new AtomicBoolean(Boolean.FALSE);
-
 
     private void refreshContent() {
         if (toolWindow == null || !toolWindow.isVisible()) {

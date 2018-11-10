@@ -27,7 +27,7 @@ public class CreateNgService extends CreateTnDecService {
     @Override
     protected FileTemplate getJ2eeTemplate(Project project) {
 
-         return FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_NG_SERVICE);
+        return FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_NG_SERVICE);
     }
 
     @Override

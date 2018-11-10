@@ -10,11 +10,11 @@ import javax.swing.table.DefaultTableCellRenderer;
 public class AngularResourceModuleTableCellRenderer extends DefaultTableCellRenderer {
     @Override
     protected void setValue(Object value) {
-        if(value instanceof IAngularFileContext) {
+        if (value instanceof IAngularFileContext) {
             IAngularFileContext mappedValue = (IAngularFileContext) value;
 
             String displayName = mappedValue.getDisplayName();
-            String name = displayName.substring(displayName.indexOf("[")+1, displayName.indexOf("]"));
+            String name = displayName.substring(displayName.indexOf("[") + 1, displayName.indexOf("]"));
             super.setValue(name);
             return;
         }

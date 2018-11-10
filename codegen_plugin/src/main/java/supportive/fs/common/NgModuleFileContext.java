@@ -33,7 +33,6 @@ public class NgModuleFileContext extends AngularResourceContext {
     }
 
 
-
     public NgModuleFileContext(AnActionEvent event) {
         super(event);
     }
@@ -56,7 +55,7 @@ public class NgModuleFileContext extends AngularResourceContext {
         AngularArtifactGist fileData = NgModuleFileGist.getFileData(psiFile);
 
         clazzName = fileData.getClassName();
-        artifactName =  fileData.getArtifactName();
+        artifactName = fileData.getArtifactName();
         paramSection = resolveParameters();
 
         findParentModule();
@@ -71,13 +70,11 @@ public class NgModuleFileContext extends AngularResourceContext {
     @NotNull
     public PsiElementContext resolveClass(PsiFile psiFile) {
         Optional<PsiElementContext> clazz = new PsiElementContext(psiFile).$q(MODULE_CLASS).findFirst();
-        if(!clazz.isPresent()) {
+        if (!clazz.isPresent()) {
             throw new RuntimeException("Module class not found");
         }
         return clazz.get();
     }
-
-
 
 
     protected void init() {
@@ -87,15 +84,15 @@ public class NgModuleFileContext extends AngularResourceContext {
 
     public String getModuleName() {
         AngularArtifactGist fileData = NgModuleFileGist.getFileData(psiFile);
-        if(fileData == null) {
+        if (fileData == null) {
             return "";
         }
-        return  fileData.getArtifactName();
+        return fileData.getArtifactName();
     }
 
 
     public Optional<String> findClassName() {
-        return  Optional.ofNullable(NgModuleFileGist.getFileData(psiFile).getClassName());
+        return Optional.ofNullable(NgModuleFileGist.getFileData(psiFile).getClassName());
     }
 
     public void appendDeclaration(String variableName) throws IOException {
@@ -111,7 +108,7 @@ public class NgModuleFileContext extends AngularResourceContext {
     }
 
     public void appendExports(String variableName) throws IOException {
-        paramSection. insertUpdateDefSection("exports", variableName);
+        paramSection.insertUpdateDefSection("exports", variableName);
     }
 
     public void appendProviders(String variableName) throws IOException {

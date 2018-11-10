@@ -25,30 +25,16 @@ public class ControllerIndex extends ScalarIndexExtension<String> {
     public static final String CONTROLLER = "@Controller";
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 
-    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
-        @Override
-        @NotNull
-        public Map<String, Void> map(@NotNull final FileContent inputData) {
-
-            IntellijFileContext ctx = new IntellijFileContext(inputData.getProject(), inputData.getFile());
-            if ((!standardExclusions(inputData)) && (isComponent(ctx) &&
-                    //TODO pages really?
-                    normalizePath(inputData.getFile().getPath()).contains("/pages/"))
-                    || isController(ctx)) {
-                return Collections.singletonMap(CONTROLLER, null);
-            }
-            return Collections.emptyMap();
-
-
-        }
-    }
-
     public static boolean isComponent(IntellijFileContext ctx) {
         return ctx.getText().contains("@Component") && ctx.queryContent(COMPONENT_ANN).findFirst().isPresent();
     }
 
     public static boolean isController(IntellijFileContext ctx) {
         return ctx.getText().contains("@Controller") && ctx.queryContent(CONTROLLER_ANN).findFirst().isPresent();
+    }
+
+    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
+        return IndexUtils.resolve(project, angularRoot, NAME, CONTROLLER);
     }
 
     @NotNull
@@ -85,8 +71,22 @@ public class ControllerIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
-    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
-        return IndexUtils.resolve(project, angularRoot, NAME, CONTROLLER);
+    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
+        @Override
+        @NotNull
+        public Map<String, Void> map(@NotNull final FileContent inputData) {
+
+            IntellijFileContext ctx = new IntellijFileContext(inputData.getProject(), inputData.getFile());
+            if ((!standardExclusions(inputData)) && (isComponent(ctx) &&
+                    //TODO pages really?
+                    normalizePath(inputData.getFile().getPath()).contains("/pages/"))
+                    || isController(ctx)) {
+                return Collections.singletonMap(CONTROLLER, null);
+            }
+            return Collections.emptyMap();
+
+
+        }
     }
 
 }

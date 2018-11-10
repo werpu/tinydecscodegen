@@ -41,16 +41,15 @@ public class IntellijRunUtils {
     }
 
 
+    public static void invokeLater(Runnable... run) {
 
-    public static void invokeLater(Runnable ... run) {
-
-        if(run.length == 0) {
+        if (run.length == 0) {
             return;
         }
 
         invokeLater(() -> {
             run[0].run();
-            if(run.length == 1) {
+            if (run.length == 1) {
                 return;
             }
             invokeLater(Arrays.copyOfRange(run, 1, run.length));
@@ -110,7 +109,7 @@ public class IntellijRunUtils {
     }
 
     public static void runAsync(Project project, String title, Consumer<ProgressIndicator> runner) {
-        runAsync(backgroundTask(project, title,  runner));
+        runAsync(backgroundTask(project, title, runner));
     }
 
     public static void runSync(Task.Modal myTask) {

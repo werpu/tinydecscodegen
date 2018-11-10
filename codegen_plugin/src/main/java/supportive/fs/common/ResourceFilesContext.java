@@ -69,7 +69,7 @@ public class ResourceFilesContext extends IntellijFileContext {
     public void addFilters(FilterPipeContext ctx) {
         filtersPipes.add(ctx);
     }
-    
+
     public void reset() {
         modules = new ArrayList<>();
         components = new ArrayList<>();
@@ -85,12 +85,12 @@ public class ResourceFilesContext extends IntellijFileContext {
 
     public ResourceFilesContext search(String in) {
         return new ResourceFilesContext(project,
-                modules.stream().filter(e -> e.getDisplayName().toLowerCase().contains( in.toLowerCase())).collect(Collectors.toList()),
-                components.stream().filter(e -> e.getDisplayName().toLowerCase().contains( in.toLowerCase())).collect(Collectors.toList()),
-                controllers.stream().filter(e -> e.getDisplayName().toLowerCase().contains( in.toLowerCase())).collect(Collectors.toList()),
+                modules.stream().filter(e -> e.getDisplayName().toLowerCase().contains(in.toLowerCase())).collect(Collectors.toList()),
+                components.stream().filter(e -> e.getDisplayName().toLowerCase().contains(in.toLowerCase())).collect(Collectors.toList()),
+                controllers.stream().filter(e -> e.getDisplayName().toLowerCase().contains(in.toLowerCase())).collect(Collectors.toList()),
                 Collections.emptyList(),
                 //routes.stream().filter(e -> e.().toLowerCase().contains( in.toLowerCase())).collect(Collectors.toList()),
-                services.stream().filter(e -> e.getDisplayName().toLowerCase().contains( in.toLowerCase())).collect(Collectors.toList()),
-                filtersPipes.stream().filter(e -> e.getDisplayName().toLowerCase().contains( in.toLowerCase())).collect(Collectors.toList()));
+                services.stream().filter(e -> e.getDisplayName().toLowerCase().contains(in.toLowerCase())).collect(Collectors.toList()),
+                filtersPipes.stream().filter(e -> e.getDisplayName().toLowerCase().contains(in.toLowerCase())).collect(Collectors.toList()));
     }
 }

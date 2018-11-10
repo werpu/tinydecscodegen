@@ -31,24 +31,35 @@ public class AngularIndex extends ScalarIndexExtension<String> {
 
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 
-    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
-
-
-        @Override
-        @NotNull
-        public Map<String, Void> map(@NotNull final FileContent inputData) {
-
-            if((!standardSimpleFileExclusion(inputData)) && inputData.getFile().getName().equals("package.json")
-                    &&
-                    (inputData.getPsiFile().getText().contains(NG_MARKER) ||
-                            inputData.getPsiFile().getText().contains(TN_MARKER)
-
-                    )) {
-                return Collections.singletonMap(NPM_ROOT, null);
-            }
-
-            return Collections.emptyMap();
+    public static boolean isAngularVersion(IntellijFileContext file, AngularVersion angularVersion) {
+        List<IntellijFileContext> angularRoots = getAllAffectedRoots(file.getProject(), angularVersion);
+        if (angularRoots.isEmpty()) {
+            return false;
         }
+        return true;
+        //return angularRoots.stream().filter(angularRoot -> angularRoot.isBelow(file)).findFirst().isPresent();
+    }
+
+    public static boolean isBelowAngularVersion(IntellijFileContext file, AngularVersion angularVersion) {
+        List<IntellijFileContext> angularRoots = getAllAffectedRoots(file.getProject(), angularVersion);
+        if (angularRoots.isEmpty()) {
+            return false;
+        }
+
+        return angularRoots.stream().filter(angularRoot -> angularRoot.isBelow(file)).findFirst().isPresent();
+    }
+
+    public static List<IntellijFileContext> getAllAffectedRoots(Project project, AngularVersion angularVersion) {
+        return FileBasedIndex.getInstance().getContainingFiles(NAME, NPM_ROOT,
+                GlobalSearchScope.projectScope(project)).stream()
+                .filter(VirtualFile::isValid)
+                .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
+                .filter(psiFile -> {
+                    return psiFile != null && psiFile.getText().contains((angularVersion == AngularVersion.NG ? NG_MARKER : TN_MARKER));
+                })
+                .map(psiFile -> psiFile.getParent())
+                .map(psiDirectory -> new IntellijFileContext(project, psiDirectory.getVirtualFile()))
+                .collect(Collectors.toList());
     }
 
     @NotNull
@@ -85,36 +96,24 @@ public class AngularIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
+    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
 
-    public static boolean isAngularVersion(IntellijFileContext file, AngularVersion angularVersion) {
-        List<IntellijFileContext> angularRoots = getAllAffectedRoots(file.getProject(), angularVersion);
-        if(angularRoots.isEmpty()) {
-            return false;
+
+        @Override
+        @NotNull
+        public Map<String, Void> map(@NotNull final FileContent inputData) {
+
+            if ((!standardSimpleFileExclusion(inputData)) && inputData.getFile().getName().equals("package.json")
+                    &&
+                    (inputData.getPsiFile().getText().contains(NG_MARKER) ||
+                            inputData.getPsiFile().getText().contains(TN_MARKER)
+
+                    )) {
+                return Collections.singletonMap(NPM_ROOT, null);
+            }
+
+            return Collections.emptyMap();
         }
-        return true;
-        //return angularRoots.stream().filter(angularRoot -> angularRoot.isBelow(file)).findFirst().isPresent();
-    }
-
-    public static boolean isBelowAngularVersion(IntellijFileContext file, AngularVersion angularVersion) {
-        List<IntellijFileContext> angularRoots = getAllAffectedRoots(file.getProject(), angularVersion);
-        if(angularRoots.isEmpty()) {
-            return false;
-        }
-
-        return angularRoots.stream().filter(angularRoot -> angularRoot.isBelow(file)).findFirst().isPresent();
-    }
-
-    public static List<IntellijFileContext> getAllAffectedRoots(Project project, AngularVersion angularVersion) {
-        return FileBasedIndex.getInstance().getContainingFiles(NAME, NPM_ROOT,
-                GlobalSearchScope.projectScope(project)).stream()
-                .filter(VirtualFile::isValid)
-                .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
-                .filter(psiFile -> {
-                    return psiFile != null && psiFile.getText().contains((angularVersion == AngularVersion.NG ? NG_MARKER : TN_MARKER));
-                })
-                .map(psiFile -> psiFile.getParent())
-                .map(psiDirectory -> new IntellijFileContext(project, psiDirectory.getVirtualFile()))
-                .collect(Collectors.toList());
     }
 
 }

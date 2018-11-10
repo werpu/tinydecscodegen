@@ -41,6 +41,11 @@ import static java.util.Optional.ofNullable;
 
 public class CreateTnDecRoute extends AnAction {
 
+    //TODO element nearest
+    public static List<ComponentFileContext> getControllers(IntellijFileContext ctx) {
+        return ComponentFileContext.getControllerInstances(ctx);
+    }
+
     @Override
     public void update(AnActionEvent anActionEvent) {
         VisibleAssertions.tnVisible(anActionEvent);
@@ -128,7 +133,6 @@ public class CreateTnDecRoute extends AnAction {
         }
     }
 
-
     //dedup this code
     protected List<ValidationInfo> validate(Route route, TNRoutesFileContext ctx, CreateRoute mainForm) {
         return Arrays.asList(
@@ -170,11 +174,6 @@ public class CreateTnDecRoute extends AnAction {
                 .flatMap(psiFile -> supportive.fs.common.ComponentFileContext.getControllerInstances(new IntellijFileContext(rootContext.getProject(), psiFile)).stream())
                 .toArray(size -> new ComponentFileContext[size]);
 
-    }
-
-    //TODO element nearest
-    public static List<ComponentFileContext> getControllers(IntellijFileContext ctx) {
-        return ComponentFileContext.getControllerInstances(ctx);
     }
 
     public Optional<ComponentFileContext> getDefaultComponentData(IntellijFileContext fileContext) {

@@ -89,14 +89,6 @@ public class IntellijFileContext {
         this(project, getProjectFile(project));
     }
 
-    public static VirtualFile getProjectFile(Project project) {
-        VirtualFile projectFile = project.getProjectFile();
-        if(projectFile == null) {
-            projectFile = project.getBaseDir();
-        }
-        return projectFile;
-    }
-
     //todo inherently problematic because sometimes the psi file does not exist
     //and get psi file throws an error from intellij
     public IntellijFileContext(Project project, PsiFile psiFile) {
@@ -120,6 +112,14 @@ public class IntellijFileContext {
         postConstruct();
     }
 
+    public static VirtualFile getProjectFile(Project project) {
+        VirtualFile projectFile = project.getProjectFile();
+        if (projectFile == null) {
+            projectFile = project.getBaseDir();
+        }
+        return projectFile;
+    }
+
     protected void postConstruct() {
 
     }
@@ -133,6 +133,9 @@ public class IntellijFileContext {
         }
     }
 
+    public void setText(String text) throws IOException {
+        virtualFile.setBinaryContent(text.getBytes(virtualFile.getCharset()));
+    }
 
     public String getModuleRelativePath() {
         return virtualFile.getPath().replaceAll(module.getModuleFile().getParent().getPath(), ".");
@@ -154,11 +157,9 @@ public class IntellijFileContext {
         return new IntellijFileContext(getProject(), getProject().getBaseDir());
     }
 
-
     public List<PsiElement> findPsiElements(Function<PsiElement, Boolean> psiElementVisitor) {
         return findPsiElements(psiElementVisitor, false);
     }
-
 
     public Optional<PsiElement> findPsiElement(Function<PsiElement, Boolean> psiElementVisitor) {
         List<PsiElement> found = findPsiElements(psiElementVisitor, true);
@@ -167,10 +168,6 @@ public class IntellijFileContext {
         } else {
             return Optional.ofNullable(found.get(0));
         }
-    }
-
-    public void setText(String text) throws IOException {
-        virtualFile.setBinaryContent(text.getBytes(virtualFile.getCharset()));
     }
 
     public void commit() throws IOException {
@@ -415,7 +412,7 @@ public class IntellijFileContext {
         return new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(stripQuotes(importStr.getText()) + getTsExtension()));
     }
 
-    public  Optional<NgModuleFileContext> getNearestModule() {
+    public Optional<NgModuleFileContext> getNearestModule() {
         IntellijFileContext project = new IntellijFileContext(this.getProject());
         ContextFactory ctxf = ContextFactory.getInstance(project);
         String filterStr = StringUtils.normalizePath(this.getFolderPath());

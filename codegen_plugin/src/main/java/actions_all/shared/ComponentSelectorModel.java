@@ -13,11 +13,9 @@ import java.util.Arrays;
 @AllArgsConstructor
 public class ComponentSelectorModel {
 
-    private int selectedIndex = 0;
-
     @NotNull
     private final ComponentFileContext[] componentFileContexts;
-
+    private int selectedIndex = 0;
 
     public String[] getContextNames() {
         return Arrays.stream(componentFileContexts)

@@ -40,10 +40,15 @@ public class CreateNgRoute extends AnAction {
 
     public static final String ROOT_MODULE = "[]";
 
+    //TODO element nearest
+    public static List<ComponentFileContext> getControllers(IntellijFileContext ctx) {
+        return ComponentFileContext.getInstances(ctx);
+    }
+
     @Override
     public void update(AnActionEvent anActionEvent) {
         VisibleAssertions.ngVisible(anActionEvent);
-        if(anActionEvent.getPresentation().isVisible() && !AngularIndex.isBelowAngularVersion(new IntellijFileContext(anActionEvent), AngularVersion.NG)) {
+        if (anActionEvent.getPresentation().isVisible() && !AngularIndex.isBelowAngularVersion(new IntellijFileContext(anActionEvent), AngularVersion.NG)) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
         }
     }
@@ -59,7 +64,7 @@ public class CreateNgRoute extends AnAction {
         if (components.length == 0) {
 
             String message = "There was no component found, cannot create route automatically, please create it manually";
-            supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "Error",message);
+            supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "Error", message);
             return;
         }
 
@@ -72,9 +77,9 @@ public class CreateNgRoute extends AnAction {
 
         List<PsiFile> files = ModuleIndex.getAllAffectedFiles(event.getProject(), fileContext.getAngularRoot().get());
         //add all modules to have one selected
-        if(files != null && files.size() > 0) {
+        if (files != null && files.size() > 0) {
             List<NgModuleFileContext> modules = files.stream().map(psiFile -> new NgModuleFileContext(event.getProject(), psiFile)).collect(Collectors.toList());
-            List<String>     cbModel = modules.stream().map(module -> module.getDisplayName()).collect(Collectors.toList());
+            List<String> cbModel = modules.stream().map(module -> module.getDisplayName()).collect(Collectors.toList());
 
             NgModuleFileContext rootModule = modules.stream().filter(m -> m.getDisplayName().endsWith(ROOT_MODULE)).findFirst().get();
 
@@ -135,7 +140,6 @@ public class CreateNgRoute extends AnAction {
         };
 
 
-
         dialogWrapper.setTitle("Create Route");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
@@ -155,7 +159,7 @@ public class CreateNgRoute extends AnAction {
                                 route.setComponentPath(compContext.calculateRelPathTo(rContext));
                                 String selectedModule = (String) mainForm.getCbRegisterIntoModule().getSelectedItem();
 
-                                if(mainForm.getRbRootNavigation().isSelected() || selectedModule.endsWith(ROOT_MODULE)) {
+                                if (mainForm.getRbRootNavigation().isSelected() || selectedModule.endsWith(ROOT_MODULE)) {
                                     rContext.addRoute(route);
                                 } else {
                                     NgModuleFileContext moduleFileContext = files.stream()
@@ -181,7 +185,7 @@ public class CreateNgRoute extends AnAction {
     @NotNull
     public Optional<ComponentFileContext> getDefaultComponentData(IntellijFileContext fileContext) {
         List<ComponentFileContext> editorControllers = (fileContext.getVirtualFile().isDirectory()) ? Collections.emptyList() : getControllers(fileContext);
-        if(editorControllers.isEmpty()) {
+        if (editorControllers.isEmpty()) {
             return empty();
         } else {
             return ofNullable(editorControllers.stream().findFirst().get());
@@ -207,11 +211,10 @@ public class CreateNgRoute extends AnAction {
 
 
         return new Route(
-                        mainForm.getTxtRouteName().getText(),
-                        mainForm.getTxtHref().getText(),
-                        selectorModel.getComponentFileContexts()[mainForm.getCbComponent().getSelectedIndex()].getClazzName(), this.getClass());
+                mainForm.getTxtRouteName().getText(),
+                mainForm.getTxtHref().getText(),
+                selectorModel.getComponentFileContexts()[mainForm.getCbComponent().getSelectedIndex()].getClazzName(), this.getClass());
     }
-
 
     protected ComponentFileContext[] findAllPageComponents(IntellijFileContext rootContext) {
         List<PsiFile> foundFiles = ControllerIndex.getAllAffectedFiles(rootContext.getProject(), rootContext.getAngularRoot().orElse(rootContext.getProjectDir()));
@@ -219,12 +222,6 @@ public class CreateNgRoute extends AnAction {
         return foundFiles.stream().flatMap(psiFile -> ComponentFileContext.getInstances(new IntellijFileContext(rootContext.getProject(), psiFile)).stream())
                 .toArray(size -> new ComponentFileContext[size]);
 
-    }
-
-
-    //TODO element nearest
-    public static List<ComponentFileContext> getControllers(IntellijFileContext ctx) {
-        return ComponentFileContext.getInstances(ctx);
     }
 
 }

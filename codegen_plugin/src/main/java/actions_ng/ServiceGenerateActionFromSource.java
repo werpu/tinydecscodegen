@@ -21,7 +21,6 @@ public class ServiceGenerateActionFromSource extends AnAction {
     private static final Logger log = Logger.getInstance(ServiceGenerationAction.class);
 
 
-
     @Override
     public void update(AnActionEvent anActionEvent) {
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);

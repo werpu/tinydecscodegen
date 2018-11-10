@@ -43,7 +43,7 @@ public class RegexpFormatter extends DefaultFormatter {
 
     @Override
     public Object stringToValue(String string) throws ParseException {
-        if(!string.matches(pattern)) {
+        if (!string.matches(pattern)) {
             throw new ParseException("Supplied pattern does not match", 0);
         }
         return super.stringToValue(string);

@@ -25,10 +25,9 @@ import static supportive.reflectRefact.PsiWalkFunctions.*;
  */
 public class ContextFactory {
 
-    IntellijFileContext project;
-
     private static Cache<String, ResourceFilesContext> volatileData = CacheBuilder.newBuilder()
             .build();
+    IntellijFileContext project;
 
 
     protected ContextFactory(IntellijFileContext project) {
@@ -74,7 +73,7 @@ public class ContextFactory {
         final String modulePath = StringUtils.normalizePath(routesFile.getFolderPath());
 
         if (found) {
-            return new PsiRouteContext(psiElementContext.getElement(), new Route(sName, sUrl, sComponent, psiElementContext.getName(), modulePath+"/"+sImport, origin));
+            return new PsiRouteContext(psiElementContext.getElement(), new Route(sName, sUrl, sComponent, psiElementContext.getName(), modulePath + "/" + sImport, origin));
         }
         return null;
     }
@@ -236,8 +235,8 @@ public class ContextFactory {
 
     public ResourceFilesContext getProjectResourcesCached(IntellijFileContext projectRoot, AngularVersion angularVersion) {
         ResourceFilesContext retVal = volatileData.getIfPresent(angularVersion.name());
-        if(retVal != null) {
-            return  retVal;
+        if (retVal != null) {
+            return retVal;
         }
         return getProjectResources(projectRoot, angularVersion);
 
@@ -248,7 +247,6 @@ public class ContextFactory {
 
 
         resourceFilesContext.getRoutes().addAll(getRouteFiles(projectRoot, angularVersion));
-
 
 
         List<NgModuleFileContext> modulesTn = getModules(projectRoot, angularVersion);

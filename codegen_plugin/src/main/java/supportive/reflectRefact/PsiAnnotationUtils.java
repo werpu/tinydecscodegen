@@ -52,7 +52,6 @@ class PsiAnnotationUtils {
     }
 
 
-
     public static boolean isPresent(PsiAnnotation ann, Class... annotation) {
         return Arrays.asList(annotation).stream().map(ann2 -> ann2.getName())
                 .anyMatch(name -> name.contains(ann.getQualifiedName()));
@@ -61,16 +60,16 @@ class PsiAnnotationUtils {
     @NotNull
     static RestVar getRestReturnType(PsiMethod m, int returnValueNestingDepth) {
         String sReturnType = m.getReturnType().getCanonicalText();
-        for(int cnt = 0; cnt < returnValueNestingDepth; cnt++) {
+        for (int cnt = 0; cnt < returnValueNestingDepth; cnt++) {
             int from = sReturnType.indexOf("<");
             int to = sReturnType.lastIndexOf(">");
-            if(from == -1 || to == -1) {
+            if (from == -1 || to == -1) {
                 break;
             }
-            sReturnType = sReturnType.substring(from+1, to);
+            sReturnType = sReturnType.substring(from + 1, to);
         }
 
-        if(sReturnType.equals("Response") || sReturnType.equals("ResponseEntity")) {
+        if (sReturnType.equals("Response") || sReturnType.equals("ResponseEntity")) {
             //TODO source parsing of the java source
             sReturnType = "any";
         }

@@ -83,40 +83,22 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     public static final Object[] STR_INJECTS = {CHILD_ELEM, JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL};
     public static final Object[] CONTROLLER_FUNC = {CHILD_ELEM, TYPESCRIPT_FUNCTION_EXPRESSION};
     public static final Object[] PARAM_LISTS = {CONTROLLER_ARR, CONTROLLER_FUNC, CHILD_ELEM, TYPE_SCRIPT_PARAMETER_LIST, TYPE_SCRIPT_PARAM};
-
-    @NotNull
-    static Object[] COMPONENT_NAME(String className) {
-        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, NAME_EQ(className), PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
-    }
-
-
     Optional<PsiElementContext> lastImport;
     PsiElementContext rootBlock;
     String controllerAs;
     List<Injector> injects; //imports into the constructor
     String selectorName; //trace back into the module declaration for this component and then run our string dash transformation
-
     Optional<PsiElementContext> constructorDef;
     Optional<PsiElementContext> constructorBlock;
-
     List<PsiElementContext> inlineFunctions;
     String template; //original template after being found
     //List<PsiElementContext> watchers;
     List<BindingTypes> bindings;
-
-
     public AngularJSComponentTransformationModel(Project project, PsiFile psiFile, PsiElementContext rootBlock) {
         super(project, psiFile);
         applyRootBlock(psiFile, rootBlock);
     }
 
-    public void applyRootBlock(PsiFile psiFile, PsiElementContext rootBlock) {
-        if(rootBlock != null) {
-            this.rootBlock = rootBlock;
-        } else {
-            this.rootBlock = new PsiElementContext(psiFile.getContext());
-        }
-    }
 
     public AngularJSComponentTransformationModel(AnActionEvent event, PsiElementContext rootBlock) {
         super(event);
@@ -131,6 +113,19 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     public AngularJSComponentTransformationModel(IntellijFileContext fileContext) {
         super(fileContext);
         applyRootBlock(getPsiFile(), rootBlock);
+    }
+
+    @NotNull
+    static Object[] COMPONENT_NAME(String className) {
+        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, NAME_EQ(className), PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
+    }
+
+    public void applyRootBlock(PsiFile psiFile, PsiElementContext rootBlock) {
+        if (rootBlock != null) {
+            this.rootBlock = rootBlock;
+        } else {
+            this.rootBlock = new PsiElementContext(psiFile.getContext());
+        }
     }
 
     @Override
@@ -154,11 +149,11 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         Optional<PsiElementContext> returnStmt = rootBlock.$q(TYPE_SCRIPT_FIELD, NAME_EQ("template"), JS_RETURN_STATEMENT).findFirst();
         returnStmt.ifPresent((el) -> {
             Optional<PsiElementContext> found = Stream.concat(el.$q(PSI_ELEMENT_JS_STRING_LITERAL), el.$q(PSI_ELEMENT_JS_IDENTIFIER)).findFirst();
-            if(found.isPresent() && found.get().getElement().toString().startsWith(PSI_ELEMENT_JS_IDENTIFIER)) {
+            if (found.isPresent() && found.get().getElement().toString().startsWith(PSI_ELEMENT_JS_IDENTIFIER)) {
                 //identifier resolution
-            } else if(found.isPresent() && found.get().getElement().getText().endsWith(".html")) {
+            } else if (found.isPresent() && found.get().getElement().getText().endsWith(".html")) {
                 //file resolution
-            } else if(found.isPresent()) {
+            } else if (found.isPresent()) {
                 //string resolution
             }
         });
@@ -185,14 +180,14 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         injects = new ArrayList<>();
         List<String> strInjects =
                 rootBlock.$q(CONTROLLER_ARR, STR_INJECTS)
-                .map(el-> el.getText())
-                .collect(Collectors.toList());
+                        .map(el -> el.getText())
+                        .collect(Collectors.toList());
 
         List<String> tsInjects = rootBlock.$q(PARAM_LISTS)
                 .map(el -> el.getText())
                 .collect(Collectors.toList());
 
-        for(int cnt = 0; cnt < tsInjects.size(); cnt++) {
+        for (int cnt = 0; cnt < tsInjects.size(); cnt++) {
             String tsNameType = tsInjects.get(cnt);
             String injector = (cnt < strInjects.size() - 1) ? strInjects.get(cnt) : tsNameType.split("\\:")[0];
             injects.add(new Injector(injector, tsNameType));
@@ -205,7 +200,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
         selectorName = super.findFirstUpwards(el -> {
             Optional<PsiElementContext> ctx = new IntellijFileContext(getProject(), el).$q(COMPONENT_NAME(className)).findFirst();
-            if(!ctx.isPresent()) {
+            if (!ctx.isPresent()) {
                 return false;
             }
             //TODO check imports

@@ -52,7 +52,7 @@ public class GenerateFileAndAddRef implements Runnable {
 
     protected GenerateFileAndAddRef(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs, FileNameTransformer fileNameTransformer) {
         this.project = project;
-        if(!folder.isDirectory()) {
+        if (!folder.isDirectory()) {
             folder = folder.getParent();
         }
         this.folder = folder;
@@ -63,8 +63,7 @@ public class GenerateFileAndAddRef implements Runnable {
     }
 
 
-
-    public GenerateFileAndAddRef(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs, FileNameTransformer fileNameTransformer, ModuleElementScope ... scope) {
+    public GenerateFileAndAddRef(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs, FileNameTransformer fileNameTransformer, ModuleElementScope... scope) {
         this(project, folder, className, vslTemplate, attrs, fileNameTransformer);
         this.scope = scope;
     }
@@ -79,10 +78,9 @@ public class GenerateFileAndAddRef implements Runnable {
 
             IntellijFileContext ctx = IntellijUtils.createAndOpen(project, folder, str, fileName);
 
-            for(ModuleElementScope singleScope: scope) {
+            for (ModuleElementScope singleScope : scope) {
                 appendDeclarationToModule(ctx, singleScope, className, getFileName());
             }
-
 
 
         } catch (IOException e) {

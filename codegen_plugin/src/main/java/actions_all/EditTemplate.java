@@ -64,9 +64,8 @@ import static supportive.utils.SwingUtils.createHtmlEditor;
 
 public class EditTemplate extends AnAction implements EditorCallback {
 
-    private static final Logger log = Logger.getInstance(EditTemplate.class);
-
     public static final String TEMPLATE_OF = "Template of: ";
+    private static final Logger log = Logger.getInstance(EditTemplate.class);
 
     public void update(AnActionEvent anActionEvent) {
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
@@ -274,15 +273,15 @@ public class EditTemplate extends AnAction implements EditorCallback {
         return new RetVal(doubleBuffer, editor);
     }
 
+    interface TabExecutor {
+        void apply(int editorPos, int htmlEditorPos, EditorWindow ed, EditorTabbedContainer tabbedPane);
+    }
+
     @Getter
     @AllArgsConstructor
     class RetVal {
         private Document document;
         private Editor editor;
-    }
-
-    interface TabExecutor {
-        void apply(int editorPos, int htmlEditorPos, EditorWindow ed, EditorTabbedContainer tabbedPane);
     }
 
 }

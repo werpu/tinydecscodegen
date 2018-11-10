@@ -23,24 +23,15 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
     public static final String ANN_MARKER = "@Component";
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 
-    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
-        @Override
-        @NotNull
-        public Map<String, Void> map(@NotNull final FileContent inputData) {
-
-            if ((!standardExclusions(inputData)) &&
-                    (!normalizePath(inputData.getFile().getPath()).contains("/pages/")) && isComponent(new IntellijFileContext(inputData.getProject(), inputData.getFile()))
-            ) {
-                return Collections.singletonMap(ANN_MARKER, null);
-            }
-            return Collections.emptyMap();
-
-
-        }
-    }
-
     public static boolean isComponent(IntellijFileContext ctx) {
         return ctx.getText().contains("@Component") && ctx.queryContent(COMPONENT_ANN).findFirst().isPresent();
+    }
+
+    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
+
+        return IndexUtils.resolve(project, angularRoot, NAME, ANN_MARKER);
+
+
     }
 
     @NotNull
@@ -78,10 +69,19 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
-    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
+    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
+        @Override
+        @NotNull
+        public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-        return IndexUtils.resolve(project, angularRoot, NAME, ANN_MARKER);
+            if ((!standardExclusions(inputData)) &&
+                    (!normalizePath(inputData.getFile().getPath()).contains("/pages/")) && isComponent(new IntellijFileContext(inputData.getProject(), inputData.getFile()))
+            ) {
+                return Collections.singletonMap(ANN_MARKER, null);
+            }
+            return Collections.emptyMap();
 
 
+        }
     }
 }

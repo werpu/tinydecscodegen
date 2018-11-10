@@ -26,18 +26,14 @@ public class NG_UIRoutesIndex extends ScalarIndexExtension<String> {
     public static final ID<String, Void> NAME = ID.create("TN_NG_MainRoutesIndex");
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 
-    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
-        @Override
-        @NotNull
-        public Map<String, Void> map(@NotNull final FileContent inputData) {
-
-            if ((!standardExclusions(inputData)) && inputData.getContentAsText().toString().contains(JS_UIROUTER_MODULE_FOR_ROOT) &&
-                    PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isRootNav, true).size() > 0) {
-                return Collections.singletonMap(JS_UIROUTER_MODULE_FOR_ROOT, null);
-            }
-
-            return Collections.emptyMap();
-        }
+    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
+        return FileBasedIndex.getInstance().getContainingFiles(NAME, JS_UIROUTER_MODULE_FOR_ROOT,
+                GlobalSearchScope.projectScope(project)).stream()
+                .filter(VirtualFile::isValid)
+                .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).startsWith("..")))
+                .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
+                //.map(psiFile -> new NG_UIRoutesRoutesFileContext(project, psiFile))
+                .collect(Collectors.toList());
     }
 
     @NotNull
@@ -74,17 +70,18 @@ public class NG_UIRoutesIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
+    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
+        @Override
+        @NotNull
+        public Map<String, Void> map(@NotNull final FileContent inputData) {
 
+            if ((!standardExclusions(inputData)) && inputData.getContentAsText().toString().contains(JS_UIROUTER_MODULE_FOR_ROOT) &&
+                    PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isRootNav, true).size() > 0) {
+                return Collections.singletonMap(JS_UIROUTER_MODULE_FOR_ROOT, null);
+            }
 
-
-    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
-        return FileBasedIndex.getInstance().getContainingFiles(NAME, JS_UIROUTER_MODULE_FOR_ROOT,
-                GlobalSearchScope.projectScope(project)).stream()
-                .filter(VirtualFile::isValid)
-                .filter(vFile -> !(new IntellijFileContext(project, vFile).calculateRelPathTo(angularRoot).startsWith("..")))
-                .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
-                //.map(psiFile -> new NG_UIRoutesRoutesFileContext(project, psiFile))
-                .collect(Collectors.toList());
+            return Collections.emptyMap();
+        }
     }
 
 }

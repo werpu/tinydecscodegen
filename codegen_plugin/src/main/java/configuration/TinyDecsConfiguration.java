@@ -9,7 +9,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class TinyDecsConfiguration implements Serializable {
 
-    private int returnValueStripLevel  = 0;
+    private int returnValueStripLevel = 0;
     private String sourceRestFramework = "";
     private String targetClientFramework = "";
 

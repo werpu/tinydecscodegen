@@ -91,7 +91,7 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
             Path routeFilePath = Paths.get(this.getVirtualFile().getPath());
             Path moduleFilePath = Paths.get(module.getFolderPath());
             String rel = normalizePath(moduleFilePath.relativize(routeFilePath).toString());
-            if(rel.endsWith(getTsExtension())) {
+            if (rel.endsWith(getTsExtension())) {
                 rel = rel.substring(0, rel.length() - getTsExtension().length());
             }
 
@@ -172,12 +172,12 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
         //nav array not proper iot cannot handle subroutes
         List<PsiElementContext> foundIdentifiers =
                 concat(this.$q(TYPE_SCRIPT_VARIABLE, JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, NAME_EQ("views"), PARENTS_EQ(TYPE_SCRIPT_VARIABLE)),
-                        this.$q(TYPE_SCRIPT_VARIABLE,JS_OBJECT_LITERAL_EXPRESSION,  JS_PROPERTY, NAME_EQ("component"), PARENTS_EQ(TYPE_SCRIPT_VARIABLE)))
-                .distinct()
-               .collect(Collectors.toList());
+                        this.$q(TYPE_SCRIPT_VARIABLE, JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, NAME_EQ("component"), PARENTS_EQ(TYPE_SCRIPT_VARIABLE)))
+                        .distinct()
+                        .collect(Collectors.toList());
 
 
-       // List<PsiElementContext> foundIdentifiers = getNavigationalArray().get().queryContent(JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER).collect(Collectors.toList());
+        // List<PsiElementContext> foundIdentifiers = getNavigationalArray().get().queryContent(JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER).collect(Collectors.toList());
         //List<PsiElementContext> foundParseableBlocks = getNavigationalArray().get().queryContent(JS_OBJECT_LITERAL_EXPRESSION).collect(Collectors.toList());
 
         //part a we try to resolve the variables locally

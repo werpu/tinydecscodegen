@@ -35,26 +35,21 @@ import java.util.function.Function;
  */
 @Getter
 public class CreateTnNamedArtifact {
+    public JPanel rootPanel;
+    boolean selectorValid = false;
+    boolean controllerAsValid = false;
+    Function<ComponentJson, Boolean> okFunc;
+    Function<ComponentJson, Boolean> cancelFunc;
+    String textAreaInvisibleText = "Click to edit the template";
+    String textAreaVisibileText = "Click to disable the template editing";
     private JTextField name;
-
     private JButton cancelButton;
     private JButton okButton;
     private JTextField controllerAs;
-    public JPanel rootPanel;
     private JLabel titlePane;
     private JButton btnEditTemplate;
     private JScrollPane textAreaPane;
     private JTextArea template;
-
-    boolean selectorValid = false;
-    boolean controllerAsValid = false;
-
-    Function<ComponentJson, Boolean> okFunc;
-    Function<ComponentJson, Boolean> cancelFunc;
-
-
-    String textAreaInvisibleText = "Click to edit the template";
-    String textAreaVisibileText = "Click to disable the template editing";
 
 
     public CreateTnNamedArtifact(String title) {
@@ -81,7 +76,7 @@ public class CreateTnNamedArtifact {
         btnEditTemplate.addActionListener(e -> {
             textAreaPane.setVisible(!textAreaPane.isVisible());
 
-            if(template.isVisible()) {
+            if (template.isVisible()) {
                 btnEditTemplate.setText(textAreaVisibileText);
 
             } else {
@@ -144,7 +139,6 @@ public class CreateTnNamedArtifact {
     public void setTitle(String title) {
         this.titlePane.setText(title);
     }
-
 
 
 }

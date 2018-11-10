@@ -50,7 +50,7 @@ public class ServiceContext extends AngularResourceContext {
     @NotNull
     private Optional<PsiElementContext> resolveClass() {
         Optional<PsiElementContext> serviceClass = $q(SERVICE_CLASS).findFirst();
-        if(!serviceClass.isPresent()) {
+        if (!serviceClass.isPresent()) {
             throw new RuntimeException("Service class not found");
         }
         return serviceClass;

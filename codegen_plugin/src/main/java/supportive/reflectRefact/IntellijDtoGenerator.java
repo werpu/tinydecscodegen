@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class IntellijDtoGenerator  {
+public class IntellijDtoGenerator {
 
     public static String generate(Project project, List<GenericClass> classes) {
         final FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_DTO);
@@ -24,7 +24,7 @@ public class IntellijDtoGenerator  {
 
                 Map<String, Object> root = new HashMap<>();
                 root.put("clazz", item);
-                return FileTemplateUtil.mergeTemplate(root,(item instanceof GenericEnum) ? enumTemplate.getText() : vslTemplate.getText(), false);
+                return FileTemplateUtil.mergeTemplate(root, (item instanceof GenericEnum) ? enumTemplate.getText() : vslTemplate.getText(), false);
 
             } catch (IOException e) {
                 return e.getMessage();

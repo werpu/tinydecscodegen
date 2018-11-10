@@ -35,7 +35,7 @@ import static actions_all.shared.FormAssertions.*;
  * Create a Tiny Decs filter artifact.
  * The idea is that every created artifact should auto register if possible
  */
-public class CreateTnDecFilter extends AnAction  {
+public class CreateTnDecFilter extends AnAction {
 
 
     public CreateTnDecFilter() {

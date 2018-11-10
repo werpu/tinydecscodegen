@@ -174,7 +174,7 @@ public class SearchForResource extends AnAction {
 
         searchRefresh(resourceSearchPanel, project, fileContext);
 
-       // dialog.setResizable(true);
+        // dialog.setResizable(true);
 
 
         invokeLater(() -> {

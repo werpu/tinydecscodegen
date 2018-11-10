@@ -20,12 +20,13 @@ public class EditorTypingHandler implements TypedActionHandler {
     CopyOnWriteArrayList<EditorCallback> callbackList = new CopyOnWriteArrayList<>();
 
     public void addCallback(EditorCallback callback) {
-        if(!callbackList.contains(callback)) {
+        if (!callbackList.contains(callback)) {
             callbackList.add(callback);
         }
     }
+
     public void removeCallback(EditorCallback callback) {
-        if(callbackList.contains(callback)) {
+        if (callbackList.contains(callback)) {
             callbackList.remove(callback);
         }
     }
@@ -34,7 +35,7 @@ public class EditorTypingHandler implements TypedActionHandler {
     @Override
     public void execute(@NotNull Editor editor, char c, @NotNull DataContext dataContext) {
         callbackList.stream().forEach(callback -> callback.hasTyped(editor));
-         final Document document = editor.getDocument();
+        final Document document = editor.getDocument();
         final Project project = editor.getProject();
 
         WriteCommandAction.runWriteCommandAction(project, () -> insertCharacter(editor, document, c));
@@ -43,7 +44,7 @@ public class EditorTypingHandler implements TypedActionHandler {
     private void insertCharacter(Editor editor, Document document, char c) {
         int selStart = editor.getSelectionModel().getSelectionStart();
         int selEnd = editor.getSelectionModel().getSelectionEnd();
-        if(selStart != selEnd) {
+        if (selStart != selEnd) {
             document.replaceString(selStart, selEnd, String.valueOf(c));
         } else {
             CaretModel caretModel = editor.getCaretModel();

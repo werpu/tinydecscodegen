@@ -48,19 +48,18 @@ import static supportive.reflectRefact.PsiWalkFunctions.*;
 /**
  * special file context for typescript files
  * which has typescript refactoring capabilities
- *
+ * <p>
  * The idea is to have a context with parsing and refactoring capabilities.
  * The refactoring is done by storing a chain of refactorings
  * and once the chain is done we basically make a transactional commit
- *
+ * <p>
  * The parsing originally was done via streams but that
  * basically produced to much code which was hard to read.
  * Hence I simplified 90% of all parsing cases by introducing
  * a simple query api on top of the streams.
- *
+ * <p>
  * Note this api will be refined and improved, this ia a first
  * quick hack to get the job done for 1.0.
- *
  */
 public class TypescriptFileContext extends IntellijFileContext {
 
@@ -85,8 +84,27 @@ public class TypescriptFileContext extends IntellijFileContext {
         super(fileContext.getProject(), fileContext.getPsiFile());
     }
 
+    protected static Optional<PsiElement> findImportString(TypescriptFileContext ctxm, String templateVarName) {
+        Optional<PsiElement> theImport = ctxm.findPsiElements(PsiWalkFunctions::isImport).stream()
+                .filter(
+                        el -> Arrays.stream(el.getChildren())
+                                .anyMatch(el2 -> el2.getText().contains(templateVarName) && PsiWalkFunctions.queryContent(el2, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:(" + templateVarName + ")").findFirst().isPresent())
+                ).findFirst();
 
+        return getPsiImportString(theImport);
+    }
 
+    protected static Optional<PsiElement> getPsiImportString(Optional<PsiElement> theImport) {
+
+        if (!theImport.isPresent()) {
+            return theImport;
+        }
+
+        return Arrays.asList(theImport.get().getChildren()).stream()
+                .filter(el -> el.toString().equals("ES6FromClause"))
+                .map(el -> el.getNode().getLastChildNode().getPsi())
+                .findFirst();
+    }
 
     /**
      * a more refined append import, which checks for an existing import and if it exists
@@ -95,15 +113,12 @@ public class TypescriptFileContext extends IntellijFileContext {
      *
      * @param plannedVariable
      * @param importPath
-     *
      * @return the final name of the import variable
-     *
      */
-    public String appendImport(String plannedVariable, String importPath)  {
+    public String appendImport(String plannedVariable, String importPath) {
         //case a check for the same pattern as our existing import
         return appendImport(plannedVariable, "", importPath);
     }
-
 
     /**
      * recursive append import algorith, which tries to detect
@@ -114,35 +129,34 @@ public class TypescriptFileContext extends IntellijFileContext {
      * @param importPath
      * @return
      */
-    private String appendImport(String plannedVariable, String varPostfix, String importPath)  {
+    private String appendImport(String plannedVariable, String varPostfix, String importPath) {
         String varToCheck = plannedVariable + varPostfix;
-        List<PsiElementContext> importIdentifiers  = getImportIdentifiers(varToCheck);
+        List<PsiElementContext> importIdentifiers = getImportIdentifiers(varToCheck);
         boolean varDefined = importIdentifiers.size() > 0;
         boolean importFullyExists = importIdentifiers.stream()
                 .filter(importPathMatch(importPath))
                 .findFirst().isPresent();
-        if(importFullyExists) {
+        if (importFullyExists) {
             return plannedVariable;
-        }
-        else if(varDefined) {
+        } else if (varDefined) {
             varPostfix = varPostfix.replaceAll("[^0-9]+", "");
             int currentPostFixIdx = varPostfix.isEmpty() ? 0 : Integer.parseInt(varPostfix);
             currentPostFixIdx++;
-            return appendImport(plannedVariable, "_"+currentPostFixIdx, importPath);
+            return appendImport(plannedVariable, "_" + currentPostFixIdx, importPath);
 
         } else {
             Optional<PsiElementContext> lastImport = this.queryContent(JS_ES_6_IMPORT_DECLARATION).reduce((import1, import2) -> import2);
             int insertPos = 0;
-            if(lastImport.isPresent()) {
+            if (lastImport.isPresent()) {
                 insertPos = lastImport.get().getTextOffset() + lastImport.get().getTextLength();
             }
 
             String insert = varPostfix.isEmpty() ?
                     "\nimport {%s} from \"%s\";" :
-                    "\nimport {%s as %s} from \"%s\";" ;
+                    "\nimport {%s as %s} from \"%s\";";
 
-            insert = varPostfix.isEmpty() ? String.format(insert, plannedVariable,importPath) :
-                                            String.format(insert, plannedVariable, plannedVariable+ varPostfix, importPath);
+            insert = varPostfix.isEmpty() ? String.format(insert, plannedVariable, importPath) :
+                    String.format(insert, plannedVariable, plannedVariable + varPostfix, importPath);
 
 
             addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(insertPos), insert));
@@ -152,63 +166,35 @@ public class TypescriptFileContext extends IntellijFileContext {
                 new RuntimeException(e);
             }
         }
-        return plannedVariable+varPostfix;
+        return plannedVariable + varPostfix;
     }
 
     public List<PsiElementContext> getImportsWithIdentifier(String varToCheck) {
-        return getImportIdentifiers(varToCheck).stream().flatMap(item ->item.queryContent("PARENTS:", JS_ES_6_IMPORT_DECLARATION)).collect(Collectors.toList());
+        return getImportIdentifiers(varToCheck).stream().flatMap(item -> item.queryContent("PARENTS:", JS_ES_6_IMPORT_DECLARATION)).collect(Collectors.toList());
     }
 
     public List<PsiElementContext> getImportIdentifiers(String varToCheck) {
-        return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:("+varToCheck+")").collect(Collectors.toList());
+        return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:(" + varToCheck + ")").collect(Collectors.toList());
     }
 
     @NotNull
     public Predicate<PsiElementContext> importPathMatch(String importPath) {
         final String origImportPath = importPath;
-        if(importPath.startsWith("./..")) {
+        if (importPath.startsWith("./..")) {
             importPath = importPath.substring(2);
         }
         final String fImportPath = importPath;
-        return importIdentifier -> importIdentifier.queryContent(":PARENTS", JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:('"+fImportPath+"')").findFirst().isPresent() ||
-                                   importIdentifier.queryContent(":PARENTS", JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:('"+origImportPath+"')").findFirst().isPresent();
+        return importIdentifier -> importIdentifier.queryContent(":PARENTS", JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:('" + fImportPath + "')").findFirst().isPresent() ||
+                importIdentifier.queryContent(":PARENTS", JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:('" + origImportPath + "')").findFirst().isPresent();
     }
-
 
     public void addRefactoring(RefactorUnit unit) {
         this.refactorUnits.add(unit);
     }
 
-
     protected Optional<PsiElement> findImportString(String templateVarName) {
         return this.findImportString(this, templateVarName);
     }
-
-
-
-    protected static Optional<PsiElement> findImportString(TypescriptFileContext ctxm, String templateVarName) {
-        Optional<PsiElement> theImport = ctxm.findPsiElements(PsiWalkFunctions::isImport).stream()
-                .filter(
-                        el -> Arrays.stream(el.getChildren())
-                                .anyMatch(el2 -> el2.getText().contains(templateVarName) && PsiWalkFunctions.queryContent(el2, PSI_ELEMENT_JS_IDENTIFIER,"TEXT:("+templateVarName+")").findFirst().isPresent())
-                ).findFirst();
-
-        return getPsiImportString(theImport);
-    }
-
-    protected static  Optional<PsiElement> getPsiImportString(Optional<PsiElement> theImport) {
-
-        if(!theImport.isPresent()) {
-            return theImport;
-        }
-
-        return Arrays.asList(theImport.get().getChildren()).stream()
-                .filter(el -> el.toString().equals("ES6FromClause"))
-                .map(el -> el.getNode().getLastChildNode().getPsi())
-                .findFirst();
-    }
-
-
 
     /**
      * central commit handler to perform all refactorings on the
@@ -232,7 +218,6 @@ public class TypescriptFileContext extends IntellijFileContext {
      * a pre commit rollback simply is a cleaning of our refactor
      * unit list, there is no staged commit which can rollback a substage for
      * the time being
-     *
      */
     public void rollback() {
         this.refactorUnits = Lists.newLinkedList();

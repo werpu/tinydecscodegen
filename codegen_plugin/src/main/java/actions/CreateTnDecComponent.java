@@ -47,7 +47,7 @@ import static actions_all.shared.FormAssertions.assertPattern;
  * Create a Tiny Decs artefact.
  * The idea is that every created artifact should auto register if possible
  */
-public class CreateTnDecComponent extends AnAction  {
+public class CreateTnDecComponent extends AnAction {
 
 
     public static final String EXPORT = "___export___";
@@ -88,7 +88,7 @@ public class CreateTnDecComponent extends AnAction  {
     private void createDialog(Project project, VirtualFile folder, Document document) {
         final gui.CreateTnDecComponent mainForm = new gui.CreateTnDecComponent();
 
-        if(!isAngular1()) {
+        if (!isAngular1()) {
             mainForm.getLblControllerAs().setVisible(false);
             mainForm.getTxtControllerAs().setVisible(false);
         }
@@ -193,17 +193,17 @@ public class CreateTnDecComponent extends AnAction  {
 
             attrs.put("COMPONENT_ATTRS", cAttrs);
 
-            if(model.isTransclude() && model.getTransclusionSlots().isEmpty()) {
+            if (model.isTransclude() && model.getTransclusionSlots().isEmpty()) {
                 attrs.put("TRANSCLUDE", true);
             }
-            if(model.isTransclude() && !model.getTransclusionSlots().isEmpty()) {
+            if (model.isTransclude() && !model.getTransclusionSlots().isEmpty()) {
                 attrs.put("TRANSCLUDE_SLOTS", model.getTransclusionSlots());
             }
 
-            if(export) {
+            if (export) {
                 attrs.put(EXPORT, export);
             }
-            if(declaration) {
+            if (declaration) {
                 attrs.put(DECLARATIONS, declaration);
             }
 
@@ -217,10 +217,10 @@ public class CreateTnDecComponent extends AnAction  {
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
         List<ModuleElementScope> scope = Lists.newArrayList();
 
-        if(attrs.containsKey(EXPORT)) {
+        if (attrs.containsKey(EXPORT)) {
             scope.add(ModuleElementScope.EXPORT);
         }
-        if(attrs.containsKey(DECLARATIONS)){
+        if (attrs.containsKey(DECLARATIONS)) {
             scope.add(ModuleElementScope.DECLARATIONS);
         }
         ModuleElementScope[] scope1 = scope.stream().toArray(size -> new ModuleElementScope[size]);

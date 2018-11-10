@@ -27,8 +27,8 @@ import static supportive.utils.StringUtils.literalEquals;
 
 public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
-    private static final Logger log = Logger.getInstance(TNUIRoutesFileContext.class);
     public static final Object[] STATE_PROVIDER_VAR = {JS_EXPRESSION_STATEMENT, JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, NAME_EQ("$stateProvider")};
+    private static final Logger log = Logger.getInstance(TNUIRoutesFileContext.class);
 
     public TNUIRoutesFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
@@ -50,7 +50,9 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
         init();
     }
 
-
+    public static Optional<PsiElementContext> findMethodCallStart(PsiElementContext el, String jsCallExpression) {
+        return el.walkParent(el2 -> literalEquals(el2.toString(), jsCallExpression));
+    }
 
     protected void init() {
 
@@ -81,7 +83,6 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
         //addNavVar(routeData.getRouteVarName());
     }
 
-
     @Override
     public List<PsiRouteContext> getRoutes() {
         boolean stateProvider = constructors.stream().filter(p_isStateProviderPresent()).findFirst().isPresent();
@@ -92,7 +93,6 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
         }
         return Collections.emptyList();
     }
-
 
     /**
      * maps the source states into their respective route context objects
@@ -110,8 +110,6 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
 
     }
-
-
 
     /**
      * fetches the route params
@@ -248,7 +246,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
             rt.setComponentPath(pageController.isPresent() ? pageController.get().getVirtualFile().getPath() : "");
             Optional<PsiElementContext> views = Optional.empty();
-            if(parmsMap.isPresent()) {
+            if (parmsMap.isPresent()) {
                 resolveParamsMap(rt, parmsMap.get());
                 views = resolveObjectProp(parmsMap.get(), "views");
 
@@ -266,7 +264,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     public List<PsiRouteContext> resolveViews(PsiElementContext routeCall, Optional<PsiElementContext> routeName, Optional<PsiElementContext> controller, Optional<PsiElementContext> views) {
 
-         return views.get().queryContent(">" + JS_PROPERTY).flatMap(prop -> {
+        return views.get().queryContent(">" + JS_PROPERTY).flatMap(prop -> {
             /**
              *   "viewMain": MetaData.routeData(View2,
              *        {
@@ -283,16 +281,16 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
                 final String viewName = propKey.get().getText();
                 Optional<PsiElementContext> callExpr = prop.queryContent(">" + JS_CALL_EXPRESSION).findFirst();
                 Optional<PsiElementContext> controller2 = callExpr.isPresent() ? callExpr.get().queryContent(">" + JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst() : Optional.empty();
-                Optional<PsiElementContext> paramsMap2 = callExpr.isPresent() ? callExpr.get().queryContent(">" + JS_ARGUMENTS_LIST, JS_OBJECT_LITERAL_EXPRESSION).findFirst(): Optional.empty();
-                List<PsiRouteContext> rets = resolveParms(routeCall, routeName, callExpr, controller2.isPresent() ? controller2 : controller,newParamsMap.isPresent() ? newParamsMap : paramsMap2);
+                Optional<PsiElementContext> paramsMap2 = callExpr.isPresent() ? callExpr.get().queryContent(">" + JS_ARGUMENTS_LIST, JS_OBJECT_LITERAL_EXPRESSION).findFirst() : Optional.empty();
+                List<PsiRouteContext> rets = resolveParms(routeCall, routeName, callExpr, controller2.isPresent() ? controller2 : controller, newParamsMap.isPresent() ? newParamsMap : paramsMap2);
                 rets.stream().forEach(el -> {
                     el.getRoute().setViewName(viewName);
-                    if(Strings.isNullOrEmpty(el.getRoute().getRouteKey()) && routeName.isPresent()) {
+                    if (Strings.isNullOrEmpty(el.getRoute().getRouteKey()) && routeName.isPresent()) {
                         el.getRoute().setRouteKey(routeName.get().getText());
                     }
-                    if(Strings.isNullOrEmpty(el.getRoute().getComponentPath()) && controller.isPresent()) {
+                    if (Strings.isNullOrEmpty(el.getRoute().getComponentPath()) && controller.isPresent()) {
                         Optional<IntellijFileContext> intellijFileContext = resolveController(controller);
-                        el.getRoute().setComponentPath(intellijFileContext.isPresent() ? intellijFileContext.get().getVirtualFile().getPath(): "");
+                        el.getRoute().setComponentPath(intellijFileContext.isPresent() ? intellijFileContext.get().getVirtualFile().getPath() : "");
                     }
                 });
                 return rets.stream();
@@ -306,13 +304,13 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     @NotNull
     public Optional<PsiElementContext> findFirstPropKey(PsiElementContext prop) {
-        Optional<PsiElementContext> el1 =  prop.queryContent(">" + PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
-        Optional<PsiElementContext> el2=  prop.queryContent(">" + JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
+        Optional<PsiElementContext> el1 = prop.queryContent(">" + PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+        Optional<PsiElementContext> el2 = prop.queryContent(">" + JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
 
         Optional<PsiElementContext> propKey = null;
-        if(el1.isPresent() && !el2.isPresent()) {
+        if (el1.isPresent() && !el2.isPresent()) {
             propKey = el1;
-        } else if(el2.isPresent() && !el1.isPresent()) {
+        } else if (el2.isPresent() && !el1.isPresent()) {
             propKey = el2;
         } else {
             propKey = el1.get().getTextOffset() < el1.get().getTextOffset() ? el1 : el2;
@@ -363,7 +361,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
                         .map(el -> findMethodCallStart(el, JS_CALL_EXPRESSION))
                         .filter(el2 -> hasControllerName(controllerName, el2))
                         .flatMap(el -> getImportStrinStream(fc, el)).findFirst().orElse(Optional.empty());
-                if(importStr2.isPresent()) {
+                if (importStr2.isPresent()) {
                     return fc.relative(importStr2.get());
                 }
                 return null;
@@ -377,7 +375,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
                         .map(el -> findMethodCallStart(el, JS_CALL_EXPRESSION))
                         .filter(el2 -> hasControllerName(controllerName, el2))
                         .flatMap(el -> getImportStrinStream(fc, el)).findFirst().orElse(Optional.empty());
-                if(importStr2.isPresent()) {
+                if (importStr2.isPresent()) {
                     return fc.relative(importStr2.get());
                 }
                 return null;
@@ -412,11 +410,6 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
     public Stream<PsiElementContext> queryComponent(IntellijFileContext fc) {
         return fc.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("component"));
     }
-
-    public static Optional<PsiElementContext> findMethodCallStart(PsiElementContext el, String jsCallExpression) {
-        return el.walkParent(el2 -> literalEquals(el2.toString(), jsCallExpression));
-    }
-
 
     void resolveParamsMap(Route target, PsiElementContext paramsMap) {
 

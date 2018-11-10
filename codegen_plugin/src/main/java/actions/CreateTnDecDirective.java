@@ -44,7 +44,7 @@ import static actions_all.shared.Messages.ERR_ELTYPE_SEL;
 import static reflector.TransclusionReflector.getPossibleTransclusionSlots;
 import static reflector.TransclusionReflector.hasTransclude;
 
-public class CreateTnDecDirective extends AnAction  {
+public class CreateTnDecDirective extends AnAction {
 
     public static final String EXPORT = "___export___";
 
@@ -99,8 +99,7 @@ public class CreateTnDecDirective extends AnAction  {
                 ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
 
 
-
-        if(!isAngular1()) {
+        if (!isAngular1()) {
             mainForm.getElementCheckBox().setVisible(false);
             mainForm.getAttributeCheckBox().setVisible(false);
             mainForm.getClassCheckBox().setVisible(false);
@@ -111,10 +110,10 @@ public class CreateTnDecDirective extends AnAction  {
 
         dialogWrapper.show();
 
-        if(dialogWrapper.isOK()) {
+        if (dialogWrapper.isOK()) {
             ApplicationManager.getApplication().invokeLater(() -> {
 
-                String templateText =  new String(editor.getDocument().getText().getBytes(), EncodingRegistry.getInstance().getDefaultCharset()).toString();
+                String templateText = new String(editor.getDocument().getText().getBytes(), EncodingRegistry.getInstance().getDefaultCharset()).toString();
                 DirectiveJson model = new DirectiveJson(mainForm.getName(),
                         templateText,
                         mainForm.getControllerAs(), buildTypes(mainForm),
@@ -191,13 +190,13 @@ public class CreateTnDecDirective extends AnAction  {
             attrs.put("CONTROLLER_AS", model.getControllerAs());
             attrs.put("TYPES", model.getTypes());
             attrs.put("COMPONENT_ATTRS", cAttrs);
-            if(model.isTransclude() && model.getTransclusionSlots().isEmpty()) {
+            if (model.isTransclude() && model.getTransclusionSlots().isEmpty()) {
                 attrs.put("TRANSCLUDE", true);
             }
-            if(model.isTransclude() && !model.getTransclusionSlots().isEmpty()) {
+            if (model.isTransclude() && !model.getTransclusionSlots().isEmpty()) {
                 attrs.put("TRANSCLUDE_SLOTS", model.getTransclusionSlots());
             }
-            if(export) {
+            if (export) {
                 attrs.put(EXPORT, export);
             }
             generate(project, folder, className, vslTemplate, attrs);
@@ -208,11 +207,10 @@ public class CreateTnDecDirective extends AnAction  {
     }
 
 
-
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
         List<ModuleElementScope> scope = Lists.newArrayList();
         scope.add(ModuleElementScope.DECLARATIONS);
-        if(attrs.containsKey(EXPORT)) {
+        if (attrs.containsKey(EXPORT)) {
             scope.add(ModuleElementScope.EXPORT);
         }
 

@@ -26,22 +26,19 @@ public class FilterIndex extends ScalarIndexExtension<String> {
     public static final String ANN_MARKER = "@Filter";
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 
-    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
-        @Override
-        @NotNull
-        public Map<String, Void> map(@NotNull final FileContent inputData) {
-
-            if ((!standardExclusions(inputData)) && isFilter(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
-                return Collections.singletonMap(ANN_MARKER, null);
-            }
-            return Collections.emptyMap();
-
-
-        }
-    }
-
     public static boolean isFilter(IntellijFileContext ctx) {
         return ctx.getText().contains("@Filter") && ctx.queryContent(FILTER_ANN).findFirst().isPresent();
+    }
+
+    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
+        return FileBasedIndex.getInstance().getContainingFiles(NAME, ANN_MARKER,
+                GlobalSearchScope.projectScope(project)).stream()
+                .filter(VirtualFile::isValid)
+                //only relative to angular root files
+                .filter(vFile -> new IntellijFileContext(project, vFile).isChildOf(angularRoot))
+                .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
+                .filter(psiFile -> psiFile != null)
+                .collect(Collectors.toList());
     }
 
     @NotNull
@@ -79,14 +76,17 @@ public class FilterIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
-    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
-        return FileBasedIndex.getInstance().getContainingFiles(NAME, ANN_MARKER,
-                GlobalSearchScope.projectScope(project)).stream()
-                .filter(VirtualFile::isValid)
-                //only relative to angular root files
-                .filter(vFile -> new IntellijFileContext(project, vFile).isChildOf(angularRoot))
-                .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
-                .filter(psiFile -> psiFile != null)
-                .collect(Collectors.toList());
+    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
+        @Override
+        @NotNull
+        public Map<String, Void> map(@NotNull final FileContent inputData) {
+
+            if ((!standardExclusions(inputData)) && isFilter(new IntellijFileContext(inputData.getProject(), inputData.getFile()))) {
+                return Collections.singletonMap(ANN_MARKER, null);
+            }
+            return Collections.emptyMap();
+
+
+        }
     }
 }

@@ -68,9 +68,9 @@ public class Confirm extends JDialog {
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
 
-        buttonOK.addActionListener( e -> onOK());
+        buttonOK.addActionListener(e -> onOK());
 
-        buttonCancel.addActionListener( e -> onCancel());
+        buttonCancel.addActionListener(e -> onCancel());
 
 
         // call onCancel() when cross is clicked
@@ -82,11 +82,11 @@ public class Confirm extends JDialog {
         });
 
         // call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction( e -> onCancel(),
+        contentPane.registerKeyboardAction(e -> onCancel(),
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        comboBox1.addActionListener( e -> {
+        comboBox1.addActionListener(e -> {
             JComboBox cb = (JComboBox) e.getSource();
             selectedClass = (String) cb.getSelectedItem();
         });

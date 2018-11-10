@@ -24,7 +24,7 @@ public class PsiElementContext {
 
 
     public String getName() {
-        return (String) elVis(element,"name").orElse("");
+        return (String) elVis(element, "name").orElse("");
     }
 
     public String getText() {
@@ -34,14 +34,14 @@ public class PsiElementContext {
     }
 
     @Contract(
-        pure = true
+            pure = true
     )
     public int getTextLength() {
         return element.getTextLength();
     }
 
     @Contract(
-        pure = true
+            pure = true
     )
     public int getTextOffset() {
         return element.getTextOffset();
@@ -50,7 +50,7 @@ public class PsiElementContext {
     public PsiElementContext getRootElement() {
         PsiElement oldElement = null;
         PsiElement currElement = element;
-        while(!currElement.toString().startsWith("JSFile")) {
+        while (!currElement.toString().startsWith("JSFile")) {
             oldElement = currElement;
             currElement = currElement.getParent();
         }
@@ -64,7 +64,7 @@ public class PsiElementContext {
 
     public Optional<PsiElementContext> findPsiElement(Function<PsiElement, Boolean> psiElementVisitor) {
         List<PsiElementContext> found = findPsiElements(psiElementVisitor, true);
-        if(found.isEmpty()) {
+        if (found.isEmpty()) {
             return Optional.empty();
         } else {
             return Optional.ofNullable(found.get(0));
@@ -73,12 +73,12 @@ public class PsiElementContext {
 
     public List<PsiElementContext> getChildren(@Nullable Function<PsiElement, Boolean> psiElementVisitor) {
         final List<PsiElementContext> retVal = new LinkedList<>();
-        if(element == null) {//not parseable
+        if (element == null) {//not parseable
             return Collections.emptyList();
         }
 
-        for(PsiElement el :element.getChildren()) {
-            if(psiElementVisitor == null || psiElementVisitor.apply(el)) {
+        for (PsiElement el : element.getChildren()) {
+            if (psiElementVisitor == null || psiElementVisitor.apply(el)) {
                 retVal.add(new PsiElementContext(el));
             }
         }
@@ -96,8 +96,8 @@ public class PsiElementContext {
     }
 
     public Optional<PsiElementContext> walkParent(Function<PsiElement, Boolean> psiElementVisitor) {
-        Optional<PsiElement> foundElement = PsiWalkFunctions.walkParent(getElement(),psiElementVisitor);
-        if(foundElement.isPresent()) {
+        Optional<PsiElement> foundElement = PsiWalkFunctions.walkParent(getElement(), psiElementVisitor);
+        if (foundElement.isPresent()) {
             return Optional.of(new PsiElementContext(foundElement.get()));
         }
         return Optional.empty();
@@ -105,19 +105,19 @@ public class PsiElementContext {
 
     protected List<PsiElementContext> findPsiElements(Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly) {
         final List<PsiElement> retVal;
-        if(element == null) {//not parseable
+        if (element == null) {//not parseable
             return Collections.emptyList();
         }
 
-        retVal =  walkPsiTree(element, psiElementVisitor, firstOnly);
+        retVal = walkPsiTree(element, psiElementVisitor, firstOnly);
         return retVal.stream().map(el -> new PsiElementContext(el)).collect(Collectors.toList());
     }
 
-    public Stream<PsiElementContext> queryContent(Object ... items) {
+    public Stream<PsiElementContext> queryContent(Object... items) {
         return PsiWalkFunctions.queryContent(this.getElement(), items);
     }
 
-    public Stream<PsiElementContext> $q(Object ... items) {
+    public Stream<PsiElementContext> $q(Object... items) {
         return PsiWalkFunctions.queryContent(this.getElement(), items);
     }
 
@@ -125,17 +125,17 @@ public class PsiElementContext {
         return PsiWalkFunctions.queryContent(this.getElement(), ArrayUtils.add(items, item));
     }
 
-    public Stream<PsiElementContext> $q(Object[] ... items) {
-        Object[] all =  Arrays.stream(items).reduce((items1, items2) -> Stream.concat(Arrays.stream(items1), Arrays.stream(items2)).toArray()).get();
+    public Stream<PsiElementContext> $q(Object[]... items) {
+        Object[] all = Arrays.stream(items).reduce((items1, items2) -> Stream.concat(Arrays.stream(items1), Arrays.stream(items2)).toArray()).get();
         return PsiWalkFunctions.queryContent(this.getElement(), all);
     }
 
     public List<PsiElementContext> getImportsWithIdentifier(String varToCheck) {
-        return getImportIdentifiers(varToCheck).stream().flatMap(item ->item.queryContent("PARENTS:("+ JS_ES_6_IMPORT_DECLARATION+")")).collect(Collectors.toList());
+        return getImportIdentifiers(varToCheck).stream().flatMap(item -> item.queryContent("PARENTS:(" + JS_ES_6_IMPORT_DECLARATION + ")")).collect(Collectors.toList());
     }
 
     public List<PsiElementContext> getImportIdentifiers(String varToCheck) {
-        return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:("+varToCheck+")").collect(Collectors.toList());
+        return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:(" + varToCheck + ")").collect(Collectors.toList());
     }
 
     @Override
@@ -148,6 +148,6 @@ public class PsiElementContext {
 
     @Override
     public int hashCode() {
-        return element.getTextOffset()*100000+element.getText().hashCode();
+        return element.getTextOffset() * 100000 + element.getText().hashCode();
     }
 }

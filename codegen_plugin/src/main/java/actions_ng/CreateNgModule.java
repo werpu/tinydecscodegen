@@ -36,7 +36,7 @@ public class CreateNgModule extends CreateTnDecModule {
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
         List<ModuleElementScope> scope = Lists.newArrayList();
         scope.add(ModuleElementScope.IMPORT);
-        if(attrs.containsKey(EXPORT)) {
+        if (attrs.containsKey(EXPORT)) {
             scope.add(ModuleElementScope.EXPORT);
         }
         ModuleElementScope[] scopes = scope.stream().toArray(size -> new ModuleElementScope[size]);
@@ -49,7 +49,7 @@ public class CreateNgModule extends CreateTnDecModule {
         NgFileNameTransformer transformer = new NgFileNameTransformer("");
 
         String transformed = transformer.transform(className).replaceAll("\\.\\.ts$", "");
-        if(transformed.endsWith("-module")) {
+        if (transformed.endsWith("-module")) {
             transformed = transformed.replaceAll("\\-module$", "");
         }
         return transformed.toLowerCase();

@@ -67,9 +67,7 @@ public class RequiredListener implements DocumentListener {
             // if a field is nonempty, switch it to default look
             comp.setBorder(defaultBorder);
             callListeners(true);
-        }
-
-        else {
+        } else {
             // if a field is empty, highlight it
             comp.setBorder(highlightBorder);
             callListeners(false);

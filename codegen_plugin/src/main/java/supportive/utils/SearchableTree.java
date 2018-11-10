@@ -34,18 +34,14 @@ import static supportive.utils.IntellijUtils.convertToSearchableString;
 @Setter
 public class SearchableTree<V> {
 
+    DefaultMutableTreeNode lastSelectedNode;
+    TreePath[] lastSelectedPaths;
+    int[] selectionRows;
     private Tree tree = new Tree();
     private TreeSpeedSearch speedSearch;
     private ExpansionMonitor expansionMonitor;
-
     private TreeModel originalModel;
-
     private String label;
-
-    DefaultMutableTreeNode lastSelectedNode;
-    TreePath[] lastSelectedPaths;
-
-    int[] selectionRows;
 
     public SearchableTree() {
         new ExpansionMonitor(tree);

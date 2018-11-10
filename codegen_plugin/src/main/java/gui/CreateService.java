@@ -9,17 +9,15 @@ import java.util.function.Function;
 
 @Getter
 public class CreateService {
+    boolean selectorValid = false;
+    Function<Boolean, Boolean> okFunc;
+    Function<Boolean, Boolean> cancelFunc;
     private JLabel lblTitle;
     private JLabel lblSelector;
     private JFormattedTextField txtName;
     private JLabel lblExport;
     private JCheckBox cbExport;
     private JPanel mainPanel;
-
-    boolean selectorValid = false;
-
-    Function<Boolean, Boolean> okFunc;
-    Function<Boolean, Boolean> cancelFunc;
 
     private void createUIComponents() {
         // TODO: place custom component creation code here

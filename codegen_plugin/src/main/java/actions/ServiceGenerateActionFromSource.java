@@ -34,8 +34,8 @@ public class ServiceGenerateActionFromSource extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        if(event.getData(PlatformDataKeys.EDITOR) == null) {
-            supportive.utils.IntellijUtils.showErrorDialog(event.getProject(),"Error", "No editor found, please focus on an open source file");
+        if (event.getData(PlatformDataKeys.EDITOR) == null) {
+            supportive.utils.IntellijUtils.showErrorDialog(event.getProject(), "Error", "No editor found, please focus on an open source file");
             return;
         }
 
@@ -44,8 +44,8 @@ public class ServiceGenerateActionFromSource extends AnAction {
 
         try {
             IntellijUtils.fileNameTransformer = new SimpleFileNameTransformer();
-            IntellijUtils.generateService(javaData.getProject(), javaData.getModule(),(PsiJavaFile) javaData.getJavaFile(), false);
-        } catch (RuntimeException |  ClassNotFoundException e) {
+            IntellijUtils.generateService(javaData.getProject(), javaData.getModule(), (PsiJavaFile) javaData.getJavaFile(), false);
+        } catch (RuntimeException | ClassNotFoundException e) {
             log.error(e);
             Messages.showErrorDialog(javaData.getProject(), e.getMessage(), actions_all.shared.Messages.ERR_OCCURRED);
         }

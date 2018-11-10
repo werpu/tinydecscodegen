@@ -26,7 +26,7 @@ public class CreateNgDirective extends CreateTnDecDirective {
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
         List<ModuleElementScope> scope = Lists.newArrayList();
         scope.add(ModuleElementScope.DECLARATIONS);
-        if(attrs.containsKey(EXPORT)) {
+        if (attrs.containsKey(EXPORT)) {
             scope.add(ModuleElementScope.EXPORT);
         }
 

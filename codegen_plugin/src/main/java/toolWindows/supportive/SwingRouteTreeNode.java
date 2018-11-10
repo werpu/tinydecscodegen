@@ -22,10 +22,9 @@ public class SwingRouteTreeNode extends DefaultMutableTreeNode {
     }
 
 
-
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof SwingRouteTreeNode) {
+        if (obj instanceof SwingRouteTreeNode) {
             return ((SwingRouteTreeNode) obj).getUserObject().equals(((PsiRouteContext) this.getUserObject()).getRoute());
         } else {
             return false;

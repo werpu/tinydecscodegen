@@ -24,32 +24,32 @@ public class ExpansionMonitor {
         tree.addTreeExpansionListener(new TreeExpansionListener() {
             @Override
             public void treeExpanded(TreeExpansionEvent event) {
-                if(locked.get()) {
+                if (locked.get()) {
                     return;
                 }
                 Object lastPathComponent = event.getPath().getLastPathComponent();
-                if(lastPathComponent instanceof DefaultMutableTreeNode) {
+                if (lastPathComponent instanceof DefaultMutableTreeNode) {
                     Object userObject = ((DefaultMutableTreeNode) lastPathComponent).getUserObject();
-                    if(userObject instanceof String) {
-                        expanded.add((String)userObject);
-                    } else if(userObject instanceof IAngularFileContext) {
-                        expanded.add(((IAngularFileContext)userObject).getVirtualFile().getPath());
+                    if (userObject instanceof String) {
+                        expanded.add((String) userObject);
+                    } else if (userObject instanceof IAngularFileContext) {
+                        expanded.add(((IAngularFileContext) userObject).getVirtualFile().getPath());
                     }
                 }
             }
 
             @Override
             public void treeCollapsed(TreeExpansionEvent event) {
-                if(locked.get()) {
+                if (locked.get()) {
                     return;
                 }
                 Object lastPathComponent = event.getPath().getLastPathComponent();
-                if(lastPathComponent instanceof DefaultMutableTreeNode) {
+                if (lastPathComponent instanceof DefaultMutableTreeNode) {
                     Object userObject = ((DefaultMutableTreeNode) lastPathComponent).getUserObject();
-                    if(userObject instanceof String) {
+                    if (userObject instanceof String) {
                         String key = (String) userObject;
                         expanded.remove(key);
-                    } else if(userObject instanceof IAngularFileContext) {
+                    } else if (userObject instanceof IAngularFileContext) {
                         String key = ((IAngularFileContext) userObject).getVirtualFile().getPath();
                         expanded.remove(key);
                     }
@@ -59,19 +59,19 @@ public class ExpansionMonitor {
     }
 
     public void restore() {
-        Enumeration<DefaultMutableTreeNode> en = ((DefaultMutableTreeNode)tree.getModel().getRoot()).breadthFirstEnumeration();
+        Enumeration<DefaultMutableTreeNode> en = ((DefaultMutableTreeNode) tree.getModel().getRoot()).breadthFirstEnumeration();
 
         locked.set(true);
         try {
             Collections.list(en).stream().forEach(node -> {
                 Object userObject = node.getUserObject();
                 String key = null;
-                if(userObject instanceof String) {
+                if (userObject instanceof String) {
                     key = (String) userObject;
-                } else if(userObject instanceof IAngularFileContext) {
-                    key = ((IAngularFileContext)userObject).getVirtualFile().getPath();
+                } else if (userObject instanceof IAngularFileContext) {
+                    key = ((IAngularFileContext) userObject).getVirtualFile().getPath();
                 }
-                if(key != null && expanded.contains(key)) {
+                if (key != null && expanded.contains(key)) {
                     tree.expandPath(new TreePath(node.getPath()));
                 }
             });

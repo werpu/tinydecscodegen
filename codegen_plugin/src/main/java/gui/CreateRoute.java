@@ -55,13 +55,13 @@ public class CreateRoute {
             updateNavButtons();
         });
         rbModuleNavigation.addItemListener((e) -> {
-            if(e.getStateChange() == ItemEvent.SELECTED) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
                 lblRegisterIntoModule.setVisible(true);
                 cbRegisterIntoModule.setVisible(true);
             }
         });
         rbRootNavigation.addItemListener((e) -> {
-            if(e.getStateChange() == ItemEvent.SELECTED) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
                 lblRegisterIntoModule.setVisible(false);
                 cbRegisterIntoModule.setVisible(false);
             }
@@ -75,7 +75,7 @@ public class CreateRoute {
         String oldValue = e != null ? (String) e.getItem() : "";
         String mappedName = StringUtils.toLowerDash(oldValue).replaceAll("_component", "");
         String newValue = StringUtils.toLowerDash((String) cbComponent.getSelectedItem()).replaceAll("(\\[.*\\])+", "").replaceAll("_component", "");
-        newValue = Strings.isNullOrEmpty(getTxtRouteName().getText())  ? newValue : getTxtRouteName().getText().replace(mappedName, newValue);
+        newValue = Strings.isNullOrEmpty(getTxtRouteName().getText()) ? newValue : getTxtRouteName().getText().replace(mappedName, newValue);
         getTxtRouteName().setText(newValue);
         updateHref();
     }
@@ -88,7 +88,7 @@ public class CreateRoute {
     }
 
     public void updateNavButtons() {
-        if(txtRouteName.getText().contains(".")) {
+        if (txtRouteName.getText().contains(".")) {
             rbRootNavigation.setSelected(false);
             rbModuleNavigation.setSelected(true);
         }

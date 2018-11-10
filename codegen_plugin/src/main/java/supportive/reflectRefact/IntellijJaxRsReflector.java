@@ -19,10 +19,6 @@ import static supportive.reflectRefact.PsiAnnotationUtils.*;
  */
 public class IntellijJaxRsReflector {
 
-    public boolean isRestService(List<PsiClass> toReflect) {
-        return toReflect.stream().filter(IntellijJaxRsReflector::isRestService).findFirst().isPresent();
-    }
-
     public static List<RestService> reflectRestService(List<PsiClass> toReflect, boolean flattenResult, int returnValueNestingDepth) {
         return toReflect.stream().filter(IntellijJaxRsReflector::isRestService)
                 .map(cls -> {
@@ -31,7 +27,6 @@ public class IntellijJaxRsReflector {
                     return new RestService(Objects.requireNonNull(cls.getName()).replace("Controller", "Service"), serviceUrl, cls.getQualifiedName(), restMethods);
                 }).collect(Collectors.toList());
     }
-
 
     private static String fetchServiceUrl(PsiClass cls) {
 
@@ -43,7 +38,6 @@ public class IntellijJaxRsReflector {
         }
         return "";
     }
-
 
     private static List<RestMethod> fetchRestMethods(PsiClass cls, boolean flattenResult, int returnValueNestingDepth) {
         PsiMethod[] allMethods = cls.getAllMethods();
@@ -68,14 +62,12 @@ public class IntellijJaxRsReflector {
                 .anyMatch(ann -> isPresent(ann, Path.class, GET.class, PUT.class, DELETE.class, POST.class, Consumes.class, Produces.class));
     }
 
-
     private static List<RestVar> getRestVars(PsiMethod m) {
         return Arrays.stream(m.getParameterList().getParameters())
                 // .filter(p -> PsiAnnotationUtils.isPresent(p, PathParam.class, QueryParam.class))
                 .map(IntellijJaxRsReflector::getRestVar).collect(Collectors.toList());
 
     }
-
 
     @NotNull
     private static RestVar getRestVar(PsiParameter p) {
@@ -98,7 +90,7 @@ public class IntellijJaxRsReflector {
     private static RestMethod mapMethod(PsiMethod m, boolean flattenResult, int returnValueNestingDepth) {
         String name = m.getName();
         PsiAnnotation mapping = PsiAnnotationUtils.getAnn(m, Path.class);
-        String path = (mapping == null)? "" : PsiAnnotationUtils.getAttr(mapping, "value");
+        String path = (mapping == null) ? "" : PsiAnnotationUtils.getAttr(mapping, "value");
 
 
         int firstParam = path.indexOf("/{");
@@ -109,7 +101,7 @@ public class IntellijJaxRsReflector {
         String comment = m.getDocComment() != null ? m.getDocComment().getText() : "";
 
         path = path.substring(0, firstParam);
-        if(!path.isEmpty() && !path.startsWith("/")) {
+        if (!path.isEmpty() && !path.startsWith("/")) {
             path = "/" + path;
         }
 
@@ -123,6 +115,10 @@ public class IntellijJaxRsReflector {
 
         return new RestMethod(path, name, RestType.valueOf(Objects.requireNonNull(method).toUpperCase()), Optional.of(returnType), params, comment);
 
+    }
+
+    public boolean isRestService(List<PsiClass> toReflect) {
+        return toReflect.stream().filter(IntellijJaxRsReflector::isRestService).findFirst().isPresent();
     }
 
 

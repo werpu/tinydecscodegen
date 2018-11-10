@@ -45,7 +45,7 @@ enum SupportedRestMethod {
 }
 
 
-public class CreateRestEndpoint extends AnAction  {
+public class CreateRestEndpoint extends AnAction {
 
     //visibility
     @Override
@@ -64,7 +64,7 @@ public class CreateRestEndpoint extends AnAction  {
     public void actionPerformed(AnActionEvent event) {
 
         if (event.getData(PlatformDataKeys.EDITOR) == null) {
-            supportive.utils.IntellijUtils.showErrorDialog(event.getProject(),"Error", "No editor found, please focus on an open source file");
+            supportive.utils.IntellijUtils.showErrorDialog(event.getProject(), "Error", "No editor found, please focus on an open source file");
             return;
         }
         JavaFileContext javaData = new JavaFileContext(event);
@@ -231,7 +231,7 @@ public class CreateRestEndpoint extends AnAction  {
             if (after.isPresent() && beforeElement != null &&
                     beforeElement.getTextRange().getEndOffset() <= cursorPos &&
                     after.get().getTextRange().getStartOffset() >= cursorPos
-                    ) {
+            ) {
 
                 editor.getDocument().insertString(cursorPos, insertText);
             } else if (after.isPresent()) {
@@ -245,9 +245,9 @@ public class CreateRestEndpoint extends AnAction  {
                 PsiElement insertClass = findNearest(cursorPos, classes);
 
 
-                if(insertClass != null) {
+                if (insertClass != null) {
                     PsiElement element = insertClass;
-                    int finalOffset = element.getStartOffsetInParent()+element.getTextLength();
+                    int finalOffset = element.getStartOffsetInParent() + element.getTextLength();
                     editor.getDocument().insertString(finalOffset - 1, insertText);
                 } else {
                     editor.getDocument().insertString(cursorPos, insertText);
@@ -275,11 +275,11 @@ public class CreateRestEndpoint extends AnAction  {
     public PsiElement findNearest(int cursorPos, List<PsiElement> classes) {
         int distance = 100000;
         PsiElement insertClass = null;
-        for(PsiElement clazz: classes) {
+        for (PsiElement clazz : classes) {
             int startOffset = clazz.getStartOffsetInParent();
             int endOffset = clazz.getStartOffsetInParent() + clazz.getTextLength();
             int newDistance = Math.min(Math.abs(cursorPos - startOffset), Math.abs(cursorPos - endOffset));
-            if(newDistance < distance) {
+            if (newDistance < distance) {
                 distance = newDistance;
                 insertClass = clazz;
             }

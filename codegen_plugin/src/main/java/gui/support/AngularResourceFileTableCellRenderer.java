@@ -10,7 +10,7 @@ public class AngularResourceFileTableCellRenderer extends DefaultTableCellRender
 
     @Override
     protected void setValue(Object value) {
-        if(value instanceof IAngularFileContext) {
+        if (value instanceof IAngularFileContext) {
             IAngularFileContext mappedValue = (IAngularFileContext) value;
             String projectPath = mappedValue.getPsiFile().getProject().getBaseDir().getPath();
             Path relativize = Paths.get(projectPath).relativize(Paths.get(mappedValue.getVirtualFile().getPath()));

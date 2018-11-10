@@ -22,28 +22,12 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
     public static final String ANN_MARKER = "@NgModule";
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 
-    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
-        @Override
-        @NotNull
-        public Map<String, Void> map(@NotNull final FileContent inputData) {
-            String content = inputData.getContentAsText().toString();
-            //speedup
-            if(!content.contains(ANN_MARKER)) {
-                return Collections.emptyMap();
-            }
-
-            IntellijFileContext ctx = new IntellijFileContext(inputData.getProject(), inputData.getFile());
-            String text = content;
-            if ((!standardExclusions(inputData)) && isModuleFile(ctx)
-            ) {
-                return Collections.singletonMap(ANN_MARKER, null);
-            }
-            return Collections.emptyMap();
-      }
-    }
-
     public static boolean isModuleFile(IntellijFileContext ctx) {
         return ctx.getText().contains("@NgModule") && ctx.queryContent(MODULE_ANN).findFirst().isPresent();
+    }
+
+    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
+        return IndexUtils.resolve(project, angularRoot, NAME, ANN_MARKER);
     }
 
     @NotNull
@@ -81,8 +65,24 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
         return true;
     }
 
-    public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
-        return  IndexUtils.resolve(project, angularRoot, NAME, ANN_MARKER);
+    private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
+        @Override
+        @NotNull
+        public Map<String, Void> map(@NotNull final FileContent inputData) {
+            String content = inputData.getContentAsText().toString();
+            //speedup
+            if (!content.contains(ANN_MARKER)) {
+                return Collections.emptyMap();
+            }
+
+            IntellijFileContext ctx = new IntellijFileContext(inputData.getProject(), inputData.getFile());
+            String text = content;
+            if ((!standardExclusions(inputData)) && isModuleFile(ctx)
+            ) {
+                return Collections.singletonMap(ANN_MARKER, null);
+            }
+            return Collections.emptyMap();
+        }
     }
 
 

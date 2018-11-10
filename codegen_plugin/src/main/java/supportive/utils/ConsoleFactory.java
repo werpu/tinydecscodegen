@@ -41,7 +41,8 @@ public class ConsoleFactory {
             final Content content = contentFactory.createContent(view.getComponent(), "NPM Install Console", true);
             window.setAutoHide(false);
             window.getContentManager().addContent(content);
-            window.show(() -> {});
+            window.show(() -> {
+            });
 
         }
         return view;

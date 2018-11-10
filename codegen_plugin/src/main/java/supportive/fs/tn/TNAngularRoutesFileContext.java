@@ -56,17 +56,14 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
         ).collect(Collectors.toList());
 
 
-
-
     }
-
 
 
     @Override
     public void addRoute(Route routeData) {
         //find route provider inject
 
-        writeTransaction(getProject(),() -> {
+        writeTransaction(getProject(), () -> {
             routeData.setComponent(super.appendImport(routeData.getComponent().replaceAll("\\[.*\\]+", ""), routeData.getComponentPath()));
 
             for (PsiElementContext constructor : constructors) {
@@ -90,13 +87,12 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
         int insertPos = 0;
         if (whenCallArgs.size() > 0) {
             PsiElementContext elementContext = whenCallArgs.get(whenCallArgs.size() - 1);
-            insertPos = elementContext.getElement().getTextOffset()+elementContext.getTextLength()+1;
+            insertPos = elementContext.getElement().getTextOffset() + elementContext.getTextLength() + 1;
         } else {
             insertPos = body.get().getTextOffset() + 1;
         }
         return insertPos;
     }
-
 
 
     List<PsiElementContext> getRouteParams(PsiElementContext constructor, String routeProviderName) {
@@ -118,6 +114,7 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
 
     /**
      * central method which fetches the routes
+     *
      * @return
      */
     @Override

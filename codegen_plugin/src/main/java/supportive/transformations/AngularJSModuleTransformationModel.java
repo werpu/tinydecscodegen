@@ -18,7 +18,7 @@ import static supportive.reflectRefact.PsiWalkFunctions.*;
 /**
  * A transformation context
  * for simple Angular JS Modules
- *
+ * <p>
  * The idea is
  * to get the neutral information which does not change
  * then the module declaration part with the name and the requires
@@ -36,9 +36,10 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
     /**
      * psi element covering the entire angular module defintion
      * aka angular.module('app.entry', ["bla","bla1"])
-     *     .component("remappedOverviews", new ApplicationsTable())
-     *     .component("remappedsChart", new ApplicationChart())
-     *     .component...
+     * .component("remappedOverviews", new ApplicationsTable())
+     * .component("remappedsChart", new ApplicationChart())
+     * .component...
+     *
      * @return
      */
     Optional<PsiElementContext> moduleDefStart;
@@ -81,9 +82,9 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
     }
 
 
-
     /**
      * helper to determine the AngularJS artifact part
+     *
      * @param psiFile
      * @return
      */
@@ -93,16 +94,18 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
 
     /**
      * gets the text part which defines the begining of the file to the end of the imports
+     *
      * @return the imports text
      */
     public String getImportText() {
         PsiElementContext lastImport = this.getLastImport().get();
-        return this.getText().substring(0, lastImport.getTextOffset()+lastImport.getTextLength()+1);
+        return this.getText().substring(0, lastImport.getTextOffset() + lastImport.getTextLength() + 1);
     }
 
     /**
      * gets the text part from the imports to the beginning of the module declaration
      * including the var name =
+     *
      * @return
      */
     public String getTextFromImportsToModuleDcl() {

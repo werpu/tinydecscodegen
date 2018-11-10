@@ -14,7 +14,7 @@ public class CreateNgRouteFromEdit extends CreateNgRoute {
     @Override
     public void update(AnActionEvent anActionEvent) {
         super.update(anActionEvent);
-        if(!anActionEvent.getPresentation().isEnabledAndVisible())  {
+        if (!anActionEvent.getPresentation().isEnabledAndVisible()) {
             return;
         }
 

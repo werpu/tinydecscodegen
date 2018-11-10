@@ -50,6 +50,9 @@ class RoTableModel extends DefaultTableModel {
 
 @Getter
 public class ResourceSearch {
+    AngularResourceFileTableCellRenderer col2Renderer = new AngularResourceFileTableCellRenderer();
+    AngularResourceModuleTableCellRenderer col1Renderer = new AngularResourceModuleTableCellRenderer();
+    AngularResourceNameTableCellRenderer col0Renderer = new AngularResourceNameTableCellRenderer();
     private JCheckBox cbControllers;
     private JCheckBox cbComponents;
     private JCheckBox cbServices;
@@ -63,18 +66,13 @@ public class ResourceSearch {
     private JCheckBox cbModules;
     private SearchTextArea txtSearch;
 
-    AngularResourceFileTableCellRenderer col2Renderer = new AngularResourceFileTableCellRenderer();
-    AngularResourceModuleTableCellRenderer col1Renderer = new AngularResourceModuleTableCellRenderer();
-    AngularResourceNameTableCellRenderer col0Renderer = new AngularResourceNameTableCellRenderer();
-
     public ResourceSearch() {
-
 
 
     }
 
     public void setupTable() {
-        RoTableModel dataModel = new RoTableModel(new Vector(Collections.emptyList()), new Vector(Arrays.asList("Resourcename", "Module", "Location" )));
+        RoTableModel dataModel = new RoTableModel(new Vector(Collections.emptyList()), new Vector(Arrays.asList("Resourcename", "Module", "Location")));
 
         tblResults.setModel(dataModel);
         TableColumnModel columnModel = tblResults.getColumnModel();
@@ -83,7 +81,7 @@ public class ResourceSearch {
     }
 
     public void updateData(List<IAngularFileContext> data) {
-        RoTableModel dataModel = new RoTableModel(new Vector(data), new Vector(Arrays.asList("Resourcename", "Module", "Location" )));
+        RoTableModel dataModel = new RoTableModel(new Vector(data), new Vector(Arrays.asList("Resourcename", "Module", "Location")));
         tblResults.setModel(dataModel);
 
         TableColumnModel columnModel = tblResults.getColumnModel();

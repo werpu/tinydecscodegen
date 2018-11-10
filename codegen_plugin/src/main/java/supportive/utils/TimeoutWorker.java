@@ -24,6 +24,22 @@ public class TimeoutWorker {
     ScheduledFuture f = null;
 
     /**
+     * a defer routine similar to the javascript
+     * setTimeout
+     *
+     * @param runner
+     * @param timeoutInMs
+     * @return
+     */
+    public static ScheduledFuture<?> setTimeout(Runnable runner, long timeoutInMs) {
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        return executor.schedule(() -> {
+            runner.run();
+            return null;
+        }, timeoutInMs, TimeUnit.MILLISECONDS);
+    }
+
+    /**
      * start, in case of a paused thread
      * it is started again
      * in case of a stopped thread it is reinitalized again
@@ -66,7 +82,6 @@ public class TimeoutWorker {
         this.scheduleThread();
     }
 
-
     /**
      * ends it once and forall
      */
@@ -75,22 +90,6 @@ public class TimeoutWorker {
             f.cancel(false);
         }
 
-    }
-
-    /**
-     * a defer routine similar to the javascript
-     * setTimeout
-     *
-     * @param runner
-     * @param timeoutInMs
-     * @return
-     */
-    public static ScheduledFuture<?> setTimeout(Runnable runner, long timeoutInMs) {
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        return executor.schedule(() -> {
-            runner.run();
-            return null;
-        }, timeoutInMs, TimeUnit.MILLISECONDS);
     }
 
 }

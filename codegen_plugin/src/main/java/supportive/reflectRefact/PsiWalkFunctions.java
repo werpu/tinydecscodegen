@@ -132,7 +132,6 @@ public class PsiWalkFunctions {
     public static final Object[] DTO_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Dto"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
-
     public static final String CHILD_ELEM = ">";
     /*prdefined queries end*/
 
@@ -144,7 +143,14 @@ public class PsiWalkFunctions {
     public static final Object[] ANG1_MODULE_NAME = {JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     //requires starting from DCL
     public static final Object[] ANG1_MODULE_REQUIRES = {JS_ARRAY_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL};
-
+    /*predefined rex for deeper string analysis*/
+    private static final String RE_TEXT_EQ = "^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$";
+    private static final String RE_TEXT_STARTS_WITH = "^\\s*TEXT\\*\\s*\\:\\s*\\((.*)\\)\\s*$";
+    private static final String RE_NAME_EQ = "^\\s*NAME\\s*\\:\\s*\\((.*)\\)\\s*$";
+    private static final String RE_STRING_LITERAL = "^[\\\"\\'](.*)[\\\"\\']$";
+    private static final String RE_NAME_STARTS_WITH = "^\\s*NAME\\*\\s*\\:\\s*\\((.*)\\)\\s*$";
+    private static final String RE_PARENTS_EQ = "^\\s*PARENTS\\s*\\:\\s*\\((.*)\\)\\s*$";
+    /*helpers end*/
 
     /*helpers*/
     public static String PARENTS_EQ(String val) {
@@ -162,6 +168,7 @@ public class PsiWalkFunctions {
     public static String TEXT_STARTS_WITH(String val) {
         return "TEXT*:(" + val + ")";
     }
+
     public static String DIRECT_CHILD(String val) {
         return CHILD_ELEM + val;
     }
@@ -169,17 +176,6 @@ public class PsiWalkFunctions {
     public static Object[] DEF_CALL(String callType) {
         return new Object[]{JS_CALL_EXPRESSION, DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), TEXT_EQ(callType)};
     }
-    /*helpers end*/
-
-
-    /*predefined rex for deeper string analysis*/
-    private static final String RE_TEXT_EQ = "^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$";
-    private static final String RE_TEXT_STARTS_WITH = "^\\s*TEXT\\*\\s*\\:\\s*\\((.*)\\)\\s*$";
-    private static final String RE_NAME_EQ = "^\\s*NAME\\s*\\:\\s*\\((.*)\\)\\s*$";
-    private static final String RE_STRING_LITERAL = "^[\\\"\\'](.*)[\\\"\\']$";
-    private static final String RE_NAME_STARTS_WITH = "^\\s*NAME\\*\\s*\\:\\s*\\((.*)\\)\\s*$";
-    private static final String RE_PARENTS_EQ = "^\\s*PARENTS\\s*\\:\\s*\\((.*)\\)\\s*$";
-
 
     public static boolean isNgModule(PsiElement element) {
         return isAnnotatedElement(element, NG_MODULE);
@@ -237,9 +233,9 @@ public class PsiWalkFunctions {
         return (element != null
                 && getName(element).equals(JS_PROP_TYPE)
                 && (
-                    getText(element).equals(JS_PROP_TEMPLATE) ||
-                    getText(element).equals(JS_PROP_TEMPLATE_URL)
-                )
+                getText(element).equals(JS_PROP_TEMPLATE) ||
+                        getText(element).equals(JS_PROP_TEMPLATE_URL)
+        )
                 && (isIn(element, NG_TYPE_COMPONENT)
                 || isIn(element, NG_TYPE_DIRECTIVE)
                 || isIn(element, NG_TYPE_CONTROLLER)));
@@ -519,7 +515,7 @@ public class PsiWalkFunctions {
                     subItem = handlePLast(subItem);
 
                 } else if (directChild) {
-                        subItem = handleDirectChild(subItem, finalSubCommand);
+                    subItem = handleDirectChild(subItem, finalSubCommand);
                 } else {
                     subItem = handleFindSubItem(subItem, finalSubCommand);
                 }

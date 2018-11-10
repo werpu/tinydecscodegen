@@ -36,7 +36,7 @@ public class DtoContext extends AngularResourceContext {
 
         resourceRoot = resolveClass();
         clazzName = resolveClass().getName();
-        artifactName =  clazzName;
+        artifactName = clazzName;
 
         findParentModule();
     }

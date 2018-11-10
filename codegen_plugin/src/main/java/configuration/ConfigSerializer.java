@@ -12,10 +12,15 @@ public class ConfigSerializer implements PersistentStateComponent<TinyDecsConfig
 
     TinyDecsConfiguration state;
 
+    @NotNull
+    public static ConfigSerializer getInstance() {
+        return ServiceManager.getService(ConfigSerializer.class);
+    }
+
     @Nullable
     @Override
     public TinyDecsConfiguration getState() {
-        if(state == null) {
+        if (state == null) {
             state = new TinyDecsConfiguration();
         }
         return state;
@@ -24,11 +29,6 @@ public class ConfigSerializer implements PersistentStateComponent<TinyDecsConfig
     @Override
     public void loadState(TinyDecsConfiguration tinyDecsConfiguration) {
         this.state = tinyDecsConfiguration;
-    }
-
-    @NotNull
-    public static ConfigSerializer getInstance() {
-        return ServiceManager.getService(ConfigSerializer.class);
     }
 
 }
