@@ -1,13 +1,13 @@
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import org.junit.Test;
-import supportive.fs.common.ComponentFileContext;
-import supportive.fs.common.PsiElementContext;
-import supportive.fs.common.PsiRouteContext;
-import supportive.fs.common.Route;
-import supportive.fs.ng.NG_UIRoutesRoutesFileContext;
-import supportive.fs.tn.TNAngularRoutesFileContext;
-import supportive.fs.tn.TNUIRoutesFileContext;
+import net.werpu.tools.supportive.fs.common.ComponentFileContext;
+import net.werpu.tools.supportive.fs.common.PsiElementContext;
+import net.werpu.tools.supportive.fs.common.PsiRouteContext;
+import net.werpu.tools.supportive.fs.common.Route;
+import net.werpu.tools.supportive.fs.ng.NG_UIRoutesRoutesFileContext;
+import net.werpu.tools.supportive.fs.tn.TNAngularRoutesFileContext;
+import net.werpu.tools.supportive.fs.tn.TNUIRoutesFileContext;
 
 import java.util.List;
 import java.util.Optional;

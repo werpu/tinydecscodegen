@@ -4,7 +4,7 @@ import org.junit.Test;
 import probes.EnumProbe;
 import rest.GenericClass;
 import rest.GenericEnum;
-import supportive.reflectRefact.IntellijDtoReflector;
+import net.werpu.tools.supportive.reflectRefact.IntellijDtoReflector;
 
 import java.util.Arrays;
 import java.util.List;

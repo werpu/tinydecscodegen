@@ -1,7 +1,7 @@
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
-import supportive.transformations.AngularJSModuleTransformationModel;
+import net.werpu.tools.supportive.transformations.AngularJSModuleTransformationModel;
 import util.TestUtils;
 
 /**

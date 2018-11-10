@@ -35,31 +35,31 @@
     -->
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <fileTemplateGroup implementation="factories.TnDecGroupFactory"/>
-        <defaultLiveTemplatesProvider implementation="factories.TnDecLiveTemplatesProvider"/>
-        <liveTemplateContext implementation="factories.TnDecLiveTemplatesContextProvider"/>
-        <applicationConfigurable instance="configuration.ServiceGenConfiguration"/>
+        <fileTemplateGroup implementation="net.werpu.tools.factories.TnDecGroupFactory"/>
+        <defaultLiveTemplatesProvider implementation="net.werpu.tools.factories.TnDecLiveTemplatesProvider"/>
+        <liveTemplateContext implementation="net.werpu.tools.factories.TnDecLiveTemplatesContextProvider"/>
+        <applicationConfigurable instance="net.werpu.tools.configuration.ServiceGenConfiguration"/>
 
 
-        <applicationService serviceInterface="configuration.ConfigSerializer"
-                            serviceImplementation="configuration.ConfigSerializer"/>
+        <applicationService serviceInterface="net.werpu.tools.configuration.ConfigSerializer"
+                            serviceImplementation="net.werpu.tools.configuration.ConfigSerializer"/>
 
-        <fileBasedIndex implementation="indexes.ComponentIndex" />
-        <fileBasedIndex implementation="indexes.ControllerIndex" />
-        <fileBasedIndex implementation="indexes.ServiceIndex" />
-        <fileBasedIndex implementation="indexes.FilterIndex" />
+        <fileBasedIndex implementation="net.werpu.tools.indexes.ComponentIndex" />
+        <fileBasedIndex implementation="net.werpu.tools.indexes.ControllerIndex" />
+        <fileBasedIndex implementation="net.werpu.tools.indexes.ServiceIndex" />
+        <fileBasedIndex implementation="net.werpu.tools.indexes.FilterIndex" />
 
         <!-- route indexes -->
-        <fileBasedIndex implementation="indexes.NG_UIRoutesIndex" />
-        <fileBasedIndex implementation="indexes.TN_UIRoutesIndex" />
-        <fileBasedIndex implementation="indexes.TNRoutesIndex" />
-        <fileBasedIndex implementation="indexes.AngularIndex" />
-        <fileBasedIndex implementation="indexes.ModuleIndex" />
+        <fileBasedIndex implementation="net.werpu.tools.indexes.NG_UIRoutesIndex" />
+        <fileBasedIndex implementation="net.werpu.tools.indexes.TN_UIRoutesIndex" />
+        <fileBasedIndex implementation="net.werpu.tools.indexes.TNRoutesIndex" />
+        <fileBasedIndex implementation="net.werpu.tools.indexes.AngularIndex" />
+        <fileBasedIndex implementation="net.werpu.tools.indexes.ModuleIndex" />
 
 
 
-        <toolWindow id="Angular Navigations" icon="/images/tt.png" anchor="left" factoryClass="toolWindows.AngularStructureToolWindow"/>
-        <toolWindow id="Angular Resources" icon="/images/tt.png" anchor="bottom" factoryClass="toolWindows.ResourceToolWindow"/>
+        <toolWindow id="Angular Navigations" icon="/images/tt.png" anchor="left" factoryClass="net.werpu.tools.toolWindows.AngularStructureToolWindow"/>
+        <toolWindow id="Angular Resources" icon="/images/tt.png" anchor="bottom" factoryClass="net.werpu.tools.toolWindows.ResourceToolWindow"/>
 
     </extensions>
 
@@ -73,40 +73,40 @@
             <group id="TD_TinyDecsContextMenu1" text="_Tiny Decorations" popup="true"
                    description="Tiny decorations context actions" icon="/images/tt.png">
 
-                <action id="TD_CreateModule1" class="actions.CreateTnDecModule" text="Create Module"
+                <action id="TD_CreateModule1" class="CreateTnDecModule" text="Create Module"
                         description="Create a an Angular Tiny Decorations Module" icon="/images/tt.png">
                 </action>
                 <separator/>
 
-                <action id="TD_CreateComponent1" class="actions.CreateTnDecComponent" text="Create Component"
+                <action id="TD_CreateComponent1" class="CreateTnDecComponent" text="Create Component"
                         description="Create a an Angular Tiny Decorations Component" icon="/images/tt.png">
                 </action>
-                <action id="TD_CreateController1" class="actions.CreateTnDecController" text="Create Controller"
+                <action id="TD_CreateController1" class="CreateTnDecController" text="Create Controller"
                         description="Create a an Angular Tiny Decorations Controller" icon="/images/tt.png">
                 </action>
 
-                <action id="TD_CreateRoute1" class="actions.CreateTnDecRoute" text="Create Route"
+                <action id="TD_CreateRoute1" class="CreateTnDecRoute" text="Create Route"
                         icon="/images/tt.png"
                         description="Create a new Route">
                 </action>
 
-                <action id="TD_CreateService1" class="actions.CreateTnDecService" text="Create Service"
+                <action id="TD_CreateService1" class="CreateTnDecService" text="Create Service"
                         description="Create a an Angular Tiny Decorations Service" icon="/images/tt.png">
                 </action>
-                <action id="TD_CreateFilter1" class="actions.CreateTnDecFilter" text="Create Filter"
+                <action id="TD_CreateFilter1" class="CreateTnDecFilter" text="Create Filter"
                         description="Create a an Angular Tiny Decorations Filter" icon="/images/tt.png">
                 </action>
 
-                <action id="TD_CreateDirective1" class="actions.CreateTnDecDirective" text="Create Directive"
+                <action id="TD_CreateDirective1" class="CreateTnDecDirective" text="Create Directive"
                         description="Create a an Angular Tiny Decorations Directive" icon="/images/tt.png">
                 </action>
 
 
                 <separator/>
-                <action id="TD_CreateConfig1" class="actions.CreateTnDecConfig" text="Create Startup Config"
+                <action id="TD_CreateConfig1" class="CreateTnDecConfig" text="Create Startup Config"
                         description="Create a an Angular Tiny Decorations Startup Config" icon="/images/tt.png">
                 </action>
-                <action id="TD_CreateRun1" class="actions.CreateTnDecRun" text="Create Run Config"
+                <action id="TD_CreateRun1" class="CreateTnDecRun" text="Create Run Config"
                         description="Create a an Angular Tiny Decorations Run Config" icon="/images/tt.png">
                 </action>
             </group>
@@ -153,7 +153,7 @@
 
                 <separator/>
 
-                <action id="TD_ServiceSource" class="actions.ServiceGenerateActionFromSource"
+                <action id="TD_ServiceSource" class="ServiceGenerateActionFromSource"
                         text="TT Service Generation from Source"
                         description="Generate a typescript service">
 
@@ -188,47 +188,47 @@
         <group id="TD_TinyDecsContextMenu" text="_Tiny Decorations" popup="true"
                description="Tiny decorations context actions" icon="/images/tt.png">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
-            <action id="TD_CreateProject" class="actions.CreateTnDecProject" text="Create Tiny Decorations Project"
+            <action id="TD_CreateProject" class="net.werpu.tools.actions.CreateTnDecProject" text="Create Tiny Decorations Project"
                     description="Create a an Angular Tiny Decorations Project" icon="/images/tt.png">
             </action>
 
             <separator/>
 
 
-            <action id="TD_CreateComponent" class="actions.CreateTnDecComponent" text="Create Component"
+            <action id="TD_CreateComponent" class="net.werpu.tools.actions.CreateTnDecComponent" text="Create Component"
                     description="Create a an Angular Tiny Decorations Component" icon="/images/tt.png">
             </action>
-            <action id="TD_CreateController" class="actions.CreateTnDecController" text="Create Controller"
+            <action id="TD_CreateController" class="net.werpu.tools.actions.CreateTnDecController" text="Create Controller"
                     description="Create a an Angular Tiny Decorations Controller" icon="/images/tt.png">
             </action>
-            <action id="TD_CreateRoute" class="actions.CreateTnDecRoute" text="Create Route"
+            <action id="TD_CreateRoute" class="net.werpu.tools.actions.CreateTnDecRoute" text="Create Route"
                     icon="/images/tt.png"
                     description="Create a new Route">
             </action>
 
           
 
-            <action id="TD_CreateService" class="actions.CreateTnDecService" text="Create Service"
+            <action id="TD_CreateService" class="net.werpu.tools.actions.CreateTnDecService" text="Create Service"
                     description="Create a an Angular Tiny Decorations Service" icon="/images/tt.png">
             </action>
-            <action id="TD_CreateFilter" class="actions.CreateTnDecFilter" text="Create Filter"
+            <action id="TD_CreateFilter" class="net.werpu.tools.actions.CreateTnDecFilter" text="Create Filter"
                     description="Create a an Angular Tiny Decorations Filter" icon="/images/tt.png">
             </action>
 
-            <action id="TD_CreateDirective" class="actions.CreateTnDecDirective" text="Create Directive"
+            <action id="TD_CreateDirective" class="net.werpu.tools.actions.CreateTnDecDirective" text="Create Directive"
                     description="Create a an Angular Tiny Decorations Directive" icon="/images/tt.png">
             </action>
 
             <separator/>
-            <action id="TD_CreateModule" class="actions.CreateTnDecModule" text="Create Module"
+            <action id="TD_CreateModule" class="net.werpu.tools.actions.CreateTnDecModule" text="Create Module"
                     description="Create a an Angular Tiny Decorations Module" icon="/images/tt.png">
             </action>
 
             <separator/>
-            <action id="TD_CreateConfig" class="actions.CreateTnDecConfig" text="Create Startup Config"
+            <action id="TD_CreateConfig" class="net.werpu.tools.actions.CreateTnDecConfig" text="Create Startup Config"
                     description="Create a an Angular Tiny Decorations Startup Config" icon="/images/tt.png">
             </action>
-            <action id="TD_CreateRun" class="actions.CreateTnDecRun" text="Create Run Config"
+            <action id="TD_CreateRun" class="net.werpu.tools.actions.CreateTnDecRun" text="Create Run Config"
                     description="Create a an Angular Tiny Decorations Run Config" icon="/images/tt.png">
             </action>
         </group>
@@ -237,36 +237,36 @@
                icon="/images/ng.png">
 
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
-            <action id="NG_CreateProject2" class="actions_ng.CreateNgProject" text="Create Angular Ng Project"
+            <action id="NG_CreateProject2" class="net.werpu.tools.actions_ng.CreateNgProject" text="Create Angular Ng Project"
                     description="Create a an Angular Ng Project" icon="/images/tt.png">
             </action>
 
 
             <separator/>
 
-            <action id="TD_CreateModule2" class="actions_ng.CreateNgModule" text="Create Module"
+            <action id="TD_CreateModule2" class="net.werpu.tools.actions_ng.CreateNgModule" text="Create Module"
                     description="Create a an Angular Angular NG Module" icon="/images/ng.png">
             </action>
 
             <separator/>
 
-            <action id="NG_CreateComponent2" class="actions_ng.CreateNgComponent" text="Create Component"
+            <action id="NG_CreateComponent2" class="net.werpu.tools.actions_ng.CreateNgComponent" text="Create Component"
                     description="Create a an Angular NG Component" icon="/images/ng.png">
             </action>
 
 
-            <action id="NG_CreateRoute2" class="actions_ng.CreateNgRoute" text="Create UI-Routes Route" icon="/images/ng.png"
+            <action id="NG_CreateRoute2" class="net.werpu.tools.actions_ng.CreateNgRoute" text="Create UI-Routes Route" icon="/images/ng.png"
                     description="Create a new Route">
             </action>
 
-            <action id="NG_CreateService2" class="actions_ng.CreateNgService" text="Create Service"
+            <action id="NG_CreateService2" class="net.werpu.tools.actions_ng.CreateNgService" text="Create Service"
                     description="Create a an Angular NG Service" icon="/images/ng.png">
             </action>
 
-            <action id="NG_CreatePipe2" class="actions_ng.CreateNgPipe" text="Create Pipe"
+            <action id="NG_CreatePipe2" class="net.werpu.tools.actions_ng.CreateNgPipe" text="Create Pipe"
                     description="Create a an Angular NG Pipe" icon="/images/ng.png">
             </action>
-            <action id="NG_CreateDirective2" class="actions_ng.CreateNgDirective" text="Create Directive"
+            <action id="NG_CreateDirective2" class="net.werpu.tools.actions_ng.CreateNgDirective" text="Create Directive"
                     description="Create a an Angular NG Directive" icon="/images/ng.png">
             </action>
 
@@ -278,7 +278,7 @@
                icon="/images/tt.png" >
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
 
-            <action id="NG_SprinRest2" class="actions_all.CreateSpringRestController"
+            <action id="NG_SprinRest2" class="net.werpu.tools.actions_all.CreateSpringRestController"
                     text="Generate a Spring Rest Controller"
                     description="Generate a Spring Rest Controller">
             </action>
@@ -286,23 +286,23 @@
 
         <!-- editor -->
         <group>
-            <action id="TTNG_CreateRestEndpoint3" class="actions_all.CreateRestEndpoint" text="Create Rest Endpoint"
+            <action id="TTNG_CreateRestEndpoint3" class="net.werpu.tools.actions_all.CreateRestEndpoint" text="Create Rest Endpoint"
                     description="Create Rest Endpoint" icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="R" keymap="$default"/>
             </action>
-            <action id="TD_DtoSrc3" class="actions_all.DtoGenerateFromSource" text="Dto Generation from source"
+            <action id="TD_DtoSrc3" class="net.werpu.tools.actions_all.DtoGenerateFromSource" text="Dto Generation from source"
                     description="Generate a typescript dto from the current editor window" icon="/images/tt.png">
             </action>
             <separator/>
 
-            <action id="TD_ServiceSource4" class="actions.ServiceGenerateActionFromSource"
+            <action id="TD_ServiceSource4" class="net.werpu.tools.actions.ServiceGenerateActionFromSource"
                     text="TT Service Generation from Source"
                     description="Generate a typescript service"
                     icon="/images/tt.png"
             >
 
             </action>
-            <action id="NG_ServiceSourcer3" class="actions_ng.ServiceGenerateActionFromSource"
+            <action id="NG_ServiceSourcer3" class="net.werpu.tools.actions_ng.ServiceGenerateActionFromSource"
                     text="Angular NG Service Generation from Source"
                     description="Generate a Angular Ng typescript service"
                     icon="/images/ng.png"
@@ -315,33 +315,33 @@
 
 
 
-            <action id="TD_GoToTypescript3" class="actions_all.GoToTs" text="Go To Typescript"
+            <action id="TD_GoToTypescript3" class="net.werpu.tools.actions_all.GoToTs" text="Go To Typescript"
                     icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="G" keymap="$default"/>
             </action>
-            <action id="TD_GoToJava3" class="actions_all.GoToJava" text="Go To Java" icon="/images/tt.png">
+            <action id="TD_GoToJava3" class="net.werpu.tools.actions_all.GoToJava" text="Go To Java" icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="G" keymap="$default"/>
             </action>
-            <action id="TD_GoToModule3" class="actions_all.GoToModule" text="Go To Module" icon="/images/tt.png">
+            <action id="TD_GoToModule3" class="net.werpu.tools.actions_all.GoToModule" text="Go To Module" icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="M" keymap="$default"/>
             </action>
-            <action id="TD_TD_EditTemplate3" class="actions_all.EditTemplate" text="Edit HTML Template"
+            <action id="TD_TD_EditTemplate3" class="net.werpu.tools.actions_all.EditTemplate" text="Edit HTML Template"
                     icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="H" keymap="$default"/>
             </action>
 
-            <action id="TD_TD_CreateRoute" class="actions.CreateTnDecRouteFromEdit" text="Create Route"
+            <action id="TD_TD_CreateRoute" class="net.werpu.tools.actions.CreateTnDecRouteFromEdit" text="Create Route"
                     icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="R" keymap="$default"/>
             </action>
 
-            <action id="TT_NG_CreateRoute" class="actions_ng.CreateNgRouteFromEdit" text="Create Route"
+            <action id="TT_NG_CreateRoute" class="net.werpu.tools.actions_ng.CreateNgRouteFromEdit" text="Create Route"
                     icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="R" keymap="$default"/>
             </action>
 
             <separator/>
-            <action id="TT_SearchArtifact" class="actions_all.SearchForResource" text="Search For Resource"
+            <action id="TT_SearchArtifact" class="net.werpu.tools.actions_all.SearchForResource" text="Search For Resource"
                     icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="F" keymap="$default"/>
             </action>
@@ -355,7 +355,7 @@
     <application-components>
 
         <component>
-            <implementation-class>components.Application</implementation-class>
+            <implementation-class>net.werpu.tools.components.Application</implementation-class>
         </component>
     </application-components>
 </idea-plugin>

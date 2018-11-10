@@ -2,7 +2,7 @@ import com.intellij.psi.PsiJavaFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.junit.Test;
 import rest.GenericClass;
-import supportive.reflectRefact.IntellijDtoReflector;
+import net.werpu.tools.supportive.reflectRefact.IntellijDtoReflector;
 import util.TestUtils;
 
 import java.util.Arrays;

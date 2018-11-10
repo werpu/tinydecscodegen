@@ -7,9 +7,9 @@ import rest.GenericClass;
 import rest.RestMethod;
 import rest.RestService;
 import rest.RestVar;
-import supportive.reflectRefact.IntellijDtoReflector;
-import supportive.reflectRefact.IntellijJaxRsReflector;
-import supportive.reflectRefact.IntellijSpringRestReflector;
+import net.werpu.tools.supportive.reflectRefact.IntellijDtoReflector;
+import net.werpu.tools.supportive.reflectRefact.IntellijJaxRsReflector;
+import net.werpu.tools.supportive.reflectRefact.IntellijSpringRestReflector;
 import util.TestUtils;
 
 import java.util.Arrays;
