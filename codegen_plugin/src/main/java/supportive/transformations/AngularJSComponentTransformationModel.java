@@ -82,12 +82,17 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     public static final Object[] CONTROLLER_ARR = {TYPE_SCRIPT_FIELD, NAME_EQ("controller"), JS_ARRAY_LITERAL_EXPRESSION};
     public static final Object[] STR_INJECTS = {CHILD_ELEM, JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL};
     public static final Object[] CONTROLLER_FUNC = {CHILD_ELEM, TYPESCRIPT_FUNCTION_EXPRESSION};
+    public static final Object[] PARAM_LISTS = {CONTROLLER_ARR, CONTROLLER_FUNC, CHILD_ELEM, TYPE_SCRIPT_PARAMETER_LIST, TYPE_SCRIPT_PARAM};
+
+    @NotNull
+    static Object[] COMPONENT_NAME(String className) {
+        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, NAME_EQ(className), PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
+    }
+
 
     Optional<PsiElementContext> lastImport;
     PsiElementContext rootBlock;
-
     String controllerAs;
-
     List<Injector> injects; //imports into the constructor
     String selectorName; //trace back into the module declaration for this component and then run our string dash transformation
 
@@ -95,7 +100,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     Optional<PsiElementContext> constructorBlock;
 
     List<PsiElementContext> inlineFunctions;
-
     String template; //original template after being found
     //List<PsiElementContext> watchers;
     List<BindingTypes> bindings;
@@ -184,7 +188,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 .map(el-> el.getText())
                 .collect(Collectors.toList());
 
-        List<String> tsInjects = rootBlock.$q(CONTROLLER_ARR, CONTROLLER_FUNC, CHILD_ELEM, TYPE_SCRIPT_PARAMETER_LIST, TYPE_SCRIPT_PARAM)
+        List<String> tsInjects = rootBlock.$q(PARAM_LISTS)
                 .map(el -> el.getText())
                 .collect(Collectors.toList());
 
@@ -200,7 +204,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         String className = this.$q(TYPE_SCRIPT_CLASS).findFirst().map(el -> el.getName()).orElse("????");
 
         selectorName = super.findFirstUpwards(el -> {
-            Optional<PsiElementContext> ctx = new IntellijFileContext(getProject(), el).$q(getComponentName(className)).findFirst();
+            Optional<PsiElementContext> ctx = new IntellijFileContext(getProject(), el).$q(COMPONENT_NAME(className)).findFirst();
             if(!ctx.isPresent()) {
                 return false;
             }
@@ -208,17 +212,11 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
             return true;
 
         }).stream()
-                .flatMap(el -> el.$q(getComponentName(className)))
+                .flatMap(el -> el.$q(COMPONENT_NAME(className)))
                 .map(el2 -> el2.getText())
                 .map(compName -> StringUtils.toDash(compName))
                 .findFirst().orElse("????");
     }
-
-    @NotNull
-    private Object[] getComponentName(String className) {
-        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, NAME_EQ(className), PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
-    }
-
 
     private void parseControllerAs() {
         controllerAs = rootBlock.$q(CONTROLLER_AS)

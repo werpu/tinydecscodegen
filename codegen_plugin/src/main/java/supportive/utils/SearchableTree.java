@@ -13,7 +13,9 @@ import toolWindows.supportive.MouseController;
 import toolWindows.supportive.NodeKeyController;
 import toolWindows.supportive.SwingRootParentNode;
 
+import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.*;
+import java.awt.*;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -38,15 +40,29 @@ public class SearchableTree<V> {
 
     private String label;
 
+    DefaultMutableTreeNode lastSelectedNode;
+    TreePath[] lastSelectedPaths;
+
+    int [] selectionRows;
 
     public SearchableTree() {
         new ExpansionMonitor(tree);
+
+
+        tree.addTreeSelectionListener((TreeSelectionEvent ev) -> {
+
+            int[] selectionRows = tree.getSelectionRows();
+            if(selectionRows.length > 0) {
+                this.selectionRows = selectionRows;
+            }
+
+        });
     }
 
     private void setTitle(DefaultMutableTreeNode root, String title) {
         String newTitle = Strings.nullToEmpty(title);
         Collections.list(root.children()).stream().forEach(node -> {
-            ((DefaultMutableTreeNode)node).setUserObject(newTitle);
+            ((DefaultMutableTreeNode) node).setUserObject(newTitle);
 
         });
     }
@@ -68,7 +84,21 @@ public class SearchableTree<V> {
     }
 
     public void refreshContent(String label, Consumer<SwingRootParentNode> treeBuilder) {
+
+
         buildTree(tree, label, treeBuilder);
+
+       /* TimeoutWorker.setTimeout(() -> {
+            tree.setSelectionRows(selectionRows);
+            Arrays.stream(tree.getMouseListeners()).forEach((ml) -> {
+                ml.mousePressed(new MouseEvent((Component) (tree.getSelectionPaths()[tree.getSelectionPaths().length -1]).getLastPathComponent(), 100000,0l, 0,0, 0,0, 0,0 ,false, 0));
+                ml.mouseReleased(new MouseEvent((Component) (tree.getSelectionPaths()[tree.getSelectionPaths().length -1]).getLastPathComponent(), 100000,0l, 0,0, 0,0, 0,0 ,false, 0));
+                ml.mouseClicked(new MouseEvent((Component) (tree.getSelectionPaths()[tree.getSelectionPaths().length -1]).getLastPathComponent(), 100000,0l, 0,0, 0,0, 0,0 ,false, 0));
+
+            });
+        }, 1500);*/
+
+
         //restoreExpansion();
 
     }
@@ -149,14 +179,14 @@ public class SearchableTree<V> {
 
     private DefaultMutableTreeNode filteredClone(DefaultMutableTreeNode source, String pathFilter) {
         return cloneNodes(source, node -> {
-                    Object userObject = node.getUserObject();
-                    if (userObject instanceof IAngularFileContext && node.isLeaf()) {
-                        String vPATH = ((IAngularFileContext) userObject).getVirtualFile().getPath();
-                        vPATH = StringUtils.normalizePath(vPATH);
-                        return vPATH.toLowerCase().contains(pathFilter.toLowerCase());
-                    }
-                    return node.getChildCount() > 0;
-                });
+            Object userObject = node.getUserObject();
+            if (userObject instanceof IAngularFileContext && node.isLeaf()) {
+                String vPATH = ((IAngularFileContext) userObject).getVirtualFile().getPath();
+                vPATH = StringUtils.normalizePath(vPATH);
+                return vPATH.toLowerCase().contains(pathFilter.toLowerCase());
+            }
+            return node.getChildCount() > 0;
+        });
     }
 
 
@@ -197,24 +227,25 @@ public class SearchableTree<V> {
 
     /**
      * registers the default behavior for click and double click
+     *
      * @param singleClickAction the click action to be performed
      * @param doubleClickAction the double click action to be performed
-     * @param <T> must be of instance IAngularFileContext
+     * @param <T>               must be of instance IAngularFileContext
      */
     public <T extends IAngularFileContext> void createDefaultClickHandlers(Consumer<T> singleClickAction, Consumer<T> doubleClickAction) {
         MouseListener ml = new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 int selRow = tree.getRowForLocation(e.getX(), e.getY());
-                if(selRow != -1) {
+                if (selRow != -1) {
                     TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
                     DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath.getLastPathComponent();
 
-                    if(!e.isConsumed()) {
+                    if (!e.isConsumed()) {
                         e.consume();
 
 
                         Object userObject = node.getUserObject();
-                        if(!(userObject instanceof IAngularFileContext)) {
+                        if (!(userObject instanceof IAngularFileContext)) {
                             return;
                         }
                         if (SwingUtils.singleClickOnly()) {
@@ -231,13 +262,12 @@ public class SearchableTree<V> {
     }
 
     /**
-     *
-     * @param enter  enter key pressed handler
+     * @param enter    enter key pressed handler
      * @param altEnter alt enter key pressed handler
      * @param copy
-     * @param <T> must be of instance IAngularFileContext
+     * @param <T>      must be of instance IAngularFileContext
      */
-    public <T extends IAngularFileContext> void  createDefaultKeyController(Consumer<T> enter, Consumer<T> altEnter, Consumer<T> copy) {
+    public <T extends IAngularFileContext> void createDefaultKeyController(Consumer<T> enter, Consumer<T> altEnter, Consumer<T> copy) {
         NodeKeyController<T> retVal = new NodeKeyController<>(tree,
                 enter, altEnter, copy);
         this.addKeyListener(retVal);
