@@ -13,6 +13,8 @@ import toolWindows.supportive.MouseController;
 import toolWindows.supportive.NodeKeyController;
 import toolWindows.supportive.SwingRootParentNode;
 
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.*;
 import java.awt.*;
@@ -43,18 +45,25 @@ public class SearchableTree<V> {
     DefaultMutableTreeNode lastSelectedNode;
     TreePath[] lastSelectedPaths;
 
-    int [] selectionRows;
+    int[] selectionRows;
 
     public SearchableTree() {
         new ExpansionMonitor(tree);
 
+        tree.addTreeExpansionListener(new TreeExpansionListener() {
+            @Override
+            public void treeExpanded(TreeExpansionEvent event) {
+                invokeLater(() -> readAction(() -> restoreSelection()));
+            }
+
+            @Override
+            public void treeCollapsed(TreeExpansionEvent event) {
+
+            }
+        });
 
         tree.addTreeSelectionListener((TreeSelectionEvent ev) -> {
 
-            int[] selectionRows = tree.getSelectionRows();
-            if(selectionRows.length > 0) {
-                this.selectionRows = selectionRows;
-            }
 
         });
     }
@@ -84,23 +93,20 @@ public class SearchableTree<V> {
     }
 
     public void refreshContent(String label, Consumer<SwingRootParentNode> treeBuilder) {
-
+        saveSelection();
 
         buildTree(tree, label, treeBuilder);
-
-       /* TimeoutWorker.setTimeout(() -> {
-            tree.setSelectionRows(selectionRows);
-            Arrays.stream(tree.getMouseListeners()).forEach((ml) -> {
-                ml.mousePressed(new MouseEvent((Component) (tree.getSelectionPaths()[tree.getSelectionPaths().length -1]).getLastPathComponent(), 100000,0l, 0,0, 0,0, 0,0 ,false, 0));
-                ml.mouseReleased(new MouseEvent((Component) (tree.getSelectionPaths()[tree.getSelectionPaths().length -1]).getLastPathComponent(), 100000,0l, 0,0, 0,0, 0,0 ,false, 0));
-                ml.mouseClicked(new MouseEvent((Component) (tree.getSelectionPaths()[tree.getSelectionPaths().length -1]).getLastPathComponent(), 100000,0l, 0,0, 0,0, 0,0 ,false, 0));
-
-            });
-        }, 1500);*/
 
 
         //restoreExpansion();
 
+    }
+
+    public void saveSelection() {
+        int[] selectionRows = tree.getSelectionRows();
+        if (selectionRows != null && selectionRows.length > 0) {
+            this.selectionRows = selectionRows;
+        }
     }
 
     public void filterTree(String filterStr, String subTitle) {
@@ -190,9 +196,9 @@ public class SearchableTree<V> {
     }
 
 
-    private void buildTree(Tree target, String label, Consumer<SwingRootParentNode> c) {
+    private void buildTree(Tree target, String label, Consumer<SwingRootParentNode> treeBuilder) {
         SwingRootParentNode rootNode = new SwingRootParentNode(label);
-        c.accept(rootNode);
+        treeBuilder.accept(rootNode);
         DefaultTreeModel newModel = new DefaultTreeModel(rootNode);
         target.setRootVisible(false);
         target.setModel(newModel);
@@ -216,12 +222,45 @@ public class SearchableTree<V> {
     }
 
     public void restoreExpansion() {
-        invokeLater(() -> {
-            readAction(() -> {
-                this.expansionMonitor.restore();
-            });
-        });
+        invokeLater(() -> readAction(() -> this.expansionMonitor.restore()));
 
+    }
+
+    public void restoreSelection() {
+        if (selectionRows == null) {
+            return;
+        }
+        TreePath pathForRow = tree.getPathForRow(selectionRows[selectionRows.length - 1]);
+        tree.expandPath(pathForRow);
+
+        tree.setSelectionPath(pathForRow);
+
+
+        Rectangle r = tree.getPathBounds(pathForRow);
+        if (selectionRows != null && selectionRows.length > 0 && r == null) {
+            //not done yet
+            TimeoutWorker.setTimeout(() -> {
+                restoreSelection();
+                click(r);
+
+            }, 800);
+            return;
+        } else {
+            click(r);
+
+        }
+
+    }
+
+    public void click(Rectangle r) {
+        invokeLater(() -> readAction(() -> {
+            Arrays.stream(tree.getMouseListeners()).forEach((ml) -> {
+                //ml.mousePressed(new MouseEvent(tree, 100000, 10l, 0, (int) r.getCenterX(), (int) r.getCenterY(), 0, 0, 1, false, 0));
+                //ml.mouseReleased(new MouseEvent(tree, 100000, 10l, 0, (int) r.getCenterX(), (int) r.getCenterY(), 0, 0, 1, false, 0));
+                ml.mouseClicked(new MouseEvent(tree, 100000, 10l, 0, (int) r.getCenterX(), (int) r.getCenterY(), 0, 0, 1, false, 0));
+
+            });
+        }));
     }
 
 
@@ -234,7 +273,7 @@ public class SearchableTree<V> {
      */
     public <T extends IAngularFileContext> void createDefaultClickHandlers(Consumer<T> singleClickAction, Consumer<T> doubleClickAction) {
         MouseListener ml = new MouseAdapter() {
-            public void mouseReleased(MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 int selRow = tree.getRowForLocation(e.getX(), e.getY());
                 if (selRow != -1) {
                     TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
@@ -248,7 +287,7 @@ public class SearchableTree<V> {
                         if (!(userObject instanceof IAngularFileContext)) {
                             return;
                         }
-                        if (SwingUtils.singleClickOnly()) {
+                        if (e.getClickCount() < 2) {
                             singleClickAction.accept((T) userObject);
                             return;
                         }

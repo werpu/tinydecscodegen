@@ -150,7 +150,7 @@ public class CreateTnDecRoute extends AnAction {
 
         //TODO for now we deal with only one route file per system
         //but in the long run we need to take care of a selection dialog
-        //which allows to select which route file
+        //which allows to restoreSelection which route file
         return Stream.concat(routeFilesClassic, routeFilesUIRoutes);
     }
 

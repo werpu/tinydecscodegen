@@ -70,7 +70,7 @@ public class CreateTnDecProject extends AnAction {
 
         VirtualFile file = new IntellijFileContext(anActionEvent).getVirtualFile();
         if (file == null) {
-            IntellijUtils.showInfoMessage("You need to select a parent directory for your project", "Info");
+            IntellijUtils.showInfoMessage("You need to restoreSelection a parent directory for your project", "Info");
             return;
         }
 
