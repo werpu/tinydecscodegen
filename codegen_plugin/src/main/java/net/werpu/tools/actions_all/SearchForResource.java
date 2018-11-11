@@ -95,7 +95,7 @@ public class SearchForResource extends AnAction {
                 }).createPopup();
 
 
-        //mainFraime.add(resourceSearchPanel.getMainPanel(), BorderLayout.CENTER);
+        //mainFraime.add(resourceSearchPanel.getRootPanel(), BorderLayout.CENTER);
         //JDialog dialog = mainFraime.createDialog(WindowManager.getInstance().getFrame(project.getProject()).getRootPane(), "Find Resource");
         resourceSearchPanel.setupTable();
 
