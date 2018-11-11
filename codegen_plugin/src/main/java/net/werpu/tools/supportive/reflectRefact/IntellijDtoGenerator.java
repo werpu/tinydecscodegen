@@ -4,7 +4,7 @@ import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.project.Project;
-import factories.TnDecGroupFactory;
+import net.werpu.tools.factories.TnDecGroupFactory;
 import rest.GenericClass;
 import rest.GenericEnum;
 

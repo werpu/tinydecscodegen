@@ -4,7 +4,7 @@ import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.project.Project;
-import factories.TnDecGroupFactory;
+import net.werpu.tools.factories.TnDecGroupFactory;
 import rest.RestService;
 
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static factories.TnDecGroupFactory.TPL_TN_NG_REST_SERVICE;
+import static net.werpu.tools.factories.TnDecGroupFactory.TPL_TN_NG_REST_SERVICE;
 
 public class IntellijRestGenerator {
     /**

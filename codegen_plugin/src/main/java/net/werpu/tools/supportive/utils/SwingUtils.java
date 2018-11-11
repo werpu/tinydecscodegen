@@ -22,15 +22,15 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package net.werpu.tools.supportive.utils;
 
-import actions_all.shared.Labels;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import net.werpu.tools.actions_all.shared.Labels;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,8 +38,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Date;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import static net.werpu.tools.supportive.utils.StringUtils.elVis;
@@ -47,11 +45,9 @@ import static net.werpu.tools.supportive.utils.StringUtils.elVis;
 public class SwingUtils {
 
 
-    public static AtomicLong lastClick = new AtomicLong(-1);
-
     public static void centerOnParent(final Window child, final boolean absolute) {
         child.pack();
-        boolean useChildsOwner = child.getOwner() != null ? ((child.getOwner() instanceof JFrame) || (child.getOwner() instanceof JDialog)) : false;
+        boolean useChildsOwner = child.getOwner() != null && ((child.getOwner() instanceof JFrame) || (child.getOwner() instanceof JDialog));
         final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         final Dimension parentSize = useChildsOwner ? child.getOwner().getSize() : screenSize ;
         final Point parentLocationOnScreen = useChildsOwner ? child.getOwner().getLocationOnScreen() : new Point(0,0) ;
@@ -130,20 +126,7 @@ public class SwingUtils {
         }
     }
 
-    /**
-     * double click detection does not seem to work in swing
-     * we roll our own
-     *
-     * @return
-     */
-    public static boolean singleClickOnly() {
-        long currTime = new Date().getTime();
-        if((currTime - lastClick.get()) >  500) {
-            lastClick.set(currTime);
-            return true;
-        }
-        return false;
-    }
+
 
 
     public static MouseListener addMouseClickedHandler(Consumer<MouseEvent> singleClick, Consumer<MouseEvent> doubleClick) {
@@ -153,7 +136,7 @@ public class SwingUtils {
                 if(e.isConsumed()) {
                     return;
                 }
-                if(!e.isConsumed() && !singleClickOnly()) {
+                if(!e.isConsumed() && e.getClickCount() > 1) {
                     doubleClick.accept(e);
                 }
                 singleClick.accept(e);

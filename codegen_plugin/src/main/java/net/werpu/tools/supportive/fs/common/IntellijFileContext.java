@@ -35,7 +35,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
-import indexes.AngularIndex;
+import net.werpu.tools.indexes.AngularIndex;
 import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
 import net.werpu.tools.supportive.refactor.IRefactorUnit;

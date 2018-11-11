@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import indexes.ModuleIndex;
+import net.werpu.tools.indexes.ModuleIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import net.werpu.tools.supportive.fs.common.*;

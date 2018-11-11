@@ -9,10 +9,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import net.werpu.tools.supportive.fs.common.IAngularFileContext;
-import toolWindows.supportive.ClickHandler;
-import toolWindows.supportive.MouseController;
-import toolWindows.supportive.NodeKeyController;
-import toolWindows.supportive.SwingRootParentNode;
+import net.werpu.tools.toolWindows.supportive.ClickHandler;
+import net.werpu.tools.toolWindows.supportive.MouseController;
+import net.werpu.tools.toolWindows.supportive.NodeKeyController;
+import net.werpu.tools.toolWindows.supportive.SwingRootParentNode;
 
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -268,7 +268,7 @@ public class SearchableTree<V> {
      */
     public <T extends IAngularFileContext> void createDefaultClickHandlers(Consumer<T> singleClickAction, Consumer<T> doubleClickAction) {
         MouseListener ml = new MouseAdapter() {
-            public void mouseReleased(MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 int selRow = tree.getRowForLocation(e.getX(), e.getY());
                 if (selRow != -1) {
                     TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
@@ -282,7 +282,7 @@ public class SearchableTree<V> {
                         if (!(userObject instanceof IAngularFileContext)) {
                             return;
                         }
-                        if (SwingUtils.singleClickOnly()) {
+                        if (e.getClickCount() <= 1) {
                             singleClickAction.accept((T) userObject);
                             return;
                         }

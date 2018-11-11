@@ -3,7 +3,7 @@ package net.werpu.tools.supportive.fs.common;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
-import indexes.*;
+import net.werpu.tools.indexes.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import net.werpu.tools.supportive.fs.common.errors.ResourceClassNotFound;

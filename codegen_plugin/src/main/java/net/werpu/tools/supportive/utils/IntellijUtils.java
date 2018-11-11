@@ -21,8 +21,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package net.werpu.tools.supportive.utils;
 
-import actions_all.shared.FileNameTransformer;
-import actions_all.shared.SimpleFileNameTransformer;
+import net.werpu.tools.actions_all.shared.FileNameTransformer;
+import net.werpu.tools.actions_all.shared.SimpleFileNameTransformer;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.intellij.diff.DiffManager;
@@ -61,8 +61,8 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiSearchHelper;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.containers.Convertor;
-import configuration.ConfigSerializer;
-import gui.Confirm;
+import net.werpu.tools.configuration.ConfigSerializer;
+import net.werpu.tools.gui.Confirm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reflector.SpringJavaRestReflector;
