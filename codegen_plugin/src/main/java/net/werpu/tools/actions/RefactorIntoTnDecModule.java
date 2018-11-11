@@ -1,5 +1,6 @@
 package net.werpu.tools.actions;
 
+import com.intellij.lang.Language;
 import com.intellij.lang.LanguageUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -13,9 +14,16 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import net.werpu.tools.gui.support.InputDialogWrapperBuilder;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
+import net.werpu.tools.supportive.transformations.AngularJSModuleTransformationModel;
+import net.werpu.tools.supportive.transformations.ModuleTransformation;
 import net.werpu.tools.supportive.utils.SwingUtils;
 
 import java.awt.*;
+import java.io.IOException;
+
+import static com.intellij.ide.scratch.ScratchFileCreationHelper.reformat;
+import static com.intellij.openapi.application.ApplicationManager.getApplication;
+import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 
 /**
  * Refactor module into a new TNDecModule
@@ -35,16 +43,17 @@ public class RefactorIntoTnDecModule extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         net.werpu.tools.gui.Refactoring mainForm = new net.werpu.tools.gui.Refactoring();
         final IntellijFileContext fileContext = new IntellijFileContext(event);
-        WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
+        runWriteCommandAction(fileContext.getProject(), () -> {
 
+            Language typeScript = LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("TypeScript"));
             PsiFile workFile = PsiFileFactory.getInstance(fileContext.getProject()).createFileFromText("newModule.ts",
-                    LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("TypeScript")),"");
+                    typeScript, "");
 
             Document document = workFile.getViewProvider().getDocument();
-            final Editor editor = SwingUtils.createHtmlEditor(fileContext.getProject(), document);
+            final Editor editor = SwingUtils.createTypescriptEdfitor(fileContext.getProject(), document);
             editor.getDocument().setText("  ");
 
-            ApplicationManager.getApplication().invokeLater(() -> {
+            getApplication().invokeLater(() -> {
                 DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(fileContext.getProject(), mainForm.getRootPanel())
                         .withDimensionKey(DIMENSION_KEY)
                         .withTitle(DLG_TITLE)
@@ -52,6 +61,16 @@ public class RefactorIntoTnDecModule extends AnAction {
                         .withOkHandler(() -> okPressed(fileContext, mainForm))
                         .create();
 
+                ModuleTransformation moduleTransformation = new ModuleTransformation(new AngularJSModuleTransformationModel(fileContext));
+                runWriteCommandAction(fileContext.getProject(), () -> {
+                    try {
+                        String text = reformat(fileContext.getProject(), typeScript,  moduleTransformation.getTnDecTransformation());
+                        editor.getDocument().setText(text);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+                mainForm.getEditorScroll().getViewport().setView(editor.getComponent());
                 dialogWrapper.show();
 
             });

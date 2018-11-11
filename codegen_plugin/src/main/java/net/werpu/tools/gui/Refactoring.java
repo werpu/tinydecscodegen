@@ -12,6 +12,7 @@ public class Refactoring {
     private JLabel lblNewText;
     private JTextArea txtNewText;
     private JPanel rootPanel;
+    private JScrollPane editorScroll;
 
 
     public String getNewText() {

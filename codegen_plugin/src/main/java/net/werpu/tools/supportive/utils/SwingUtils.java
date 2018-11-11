@@ -92,6 +92,26 @@ public class SwingUtils {
         return editor;
     }
 
+
+    @NotNull
+    public static Editor createTypescriptEdfitor(Project project, Document document) {
+        EditorFactory editorFactory = EditorFactory.getInstance();
+        Editor editor = editorFactory.createEditor(document, project, FileTypeManager.getInstance().getFileTypeByExtension(".ts"), false);
+
+        EditorSettings editorSettings = editor.getSettings();
+        editorSettings.setLineMarkerAreaShown(true);
+        editorSettings.setLineNumbersShown(true);
+        editorSettings.setFoldingOutlineShown(true);
+        editorSettings.setAnimatedScrolling(true);
+        editorSettings.setWheelFontChangeEnabled(true);
+        editorSettings.setVariableInplaceRenameEnabled(true);
+        editorSettings.setDndEnabled(true);
+        editorSettings.setAutoCodeFoldingEnabled(true);
+        editorSettings.setSmartHome(true);
+
+        return editor;
+    }
+
     public static void update(JTextField target, JTextField source) {
 
         String txt = source.getText();

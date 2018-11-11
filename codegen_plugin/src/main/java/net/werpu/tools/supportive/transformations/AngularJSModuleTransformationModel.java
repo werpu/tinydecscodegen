@@ -1,10 +1,13 @@
 package net.werpu.tools.supportive.transformations;
 
+import com.intellij.ide.fileTemplates.FileTemplate;
+import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
+import net.werpu.tools.factories.TnDecGroupFactory;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
@@ -145,6 +148,8 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
         PsiElementContext lastImport = this.getLastImport().get();
         return lastImport.getTextOffset() + lastImport.getTextLength() + 1;
     }
+
+
 
 
 

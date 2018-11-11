@@ -1,7 +1,9 @@
 package net.werpu.tools.supportive.transformations;
 
+import java.io.IOException;
+
 public interface IArtifactTransformation {
-    String getTnDecTransformation();
+    String getTnDecTransformation() throws IOException;
 
     String getNgTransformation();
 }

@@ -1,5 +1,6 @@
-${data.importText
-import {Inject, NgModule} from "TinyDecorations";
+${data.importText}
+
+${import}
 
 ${data.textFromImportsToModuleDcl}
 
