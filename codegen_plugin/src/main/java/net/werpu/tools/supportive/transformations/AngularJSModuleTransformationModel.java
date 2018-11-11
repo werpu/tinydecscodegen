@@ -8,6 +8,7 @@ import lombok.Getter;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
+import net.werpu.tools.supportive.utils.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -110,6 +111,16 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
         return this.getText().substring(0, importEnd);
     }
 
+    public String getModuleClassName() {
+        return StringUtils.toCamelCase(getModuleName());
+    }
+
+    public String getDeclarationsPart() {
+        if(moduleDefStart.isPresent()) {
+            return this.getPsiFile().getText().substring(moduleDefStart.get().getTextOffset()+moduleDefStart.get().getTextLength());
+        }
+        return "";
+    }
 
     /**
      * parsing part, parse the various contextual parts of the module file
@@ -134,6 +145,7 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
         PsiElementContext lastImport = this.getLastImport().get();
         return lastImport.getTextOffset() + lastImport.getTextLength() + 1;
     }
+
 
 
 }

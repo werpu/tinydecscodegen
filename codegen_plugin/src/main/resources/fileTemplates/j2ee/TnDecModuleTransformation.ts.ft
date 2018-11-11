@@ -1,0 +1,19 @@
+${data.importText
+import {Inject, NgModule} from "TinyDecorations";
+
+${data.textFromImportsToModuleDcl}
+
+@NgModule({
+    name: "${data.moduleName}",
+    declarations: [],
+    imports: [${data.requires}],
+    exports: []
+})
+
+export class ${data.moduleClassName} {
+    static angularModule: any; //classic angular representation of the current module
+}
+
+export var legacy_${data.moduleClassName} = ${data.moduleClassName}.angularModule; //add your legacy angular artifacts here
+
+legacy_${data.moduleClassName}.${data.declarationsPart};
