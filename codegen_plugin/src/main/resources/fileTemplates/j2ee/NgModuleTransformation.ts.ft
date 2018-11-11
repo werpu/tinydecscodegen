@@ -12,10 +12,11 @@ ${data.textFromImportsToModuleDcl}
 })
 
 export class ${data.moduleClassName} {
-    static angularModule: any; //classic angular representation of the current module
 }
 
-export var legacy_${data.moduleClassName} = ${data.moduleClassName}.angularModule;
 
-//add your legacy angular artifacts here
+
+//move your legacy artifacts over
+/*
 legacy_${data.moduleClassName}${data.declarationsPart};
+*/

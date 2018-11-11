@@ -30,13 +30,24 @@ public class ModuleTransformation implements IArtifactTransformation {
 
 
     @Override
-    public String getNgTransformation() {
-        return "";
+    public String getNgTransformation() throws IOException {
+
+        Map<String, Object> attrs = new HashMap<>();
+        attrs.put("data", transformationModel);
+        attrs.put("import", "import {NgModule} from '@angular/core';");
+
+        String text = FileTemplateUtil.mergeTemplate(attrs, getNgTemplate().getText(), false);
+        return text;
+
     }
 
 
     protected FileTemplate getTnTemplate() {
         return FileTemplateManager.getInstance(transformationModel.getProject()).getJ2eeTemplate(TnDecGroupFactory.TPL_TN_DEC_MODULE_TRANSFORMATION);
+    }
+
+    protected FileTemplate getNgTemplate() {
+        return FileTemplateManager.getInstance(transformationModel.getProject()).getJ2eeTemplate(TnDecGroupFactory.TPL_NG_MODULE_TRANSFORMATION);
     }
 
 

@@ -111,7 +111,7 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
      */
     public String getTextFromImportsToModuleDcl() {
         int importEnd = getImportEnd();
-        return this.getText().substring(0, importEnd);
+        return this.getText().substring(importEnd, moduleDefStart.get().getTextOffset());
     }
 
     public String getModuleClassName() {
@@ -120,9 +120,13 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
 
     public String getDeclarationsPart() {
         if(moduleDefStart.isPresent()) {
-            return this.getPsiFile().getText().substring(moduleDefStart.get().getTextOffset()+moduleDefStart.get().getTextLength());
+            return this.getPsiFile().getText().substring(moduleDeclStart.get().getTextOffset()+moduleDeclStart.get().getTextLength());
         }
         return "";
+    }
+
+    public String getRequiresAsString() {
+        return requires.stream().map(el -> "\""+el+"\"").reduce((el1, el2) -> el1 + ", "+el2 ).get();
     }
 
     /**
@@ -148,6 +152,7 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
         PsiElementContext lastImport = this.getLastImport().get();
         return lastImport.getTextOffset() + lastImport.getTextLength() + 1;
     }
+
 
 
 

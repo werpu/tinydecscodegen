@@ -295,7 +295,7 @@
 
             <group id="Refactorings" text="Refactorings" description="Tiny Dec Refactorings" icon="/images/tt.png" popup="true">
                 <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
-                <action id="RefactorIntoTnDecModule" class="net.werpu.tools.actions.RefactorIntoTnDecModule" text="Refactor Current Module into Tiny Decorations Module"/>
+                <action id="RefactorIntoTnDecModule" class="net.werpu.tools.actions_all.RefactorIntoTnDecModule" text="Refactor Current Module into Tiny Decorations Module"/>
             </group>
 
             <action id="TTNG_CreateRestEndpoint3" class="net.werpu.tools.actions_all.CreateRestEndpoint" text="Create Rest Endpoint"

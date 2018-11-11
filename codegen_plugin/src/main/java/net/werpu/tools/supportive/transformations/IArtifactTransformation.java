@@ -5,5 +5,5 @@ import java.io.IOException;
 public interface IArtifactTransformation {
     String getTnDecTransformation() throws IOException;
 
-    String getNgTransformation();
+    String getNgTransformation() throws IOException;
 }

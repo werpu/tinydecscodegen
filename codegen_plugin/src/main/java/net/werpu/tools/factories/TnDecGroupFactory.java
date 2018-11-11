@@ -28,6 +28,7 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
     public static final String TPL_TN_REST_SERVICE = "Annotated Rest Service";
     public static final String TPL_TN_NG_REST_SERVICE = "NG Rest Service";
     public static final String TPL_TN_DEC_MODULE_TRANSFORMATION = "TnDecModuleTransformation";
+    public static final String TPL_NG_MODULE_TRANSFORMATION = "NgModuleTransformation";
 
     public static final String TPL_EXT = "ts";
     public static final String TPL_EXT_XML = "ts";
@@ -60,6 +61,7 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
         group.addTemplate(new FileTemplateDescriptor(TPL_SPRING_REST_METHOD + "." + TPL_EXT_JAVA));
 
         group.addTemplate(new FileTemplateDescriptor(TPL_TN_DEC_MODULE_TRANSFORMATION+"."+TPL_EXT));
+        group.addTemplate(new FileTemplateDescriptor(TPL_NG_MODULE_TRANSFORMATION+"."+TPL_EXT));
 
         return group;
     }

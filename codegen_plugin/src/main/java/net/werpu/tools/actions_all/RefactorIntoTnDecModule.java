@@ -1,4 +1,4 @@
-package net.werpu.tools.actions;
+package net.werpu.tools.actions_all;
 
 import com.intellij.lang.Language;
 import com.intellij.lang.LanguageUtil;
@@ -17,6 +17,7 @@ import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.transformations.AngularJSModuleTransformationModel;
 import net.werpu.tools.supportive.transformations.ModuleTransformation;
 import net.werpu.tools.supportive.utils.SwingUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.io.IOException;
@@ -37,6 +38,17 @@ public class RefactorIntoTnDecModule extends AnAction {
     @Override
     public void update(AnActionEvent e) {
         super.update(e);
+        try {
+            IntellijFileContext ctx = new IntellijFileContext(e);
+            if(!ctx.getText().contains(".module")) {
+                AngularJSModuleTransformationModel module = new AngularJSModuleTransformationModel(e);
+                e.getPresentation().setEnabledAndVisible(module.getModuleDeclStart().isPresent());
+            }
+        } catch (Throwable t) {
+            e.getPresentation().setEnabledAndVisible(false);
+        }
+
+
     }
 
     @Override
@@ -62,19 +74,43 @@ public class RefactorIntoTnDecModule extends AnAction {
                         .create();
 
                 ModuleTransformation moduleTransformation = new ModuleTransformation(new AngularJSModuleTransformationModel(fileContext));
-                runWriteCommandAction(fileContext.getProject(), () -> {
-                    try {
-                        String text = reformat(fileContext.getProject(), typeScript,  moduleTransformation.getTnDecTransformation());
-                        editor.getDocument().setText(text);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
+
                 mainForm.getEditorScroll().getViewport().setView(editor.getComponent());
+
+                mainForm.onTnDecSelected(() -> runWriteCommandAction(fileContext.getProject(), loadTnDecTransformation(fileContext, editor, moduleTransformation)));
+                mainForm.onbNgSelected(() -> runWriteCommandAction(fileContext.getProject(), loadNgTransformation(fileContext, editor, moduleTransformation)));
+                runWriteCommandAction(fileContext.getProject(), loadTnDecTransformation(fileContext, editor, moduleTransformation));
+
                 dialogWrapper.show();
 
             });
         });
+    }
+
+    @NotNull
+    public Runnable loadTnDecTransformation(IntellijFileContext fileContext, Editor editor, ModuleTransformation moduleTransformation) {
+        Language typeScript = LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("TypeScript"));
+        return () -> {
+            try {
+                String text = reformat(fileContext.getProject(), typeScript,  moduleTransformation.getTnDecTransformation());
+                editor.getDocument().setText(text);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
+    }
+
+    @NotNull
+    public Runnable loadNgTransformation(IntellijFileContext fileContext, Editor editor, ModuleTransformation moduleTransformation) {
+        Language typeScript = LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("TypeScript"));
+        return () -> {
+            try {
+                String text = reformat(fileContext.getProject(), typeScript,  moduleTransformation.getNgTransformation());
+                editor.getDocument().setText(text);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
     }
 
     public boolean okPressed(IntellijFileContext fileContext, net.werpu.tools.gui.Refactoring mainForm) {
