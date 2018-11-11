@@ -33,7 +33,7 @@ public class RefactorIntoTnDecModule extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        net.werpu.tools.gui.CreateTnDecComponent mainForm = new net.werpu.tools.gui.CreateTnDecComponent();
+        net.werpu.tools.gui.Refactoring mainForm = new net.werpu.tools.gui.Refactoring();
         final IntellijFileContext fileContext = new IntellijFileContext(event);
         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
 
@@ -58,7 +58,7 @@ public class RefactorIntoTnDecModule extends AnAction {
         });
     }
 
-    public boolean okPressed(IntellijFileContext fileContext, net.werpu.tools.gui.CreateTnDecComponent mainForm) {
+    public boolean okPressed(IntellijFileContext fileContext, net.werpu.tools.gui.Refactoring mainForm) {
         return true;
     }
 

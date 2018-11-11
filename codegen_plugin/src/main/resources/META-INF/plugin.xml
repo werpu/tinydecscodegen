@@ -231,7 +231,13 @@
             <action id="TD_CreateRun" class="net.werpu.tools.actions.CreateTnDecRun" text="Create Run Config"
                     description="Create a an Angular Tiny Decorations Run Config" icon="/images/tt.png">
             </action>
+
+            <separator/>
+
+
         </group>
+
+
 
         <group id="NG_TinyDecsContextMenu" text="_Angular NG" popup="true" description="Angular NG Actions"
                icon="/images/ng.png">
@@ -286,6 +292,12 @@
 
         <!-- editor -->
         <group>
+
+            <group id="Refactorings" text="Refactorings" description="Tiny Dec Refactorings" icon="/images/tt.png" popup="true">
+                <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
+                <action id="RefactorIntoTnDecModule" class="net.werpu.tools.actions.RefactorIntoTnDecModule" text="Refactor Current Module into Tiny Decorations Module"/>
+            </group>
+
             <action id="TTNG_CreateRestEndpoint3" class="net.werpu.tools.actions_all.CreateRestEndpoint" text="Create Rest Endpoint"
                     description="Create Rest Endpoint" icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="R" keymap="$default"/>
