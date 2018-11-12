@@ -16,6 +16,7 @@ import net.werpu.tools.supportive.utils.StringUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 
@@ -111,7 +112,11 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
      */
     public String getTextFromImportsToModuleDcl() {
         int importEnd = getImportEnd();
-        return this.getText().substring(importEnd, moduleDefStart.get().getTextOffset());
+        Optional<PsiElementContext> varDcl = moduleDefStart.get().$q(P_PARENTS, JS_VAR_STATEMENT).findFirst();
+        if(varDcl.isPresent()) {
+            this.getText().substring(importEnd, varDcl.get().getTextOffset());
+        }
+        return this.getText().substring(importEnd, moduleDeclStart.get().getTextOffset());
     }
 
     public String getModuleClassName() {
@@ -127,6 +132,13 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
 
     public String getRequiresAsString() {
         return requires.stream().map(el -> "\""+el+"\"").reduce((el1, el2) -> el1 + ", "+el2 ).get();
+    }
+
+    public String getLegacyName() {
+        if(moduleDefStart.isPresent()) {
+            return moduleDefStart.get().$q(P_PARENTS, TYPE_SCRIPT_VARIABLE).findFirst().get().getName();
+        }
+        return "legacy_"+this.moduleName;
     }
 
     /**

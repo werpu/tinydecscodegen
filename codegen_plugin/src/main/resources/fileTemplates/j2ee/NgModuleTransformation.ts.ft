@@ -18,5 +18,5 @@ export class ${data.moduleClassName} {
 
 //move your legacy artifacts over
 /*
-legacy_${data.moduleClassName}${data.declarationsPart};
+${data.legacyName}${data.declarationsPart};
 */
