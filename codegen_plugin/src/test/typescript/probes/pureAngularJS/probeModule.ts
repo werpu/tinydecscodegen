@@ -6,13 +6,12 @@ import {BlaService} from "./services/blaService";
 import {ApplicationsFilter} from "./shared/applicationsFilter";
 import {CustomNavbar} from "./components/entryCustomNavbar";
 import {ApplicationDetailsBox} from "./components/applicationDetailsBox";
-import {EntryPageInit} from "./components/entryPageInit";
+import {ProbeComponent} from "./probeComponent";
 export var entry = angular.module('app.entry', ["bla","bla1"])
-    .component("remappedOverviews", new ApplicationsTable())
+    .component("mnProbeComponent", new ProbeComponent())
     .component("remappedsChart", new ApplicationChart())
     .component("remappedCustomNavbar", new CustomNavbar())
     .component("remappedDetailsBox", new ApplicationDetailsBox())
-    .component("remappedPageInit", new EntryPageInit())
     .service("BlaService",BlaService)
     .controller("FirstPageController",FirstPageController)
     .filter("applicationOverviewsFilter", ApplicationsFilter);

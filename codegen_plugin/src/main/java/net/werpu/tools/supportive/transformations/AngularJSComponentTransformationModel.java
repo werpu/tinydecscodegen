@@ -75,6 +75,7 @@ class Injector {
     String tsNameType;
 }
 
+@Getter
 public class AngularJSComponentTransformationModel extends TypescriptFileContext {
 
     public static final Object[] BINDINGS = {TYPE_SCRIPT_FIELD, NAME_EQ("bindings"), JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY};
@@ -104,38 +105,43 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     //List<PsiElementContext> watchers;
     List<BindingTypes> bindings;
 
+    String clazzName;
+
 
     public AngularJSComponentTransformationModel(Project project, PsiFile psiFile, PsiElementContext rootBlock) {
         super(project, psiFile);
         applyRootBlock(psiFile, rootBlock);
+        this.postConstruct2();
     }
 
     public void applyRootBlock(PsiFile psiFile, PsiElementContext rootBlock) {
         if(rootBlock != null) {
             this.rootBlock = rootBlock;
         } else {
-            this.rootBlock = new PsiElementContext(psiFile.getContext());
+            this.rootBlock = new PsiElementContext(psiFile);
         }
     }
 
     public AngularJSComponentTransformationModel(AnActionEvent event, PsiElementContext rootBlock) {
         super(event);
         applyRootBlock(getPsiFile(), rootBlock);
+        this.postConstruct2();
     }
 
     public AngularJSComponentTransformationModel(Project project, VirtualFile virtualFile, PsiElementContext rootBlock) {
         super(project, virtualFile);
         applyRootBlock(getPsiFile(), rootBlock);
+        this.postConstruct2();
     }
 
     public AngularJSComponentTransformationModel(IntellijFileContext fileContext) {
         super(fileContext);
         applyRootBlock(getPsiFile(), rootBlock);
+        this.postConstruct2();
     }
 
-    @Override
-    protected void postConstruct() {
-        super.postConstruct();
+    protected void postConstruct2() {
+
         parseImport();
 
         parseConstructor();
@@ -148,6 +154,14 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
         parseTemplate();
 
+    }
+
+    private void parseClassName() {
+        Optional<PsiElementContext> clazzDcl = rootBlock.$q(TYPE_SCRIPT_CLASS).findFirst();
+        if(clazzDcl.isPresent()) {
+            clazzName = clazzDcl.get().getName();
+        }
+        //TODO look iz up in the parent module
     }
 
     private void parseTemplate() {

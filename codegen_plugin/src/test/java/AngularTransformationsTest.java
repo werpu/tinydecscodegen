@@ -1,6 +1,8 @@
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import net.werpu.tools.supportive.fs.common.IntellijFileContext;
+import net.werpu.tools.supportive.transformations.AngularJSComponentTransformationModel;
 import net.werpu.tools.supportive.transformations.AngularJSModuleTransformationModel;
 import util.TestUtils;
 
@@ -36,7 +38,7 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
     /**
      * test a basic module analysis and if the subparts are properly detected
      */
-    public void testBasickModuleAnalysis() {
+    public void testBasicModuleAnalysis() {
         PsiFile psiFile = myFixture.configureByFile("pureAngularJS/probeModule.ts");
         Project project = myFixture.getProject();
 
@@ -55,6 +57,20 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
         assertTrue(ctx.getLegacyName().equals("entry"));
         assertTrue(ctx.getModuleClassName().equals("AppEntry"));
         assertTrue(ctx.getDeclarationsPart().startsWith(".component("));
+
+    }
+
+    public void testBasicComponentAnalysis() {
+        PsiFile module =  myFixture.configureByFile("pureAngularJS/probeModule.ts");
+        PsiFile psiFile = myFixture.configureByFile("pureAngularJS/probeComponent.ts");
+        Project project = myFixture.getProject();
+
+
+        AngularJSComponentTransformationModel ctx = new AngularJSComponentTransformationModel(new IntellijFileContext(project, psiFile));
+
+        assertTrue(ctx.getClazzName().equals("ProbeComponent"));
+        assertTrue(ctx.getBindings().size() == 5);
+        //TODO tests
 
     }
 
