@@ -114,7 +114,7 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
         int importEnd = getImportEnd();
         Optional<PsiElementContext> varDcl = moduleDefStart.get().$q(P_PARENTS, JS_VAR_STATEMENT).findFirst();
         if(varDcl.isPresent()) {
-            this.getText().substring(importEnd, varDcl.get().getTextOffset());
+            return this.getText().substring(importEnd, varDcl.get().getTextOffset());
         }
         return this.getText().substring(importEnd, moduleDeclStart.get().getTextOffset());
     }
@@ -125,7 +125,7 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
 
     public String getDeclarationsPart() {
         if(moduleDefStart.isPresent()) {
-            return this.getPsiFile().getText().substring(moduleDeclStart.get().getTextOffset()+moduleDeclStart.get().getTextLength());
+            return this.getPsiFile().getText().substring(moduleDeclStart.get().getTextOffset()+moduleDeclStart.get().getTextLength()).trim();
         }
         return "";
     }

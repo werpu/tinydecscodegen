@@ -1,5 +1,4 @@
 ${data.importText}
-
 ${import}
 
 ${data.textFromImportsToModuleDcl}

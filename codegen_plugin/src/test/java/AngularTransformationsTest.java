@@ -50,5 +50,12 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
         assertTrue(ctx.getRequires().size() == 2);
         assertTrue(ctx.getModuleDefStart().isPresent() &&
                 ctx.getModuleDefStart().get().getTextOffset() == ctx.getModuleDeclStart().get().getTextOffset() );
+
+        assertTrue(ctx.getLegacyName().equals("entry"));
+        assertTrue(ctx.getLegacyName().equals("entry"));
+        assertTrue(ctx.getModuleClassName().equals("AppEntry"));
+        assertTrue(ctx.getDeclarationsPart().startsWith(".component("));
+
     }
+
 }

@@ -1,5 +1,4 @@
 ${data.importText}
-
 ${import}
 
 ${data.textFromImportsToModuleDcl}
@@ -10,7 +9,6 @@ ${data.textFromImportsToModuleDcl}
     imports: [${data.requiresAsString}],
     exports: []
 })
-
 export class ${data.moduleClassName} {
 }
 
