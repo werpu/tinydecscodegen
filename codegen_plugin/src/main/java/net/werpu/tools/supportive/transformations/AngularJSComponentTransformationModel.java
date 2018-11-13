@@ -153,6 +153,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         parseInlineFunctions();
 
         parseTemplate();
+        parseClassName();
 
     }
 

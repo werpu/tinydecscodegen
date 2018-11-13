@@ -61,7 +61,7 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
 
     }
 
-    /*
+
     public void testBasicComponentAnalysis() {
         PsiFile module =  myFixture.configureByFile("pureAngularJS/probeModule.ts");
         PsiFile psiFile = myFixture.configureByFile("pureAngularJS/probeComponent.ts");
@@ -75,6 +75,5 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
         //TODO tests
 
     }
-    */
 
 }

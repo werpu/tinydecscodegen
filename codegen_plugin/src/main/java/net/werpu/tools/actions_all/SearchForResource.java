@@ -63,9 +63,6 @@ public class SearchForResource extends AnAction {
 
 
         IntellijFileContext project = new IntellijFileContext(fileContext.getProject());
-
-        //JOptionPane mainFraime = new JOptionPane();
-        //mainFraime.setLayout(new BorderLayout());
         ResourceSearch resourceSearchPanel = new ResourceSearch();
 
 
