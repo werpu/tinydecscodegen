@@ -5,9 +5,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import com.intellij.psi.impl.source.tree.CompositeElement;
+import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import net.werpu.tools.supportive.fs.common.PsiElementContext;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -132,7 +132,6 @@ public class PsiWalkFunctions {
     public static final Object[] DTO_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Dto"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
-
     public static final String CHILD_ELEM = ">";
     /*prdefined queries end*/
 
@@ -162,6 +161,7 @@ public class PsiWalkFunctions {
     public static String TEXT_STARTS_WITH(String val) {
         return "TEXT*:(" + val + ")";
     }
+
     public static String DIRECT_CHILD(String val) {
         return CHILD_ELEM + val;
     }
@@ -237,9 +237,9 @@ public class PsiWalkFunctions {
         return (element != null
                 && getName(element).equals(JS_PROP_TYPE)
                 && (
-                    getText(element).equals(JS_PROP_TEMPLATE) ||
-                    getText(element).equals(JS_PROP_TEMPLATE_URL)
-                )
+                getText(element).equals(JS_PROP_TEMPLATE) ||
+                        getText(element).equals(JS_PROP_TEMPLATE_URL)
+        )
                 && (isIn(element, NG_TYPE_COMPONENT)
                 || isIn(element, NG_TYPE_DIRECTIVE)
                 || isIn(element, NG_TYPE_CONTROLLER)));
@@ -473,6 +473,7 @@ public class PsiWalkFunctions {
      */
     private static Stream<PsiElementContext> execQuery(Stream<PsiElementContext> subItem, Object[] items) {
         boolean directChild;
+        boolean nextDirectChild = false;
         for (Object item : items) {
             //shortcut. we can skip  processing at empty subitems
 
@@ -502,6 +503,7 @@ public class PsiWalkFunctions {
                     subCommand = subCommand.substring(1).trim();
                     if (subCommand.trim().isEmpty()) {
                         //issued in sep query
+                        nextDirectChild = true;
                         continue;
                     } else {
                         directChild = false;
@@ -518,8 +520,9 @@ public class PsiWalkFunctions {
                 } else if (subCommand.equals(P_LAST)) {
                     subItem = handlePLast(subItem);
 
-                } else if (directChild) {
-                        subItem = handleDirectChild(subItem, finalSubCommand);
+                } else if (nextDirectChild) {
+                    nextDirectChild = false;
+                    subItem = handleDirectChild(subItem, finalSubCommand);
                 } else {
                     subItem = handleFindSubItem(subItem, finalSubCommand);
                 }
@@ -545,8 +548,8 @@ public class PsiWalkFunctions {
 
     @NotNull
     private static Stream<PsiElementContext> handleDirectChild(Stream<PsiElementContext> subItem, String finalSubCommand) {
-        subItem = subItem.filter(psiItem -> psiItem.toString().startsWith(finalSubCommand));
-        return subItem;
+        Stream<PsiElementContext> retVal = subItem.flatMap(item -> item.getChildren((PsiElement child) -> child.toString().startsWith(finalSubCommand)).stream());
+        return retVal;
     }
 
     @NotNull
