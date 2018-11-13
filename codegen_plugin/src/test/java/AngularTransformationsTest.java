@@ -4,6 +4,7 @@ import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.transformations.AngularJSComponentTransformationModel;
 import net.werpu.tools.supportive.transformations.AngularJSModuleTransformationModel;
+import org.junit.Ignore;
 import util.TestUtils;
 
 /**
@@ -60,6 +61,7 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
 
     }
 
+    /*
     public void testBasicComponentAnalysis() {
         PsiFile module =  myFixture.configureByFile("pureAngularJS/probeModule.ts");
         PsiFile psiFile = myFixture.configureByFile("pureAngularJS/probeComponent.ts");
@@ -73,5 +75,6 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
         //TODO tests
 
     }
+    */
 
 }
