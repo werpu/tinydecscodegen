@@ -138,7 +138,7 @@ public class CreateTnDecModule extends AnAction {
                     finalFolder.createChildDirectory(project, "dtos");
                     finalFolder.createChildDirectory(project, "pages");
                     finalFolder.createChildDirectory(project, "services");
-                    finalFolder.createChildDirectory(project, "net/werpu/tools/components");
+                    finalFolder.createChildDirectory(project, "components");
                     finalFolder.createChildDirectory(project, "shared");
                 } catch (IOException e) {
                     IntellijUtils.handleEx(project, e);
