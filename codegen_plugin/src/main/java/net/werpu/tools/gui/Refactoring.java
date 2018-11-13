@@ -7,11 +7,10 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ItemEvent;
+import java.util.function.Consumer;
 
 @Getter
 public class Refactoring {
-    private JLabel lblTitle;
-    private JLabel lblTitleValue;
     private JLabel lblNewText;
     private JTextArea txtNewText;
     private JPanel rootPanel;
@@ -19,6 +18,7 @@ public class Refactoring {
     private JLabel lblCodeLevel;
     private JRadioButton rbTnDec;
     private JRadioButton rbNg;
+    private JCheckBox cbBootstrap;
 
 
     public String getNewText() {
@@ -42,5 +42,10 @@ public class Refactoring {
                 r.run();
             }
         });
+    }
+
+
+    public void onStartupModuleChange( Consumer<Boolean> startupListener) {
+        cbBootstrap.addItemListener(e  -> startupListener.accept(e.getStateChange() == ItemEvent.SELECTED ));
     }
 }

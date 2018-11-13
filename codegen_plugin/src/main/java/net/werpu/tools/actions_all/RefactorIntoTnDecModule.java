@@ -73,12 +73,23 @@ public class RefactorIntoTnDecModule extends AnAction {
                         .withOkHandler(() -> okPressed(fileContext, mainForm))
                         .create();
 
-                ModuleTransformation moduleTransformation = new ModuleTransformation(new AngularJSModuleTransformationModel(fileContext));
+                AngularJSModuleTransformationModel transformationModel = new AngularJSModuleTransformationModel(fileContext);
+                transformationModel.setApplicationBootstrap(mainForm.getCbBootstrap().isSelected());
+                ModuleTransformation moduleTransformation = new ModuleTransformation(transformationModel);
+
 
                 mainForm.getEditorScroll().getViewport().setView(editor.getComponent());
 
                 mainForm.onTnDecSelected(() -> runWriteCommandAction(fileContext.getProject(), loadTnDecTransformation(fileContext, editor, moduleTransformation)));
                 mainForm.onbNgSelected(() -> runWriteCommandAction(fileContext.getProject(), loadNgTransformation(fileContext, editor, moduleTransformation)));
+                mainForm.onStartupModuleChange((isSelected) -> {
+                    moduleTransformation.getTransformationModel().setApplicationBootstrap(isSelected);
+                    if(mainForm.getRbNg().isSelected()) {
+                        runWriteCommandAction(fileContext.getProject(), loadNgTransformation(fileContext, editor, moduleTransformation));
+                    } else {
+                        runWriteCommandAction(fileContext.getProject(), loadTnDecTransformation(fileContext, editor, moduleTransformation));
+                    }
+                });
                 runWriteCommandAction(fileContext.getProject(), loadTnDecTransformation(fileContext, editor, moduleTransformation));
 
                 dialogWrapper.show();
@@ -90,6 +101,7 @@ public class RefactorIntoTnDecModule extends AnAction {
     @NotNull
     public Runnable loadTnDecTransformation(IntellijFileContext fileContext, Editor editor, ModuleTransformation moduleTransformation) {
         Language typeScript = LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("TypeScript"));
+
         return () -> {
             try {
                 String text = reformat(fileContext.getProject(), typeScript,  moduleTransformation.getTnDecTransformation());

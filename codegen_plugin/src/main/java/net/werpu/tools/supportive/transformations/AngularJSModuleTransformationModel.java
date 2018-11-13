@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
+import lombok.Setter;
 import net.werpu.tools.factories.TnDecGroupFactory;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
@@ -67,6 +68,10 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
      * the list of requires defined in the module
      */
     List<String> requires;
+
+
+    @Setter
+    boolean applicationBootstrap;
 
 
     public AngularJSModuleTransformationModel(Project project, PsiFile psiFile) {

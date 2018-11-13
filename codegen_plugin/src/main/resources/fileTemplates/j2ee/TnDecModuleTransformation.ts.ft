@@ -1,5 +1,8 @@
 ${data.importText}
 ${import}
+#if(${data.applicationBootstrap})
+import {keepExternals, platformBrowserDynamic} from "TinyDecorations";
+#end
 
 ${data.textFromImportsToModuleDcl}
 
@@ -16,4 +19,9 @@ export class ${data.moduleClassName} {
 export var ${data.legacyName} = ${data.moduleClassName}.angularModule;
 
 //add your legacy angular artifacts here
-${data.legacyName}${data.declarationsPart};
+${data.legacyName}${data.declarationsPart}
+
+
+#if(${data.applicationBootstrap})
+platformBrowserDynamic().boostrapModule(${data.moduleClassName});
+#end

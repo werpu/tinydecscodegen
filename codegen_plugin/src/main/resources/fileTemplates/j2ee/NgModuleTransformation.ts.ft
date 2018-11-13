@@ -1,5 +1,8 @@
 ${data.importText}
 ${import}
+#if(${data.applicationBootstrap})
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+#end
 
 ${data.textFromImportsToModuleDcl}
 
@@ -16,5 +19,11 @@ export class ${data.moduleClassName} {
 
 //move your legacy artifacts over
 /*
-${data.legacyName}${data.declarationsPart};
+${data.legacyName}${data.declarationsPart}
 */
+
+
+#if(${data.applicationBootstrap})
+platformBrowserDynamic().bootstrapModule(${data.moduleClassName})
+    .catch(err => console.log(err));
+#end
