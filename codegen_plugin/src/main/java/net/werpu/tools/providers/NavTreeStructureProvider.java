@@ -36,7 +36,9 @@ public class NavTreeStructureProvider implements TreeStructureProvider {
         Map<String, RouteTreeNode> _routeIdx = new HashMap<>();
 
         //lets make the tree Nodes
-        List<PsiRouteContext> sortedRoutes = (List<PsiRouteContext>) ctx.getRoutes().stream().sorted(Comparator.comparing(PsiRouteContext::getRoute)).collect(Collectors.toList());
+        List<PsiRouteContext> sortedRoutes = (List<PsiRouteContext>) ctx.getRoutes().stream()
+                .sorted(Comparator.comparing(PsiRouteContext::getRoute))
+                .collect(Collectors.toList());
 
         PsiRouteContext oldData = null;
         RouteTreeNode oldNode = null;

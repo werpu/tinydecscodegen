@@ -5,7 +5,7 @@
  * import localRoutesProvider(<your routes>)
  */
 import {FirstPageComponent} from "./firstpage/first-page-module/pages/first-page/first-page.component";
-import {UIRouterModule} from "@uirouter/angular";
+import {Ng2StateDeclaration, UIRouterModule} from "@uirouter/angular";
 import {MainPageComponent} from "./firstpage/first-page-module/pages/main-page/main-page.component";
 import {ModuleWithProviders} from "@angular/core";
 import {StatesModule} from "@uirouter/angular/lib/uiRouterNgModule";
@@ -13,10 +13,10 @@ import {StatesModule} from "@uirouter/angular/lib/uiRouterNgModule";
 /*
  * add your global route definitions here
  */
-const defaultPageState: any = {name: 'default', url: '', component: MainPageComponent};
-const mainPageState: any = {name: 'mainpage', url: '/mainpage', component: MainPageComponent};
-const substate: any = {name: 'mainpage.substate', url: '/mainpage/sub', component: FirstPageComponent};
-const aboutState: any = {name: 'firstpage', url: '/firstpage', component: FirstPageComponent};
+const defaultPageState: Ng2StateDeclaration = {name: 'default', url: '', component: MainPageComponent};
+const mainPageState: Ng2StateDeclaration = {name: 'mainpage', url: '/mainpage', component: MainPageComponent};
+const subRoute: Ng2StateDeclaration = {name: 'mainpage.sub', url: '/mainpage/sub', component: MainPageComponent};
+const aboutState: Ng2StateDeclaration = {name: 'firstpage', url: '/firstpage', component: FirstPageComponent};
 
 /**
  *
@@ -24,8 +24,7 @@ const aboutState: any = {name: 'firstpage', url: '/firstpage', component: FirstP
  */
 export let rootRoutesProvider = UIRouterModule.forRoot(
     {
-        states: [defaultPageState, mainPageState, aboutState, {booga: aboutState}, "booga",
-            /*jgjggj*/ substate], //the currently implemented main routes
+        states: [defaultPageState, mainPageState, aboutState], //the currently implemented main routes
         useHash: true,                //use the hashbang for old browser support
         deferInitialRender: true,     //defer the initial rendering until the init code is done
         otherwise: ""   //default state if there is no match

@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.werpu.tools.supportive.reflectRefact.IntellijRefactor.NG_MODULE;
@@ -542,13 +543,32 @@ public class PsiWalkFunctions {
 
     @NotNull
     private static Stream<PsiElementContext> handleFindSubItem(Stream<PsiElementContext> subItem, String finalSubCommand) {
-        subItem = subItem.flatMap(psiItem -> psiItem.findPsiElements(psiElement -> psiElement.toString().startsWith(finalSubCommand)).stream());
+        subItem = subItem.flatMap(psiItem -> psiItem.findPsiElements(psiElement -> {
+            String cmdString = psiElement.toString();
+            return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand+":");
+        }).stream())
+                .distinct()
+                .collect(Collectors.toList()).stream();
         return subItem;
     }
 
     @NotNull
+    private static String toTypeStr(PsiElement psiElement) {
+        String cmdString = psiElement.toString();
+        if(cmdString.indexOf(":") != -1) {
+            cmdString = cmdString.substring(0, cmdString.indexOf(":"));
+        }
+        return cmdString;
+    }
+
+    @NotNull
     private static Stream<PsiElementContext> handleDirectChild(Stream<PsiElementContext> subItem, String finalSubCommand) {
-        Stream<PsiElementContext> retVal = subItem.flatMap(item -> item.getChildren((PsiElement child) -> child.toString().startsWith(finalSubCommand)).stream());
+        Stream<PsiElementContext> retVal = subItem.flatMap(item -> item.getChildren((PsiElement child) -> {
+            String cmdString = child.toString();
+            return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand+":");
+        }).stream())
+                .distinct()
+                .collect(Collectors.toList()).stream();
         return retVal;
     }
 

@@ -72,6 +72,11 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
 
         assertTrue(ctx.getClazzName().equals("ProbeComponent"));
         assertTrue(ctx.getBindings().size() == 5);
+        assertTrue(ctx.getInjects().size() == 1);
+
+        //not working yet
+        //assertTrue(ctx.getInjects().get(0).getName().equals("$scope"));
+
         //TODO tests
 
     }

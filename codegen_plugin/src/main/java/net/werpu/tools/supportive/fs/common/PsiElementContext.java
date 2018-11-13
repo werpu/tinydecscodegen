@@ -122,7 +122,7 @@ public class PsiElementContext {
         return PsiWalkFunctions.queryContent(this.getElement(), flattendArr(items).stream().toArray(Object[]::new));
     }
 
-    public List flattendArr(Object[] items) {
+    public List<Object> flattendArr(Object[] items) {
         List<Object> retList = new LinkedList<>();
         for(Object item: items) {
             if(item.getClass().isArray()) {
@@ -135,16 +135,13 @@ public class PsiElementContext {
     }
 
 
-    public Stream<PsiElementContext> $q(Object[] items, Object item) {
-        return PsiWalkFunctions.queryContent(this.getElement(), ArrayUtils.add(items, item));
-    }
-
-    public Stream<PsiElementContext> $q(Object[] items, Object[] items2) {
-        return PsiWalkFunctions.queryContent(this.getElement(), ArrayUtils.addAll(items, items2));
+    public Stream<PsiElementContext> $q(Object[] items, Object... items2) {
+        return PsiWalkFunctions.queryContent(this.getElement(), ArrayUtils.addAll(flattendArr(items).toArray(), flattendArr(items2).toArray()));
     }
 
     public Stream<PsiElementContext> $q(Object[]... items) {
-        Object[] all = Arrays.stream(items).reduce((items1, items2) -> Stream.concat(Arrays.stream(items1), Arrays.stream(items2)).toArray()).get();
+        Object[] all = Arrays.stream(items).flatMap(item -> flattendArr(item).stream())
+                .toArray();
         return PsiWalkFunctions.queryContent(this.getElement(), all);
     }
 

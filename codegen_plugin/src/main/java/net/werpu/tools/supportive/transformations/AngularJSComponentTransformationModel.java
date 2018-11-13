@@ -5,8 +5,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import net.werpu.tools.supportive.transformations.modelHelpers.BindingType;
+import net.werpu.tools.supportive.transformations.modelHelpers.BindingTypes;
+import net.werpu.tools.supportive.transformations.modelHelpers.Injector;
 import org.jetbrains.annotations.NotNull;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
@@ -21,59 +23,8 @@ import java.util.stream.Stream;
 
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 
-/**
- * probably the most complicated context of all
- * the component context.
- * <p>
- * The aim for this is following
- * a) find out all the needed imports functions etc...
- * b) find out the component as and if not present use ctrl per default
- * c) Find out all the inlined functions and try to push them to the class level
- * d) Find out all the contextual information regarding the component injects
- * e) find the template reference and try to load the template
- * f) find out about all the watchers currently
- * <p>
- * Upon all this info we should make a transformation source which tries to transform the template
- * depending on the angular level (not part of this class, will be written later)
- * A simple replacer like we have it for the Module Transformation does not cut it anymore
- */
-enum BindingType {
-    INPUT, BOTH, ASTRING, FUNC, OPT_INPUT, OPT_BOTH, OPT_ASTRING, OPT_FUNC;
 
-    public static BindingType translate(String in) {
-        if (in.equals("<")) {
-            return INPUT;
-        } else if (in.equals("<?")) {
-            return OPT_INPUT;
-        } else if (in.equals("@")) {
-            return ASTRING;
-        } else if (in.equals("@?")) {
-            return OPT_ASTRING;
-        } else if (in.equals("=")) {
-            return BOTH;
-        } else if (in.equals("=?")) {
-            return OPT_BOTH;
-        } else if (in.equals("&")) {
-            return FUNC;
-        } else {
-            return OPT_FUNC;
-        }
-    }
-}
 
-@Getter
-@AllArgsConstructor
-class BindingTypes {
-    BindingType bindingType;
-    String name;
-}
-
-@Getter
-@AllArgsConstructor
-class Injector {
-    String name;
-    String tsNameType;
-}
 
 @Getter
 public class AngularJSComponentTransformationModel extends TypescriptFileContext {
@@ -192,7 +143,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
     private void parseConstructor() {
         constructorDef = rootBlock.$q(TYPE_SCRIPT_FIELD, NAME_EQ("controller")).findFirst();
-        constructorBlock = constructorDef.get().$q(TYPE_SCRIPT_FUNC, JS_BLOCK_STATEMENT).findFirst();
+        constructorBlock = constructorDef.get().$q(TYPE_SCRIPT_FUNC_EXPR, JS_BLOCK_STATEMENT).findFirst();
 
     }
 

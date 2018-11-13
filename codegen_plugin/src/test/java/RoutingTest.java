@@ -94,12 +94,32 @@ public class RoutingTest extends BaseTsTest {
         assertTrue(fileContext.getRouteParams().size() == 5);
 
 
+        fileContext.getRoutes();
+
         List<PsiRouteContext> rets = fileContext.getRouteParams().stream()
                 .map(fileContext::parse)
                 .flatMap(el -> el.stream())
                 .collect(Collectors.toList());
 
         assertTrue(true);
+
+    }
+
+
+    @Test
+    public void testNGRouting() {
+        if (!assertTestable()) {
+            return;
+        }
+        PsiFile fs[] = myFixture.configureByFiles("Routes.ts", "module2/View2.ts", "module1/View1.ts");
+
+
+        Project prj = myFixture.getProject();
+        NG_UIRoutesRoutesFileContext fileContext = new NG_UIRoutesRoutesFileContext(prj, fs[0]);
+
+        assertTrue(fileContext.getRoutes().size() > 0);
+
+
 
     }
 

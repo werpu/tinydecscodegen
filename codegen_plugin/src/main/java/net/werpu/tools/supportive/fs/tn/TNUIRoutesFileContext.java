@@ -54,7 +54,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     protected void init() {
 
-        constructors = this.queryContent(">" + TYPE_SCRIPT_FUNC, p_isConstructor(), p_isStateProviderPresent()
+        constructors = this.$q(">" + TYPE_SCRIPT_FUNC, p_isConstructor(), p_isStateProviderPresent()
         ).collect(Collectors.toList());
     }
 
@@ -145,7 +145,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
         return constructor
                 //.state(...
-                .queryContent(PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("'state'"))
+                .$q(PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("'state'"))
                 //$stateProvider.state
                 .map(item -> item.walkParent(el -> {
                     return literalEquals(el.toString(), JS_EXPRESSION_STATEMENT);
@@ -153,7 +153,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
                 .filter(item -> item.isPresent())
                 //arguments
                 //(....
-                .flatMap(item -> item.get().queryContent(JS_ARGUMENTS_LIST))
+                .flatMap(item -> item.get().$q(JS_ARGUMENTS_LIST))
                 //state..
                 .filter(item -> {
                     Optional<PsiElement> prev = elVis(item, "element", "prevSibling");
@@ -169,10 +169,10 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
         //first part either name or call or map
         try {
-            Optional<PsiElementContext> routeName = argumentsList.queryContent(JS_LITERAL_EXPRESSION, ">" + PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
-            Optional<PsiElementContext> parmsCall = argumentsList.queryContent(JS_REFERENCE_EXPRESSION, TEXT_EQ("MetaData.routeData")).findFirst();
-            Optional<PsiElementContext> controller = argumentsList.queryContent(JS_CALL_EXPRESSION, JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst();
-            Optional<PsiElementContext> parmsMap = argumentsList.queryContent(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
+            Optional<PsiElementContext> routeName = argumentsList.$q(JS_LITERAL_EXPRESSION,  PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+            Optional<PsiElementContext> parmsCall = argumentsList.$q(JS_REFERENCE_EXPRESSION, TEXT_EQ("MetaData.routeData")).findFirst();
+            Optional<PsiElementContext> controller = argumentsList.$q(JS_CALL_EXPRESSION, JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst();
+            Optional<PsiElementContext> parmsMap = argumentsList.$q(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
             List<PsiRouteContext> target = resolveParms(argumentsList, routeName, parmsCall, controller, parmsMap);
             if (target != null) return target;
 
@@ -266,7 +266,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     public List<PsiRouteContext> resolveViews(PsiElementContext routeCall, Optional<PsiElementContext> routeName, Optional<PsiElementContext> controller, Optional<PsiElementContext> views) {
 
-         return views.get().queryContent(">" + JS_PROPERTY).flatMap(prop -> {
+         return views.get().$q(">" + JS_PROPERTY).flatMap(prop -> {
             /**
              *   "viewMain": MetaData.routeData(View2,
              *        {
@@ -278,12 +278,12 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
             try {
                 Optional<PsiElementContext> propKey = findFirstPropKey(prop);
-                Optional<PsiElementContext> newParamsMap = prop.queryContent(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
+                Optional<PsiElementContext> newParamsMap = prop.$q(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
 
                 final String viewName = propKey.get().getText();
-                Optional<PsiElementContext> callExpr = prop.queryContent(">" + JS_CALL_EXPRESSION).findFirst();
-                Optional<PsiElementContext> controller2 = callExpr.isPresent() ? callExpr.get().queryContent(">" + JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst() : Optional.empty();
-                Optional<PsiElementContext> paramsMap2 = callExpr.isPresent() ? callExpr.get().queryContent(">" + JS_ARGUMENTS_LIST, JS_OBJECT_LITERAL_EXPRESSION).findFirst(): Optional.empty();
+                Optional<PsiElementContext> callExpr = prop.$q(">" + JS_CALL_EXPRESSION).findFirst();
+                Optional<PsiElementContext> controller2 = callExpr.isPresent() ? callExpr.get().$q(">" + JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst() : Optional.empty();
+                Optional<PsiElementContext> paramsMap2 = callExpr.isPresent() ? callExpr.get().$q(">" + JS_ARGUMENTS_LIST, JS_OBJECT_LITERAL_EXPRESSION).findFirst(): Optional.empty();
                 List<PsiRouteContext> rets = resolveParms(routeCall, routeName, callExpr, controller2.isPresent() ? controller2 : controller,newParamsMap.isPresent() ? newParamsMap : paramsMap2);
                 rets.stream().forEach(el -> {
                     el.getRoute().setViewName(viewName);
@@ -306,8 +306,8 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     @NotNull
     public Optional<PsiElementContext> findFirstPropKey(PsiElementContext prop) {
-        Optional<PsiElementContext> el1 =  prop.queryContent(">" + PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
-        Optional<PsiElementContext> el2=  prop.queryContent(">" + JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
+        Optional<PsiElementContext> el1 =  prop.$q(">" + PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+        Optional<PsiElementContext> el2=  prop.$q(">" + JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
 
         Optional<PsiElementContext> propKey = null;
         if(el1.isPresent() && !el2.isPresent()) {
@@ -394,23 +394,23 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
     public Optional<PsiElement> getImportString(IntellijFileContext fc, Optional<PsiElementContext> el) {
         //controllerNam
         PsiElementContext ctrl = el.get()
-                .queryContent(JS_REFERENCE_EXPRESSION)
+                .$q(JS_REFERENCE_EXPRESSION)
                 .reduce((el1, el2) -> el2).get();
         return findImportString(new TypescriptFileContext(fc), ctrl.getText());
     }
 
     public boolean hasControllerName(String controllerName, Optional<PsiElementContext> el2) {
         return el2.isPresent() && el2.get()
-                .queryContent(PSI_ELEMENT_JS_STRING_LITERAL, TEXT_EQ(controllerName))
+                .$q(PSI_ELEMENT_JS_STRING_LITERAL, TEXT_EQ(controllerName))
                 .findFirst().isPresent();
     }
 
     public Stream<PsiElementContext> queryController(IntellijFileContext fc) {
-        return fc.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("controller"));
+        return fc.$q(PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("controller"));
     }
 
     public Stream<PsiElementContext> queryComponent(IntellijFileContext fc) {
-        return fc.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("component"));
+        return fc.$q(PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("component"));
     }
 
     public static Optional<PsiElementContext> findMethodCallStart(PsiElementContext el, String jsCallExpression) {
@@ -451,7 +451,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
     }
 
     private Optional<PsiElementContext> resolveProp(PsiElementContext paramsMap, String prop, String targetType) {
-        return paramsMap.queryContent(JS_PROPERTY, NAME_EQ(prop), targetType).findFirst();
+        return paramsMap.$q(JS_PROPERTY, NAME_EQ(prop), targetType).findFirst();
     }
 
 
