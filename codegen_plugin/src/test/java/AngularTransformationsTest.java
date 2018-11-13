@@ -4,8 +4,11 @@ import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.transformations.AngularJSComponentTransformationModel;
 import net.werpu.tools.supportive.transformations.AngularJSModuleTransformationModel;
+import net.werpu.tools.supportive.transformations.modelHelpers.BindingType;
 import org.junit.Ignore;
 import util.TestUtils;
+
+import static net.werpu.tools.supportive.transformations.modelHelpers.BindingType.*;
 
 /**
  * Testcases to test the various aspects of the
@@ -72,12 +75,20 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
 
         assertTrue(ctx.getClazzName().equals("ProbeComponent"));
         assertTrue(ctx.getBindings().size() == 5);
+        assertTrue(ctx.getBindings().get(0).getName().equals("searchOptions"));
+        assertTrue(ctx.getBindings().get(3).getName().equals("navigate"));
+        assertTrue(ctx.getBindings().get(0).getBindingType() == BOTH);
+        assertTrue(ctx.getBindings().get(3).getBindingType() == FUNC);
+
+
         assertTrue(ctx.getInjects().size() == 1);
 
-        //not working yet
-        //assertTrue(ctx.getInjects().get(0).getName().equals("$scope"));
 
-        //TODO tests
+        assertTrue(ctx.getInjects().get(0).getName().equals("$scope"));
+
+
+        assertTrue(ctx.getInlineFunctions().size() == 3);
+        assertTrue(ctx.getSelectorName().equals("probe-component"));
 
     }
 

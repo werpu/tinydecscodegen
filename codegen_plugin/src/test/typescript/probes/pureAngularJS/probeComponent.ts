@@ -36,7 +36,11 @@ export class ProbeComponent implements IComponentOptions {
 
             this.blarg = function() {
                 //
+                _t.$onInit();
             };
+
+
+            this.blarg();
 
             if(true == (() => {return true})()) {
 

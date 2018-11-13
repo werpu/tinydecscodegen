@@ -97,7 +97,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
         parseConstructor();
 
-        parseSelectorName();
+
         parseInjects();
         parseBindings();
 
@@ -105,6 +105,8 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
         parseTemplate();
         parseClassName();
+        parseSelectorName();
+        parseControllerAs();
 
     }
 
@@ -181,7 +183,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 .flatMap(el -> el.$q(COMPONENT_NAME(className)))
                 .map(el2 -> el2.getText())
                 .map(compName -> StringUtils.toDash(compName))
-                .findFirst().orElse("????");
+                .findFirst().orElse(StringUtils.toDash(getClazzName()));
     }
 
     private void parseControllerAs() {
