@@ -131,7 +131,9 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
     }
 
     public String getRequiresAsString() {
-        return requires.stream().map(el -> "\""+el+"\"").reduce((el1, el2) -> el1 + ", "+el2 ).get();
+        Optional<String> requires = this.requires.stream().map(el -> "\"" + el + "\"").reduce((el1, el2) -> el1 + ", " + el2);
+
+        return requires.orElse("");
     }
 
     public String getLegacyName() {
