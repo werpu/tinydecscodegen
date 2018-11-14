@@ -469,11 +469,14 @@ public class PsiWalkFunctions {
      * It allows to trace down a tree css/jquery style but also
      * allows simple  parent backtracking
      * this one walks up all parents which match the subsequent criteria
-     * once this is done, the the search order again is reversed.
-     * So you might add a findFirst in between for the time being
+     * once this is done, if you want to avoid that behavior
+     * you either can use a firstElem() or reduce
+     * or as shortcut if you do not want to leave the query
+     * P_FIRST (:FIRST)
+     * or
+     * P_LAST (:LAST)
      *
-     * (We will have P_FIRST and P_LAST as specified by the grammar in the future
-     * to resolve this issue and to not enforce to break out of the query)
+     * to make the reduction within the query
      *
      * <p>
      * <p>
@@ -490,37 +493,38 @@ public class PsiWalkFunctions {
      * PARENTS:(<char *> | ElementType) shortcut for PARENTS:, TEXT:(...) or :PARENTS,<ElementType>
      *
      * @param subItem
-     * @param parsingElements
+     * @param queryTokens
      * @return
      */
-    private static Stream<PsiElementContext> execQuery(Stream<PsiElementContext> subItem, Object[] parsingElements) {
+    private static Stream<PsiElementContext> execQuery(Stream<PsiElementContext> subItem, Object[] queryTokens) {
 
 
-        for (Object item : parsingElements) {
-            if (isStringElement(item)) {
-                subItem = distinct(subItem); //lets reduce mem consumption by distincting the subset results
+        for (Object queryItem : queryTokens) {
+            if (isStringElement(queryItem)) {
+                //lets reduce mem consumption by distincting the subset results
+                subItem = subItem.distinct();
 
-                String matchingToken = ((String) item).trim();
-                SIMPLE_COMMAND commandToken = SIMPLE_COMMAND.fromValue(matchingToken);
+                String strQueryToken = ((String) queryItem).trim();
+                SIMPLE_COMMAND commandToken = SIMPLE_COMMAND.fromValue(strQueryToken);
                 if (commandToken != null) {//command found
                     switch (commandToken) {
                         case CHILD_ELEM:
                             subItem = subItem.flatMap(theItem -> theItem.getChildren(el -> Boolean.TRUE).stream());
                             continue;
                         case RE_TEXT_EQ:
-                            subItem = handleTextEQ(subItem, matchingToken);
+                            subItem = handleTextEQ(subItem, strQueryToken);
                             continue;
                         case RE_TEXT_STARTS_WITH:
-                            subItem = handleTextStartsWith(subItem, matchingToken);
+                            subItem = handleTextStartsWith(subItem, strQueryToken);
                             continue;
                         case RE_NAME_EQ:
-                            subItem = handleNameEQ(subItem, matchingToken);
+                            subItem = handleNameEQ(subItem, strQueryToken);
                             continue;
                         case RE_NAME_STARTS_WITH:
-                            subItem = handleNameStartsWith(subItem, matchingToken);
+                            subItem = handleNameStartsWith(subItem, strQueryToken);
                             continue;
                         case RE_PARENTS_EQ:
-                            subItem = handleParentsEq(subItem, matchingToken);
+                            subItem = handleParentsEq(subItem, strQueryToken);
                             continue;
                         case P_FIRST:
                             subItem = handlePFirst(subItem);
@@ -534,13 +538,13 @@ public class PsiWalkFunctions {
                     }
                 }
 
-                subItem = matchesNodeToString(subItem, matchingToken);
+                subItem = stringTokenMatch(subItem, strQueryToken);
                 continue;
 
             }
-            subItem = handleFunctionHandler(subItem, item);
+            subItem = functionTokenMatch(subItem, queryItem);
         }
-        return distinct(subItem);
+        return subItem.distinct();
     }
 
     @NotNull
@@ -565,7 +569,7 @@ public class PsiWalkFunctions {
      * @return the processed subitem
      */
     @NotNull
-    private static Stream<PsiElementContext> handleFunctionHandler(Stream<PsiElementContext> subItem, Object itemProcessor) {
+    private static Stream<PsiElementContext> functionTokenMatch(Stream<PsiElementContext> subItem, Object itemProcessor) {
         if (itemProcessor instanceof Consumer) {
             subItem = handleConsumer(subItem, (Consumer) itemProcessor);
         } else if (itemProcessor instanceof Predicate) {
@@ -584,7 +588,7 @@ public class PsiWalkFunctions {
 
 
     @NotNull
-    private static Stream<PsiElementContext> matchesNodeToString(Stream<PsiElementContext> subItem, String finalSubCommand) {
+    private static Stream<PsiElementContext> stringTokenMatch(Stream<PsiElementContext> subItem, String finalSubCommand) {
         subItem = subItem.flatMap(psiItem -> psiItem.findPsiElements(psiElement -> {
             String cmdString = psiElement.toString();
             return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand + ":");
@@ -747,19 +751,6 @@ public class PsiWalkFunctions {
             return literalEquals ? literalEquals(psiElementContext.getText(), matchText) : matchText.equals(psiElementContext.getText());
         });
         return subItem;
-    }
-
-    @NotNull
-    static private Stream<PsiElementContext> distinct(Stream<PsiElementContext> inStr) {
-        final Set<PsiElementContext> elIdx = new HashSet<>();
-        return inStr.filter(el -> {
-            if (elIdx.contains(el)) {
-                return false;
-            } else {
-                elIdx.add(el);
-                return true;
-            }
-        });
     }
 
     private static <T> Stream<T> emptyStream() {
