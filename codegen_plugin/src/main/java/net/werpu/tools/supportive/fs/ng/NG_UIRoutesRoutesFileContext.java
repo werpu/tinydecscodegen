@@ -112,8 +112,7 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
 
     @Override
     public boolean isRouteVarNameUsed(Route routeData) {
-        return getNavigationalArray().get().findPsiElements(PsiWalkFunctions::isIdentifier).stream()
-                .filter(psiElementContext -> psiElementContext.getElement().getText().equals(routeData.getRouteVarName())).findAny().isPresent();
+        return getNavigationalArray().get().$q(PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ(routeData.getRouteVarName())).findAny().isPresent();
     }
 
     @Override

@@ -8,9 +8,9 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.gist.GistManagerImpl;
 import com.intellij.util.gist.PsiFileGist;
 import com.intellij.util.io.DataExternalizer;
-import org.jetbrains.annotations.NotNull;
 import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
 import net.werpu.tools.supportive.utils.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -37,10 +37,9 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
  * On top of that I have added a volatile secondary thread save
  * memory cache for data requested multiple times but which does not
  * have tu survive in the cache anyway.
- *
+ * <p>
  * This is my implementation of a gist which stores
  * component data
- *
  */
 public class ComponentFileGist {
     //gist cache for the components to speed things up
@@ -50,45 +49,45 @@ public class ComponentFileGist {
     /**
      * secondary ram only cache
      */
-    private static Cache<String, Object> volatileData = CacheBuilder.newBuilder()      .weakValues()
+    private static Cache<String, Object> volatileData = CacheBuilder.newBuilder().weakValues()
             .expireAfterAccess(300, TimeUnit.SECONDS)
             .build();
 
     public static synchronized void init() {
 
-        if(initialized.get()) {
+        if (initialized.get()) {
             return;
         }
         synchronized (ComponentFileGist.class) {
 
 
-        psiFileGist = GistManagerImpl.getInstance().newPsiFileGist("$$TTCOMPComp", 1, new DataExternalizer<AngularArtifactGist>() {
-            @Override
-            public void save(@NotNull DataOutput out, AngularArtifactGist value) throws IOException {
+            psiFileGist = GistManagerImpl.getInstance().newPsiFileGist("$$TTCOMPComp", 1, new DataExternalizer<AngularArtifactGist>() {
+                @Override
+                public void save(@NotNull DataOutput out, AngularArtifactGist value) throws IOException {
 
-                writeUTF(out, value.getArtifactName());
-                writeUTF(out, value.getTagName());
-                writeUTF(out, value.getClassName());
-                writeUTF(out, value.getFilePath());
-                volatileData.invalidateAll();
+                    writeUTF(out, value.getArtifactName());
+                    writeUTF(out, value.getTagName());
+                    writeUTF(out, value.getClassName());
+                    writeUTF(out, value.getFilePath());
+                    volatileData.invalidateAll();
 
-            }
+                }
 
-            @Override
-            public AngularArtifactGist read(@NotNull DataInput in) throws IOException {
+                @Override
+                public AngularArtifactGist read(@NotNull DataInput in) throws IOException {
 
-                return new AngularArtifactGist(readUTF(in), readUTF(in), readUTF(in), readUTF(in));
-            }
-        }, (PsiFile in) -> {
-            String componentName = _findClazzName(in);
-            String componentTagName = _getTagName(in);
-            String className = componentName;
+                    return new AngularArtifactGist(readUTF(in), readUTF(in), readUTF(in), readUTF(in));
+                }
+            }, (PsiFile in) -> {
+                String componentName = _findClazzName(in);
+                String componentTagName = _getTagName(in);
+                String className = componentName;
 
-            String filePath = in.getVirtualFile().getPath();
-            AngularArtifactGist componentGist = new AngularArtifactGist(componentName, componentTagName, className, filePath);
-            return componentGist;
-        });
-        initialized.set(true);
+                String filePath = in.getVirtualFile().getPath();
+                AngularArtifactGist componentGist = new AngularArtifactGist(componentName, componentTagName, className, filePath);
+                return componentGist;
+            });
+            initialized.set(true);
         }
 
     }
@@ -96,7 +95,7 @@ public class ComponentFileGist {
     public static AngularArtifactGist getFileData(@NotNull PsiFile file) {
         try {
             return psiFileGist.getFileData(file);
-        } catch(InvalidVirtualFileAccessException ex) {
+        } catch (InvalidVirtualFileAccessException ex) {
             //force a refresh
 
             final GistListener afterPublisher =
@@ -136,8 +135,8 @@ public class ComponentFileGist {
     }
 
     @NotNull
-    private static  String _findClazzName(PsiFile in) {
-        return  _findComponentClassName(in).get();
+    private static String _findClazzName(PsiFile in) {
+        return _findComponentClassName(in).get();
     }
 
 
@@ -160,14 +159,22 @@ public class ComponentFileGist {
         int hash = file.getVirtualFile().getPath().hashCode();
         String key = hash + "$$TPL_CTX";
         Object data = volatileData.getIfPresent(key);
-        if(data != null) {
+        if (data != null) {
             return (Optional<PsiElement>) data;
         } else {
             Optional<PsiElement> template;
             if (componentAnn == null) {
-                template = new IntellijFileContext(file.getProject(), file).findPsiElements(PsiWalkFunctions::isTemplate).stream().findFirst();
+                template = new IntellijFileContext(file.getProject(), file).$q(JS_PROPERTY, NAME_EQ(JS_PROP_TEMPLATE))
+                        .filter(PsiWalkFunctions::inTemplateHolder)
+                        .map(PsiElementContext::getElement)
+                        .findFirst();
             } else {
-                template = Arrays.stream(componentAnn.getChildren()).filter(PsiWalkFunctions::isTemplate).findFirst();
+                template = Arrays.stream(componentAnn.getChildren())
+                        .map(PsiElementContext::new)
+                        .flatMap(ctx -> ctx.$q(JS_PROPERTY, NAME_EQ(JS_PROP_TEMPLATE)))
+                        .filter(PsiWalkFunctions::inTemplateHolder)
+                        .map(PsiElementContext::getElement)
+                        .findFirst();
             }
 
             return template;

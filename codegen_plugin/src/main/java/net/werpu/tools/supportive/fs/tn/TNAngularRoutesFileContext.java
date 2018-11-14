@@ -73,7 +73,7 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
                 String routeProviderName = getStateOrRouteProviderName(constructor);
 
 
-                Optional<PsiElementContext> body = constructor.findPsiElement(PsiWalkFunctions::isJSBlock);
+                Optional<PsiElementContext> body = constructor.$q(JS_BLOCK_STATEMENT).findFirst();
                 int insertPos = calculateRouteInsertPos(routeProviderName, constructor, body);
 
 

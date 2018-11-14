@@ -6,10 +6,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 import net.werpu.tools.supportive.fs.common.*;
 import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
 import net.werpu.tools.supportive.utils.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -122,8 +122,15 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
     @NotNull
     public Predicate<PsiElementContext> p_isInject() {
-        return el -> PsiWalkFunctions.isInject(el.getElement());
+        return el -> isInject(el.getElement());
     }
+
+    public static boolean isInject(PsiElement element) {
+        return element != null &&
+                element.toString().startsWith(JS_ES_6_DECORATOR) &&
+                element.getText().startsWith(NG_INJECT);
+    }
+
 
     public boolean isProvider(PsiElement psiElement) {
         return isStringLiteral(psiElement) &&
@@ -132,6 +139,10 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
                         psiElement.getText().equals("\"$stateProvider\"") ||
                         psiElement.getText().equals("'$stateProvider'")
                 );
+    }
+
+    public static boolean isStringLiteral(PsiElement element) {
+        return element != null && element.toString().startsWith(PSI_ELEMENT_JS_STRING_LITERAL);
     }
 
     @NotNull
@@ -243,7 +254,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
     public String getStateOrRouteProviderName(PsiElementContext constructor) {
         Optional<PsiElementContext> routeProviderDef = getSateOrRouteProviderDef(constructor);
-        Optional<PsiElementContext> routeProvider = routeProviderDef.get().walkParent(PsiWalkFunctions::isTypeScriptParam);
+        Optional<PsiElementContext> routeProvider = routeProviderDef.get().$q(P_PARENTS, TYPE_SCRIPT_PARAM).findFirst();
         return routeProvider.get().getName();
     }
 

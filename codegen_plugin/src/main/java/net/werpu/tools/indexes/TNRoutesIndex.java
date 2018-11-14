@@ -9,6 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
+import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import org.jetbrains.annotations.NotNull;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static net.werpu.tools.indexes.IndexUtils.standardExclusions;
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.CONFIG_ANN;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.TN_UIROUTER_MODULE_FOR_ROOT;
 
 public class TNRoutesIndex extends ScalarIndexExtension<String> {
@@ -75,8 +77,10 @@ public class TNRoutesIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if ((!standardExclusions(inputData)) && inputData.getContentAsText().toString().contains("\"$routeProvider\"") &&
-                    PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isTnConfig, true).size() > 0) {
+            String content = inputData.getContentAsText().toString();
+            if ((!standardExclusions(inputData)) && content.contains("\"$routeProvider\"")
+                    && content.contains("@Config")
+                    && new PsiElementContext(inputData.getPsiFile()).$q(CONFIG_ANN).findFirst().isPresent()) {
                 return Collections.singletonMap(TN_UIROUTER_MODULE_FOR_ROOT, null);
             }
 

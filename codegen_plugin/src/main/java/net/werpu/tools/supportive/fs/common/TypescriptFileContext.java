@@ -187,10 +187,10 @@ public class TypescriptFileContext extends IntellijFileContext {
 
 
     protected static Optional<PsiElement> findImportString(TypescriptFileContext ctxm, String templateVarName) {
-        Optional<PsiElement> theImport = ctxm.findPsiElements(PsiWalkFunctions::isImport).stream()
+        Optional<PsiElement> theImport = ctxm.$q(JS_ES_6_IMPORT_DECLARATION).map(el -> el.getElement())
                 .filter(
                         el -> Arrays.stream(el.getChildren())
-                                .anyMatch(el2 -> el2.getText().contains(templateVarName) && PsiWalkFunctions.queryContent(el2, PSI_ELEMENT_JS_IDENTIFIER,"TEXT:("+templateVarName+")").findFirst().isPresent())
+                                .anyMatch(el2 -> el2.getText().contains(templateVarName) && PsiWalkFunctions.queryContent(el2, PSI_ELEMENT_JS_IDENTIFIER,TEXT_EQ(templateVarName)).findFirst().isPresent())
                 ).findFirst();
 
         return getPsiImportString(theImport);

@@ -39,6 +39,8 @@ import java.util.stream.Collectors;
 import static net.werpu.tools.actions_all.shared.FormAssertions.assertNotNullOrEmpty;
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotJavaRest;
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotSpringRest;
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.PSI_CLASS;
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.PSI_METHOD;
 
 enum SupportedRestMethod {
     PUT, GET, DELETE, POST
@@ -216,11 +218,11 @@ public class CreateRestEndpoint extends AnAction {
         Editor editor = IntellijUtils.getEditor(event);
         final int cursorPos = editor.getCaretModel().getOffset();
         IntellijFileContext editorFile = new IntellijFileContext(event);
-        Optional<PsiElement> after = editorFile.findPsiElements(PsiWalkFunctions::isMethod)
-                .stream()
+        Optional<PsiElement> after = editorFile.$q(PSI_METHOD)
+                .map(el -> el.getElement())
                 .filter(el -> el.getTextOffset() >= cursorPos).findFirst();
-        List<PsiElement> before = editorFile.findPsiElements(PsiWalkFunctions::isMethod)
-                .stream()
+        List<PsiElement> before = editorFile.$q(PSI_METHOD)
+                .map(el -> el.getElement())
                 .filter(el -> el.getTextOffset() <= cursorPos).collect(Collectors.toList());
 
         PsiElement beforeElement = (before.size() > 0) ? before.get(before.size() - 1) : null;
@@ -241,7 +243,7 @@ public class CreateRestEndpoint extends AnAction {
                 editor.getDocument().insertString(beforeElement.getTextRange().getEndOffset() + 1, insertText);
             } else {
 
-                List<PsiElement> classes = editorFile.findPsiElements(PsiWalkFunctions::isPsiClass);
+                List<PsiElement> classes = editorFile.$q(PSI_CLASS).map(el -> el.getElement()).collect(Collectors.toList());
                 PsiElement insertClass = findNearest(cursorPos, classes);
 
 

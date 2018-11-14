@@ -1,13 +1,11 @@
 package net.werpu.tools.supportive.reflectRefact;
 
-import com.google.common.base.Strings;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import com.intellij.psi.impl.source.tree.CompositeElement;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -18,30 +16,17 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.werpu.tools.supportive.reflectRefact.IntellijRefactor.NG_MODULE;
-import static net.werpu.tools.supportive.utils.StringUtils.*;
+import static java.util.stream.Stream.concat;
+import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
+import static net.werpu.tools.supportive.utils.StringUtils.literalStartsWith;
 
 public class PsiWalkFunctions {
 
-    public static final String JS_PROP_TYPE = "com.intellij.lang.javascript.types.JSPropertyElementType";
-
-    //var for include
-    public static final String JS_DECORATOR_IMPL = "com.intellij.lang.typescript.psi.impl.ES6DecoratorImpl";
-    public static final String JS_STRING_TYPE = "com.intellij.lang.javascript.types.JSStringTemplateExpressionElementType";
-
-
-    //under investigation
-    public static final String JS_IMPORT_DCL = "com.intellij.lang.typescript.psi.impl.ES6ImportDeclaration";
-    public static final String JS_IMPORT_SPEC = "com.intellij.lang.typescript.psi.impl.ES6ImportSpecifier";
-    public static final String JS_FROM_CLAUSE = "com.intellij.lang.typescript.psi.impl.ES6FromClause";
-    public static final String JS_REF_TYPE = "com.intellij.lang.typescript.psi.impl.ES6ReferenceExpression";
+    private static final String ERR_UNDEFINED_QUERY_MAPPING = "Undefined query mapping";
 
     /*ElementTypes*/
     public static final String JS_PROP_TEMPLATE = "template";
     public static final String JS_PROP_TEMPLATE_URL = "templateUrl";
-    public static final String NG_TYPE_COMPONENT = "Component";
-    public static final String NG_TYPE_DIRECTIVE = "Directive";
-    public static final String NG_TYPE_CONTROLLER = "Controller";
     public static final String JS_REFERENCE_EXPRESSION = "JSReferenceExpression";
     public static final String JS_EXPRESSION_STATEMENT = "JSExpressionStatement";
     public static final String JS_BLOCK_ELEMENT = "JSBlockElement";
@@ -53,8 +38,10 @@ public class PsiWalkFunctions {
     public static final String JS_ES_6_FROM_CLAUSE = "ES6FromClause";
     public static final String NG_COMPONENT = "@Component";
     public static final String NG_INJECT = "@Inject";
-    public static final String TN_CONFIG = "@Config";
-    public static final String TN_CONTROLLER = "@Controller";
+    public static final String NG_CONFIG = "@Config";
+    public static final String TN_CONFIG = NG_CONFIG;
+    public static final String NG_CONTROLLER = "@Controller";
+    public static final String TN_CONTROLLER = NG_CONTROLLER;
     public static final String TYPE_SCRIPT_CLASS = "TypeScriptClass";
     public static final String TYPE_SCRIPT_FIELD = "TypeScriptField";
     public static final String TYPE_SCRIPT_NEW_EXPRESSION = "TypeScriptNewExpression";
@@ -98,43 +85,52 @@ public class PsiWalkFunctions {
     public static final String STRING_TEMPLATE_EXPR = "JSStringTemplateExpression";
     /*ElementTypes end*/
 
-    //TODO LOGICAL OPS
-    public static final String L_PAR = "(";
-    public static final String R_PAR = ")";
-    public static final String L_AND = "AND";
-    public static final String L_OR = "OR";
-
-
+    public static final String NG_MODULE = "@NgModule";
     /*prdefined queries*/
-    public static final Object[] MODULE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@NgModule"), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] MODULE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@NgModule"), JS_ARGUMENTS_LIST};
-    public static final Object[] MODULE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@NgModule"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] MODULE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_MODULE), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] MODULE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_MODULE), JS_ARGUMENTS_LIST};
+    public static final Object[] MODULE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_MODULE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
-    public static final Object[] COMPONENT_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Component"), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] COMPONENT_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Component"), JS_ARGUMENTS_LIST};
-    public static final Object[] COMPONENT_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Component"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] COMPONENT_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_COMPONENT), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] COMPONENT_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_COMPONENT), JS_ARGUMENTS_LIST};
+    public static final Object[] COMPONENT_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_COMPONENT), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
-    public static final Object[] FILTER_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Filter"), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] FILTER_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Filter"), JS_ARGUMENTS_LIST};
-    public static final Object[] FILTER_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Filter"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
-
-    public static final Object[] PIPE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Pipe"), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] PIPE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Pipe"), JS_ARGUMENTS_LIST};
-    public static final Object[] PIPE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Pipe"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final String NG_DIRECTIVE = "@Directive";
+    public static final Object[] DIRECTIVE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DIRECTIVE), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] DIRECTIVE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DIRECTIVE), JS_ARGUMENTS_LIST};
+    public static final Object[] DIRECTIVE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DIRECTIVE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
-    public static final Object[] SERVICE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Injectable"), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] SERVICE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Injectable"), JS_ARGUMENTS_LIST};
-    public static final Object[] SERVICE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Injectable"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] CONFIG_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONFIG), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] CONFIG_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONFIG), JS_ARGUMENTS_LIST};
+    public static final Object[] CONFIG_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONFIG), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
-    public static final Object[] CONTROLLER_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] CONTROLLER_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), JS_ARGUMENTS_LIST};
-    public static final Object[] CONTROLLER_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Controller"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final String NG_FILTER = "@Filter";
+    public static final Object[] FILTER_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_FILTER), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] FILTER_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_FILTER), JS_ARGUMENTS_LIST};
+    public static final Object[] FILTER_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_FILTER), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
-    public static final Object[] DTO_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Dto"), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] DTO_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Dto"), JS_ARGUMENTS_LIST};
-    public static final Object[] DTO_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH("@Dto"), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final String NG_PIPE = "@Pipe";
+    public static final Object[] PIPE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_PIPE), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] PIPE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_PIPE), JS_ARGUMENTS_LIST};
+    public static final Object[] PIPE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_PIPE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+
+
+    public static final String NG_INJECTABLE = "@Injectable";
+    public static final Object[] SERVICE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_INJECTABLE), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] SERVICE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_INJECTABLE), JS_ARGUMENTS_LIST};
+    public static final Object[] SERVICE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_INJECTABLE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+
+
+    public static final Object[] CONTROLLER_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONTROLLER), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] CONTROLLER_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONTROLLER), JS_ARGUMENTS_LIST};
+    public static final Object[] CONTROLLER_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONTROLLER), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+
+    public static final String NG_DTO = "@Dto";
+    public static final Object[] DTO_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DTO), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] DTO_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DTO), JS_ARGUMENTS_LIST};
+    public static final Object[] DTO_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DTO), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
     public static final String CHILD_ELEM = ">";
@@ -152,6 +148,9 @@ public class PsiWalkFunctions {
     //requires starting from DCL
     public static final Object[] ANG1_MODULE_REQUIRES = {JS_ARRAY_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL};
     public static final Object TYPE_SCRIPT_SINGLE_TYPE = "TypeScriptSingleType";
+    public static final Object JS_STRING_TEMPLATE_EXPRESSION = "JSStringTemplateExpression";
+
+
 
 
     /*helpers*/
@@ -178,6 +177,11 @@ public class PsiWalkFunctions {
     public static Object[] DEF_CALL(String callType) {
         return new Object[]{JS_CALL_EXPRESSION, DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), TEXT_EQ(callType)};
     }
+
+    @NotNull
+    public static Object[] TN_DEC_COMPONENT_NAME(String className) {
+        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, NAME_EQ(className), PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
+    }
     /*helpers end*/
 
 
@@ -190,159 +194,19 @@ public class PsiWalkFunctions {
     static final String RE_PARENTS_EQ = "^\\s*PARENTS\\s*\\:\\s*\\((.*)\\)\\s*$";
 
 
-    public static boolean isNgModule(PsiElement element) {
-        return isAnnotatedElement(element, NG_MODULE);
+    public static boolean inTemplateHolder(PsiElement element) {
+
+        return concat(concat(queryContent(element, COMPONENT_CLASS),
+                queryContent(element, DIRECTIVE_CLASS)),
+                queryContent(element, CONTROLLER_CLASS)).findFirst()
+                .isPresent();
+
     }
 
-    public static boolean isAnnotatedElement(PsiElement element, String annotatedElementType) {
-        return element != null && !Strings.isNullOrEmpty(element.getText()) &&
-                element.getText().startsWith(annotatedElementType) &&
-                element.getClass().getName().equals(JS_DECORATOR_IMPL);
-    }
+    public static boolean inTemplateHolder(PsiElementContext element) {
+        PsiElement element1 = element.getElement();
 
-    public static boolean isImport(PsiElement element) {
-        return element != null && element.toString().equals(JS_ES_6_IMPORT_DECLARATION);
-    }
-
-    public static boolean isIdentifier(PsiElement element) {
-        return element != null && element.toString().startsWith(PSI_ELEMENT_JS_IDENTIFIER);
-    }
-
-    public static boolean isStringLiteral(PsiElement element) {
-        return element != null && element.toString().startsWith(PSI_ELEMENT_JS_STRING_LITERAL);
-    }
-
-
-    public static boolean isMethod(PsiElement element) {
-        return element != null && element.toString().startsWith(PSI_METHOD);
-    }
-
-    public static boolean isClass(PsiElement element) {
-        return element != null && element.toString().startsWith(TYPE_SCRIPT_CLASS);
-    }
-
-    public static boolean isTypeScriptFunc(PsiElement element) {
-        return element != null && element.toString().startsWith(TYPE_SCRIPT_FUNC);
-    }
-
-    public static boolean isJSExpressionStatement(PsiElement element) {
-        return element != null && element.toString().startsWith(JS_EXPRESSION_STATEMENT);
-    }
-
-    public static boolean isJSArgumentsList(PsiElement element) {
-        return element != null && element.toString().startsWith(JS_ARGUMENTS_LIST);
-    }
-
-    /**
-     * detect a template in the psi treee
-     * <p>
-     * a template is an element which has the js property template
-     * and is embedded in a component or directive annotation
-     *
-     * @param element the element to check
-     * @return true if the element is a template element
-     */
-    public static boolean isTemplate(PsiElement element) {
-        return (element != null
-                && getName(element).equals(JS_PROP_TYPE)
-                && (
-                getText(element).equals(JS_PROP_TEMPLATE) ||
-                        getText(element).equals(JS_PROP_TEMPLATE_URL)
-        )
-                && (isIn(element, NG_TYPE_COMPONENT)
-                || isIn(element, NG_TYPE_DIRECTIVE)
-                || isIn(element, NG_TYPE_CONTROLLER)));
-    }
-
-    public static boolean isTemplateRef(PsiElement element) {
-        return element != null && element.toString().equals(JS_REFERENCE_EXPRESSION);
-    }
-
-
-    public static boolean isTemplateString(PsiElement element) {
-        return element != null && getName(element).equals(JS_STRING_TYPE);
-    }
-
-    public static boolean isComponent(PsiElement element) {
-        return element != null &&
-                element.toString().startsWith(JS_ES_6_DECORATOR) &&
-                element.getText().startsWith(NG_COMPONENT);
-    }
-
-
-    public static boolean isTnConfig(PsiElement element) {
-        return element != null &&
-                element.toString().startsWith(JS_ES_6_DECORATOR) &&
-                element.getText().startsWith(TN_CONFIG);
-    }
-
-    public static boolean isController(PsiElement element) {
-        return element != null &&
-                element.toString().startsWith(JS_ES_6_DECORATOR) &&
-                (
-                        element.getText().startsWith(TN_CONTROLLER) ||
-                                element.getText().startsWith(NG_COMPONENT)
-                );
-    }
-
-    public static boolean isPsiClass(PsiElement element) {
-        return element != null && element.toString().startsWith(PSI_CLASS);
-    }
-
-
-    public static boolean isInject(PsiElement element) {
-        return element != null &&
-                element.toString().startsWith(JS_ES_6_DECORATOR) &&
-                element.getText().startsWith(NG_INJECT);
-    }
-
-
-    public static boolean isTypeScriptClass(PsiElement element) {
-        return element != null && element.toString().startsWith(TYPE_SCRIPT_CLASS);
-    }
-
-    public static boolean isTypeScriptParam(PsiElement element) {
-        return element != null && element.toString().startsWith(TYPE_SCRIPT_PARAM);
-    }
-
-    public static boolean isJSBlock(PsiElement element) {
-        return element != null && element.toString().startsWith(JS_BLOCK_STATEMENT);
-    }
-
-    public static Predicate<PsiElement> P_JSBlock() {
-        return psiElement -> isJSBlock(psiElement);
-    }
-
-    @NotNull
-    private static String getText(PsiElement element) {
-        return (String) elVis(element, "node", "firstChildNode", "text").get();
-    }
-
-
-    @Nullable
-    private static String getName(PsiElement element) {
-        return (String) elVis(element, "node", "elementType", "class", "name").orElseGet(null);
-    }
-
-    /**
-     * checks whether a certain string one of the psi elements
-     *
-     * @param element
-     * @param type
-     * @return
-     */
-    private static boolean isIn(PsiElement element, String type) {
-
-        for (int cnt = 0; cnt < 3; cnt++) {
-            if (element == null) {
-                return false;
-            }
-            element = element.getParent();
-        }
-        if (element.getNode() == null) {
-            return false;
-        }
-        return (((CompositeElement) element.getNode())).getFirstChildNode().getText().equals(type);
+        return inTemplateHolder(element1);
     }
 
     /**
@@ -432,8 +296,6 @@ public class PsiWalkFunctions {
         return new PsiRecursiveElementWalkingVisitor() {
 
             public void visitElement(PsiElement element) {
-
-
                 if (psiElementVisitor.apply(element)) {
                     retVal.add(element);
                     if (firstOnly) {
@@ -465,7 +327,7 @@ public class PsiWalkFunctions {
      * it follows a very simple grammar which distincts
      * between string matches and simple commands and function
      * matches
-     *
+     * <p>
      * It allows to trace down a tree css/jquery style but also
      * allows simple  parent backtracking
      * this one walks up all parents which match the subsequent criteria
@@ -475,7 +337,7 @@ public class PsiWalkFunctions {
      * P_FIRST (:FIRST)
      * or
      * P_LAST (:LAST)
-     *
+     * <p>
      * to make the reduction within the query
      *
      * <p>
@@ -555,17 +417,16 @@ public class PsiWalkFunctions {
     /**
      * resolve an incoming function
      * from the query chain
-     *
+     * <p>
      * Depending on the type you can use the passing of functions for various things
      * <li>Consumer&lt;PsiElementContext&gt;... to extract values from the current query position
      * in this case the returned stream is the same as the one before</li>
      * <li>Predicate&lt;PsiElementContext&gt;... to filter items out, in this case
      * the returned stream is the filtered stream of the old one</li>
      * <li>Function&lt;PsiElementContext, PsiElementContext&gt;</li>
-     * @param subItem the subitem to be resolved
+     *
+     * @param subItem       the subitem to be resolved
      * @param itemProcessor a function of Consumer, Predicate, or (Function<PsiElementContext, PsiElementContext>)
-     *
-     *
      * @return the processed subitem
      */
     @NotNull
@@ -577,7 +438,7 @@ public class PsiWalkFunctions {
         } else if (itemProcessor instanceof Function) {
             subItem = handleFunction(subItem, (Function<PsiElementContext, PsiElementContext>) itemProcessor);
         } else {
-            throw new RuntimeException("Undefined query mapping");
+            throw new IllegalArgumentException(ERR_UNDEFINED_QUERY_MAPPING);
         }
         return subItem;
     }
@@ -598,35 +459,16 @@ public class PsiWalkFunctions {
         return subItem;
     }
 
-    @NotNull
-    private static String toTypeStr(PsiElement psiElement) {
-        String cmdString = psiElement.toString();
-        if (cmdString.indexOf(":") != -1) {
-            cmdString = cmdString.substring(0, cmdString.indexOf(":"));
-        }
-        return cmdString;
-    }
-
-    @NotNull
-    private static Stream<PsiElementContext> handleDirectChild(Stream<PsiElementContext> subItem, String finalSubCommand) {
-        Stream<PsiElementContext> retVal = subItem.flatMap(item -> item.getChildren((PsiElement child) -> {
-            String cmdString = child.toString();
-            return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand + ":");
-        }).stream())
-                .distinct()
-                .collect(Collectors.toList()).stream();
-        return retVal;
-    }
 
     @NotNull
     private static Stream<PsiElementContext> handleFunction(Stream<PsiElementContext> subItem, Function<PsiElementContext, PsiElementContext> item) {
-        subItem = subItem.map(elem -> item.apply(elem));
+        subItem = subItem.map(item::apply);
         return subItem;
     }
 
     @NotNull
     private static Stream<PsiElementContext> handlePredicate(Stream<PsiElementContext> subItem, Predicate item) {
-        subItem = subItem.filter(elem -> item.test(elem));
+        subItem = subItem.filter(item::test);
         return subItem;
     }
 
@@ -718,7 +560,7 @@ public class PsiWalkFunctions {
 
     @NotNull
     private static Stream<PsiElementContext> handleTextStartsWith(Stream<PsiElementContext> subItem, String text) {
-        Pattern p = Pattern.compile(PsiWalkFunctions.RE_TEXT_STARTS_WITH);
+        Pattern p = Pattern.compile(RE_TEXT_STARTS_WITH);
         subItem = subItem.filter(psiElementContext -> {
 
             Matcher m = p.matcher(text);
@@ -734,7 +576,7 @@ public class PsiWalkFunctions {
 
     @NotNull
     private static Stream<PsiElementContext> handleTextEQ(Stream<PsiElementContext> subItem, String text) {
-        Pattern p = Pattern.compile(PsiWalkFunctions.RE_TEXT_EQ);
+        Pattern p = Pattern.compile(RE_TEXT_EQ);
         subItem = subItem.filter(psiElementContext -> {
 
             Matcher m = p.matcher(text);
@@ -757,8 +599,5 @@ public class PsiWalkFunctions {
         return Collections.<T>emptyList().stream();
     }
 
-    @NotNull
-    public static Object[] TN_DEC_COMPONENT_NAME(String className) {
-        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, NAME_EQ(className), PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
-    }
+
 }

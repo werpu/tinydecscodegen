@@ -3,12 +3,14 @@ package net.werpu.tools.indexes;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
+import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import org.jetbrains.annotations.NotNull;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
@@ -19,7 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static net.werpu.tools.indexes.IndexUtils.standardExclusions;
-import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.TN_ROUTES_UIROUTER_MODULE_FOR_ROOT;
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 
 public class TN_UIRoutesIndex extends ScalarIndexExtension<String> {
 
@@ -76,13 +78,17 @@ public class TN_UIRoutesIndex extends ScalarIndexExtension<String> {
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
             //if()
-            if ((!standardExclusions(inputData)) && inputData.getContentAsText().toString().contains("\"$stateProvider\"") &&
-                    PsiWalkFunctions.walkPsiTree(inputData.getPsiFile(), PsiWalkFunctions::isTnConfig, true).size() > 0) {
+            String content = inputData.getContentAsText().toString();
+            if ((!standardExclusions(inputData)) && content.contains("\"$stateProvider\"")
+                    && content.contains("@Config")
+                    && new PsiElementContext(inputData.getPsiFile()).$q(CONFIG_ANN).findFirst().isPresent()) {
                 return Collections.singletonMap(TN_ROUTES_UIROUTER_MODULE_FOR_ROOT, null);
             }
 
             return Collections.emptyMap();
         }
     }
+
+
 
 }

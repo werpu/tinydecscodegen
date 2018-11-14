@@ -142,8 +142,11 @@ public class ComponentFileContext extends AngularResourceContext {
         clazzName = ComponentFileGist.getFileData(getPsiFile()).getClassName();
 
         if (template.isPresent()) {
-            Optional<PsiElement> templateString = Arrays.stream(template.get().getChildren())
-                    .filter(el -> PsiWalkFunctions.isTemplateString(el)).findFirst();
+            Optional<PsiElement> templateString = new PsiElementContext(template.get())
+                    .$q(JS_STRING_TEMPLATE_EXPRESSION)
+                    .map(PsiElementContext::getElement)
+                    .findFirst();
+
             if (templateString.isPresent()) {
                 this.templateText = templateString;
                 this.rangeMarker = Optional.of(getDocument().createRangeMarker(templateString.get().getTextRange()));
@@ -169,8 +172,9 @@ public class ComponentFileContext extends AngularResourceContext {
 
         Optional<PsiElement> template = getTemplate();
         if (template.isPresent()) {
-            Optional<PsiElement> templateString = Arrays.stream(template.get().getChildren())
-                    .filter(el -> PsiWalkFunctions.isTemplateString(el)).findFirst();
+            Optional<PsiElement> templateString = new PsiElementContext(template.get()).$q(JS_STRING_TEMPLATE_EXPRESSION)
+                    .map(el-> el.getElement()).findFirst();
+
             if (templateString.isPresent()) {
                 this.templateText = templateString;
 
