@@ -19,8 +19,11 @@ export class ProbeComponent implements IComponentOptions {
         function ($scope: IScope) {
             var _t = this;
 
+            let myVar2:string = "booga";
+
             this.getClass = () => {
-                var columnsNo = this.searchOptions.columnsNo;
+                let columnsNo = this.searchOptions.columnsNo;
+
                 if (columnsNo < 5) {
                     return "aa-p";
                 }
@@ -30,8 +33,14 @@ export class ProbeComponent implements IComponentOptions {
                 if (columnsNo == 6) {
                     return "cc-p";
                 } else {
-                    return "vv-p";
+                    myVar2 = "vv-p";
                 }
+
+                //because of this assignment
+                //an externalisation is not possible
+                String myVar3 = Strings.nullToEmpty(myVar2);
+                myVar2 = "booga2";
+                return myVar2.toString();
             };
 
             this.blarg = function() {
@@ -43,7 +52,6 @@ export class ProbeComponent implements IComponentOptions {
             this.blarg();
 
             if(true == (() => {return true})()) {
-
             }
 
 

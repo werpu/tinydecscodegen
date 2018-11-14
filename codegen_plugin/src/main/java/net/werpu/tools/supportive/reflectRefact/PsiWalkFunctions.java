@@ -45,6 +45,7 @@ public class PsiWalkFunctions {
     public static final String JS_REFERENCE_EXPRESSION = "JSReferenceExpression";
     public static final String JS_EXPRESSION_STATEMENT = "JSExpressionStatement";
     public static final String JS_BLOCK_ELEMENT = "JSBlockElement";
+    public static final String JS_DEFINITION_EXPRESSION = "JSDefinitionExpression";
     public static final String JS_BLOCK_STATEMENT = "JSBlockStatement";
     public static final String JS_OBJECT_LITERAL_EXPRESSION = "JSObjectLiteralExpression";
     public static final String JS_LITERAL_EXPRESSION = "JSLiteralExpression";
@@ -78,9 +79,12 @@ public class PsiWalkFunctions {
     public static final String PSI_ELEMENT_JS_RBRACKET = "PsiElement(JS:RBRACKET)";
     public static final String PSI_ELEMENT_JS_IDENTIFIER = "PsiElement(JS:IDENTIFIER)";
     public static final String PSI_ELEMENT_JS_STRING_LITERAL = "PsiElement(JS:STRING_LITERAL)";
+    public static final Object[] TN_COMP_CONTROLLER_AS = {TYPE_SCRIPT_FIELD, NAME_EQ("controllerAs"), PSI_ELEMENT_JS_STRING_LITERAL};
     public static final String PSI_ELEMENT_JS_STRING_TEMPLATE_PART = "PsiElement(JS:STRING_TEMPLATE_PART)";
     public static final String JS_PROPERTY = "JSProperty";
+    public static final Object[] TN_COMP_BINDINGS = {TYPE_SCRIPT_FIELD, NAME_EQ("bindings"), JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY};
     public static final String JS_ARRAY_LITERAL_EXPRESSION = "JSArrayLiteralExpression";
+    public static final Object[] TN_COMP_CONTROLLER_ARR = {TYPE_SCRIPT_FIELD, NAME_EQ("controller"), JS_ARRAY_LITERAL_EXPRESSION};
     public static final String JS_ARGUMENTS_LIST = "JSArgumentList";
     public static final String JS_PARAMETER_BLOCK = "JSParameterBlock";
 
@@ -134,6 +138,9 @@ public class PsiWalkFunctions {
 
 
     public static final String CHILD_ELEM = ">";
+    public static final Object[] TN_COMP_CONTROLLER_FUNC = {CHILD_ELEM, TYPESCRIPT_FUNCTION_EXPRESSION};
+    public static final Object[] TN_COMP_PARAM_LISTS = {TN_COMP_CONTROLLER_ARR, TN_COMP_CONTROLLER_FUNC, CHILD_ELEM, TYPE_SCRIPT_PARAMETER_LIST, TYPE_SCRIPT_PARAM};
+    public static final Object[] TN_COMP_STR_INJECTS = {CHILD_ELEM, JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL};
     /*prdefined queries end*/
 
 
@@ -144,6 +151,7 @@ public class PsiWalkFunctions {
     public static final Object[] ANG1_MODULE_NAME = {JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     //requires starting from DCL
     public static final Object[] ANG1_MODULE_REQUIRES = {JS_ARRAY_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL};
+    public static final Object TYPE_SCRIPT_SINGLE_TYPE = "TypeScriptSingleType";
 
 
     /*helpers*/
@@ -174,12 +182,12 @@ public class PsiWalkFunctions {
 
 
     /*predefined rex for deeper string analysis*/
-    private static final String RE_TEXT_EQ = "^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$";
-    private static final String RE_TEXT_STARTS_WITH = "^\\s*TEXT\\*\\s*\\:\\s*\\((.*)\\)\\s*$";
-    private static final String RE_NAME_EQ = "^\\s*NAME\\s*\\:\\s*\\((.*)\\)\\s*$";
-    private static final String RE_STRING_LITERAL = "^[\\\"\\'](.*)[\\\"\\']$";
-    private static final String RE_NAME_STARTS_WITH = "^\\s*NAME\\*\\s*\\:\\s*\\((.*)\\)\\s*$";
-    private static final String RE_PARENTS_EQ = "^\\s*PARENTS\\s*\\:\\s*\\((.*)\\)\\s*$";
+    static final String RE_TEXT_EQ = "^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$";
+    static final String RE_TEXT_STARTS_WITH = "^\\s*TEXT\\*\\s*\\:\\s*\\((.*)\\)\\s*$";
+    static final String RE_NAME_EQ = "^\\s*NAME\\s*\\:\\s*\\((.*)\\)\\s*$";
+    static final String RE_STRING_LITERAL = "^[\\\"\\'](.*)[\\\"\\']$";
+    static final String RE_NAME_STARTS_WITH = "^\\s*NAME\\*\\s*\\:\\s*\\((.*)\\)\\s*$";
+    static final String RE_PARENTS_EQ = "^\\s*PARENTS\\s*\\:\\s*\\((.*)\\)\\s*$";
 
 
     public static boolean isNgModule(PsiElement element) {
@@ -453,7 +461,20 @@ public class PsiWalkFunctions {
     }
 
     /**
-     * A simple query facility to reduce code
+     * This is the central method of our query engine
+     * it follows a very simple grammar which distincts
+     * between string matches and simple commands and function
+     * matches
+     *
+     * It allows to trace down a tree css/jquery style but also
+     * allows simple  parent backtracking
+     * this one walks up all parents which match the subsequent criteria
+     * once this is done, the the search order again is reversed.
+     * So you might add a findFirst in between for the time being
+     *
+     * (We will have P_FIRST and P_LAST as specified by the grammar in the future
+     * to resolve this issue and to not enforce to break out of the query)
+     *
      * <p>
      * <p>
      * Syntax
@@ -469,83 +490,104 @@ public class PsiWalkFunctions {
      * PARENTS:(<char *> | ElementType) shortcut for PARENTS:, TEXT:(...) or :PARENTS,<ElementType>
      *
      * @param subItem
-     * @param items
+     * @param parsingElements
      * @return
      */
-    private static Stream<PsiElementContext> execQuery(Stream<PsiElementContext> subItem, Object[] items) {
-        boolean directChild;
-        boolean nextDirectChild = false;
-        for (Object item : items) {
-            //shortcut. we can skip  processing at empty subitems
-
-            if (item instanceof String) {
-                subItem = privateDistinctEl(subItem); //lets reduce mem consumption by distincting the subset results
-
-                final String text = (String) item;
-                String subCommand = (text).trim();
-                directChild = (text).startsWith(CHILD_ELEM);
-                if (item instanceof String && (text).matches(RE_TEXT_EQ)) {
-                    subItem = handleTextEQ(subItem, text);
-                    continue;
-                } else if (item instanceof String && (text).matches(RE_TEXT_STARTS_WITH)) {
-                    subItem = handleTextStartsWith(subItem, text);
-                    continue;
+    private static Stream<PsiElementContext> execQuery(Stream<PsiElementContext> subItem, Object[] parsingElements) {
 
 
-                } else if (item instanceof String && (text).matches(RE_NAME_EQ)) {
-                    subItem = handleNameEQ(subItem, text);
-                    continue;
-                } else if (item instanceof String && (text).matches(RE_NAME_STARTS_WITH)) {
-                    subItem = handleNameStartsWith(subItem, text);
-                    continue;
+        for (Object item : parsingElements) {
+            if (isStringElement(item)) {
+                subItem = distinct(subItem); //lets reduce mem consumption by distincting the subset results
 
-
-                } else if (directChild) {
-                    subCommand = subCommand.substring(1).trim();
-                    if (subCommand.trim().isEmpty()) {
-                        //issued in sep query
-                        nextDirectChild = true;
-                        continue;
-                    } else {
-                        directChild = false;
+                String matchingToken = ((String) item).trim();
+                SIMPLE_COMMAND commandToken = SIMPLE_COMMAND.fromValue(matchingToken);
+                if (commandToken != null) {//command found
+                    switch (commandToken) {
+                        case CHILD_ELEM:
+                            subItem = subItem.flatMap(theItem -> theItem.getChildren(el -> Boolean.TRUE).stream());
+                            continue;
+                        case RE_TEXT_EQ:
+                            subItem = handleTextEQ(subItem, matchingToken);
+                            continue;
+                        case RE_TEXT_STARTS_WITH:
+                            subItem = handleTextStartsWith(subItem, matchingToken);
+                            continue;
+                        case RE_NAME_EQ:
+                            subItem = handleNameEQ(subItem, matchingToken);
+                            continue;
+                        case RE_NAME_STARTS_WITH:
+                            subItem = handleNameStartsWith(subItem, matchingToken);
+                            continue;
+                        case RE_PARENTS_EQ:
+                            subItem = handleParentsEq(subItem, matchingToken);
+                            continue;
+                        case P_FIRST:
+                            subItem = handlePFirst(subItem);
+                            continue;
+                        case P_PARENTS:
+                            subItem = parentsOf(subItem);
+                            continue;
+                        case P_LAST:
+                            subItem = handlePLast(subItem);
+                            continue;
                     }
                 }
 
-                final String finalSubCommand = subCommand;
-                if (subCommand.equals(P_FIRST)) {
-                    subItem = handlePFirst(subItem);
-                } else if (subCommand.startsWith("PARENTS:(")) {
-                    subItem = handleParentsEq(subItem, text);
-                } else if (subCommand.equals(P_PARENTS)) {
-                    subItem = subItem.flatMap(theItem -> theItem.parents().stream());
-                } else if (subCommand.equals(P_LAST)) {
-                    subItem = handlePLast(subItem);
+                subItem = matchesNodeToString(subItem, matchingToken);
+                continue;
 
-                } else if (nextDirectChild) {
-                    nextDirectChild = false;
-                    subItem = handleDirectChild(subItem, finalSubCommand);
-                } else {
-                    subItem = handleFindSubItem(subItem, finalSubCommand);
-                }
-            } else if (item instanceof Consumer) {
-                subItem = handleConsumer(subItem, (Consumer) item);
-            } else if (item instanceof Predicate) {
-                subItem = handlePredicate(subItem, (Predicate) item);
-            } else if (item instanceof Function) {
-                subItem = handleFunction(subItem, (Function<PsiElementContext, PsiElementContext>) item);
-            } else {
-                throw new RuntimeException("Undefined query mapping");
             }
+            subItem = handleFunctionHandler(subItem, item);
         }
-
-        return privateDistinctEl(subItem);
+        return distinct(subItem);
     }
 
     @NotNull
-    private static Stream<PsiElementContext> handleFindSubItem(Stream<PsiElementContext> subItem, String finalSubCommand) {
+    private static Stream<PsiElementContext> parentsOf(Stream<PsiElementContext> subItem) {
+        return subItem.flatMap(theItem -> theItem.parents().stream());
+    }
+
+    /**
+     * resolve an incoming function
+     * from the query chain
+     *
+     * Depending on the type you can use the passing of functions for various things
+     * <li>Consumer&lt;PsiElementContext&gt;... to extract values from the current query position
+     * in this case the returned stream is the same as the one before</li>
+     * <li>Predicate&lt;PsiElementContext&gt;... to filter items out, in this case
+     * the returned stream is the filtered stream of the old one</li>
+     * <li>Function&lt;PsiElementContext, PsiElementContext&gt;</li>
+     * @param subItem the subitem to be resolved
+     * @param itemProcessor a function of Consumer, Predicate, or (Function<PsiElementContext, PsiElementContext>)
+     *
+     *
+     * @return the processed subitem
+     */
+    @NotNull
+    private static Stream<PsiElementContext> handleFunctionHandler(Stream<PsiElementContext> subItem, Object itemProcessor) {
+        if (itemProcessor instanceof Consumer) {
+            subItem = handleConsumer(subItem, (Consumer) itemProcessor);
+        } else if (itemProcessor instanceof Predicate) {
+            subItem = handlePredicate(subItem, (Predicate) itemProcessor);
+        } else if (itemProcessor instanceof Function) {
+            subItem = handleFunction(subItem, (Function<PsiElementContext, PsiElementContext>) itemProcessor);
+        } else {
+            throw new RuntimeException("Undefined query mapping");
+        }
+        return subItem;
+    }
+
+    private static boolean isStringElement(Object item) {
+        return item instanceof String;
+    }
+
+
+    @NotNull
+    private static Stream<PsiElementContext> matchesNodeToString(Stream<PsiElementContext> subItem, String finalSubCommand) {
         subItem = subItem.flatMap(psiItem -> psiItem.findPsiElements(psiElement -> {
             String cmdString = psiElement.toString();
-            return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand+":");
+            return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand + ":");
         }).stream())
                 .distinct()
                 .collect(Collectors.toList()).stream();
@@ -555,7 +597,7 @@ public class PsiWalkFunctions {
     @NotNull
     private static String toTypeStr(PsiElement psiElement) {
         String cmdString = psiElement.toString();
-        if(cmdString.indexOf(":") != -1) {
+        if (cmdString.indexOf(":") != -1) {
             cmdString = cmdString.substring(0, cmdString.indexOf(":"));
         }
         return cmdString;
@@ -565,7 +607,7 @@ public class PsiWalkFunctions {
     private static Stream<PsiElementContext> handleDirectChild(Stream<PsiElementContext> subItem, String finalSubCommand) {
         Stream<PsiElementContext> retVal = subItem.flatMap(item -> item.getChildren((PsiElement child) -> {
             String cmdString = child.toString();
-            return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand+":");
+            return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand + ":");
         }).stream())
                 .distinct()
                 .collect(Collectors.toList()).stream();
@@ -708,7 +750,7 @@ public class PsiWalkFunctions {
     }
 
     @NotNull
-    static private Stream<PsiElementContext> privateDistinctEl(Stream<PsiElementContext> inStr) {
+    static private Stream<PsiElementContext> distinct(Stream<PsiElementContext> inStr) {
         final Set<PsiElementContext> elIdx = new HashSet<>();
         return inStr.filter(el -> {
             if (elIdx.contains(el)) {
@@ -722,5 +764,10 @@ public class PsiWalkFunctions {
 
     private static <T> Stream<T> emptyStream() {
         return Collections.<T>emptyList().stream();
+    }
+
+    @NotNull
+    public static Object[] TN_DEC_COMPONENT_NAME(String className) {
+        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, NAME_EQ(className), PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     }
 }

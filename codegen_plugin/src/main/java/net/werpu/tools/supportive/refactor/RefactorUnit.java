@@ -5,6 +5,14 @@ import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 
+/**
+ * Refactoring replacement unit
+ *
+ * The idea is that a refactoring of text
+ * usually is either a replace or insert, but insert
+ * is a special kind of replace where an existing position
+ * with zero length is replaced by a text.
+ */
 @Getter
 public class RefactorUnit implements IRefactorUnit {
 

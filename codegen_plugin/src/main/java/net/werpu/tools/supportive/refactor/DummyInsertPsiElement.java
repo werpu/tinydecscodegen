@@ -15,6 +15,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
+/**
+ * helper element to enforce an insert instead of a replace by proxiying
+ * a position in the document
+ */
 public class DummyInsertPsiElement implements PsiElement {
 
     int pos = 0;

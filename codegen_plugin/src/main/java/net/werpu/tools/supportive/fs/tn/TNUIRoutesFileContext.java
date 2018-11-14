@@ -54,7 +54,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     protected void init() {
 
-        constructors = this.$q(">" + TYPE_SCRIPT_FUNC, p_isConstructor(), p_isStateProviderPresent()
+        constructors = this.$q(CHILD_ELEM, TYPE_SCRIPT_FUNC, p_isConstructor(), p_isStateProviderPresent()
         ).collect(Collectors.toList());
     }
 
@@ -266,7 +266,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     public List<PsiRouteContext> resolveViews(PsiElementContext routeCall, Optional<PsiElementContext> routeName, Optional<PsiElementContext> controller, Optional<PsiElementContext> views) {
 
-         return views.get().$q(">" + JS_PROPERTY).flatMap(prop -> {
+         return views.get().$q(CHILD_ELEM, JS_PROPERTY).flatMap(prop -> {
             /**
              *   "viewMain": MetaData.routeData(View2,
              *        {
@@ -281,9 +281,9 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
                 Optional<PsiElementContext> newParamsMap = prop.$q(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
 
                 final String viewName = propKey.get().getText();
-                Optional<PsiElementContext> callExpr = prop.$q(">" + JS_CALL_EXPRESSION).findFirst();
-                Optional<PsiElementContext> controller2 = callExpr.isPresent() ? callExpr.get().$q(">" + JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst() : Optional.empty();
-                Optional<PsiElementContext> paramsMap2 = callExpr.isPresent() ? callExpr.get().$q(">" + JS_ARGUMENTS_LIST, JS_OBJECT_LITERAL_EXPRESSION).findFirst(): Optional.empty();
+                Optional<PsiElementContext> callExpr = prop.$q(CHILD_ELEM, JS_CALL_EXPRESSION).findFirst();
+                Optional<PsiElementContext> controller2 = callExpr.isPresent() ? callExpr.get().$q(CHILD_ELEM, JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst() : Optional.empty();
+                Optional<PsiElementContext> paramsMap2 = callExpr.isPresent() ? callExpr.get().$q(CHILD_ELEM, JS_ARGUMENTS_LIST, JS_OBJECT_LITERAL_EXPRESSION).findFirst(): Optional.empty();
                 List<PsiRouteContext> rets = resolveParms(routeCall, routeName, callExpr, controller2.isPresent() ? controller2 : controller,newParamsMap.isPresent() ? newParamsMap : paramsMap2);
                 rets.stream().forEach(el -> {
                     el.getRoute().setViewName(viewName);
@@ -306,8 +306,8 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     @NotNull
     public Optional<PsiElementContext> findFirstPropKey(PsiElementContext prop) {
-        Optional<PsiElementContext> el1 =  prop.$q(">" + PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
-        Optional<PsiElementContext> el2=  prop.$q(">" + JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
+        Optional<PsiElementContext> el1 =  prop.$q(CHILD_ELEM, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+        Optional<PsiElementContext> el2=  prop.$q(CHILD_ELEM, JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
 
         Optional<PsiElementContext> propKey = null;
         if(el1.isPresent() && !el2.isPresent()) {

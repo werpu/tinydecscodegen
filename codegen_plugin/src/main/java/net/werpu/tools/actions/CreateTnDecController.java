@@ -126,7 +126,7 @@ public class CreateTnDecController extends AnAction {
             Map<String, Object> attrs = Maps.newHashMap();
             attrs.put("NAME", className);
             attrs.put("TEMPLATE", model.getTemplate());
-            attrs.put("CONTROLLER_AS", model.getControllerAs());
+            attrs.put("TN_COMP_CONTROLLER_AS", model.getControllerAs());
 
             generate(project, folder, className, vslTemplate, attrs);
         });

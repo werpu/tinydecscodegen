@@ -90,6 +90,9 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
         assertTrue(ctx.getInlineFunctions().size() == 3);
         assertTrue(ctx.getSelectorName().equals("probe-component"));
 
+
+
+
     }
 
 }
