@@ -3,7 +3,6 @@ package net.werpu.tools.supportive.reflectRefact;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
-import com.intellij.psi.impl.source.tree.CompositeElement;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -339,53 +338,55 @@ public class PsiWalkFunctions {
      * P_LAST (:LAST)
      * <p>
      * to make the reduction within the query
-     *
-     * <p>
      * <p>
      * Syntax
      * <p>
-     * query: command*
-     * command: ElementType | SIMPLE_COMMAND | CONSUMER | PREDICATE | FUNCTION
-     * <p>
-     * ElementyType: char*
-     * SIMPLE_COMMAND: > | :FIRST | TEXT:(<char *>) | TEXT*:(<char *>) | NAME:(<char *>) | NAME*:(<char *>) | PARENTS:(<char *> | ElementType) | PARENTS:  | :LAST | :FIRST
-     * PREDICATE ...: Function as defined by Java
-     * <p>
-     * PARENTS:(<char *> | ElementType) shortcut for PARENTS:, TEXT:(...) or :PARENTS,<ElementType>
+     * QUERY: COMMAND*
+     *      COMMAND: ELEMENT_TYPE | SIMPLE_COMMAND | FUNC
      *
-     * @param subItem
-     * @param queryTokens
+     *          ELEMENT_TYPE: char*
+     *
+     *          SIMPLE_COMMAND: > | :FIRST | TEXT:(<char *>) | TEXT*:(<char *>) | NAME:(<char *>) | NAME*:(<char *>) | PARENTS:(<char *> | ElementType) | PARENTS:  | :LAST | :FIRST
+     *              PARENTS:(COMMAND) shortcut for PARENTS:, TEXT:(...) or :PARENTS,COMMAND
+     *
+     *          FUNC: CONSUMER | PREDICATE | FUNCTION
+     *              CONSUMER: Function as defined by Java
+     *              PREDICATE: Function as defined by Java
+     *              FUNCTION: Function as defined by Java
+     *
+     * @param subItem item to be queried
+     * @param commands the list of commands to be processed
      * @return
      */
-    private static Stream<PsiElementContext> execQuery(Stream<PsiElementContext> subItem, Object[] queryTokens) {
+    private static Stream<PsiElementContext> execQuery(Stream<PsiElementContext> subItem, Object[] commands) {
 
 
-        for (Object queryItem : queryTokens) {
-            if (isStringElement(queryItem)) {
+        for (Object command : commands) {
+            if (isStringElement(command)) {
                 //lets reduce mem consumption by distincting the subset results
                 subItem = subItem.distinct();
 
-                String strQueryToken = ((String) queryItem).trim();
-                SIMPLE_COMMAND commandToken = SIMPLE_COMMAND.fromValue(strQueryToken);
-                if (commandToken != null) {//command found
-                    switch (commandToken) {
+                String strCommand = ((String) command).trim();
+                SIMPLE_COMMAND simpleCommand = SIMPLE_COMMAND.fromValue(strCommand);
+                if (simpleCommand != null) {//command found
+                    switch (simpleCommand) {
                         case CHILD_ELEM:
                             subItem = subItem.flatMap(theItem -> theItem.getChildren(el -> Boolean.TRUE).stream());
                             continue;
                         case RE_TEXT_EQ:
-                            subItem = handleTextEQ(subItem, strQueryToken);
+                            subItem = handleTextEQ(subItem, strCommand);
                             continue;
                         case RE_TEXT_STARTS_WITH:
-                            subItem = handleTextStartsWith(subItem, strQueryToken);
+                            subItem = handleTextStartsWith(subItem, strCommand);
                             continue;
                         case RE_NAME_EQ:
-                            subItem = handleNameEQ(subItem, strQueryToken);
+                            subItem = handleNameEQ(subItem, strCommand);
                             continue;
                         case RE_NAME_STARTS_WITH:
-                            subItem = handleNameStartsWith(subItem, strQueryToken);
+                            subItem = handleNameStartsWith(subItem, strCommand);
                             continue;
                         case RE_PARENTS_EQ:
-                            subItem = handleParentsEq(subItem, strQueryToken);
+                            subItem = handleParentsEq(subItem, strCommand);
                             continue;
                         case P_FIRST:
                             subItem = handlePFirst(subItem);
@@ -398,12 +399,11 @@ public class PsiWalkFunctions {
                             continue;
                     }
                 }
-
-                subItem = stringTokenMatch(subItem, strQueryToken);
+                subItem = elementTypeMatch(subItem, strCommand);
                 continue;
 
             }
-            subItem = functionTokenMatch(subItem, queryItem);
+            subItem = functionTokenMatch(subItem, command);
         }
         return subItem.distinct();
     }
@@ -425,17 +425,17 @@ public class PsiWalkFunctions {
      * <li>Function&lt;PsiElementContext, PsiElementContext&gt;</li>
      *
      * @param subItem       the subitem to be resolved
-     * @param itemProcessor a function of Consumer, Predicate, or (Function<PsiElementContext, PsiElementContext>)
+     * @param func a function of Consumer, Predicate, or (Function<PsiElementContext, PsiElementContext>)
      * @return the processed subitem
      */
     @NotNull
-    private static Stream<PsiElementContext> functionTokenMatch(Stream<PsiElementContext> subItem, Object itemProcessor) {
-        if (itemProcessor instanceof Consumer) {
-            subItem = handleConsumer(subItem, (Consumer) itemProcessor);
-        } else if (itemProcessor instanceof Predicate) {
-            subItem = handlePredicate(subItem, (Predicate) itemProcessor);
-        } else if (itemProcessor instanceof Function) {
-            subItem = handleFunction(subItem, (Function<PsiElementContext, PsiElementContext>) itemProcessor);
+    private static Stream<PsiElementContext> functionTokenMatch(Stream<PsiElementContext> subItem, Object func) {
+        if (func instanceof Consumer) {
+            subItem = handleConsumer(subItem, (Consumer) func);
+        } else if (func instanceof Predicate) {
+            subItem = handlePredicate(subItem, (Predicate) func);
+        } else if (func instanceof Function) {
+            subItem = handleFunction(subItem, (Function<PsiElementContext, PsiElementContext>) func);
         } else {
             throw new IllegalArgumentException(ERR_UNDEFINED_QUERY_MAPPING);
         }
@@ -448,7 +448,7 @@ public class PsiWalkFunctions {
 
 
     @NotNull
-    private static Stream<PsiElementContext> stringTokenMatch(Stream<PsiElementContext> subItem, String finalSubCommand) {
+    private static Stream<PsiElementContext> elementTypeMatch(Stream<PsiElementContext> subItem, String finalSubCommand) {
         subItem = subItem.flatMap(psiItem -> psiItem.findPsiElements(psiElement -> {
             String cmdString = psiElement.toString();
             return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand + ":");
