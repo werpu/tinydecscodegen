@@ -20,6 +20,13 @@ import static java.util.stream.Stream.concat;
 import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
 import static net.werpu.tools.supportive.utils.StringUtils.literalStartsWith;
 
+/**
+ * this is the central hub for all code analysis
+ * and refactoring
+ * Basically a query facility in a jquery/css like manner
+ * which eases the detection of code patterns significantly
+ * It sits on top of Intellijs Psi functionality
+ */
 public class PsiWalkFunctions {
 
     private static final String ERR_UNDEFINED_QUERY_MAPPING = "Undefined query mapping";
