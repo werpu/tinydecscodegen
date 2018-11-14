@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Stream.concat;
 import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
 import static net.werpu.tools.supportive.utils.StringUtils.literalStartsWith;
@@ -299,12 +300,12 @@ public class PsiWalkFunctions {
     }
 
     public static Stream<PsiElementContext> queryContent(PsiFile file, Object... items) {
-        Stream<PsiElementContext> subItem = Arrays.asList(file).stream().map(item -> new PsiElementContext(item));
+        Stream<PsiElementContext> subItem = asList(file).stream().map(item -> new PsiElementContext(item));
         return execQuery(subItem, items);
     }
 
     public static Stream<PsiElementContext> queryContent(PsiElement element, Object... items) {
-        Stream<PsiElementContext> subItem = Arrays.asList(new PsiElementContext(element)).stream();
+        Stream<PsiElementContext> subItem = asList(new PsiElementContext(element)).stream();
         return execQuery(subItem, items);
     }
 
@@ -471,7 +472,7 @@ public class PsiWalkFunctions {
     private static Stream<PsiElementContext> handlePLast(Stream<PsiElementContext> subItem) {
         Optional<PsiElementContext> reduced = subItem.reduce((theItem, theItem2) -> theItem2);
         if (reduced.isPresent()) {
-            subItem = Arrays.asList(reduced.get()).stream();
+            subItem = asList(reduced.get()).stream();
         } else {
             subItem = Collections.<PsiElementContext>emptyList().stream();
         }
@@ -498,7 +499,7 @@ public class PsiWalkFunctions {
     private static Stream<PsiElementContext> handlePFirst(Stream<PsiElementContext> subItem) {
         PsiElementContext firstItem = subItem.findFirst().orElse(null);
         if (firstItem != null) {
-            subItem = Arrays.asList(firstItem).stream();
+            subItem = asList(firstItem).stream();
         } else {
             subItem = emptyStream();
         }
