@@ -351,7 +351,6 @@ public class PsiWalkFunctions {
      * SIMPLE_COMMAND: > | :FIRST | TEXT:(<char *>) | TEXT*:(<char *>) | NAME:(<char *>) | NAME*:(<char *>) | PARENTS:(<char *> | ElementType) | PARENTS:  | :LAST | :FIRST
      * PREDICATE ...: Function as defined by Java
      * <p>
-     * TODO add contextual grammar info
      * PARENTS:(<char *> | ElementType) shortcut for PARENTS:, TEXT:(...) or :PARENTS,<ElementType>
      *
      * @param subItem
