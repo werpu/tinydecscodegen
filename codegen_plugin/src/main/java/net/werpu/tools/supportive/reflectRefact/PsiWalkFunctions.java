@@ -250,19 +250,6 @@ public class PsiWalkFunctions {
         return retVal;
     }
 
-    public static List<PsiElementContext> walkParents(PsiElementContext element, Function<PsiElementContext, Boolean> psiElementVisitor) {
-        PsiElementContext walkElem = element;
-        List<PsiElementContext> retVal = new LinkedList<>();
-        do {
-            if (psiElementVisitor.apply(walkElem)) {
-                retVal.add(walkElem);
-            }
-            walkElem = new PsiElementContext(walkElem.getElement().getParent());
-        } while (walkElem.getElement() != null);
-
-        return retVal;
-    }
-
     /**
      * standardized walk the tree function which takes
      * a filter to prefilter the psi elements
