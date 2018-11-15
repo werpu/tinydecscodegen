@@ -8,6 +8,7 @@ import net.werpu.tools.supportive.utils.IntellijUtils;
 
 import java.util.Optional;
 
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.EL_TEXT_EQ;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.JS_ES_6_DECORATOR;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.PSI_ELEMENT_JS_IDENTIFIER;
 import static net.werpu.tools.supportive.utils.IntellijUtils.getTsExtension;
@@ -50,8 +51,8 @@ public class VisibleAssertions {
     }
 
     public static boolean assertController(IntellijFileContext ctx) {
-        return ctx.queryContent(JS_ES_6_DECORATOR, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:(Controller)").findFirst().isPresent() ||
-                ctx.queryContent(JS_ES_6_DECORATOR, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:(Component)").findFirst().isPresent();
+        return ctx.queryContent(JS_ES_6_DECORATOR, PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("Controller")).findFirst().isPresent() ||
+                ctx.queryContent(JS_ES_6_DECORATOR, PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("Component")).findFirst().isPresent();
 
     }
 

@@ -156,11 +156,11 @@ public class TypescriptFileContext extends IntellijFileContext {
     }
 
     public List<PsiElementContext> getImportsWithIdentifier(String varToCheck) {
-        return getImportIdentifiers(varToCheck).stream().flatMap(item ->item.queryContent("PARENTS:", JS_ES_6_IMPORT_DECLARATION)).collect(Collectors.toList());
+        return getImportIdentifiers(varToCheck).stream().flatMap(item ->item.queryContent(P_PARENTS, JS_ES_6_IMPORT_DECLARATION)).collect(Collectors.toList());
     }
 
     public List<PsiElementContext> getImportIdentifiers(String varToCheck) {
-        return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:("+varToCheck+")").collect(Collectors.toList());
+        return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ(varToCheck)).collect(Collectors.toList());
     }
 
     @NotNull
@@ -170,8 +170,8 @@ public class TypescriptFileContext extends IntellijFileContext {
             importPath = importPath.substring(2);
         }
         final String fImportPath = importPath;
-        return importIdentifier -> importIdentifier.queryContent(":PARENTS", JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:('"+fImportPath+"')").findFirst().isPresent() ||
-                                   importIdentifier.queryContent(":PARENTS", JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:('"+origImportPath+"')").findFirst().isPresent();
+        return importIdentifier -> importIdentifier.queryContent(P_PARENTS, JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, EL_TEXT_EQ("'"+fImportPath+"'")).findFirst().isPresent() ||
+                                   importIdentifier.queryContent(P_PARENTS, JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, EL_TEXT_EQ("'"+origImportPath+"'")).findFirst().isPresent();
     }
 
 
@@ -190,7 +190,7 @@ public class TypescriptFileContext extends IntellijFileContext {
         Optional<PsiElement> theImport = ctxm.$q(JS_ES_6_IMPORT_DECLARATION).map(el -> el.getElement())
                 .filter(
                         el -> Arrays.stream(el.getChildren())
-                                .anyMatch(el2 -> el2.getText().contains(templateVarName) && PsiWalkFunctions.queryContent(el2, PSI_ELEMENT_JS_IDENTIFIER,TEXT_EQ(templateVarName)).findFirst().isPresent())
+                                .anyMatch(el2 -> el2.getText().contains(templateVarName) && PsiWalkFunctions.queryContent(el2, PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ(templateVarName)).findFirst().isPresent())
                 ).findFirst();
 
         return getPsiImportString(theImport);

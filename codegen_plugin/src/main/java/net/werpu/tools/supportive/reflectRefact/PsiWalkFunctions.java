@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Stream.concat;
-import static java.util.stream.Stream.empty;
 import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
 import static net.werpu.tools.supportive.utils.StringUtils.literalStartsWith;
 
@@ -74,21 +73,21 @@ public class PsiWalkFunctions {
     public static final String PSI_ELEMENT_JS_RBRACKET = "PsiElement(JS:RBRACKET)";
     public static final String PSI_ELEMENT_JS_IDENTIFIER = "PsiElement(JS:IDENTIFIER)";
     public static final String PSI_ELEMENT_JS_STRING_LITERAL = "PsiElement(JS:STRING_LITERAL)";
-    public static final Object[] TN_COMP_CONTROLLER_AS = {TYPE_SCRIPT_FIELD, NAME_EQ("controllerAs"), PSI_ELEMENT_JS_STRING_LITERAL};
+    public static final Object[] TN_COMP_CONTROLLER_AS = {TYPE_SCRIPT_FIELD, EL_NAME_EQ("controllerAs"), PSI_ELEMENT_JS_STRING_LITERAL};
     public static final String PSI_ELEMENT_JS_STRING_TEMPLATE_PART = "PsiElement(JS:STRING_TEMPLATE_PART)";
     public static final String JS_PROPERTY = "JSProperty";
-    public static final Object[] TN_COMP_BINDINGS = {TYPE_SCRIPT_FIELD, NAME_EQ("bindings"), JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY};
+    public static final Object[] TN_COMP_BINDINGS = {TYPE_SCRIPT_FIELD, EL_NAME_EQ("bindings"), JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY};
     public static final String JS_ARRAY_LITERAL_EXPRESSION = "JSArrayLiteralExpression";
-    public static final Object[] TN_COMP_CONTROLLER_ARR = {TYPE_SCRIPT_FIELD, NAME_EQ("controller"), JS_ARRAY_LITERAL_EXPRESSION};
+    public static final Object[] TN_COMP_CONTROLLER_ARR = {TYPE_SCRIPT_FIELD, EL_NAME_EQ("controller"), JS_ARRAY_LITERAL_EXPRESSION};
     public static final String JS_ARGUMENTS_LIST = "JSArgumentList";
     public static final String JS_PARAMETER_BLOCK = "JSParameterBlock";
 
     public static final String JS_VAR_STATEMENT = "JSVarStatement";
     public static final String P_PARENTS = ":PARENTS";
     public static final String P_PARENT = ":PARENT";
-    public static final String PARENTS = "PARENTS:";
+
     public static final String P_LAST = ":LAST";
-    public static final String P_FIRST = ":first";
+    public static final String P_FIRST = ":FIRST";
 
     public static final String PSI_CLASS = "PsiClass:";
     public static final String STRING_TEMPLATE_EXPR = "JSStringTemplateExpression";
@@ -96,50 +95,50 @@ public class PsiWalkFunctions {
 
     public static final String NG_MODULE = "@NgModule";
     /*prdefined queries*/
-    public static final Object[] MODULE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_MODULE), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] MODULE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_MODULE), JS_ARGUMENTS_LIST};
-    public static final Object[] MODULE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_MODULE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] MODULE_ANN = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_MODULE), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] MODULE_ARGS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_MODULE), JS_ARGUMENTS_LIST};
+    public static final Object[] MODULE_CLASS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_MODULE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
-    public static final Object[] COMPONENT_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_COMPONENT), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] COMPONENT_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_COMPONENT), JS_ARGUMENTS_LIST};
-    public static final Object[] COMPONENT_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_COMPONENT), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] COMPONENT_ANN = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_COMPONENT), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] COMPONENT_ARGS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_COMPONENT), JS_ARGUMENTS_LIST};
+    public static final Object[] COMPONENT_CLASS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_COMPONENT), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
     public static final String NG_DIRECTIVE = "@Directive";
-    public static final Object[] DIRECTIVE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DIRECTIVE), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] DIRECTIVE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DIRECTIVE), JS_ARGUMENTS_LIST};
-    public static final Object[] DIRECTIVE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DIRECTIVE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] DIRECTIVE_ANN = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_DIRECTIVE), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] DIRECTIVE_ARGS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_DIRECTIVE), JS_ARGUMENTS_LIST};
+    public static final Object[] DIRECTIVE_CLASS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_DIRECTIVE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
-    public static final Object[] CONFIG_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONFIG), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] CONFIG_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONFIG), JS_ARGUMENTS_LIST};
-    public static final Object[] CONFIG_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONFIG), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] CONFIG_ANN = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_CONFIG), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] CONFIG_ARGS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_CONFIG), JS_ARGUMENTS_LIST};
+    public static final Object[] CONFIG_CLASS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_CONFIG), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
     public static final String NG_FILTER = "@Filter";
-    public static final Object[] FILTER_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_FILTER), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] FILTER_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_FILTER), JS_ARGUMENTS_LIST};
-    public static final Object[] FILTER_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_FILTER), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] FILTER_ANN = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_FILTER), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] FILTER_ARGS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_FILTER), JS_ARGUMENTS_LIST};
+    public static final Object[] FILTER_CLASS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_FILTER), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
     public static final String NG_PIPE = "@Pipe";
-    public static final Object[] PIPE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_PIPE), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] PIPE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_PIPE), JS_ARGUMENTS_LIST};
-    public static final Object[] PIPE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_PIPE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] PIPE_ANN = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_PIPE), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] PIPE_ARGS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_PIPE), JS_ARGUMENTS_LIST};
+    public static final Object[] PIPE_CLASS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_PIPE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
     public static final String NG_INJECTABLE = "@Injectable";
-    public static final Object[] SERVICE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_INJECTABLE), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] SERVICE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_INJECTABLE), JS_ARGUMENTS_LIST};
-    public static final Object[] SERVICE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_INJECTABLE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] SERVICE_ANN = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_INJECTABLE), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] SERVICE_ARGS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_INJECTABLE), JS_ARGUMENTS_LIST};
+    public static final Object[] SERVICE_CLASS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_INJECTABLE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
-    public static final Object[] CONTROLLER_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONTROLLER), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] CONTROLLER_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONTROLLER), JS_ARGUMENTS_LIST};
-    public static final Object[] CONTROLLER_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONTROLLER), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] CONTROLLER_ANN = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_CONTROLLER), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] CONTROLLER_ARGS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_CONTROLLER), JS_ARGUMENTS_LIST};
+    public static final Object[] CONTROLLER_CLASS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_CONTROLLER), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
     public static final String NG_DTO = "@Dto";
-    public static final Object[] DTO_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DTO), PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] DTO_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DTO), JS_ARGUMENTS_LIST};
-    public static final Object[] DTO_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DTO), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] DTO_ANN = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_DTO), PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] DTO_ARGS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_DTO), JS_ARGUMENTS_LIST};
+    public static final Object[] DTO_CLASS = {JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH(NG_DTO), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
     public static final String CHILD_ELEM = ">";
@@ -152,7 +151,7 @@ public class PsiWalkFunctions {
     /*Specific queries used by the transformations*/
 
     //TODO possible problem with multiple modules per file here
-    public static final Object[] ANG1_MODULE_DCL = {JS_CALL_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("module"), P_PARENTS, JS_CALL_EXPRESSION};
+    public static final Object[] ANG1_MODULE_DCL = {JS_CALL_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("module"), P_PARENTS, JS_CALL_EXPRESSION};
     //module name starting from DCL
     public static final Object[] ANG1_MODULE_NAME = {JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     //requires starting from DCL
@@ -165,27 +164,27 @@ public class PsiWalkFunctions {
 
     /*helpers*/
     public static String PARENTS_EQ(String val) {
-        return "PARENTS:(" + val + ")";
+        return ":PARENTS(" + val + ")";
     }
 
     public static String PARENTS_EQ_FIRST(String val) {
-        return "PARENTS_FIRST:(" + val + ")";
+        return ":PARENTS_FIRST(" + val + ")";
     }
 
     public static String PARENTS_EQ_LAST(String val) {
-        return "PARENTS_LAST:(" + val + ")";
+        return ":PARENTS_LAST(" + val + ")";
     }
 
-    public static String TEXT_EQ(String val) {
-        return "TEXT:(" + val + ")";
+    public static String EL_TEXT_EQ(String val) {
+        return ":TEXT(" + val + ")";
     }
 
-    public static String NAME_EQ(String val) {
-        return "NAME:(" + val + ")";
+    public static String EL_NAME_EQ(String val) {
+        return ":NAME(" + val + ")";
     }
 
-    public static String TEXT_STARTS_WITH(String val) {
-        return "TEXT*:(" + val + ")";
+    public static String EL_TEXT_STARTS_WITH(String val) {
+        return ":TEXT*(" + val + ")";
     }
 
     public static String DIRECT_CHILD(String val) {
@@ -193,25 +192,25 @@ public class PsiWalkFunctions {
     }
 
     public static Object[] DEF_CALL(String callType) {
-        return new Object[]{JS_CALL_EXPRESSION, DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), TEXT_EQ(callType)};
+        return new Object[]{JS_CALL_EXPRESSION, DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), EL_TEXT_EQ(callType)};
     }
 
     @NotNull
     public static Object[] TN_DEC_COMPONENT_NAME(String className) {
-        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, NAME_EQ(className), PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
+        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, EL_NAME_EQ(className), P_PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     }
     /*helpers end*/
 
 
     /*predefined rex for deeper string analysis*/
-    static final String RE_TEXT_EQ = "^\\s*TEXT\\s*\\:\\s*\\((.*)\\)\\s*$";
-    static final String RE_TEXT_STARTS_WITH = "^\\s*TEXT\\*\\s*\\:\\s*\\((.*)\\)\\s*$";
-    static final String RE_NAME_EQ = "^\\s*NAME\\s*\\:\\s*\\((.*)\\)\\s*$";
+    static final String RE_EL_TEXT_EQ = "^\\s*\\:TEXT\\s*\\((.*)\\)\\s*$";
+    static final String RE_EL_TEXT_STARTS_WITH = "^\\s*\\:TEXT\\*\\s*\\((.*)\\)\\s*$";
+    static final String RE_EL_NAME_EQ = "^\\s*\\:NAME\\s*\\((.*)\\)\\s*$";
     static final String RE_STRING_LITERAL = "^[\\\"\\'](.*)[\\\"\\']$";
-    static final String RE_NAME_STARTS_WITH = "^\\s*NAME\\*\\s*\\:\\s*\\((.*)\\)\\s*$";
-    static final String RE_PARENTS_EQ = "^\\s*PARENTS\\s*\\:\\s*\\((.*)\\)\\s*$";
-    static final String RE_PARENTS_EQ_FIRST = "^\\s*PARENTS_FIRST\\s*\\:\\s*\\((.*)\\)\\s*$";
-    static final String RE_PARENTS_EQ_LAST = "^\\s*PARENTS_LAST\\s*\\:\\s*\\((.*)\\)\\s*$";
+    static final String RE_EL_NAME_STARTS_WITH = "^\\s*\\:NAME\\*\\((.*)\\)\\s*$";
+    static final String RE_PARENTS_EQ = "^\\s*:PARENTS\\s*\\((.*)\\)\\s*$";
+    static final String RE_PARENTS_EQ_FIRST = "^\\s*:PARENTS_FIRST\\s*\\((.*)\\)\\s*$";
+    static final String RE_PARENTS_EQ_LAST = "^\\s*:PARENTS_LAST\\s*\\((.*)\\)\\s*$";
 
 
     public static boolean inTemplateHolder(PsiElement element) {
@@ -354,8 +353,8 @@ public class PsiWalkFunctions {
      *
      *          ELEMENT_TYPE: char*
      *
-     *          SIMPLE_COMMAND: > | :FIRST | TEXT:(<char *>) | TEXT*:(<char *>) | NAME:(<char *>) | NAME*:(<char *>) | PARENTS_EQ:(<char *> | ElementType) | PARENTS_EQ_FIRST:(<char *> | ElementType) | PARENTS_EQ_LAST:(<char *> | ElementType)   | PARENTS: | PARENT:   | :LAST | :FIRST
-     *              PARENTS:(COMMAND) shortcut for PARENTS:, TEXT:(...) or :PARENTS,COMMAND
+     *          SIMPLE_COMMAND: > | :FIRST | :TEXT(<char *>) | :TEXT*(<char *>) | :NAME(<char *>) | :NAME*(<char *>) | PARENTS_EQ:(<char *> | ElementType) | PARENTS_EQ_FIRST:(<char *> | ElementType) | PARENTS_EQ_LAST:(<char *> | ElementType)   | :PARENTS | :PARENT   | :LAST | :FIRST
+     *              :PARENTS(COMMAND) shortcut for :PARENTS, :TEXT(...) or :PARENTS,COMMAND
      *
      *          FUNC: CONSUMER | PREDICATE | FUNCTION
      *              CONSUMER: Function as defined by Java
@@ -381,16 +380,16 @@ public class PsiWalkFunctions {
                         case CHILD_ELEM:
                             subItem = subItem.flatMap(theItem -> theItem.getChildren(el -> Boolean.TRUE).stream());
                             continue;
-                        case RE_TEXT_EQ:
+                        case RE_EL_TEXT_EQ:
                             subItem = handleTextEQ(subItem, strCommand);
                             continue;
-                        case RE_TEXT_STARTS_WITH:
+                        case RE_EL_TEXT_STARTS_WITH:
                             subItem = handleTextStartsWith(subItem, strCommand);
                             continue;
-                        case RE_NAME_EQ:
+                        case RE_EL_NAME_EQ:
                             subItem = handleNameEQ(subItem, strCommand);
                             continue;
-                        case RE_NAME_STARTS_WITH:
+                        case RE_EL_NAME_STARTS_WITH:
                             subItem = handleNameStartsWith(subItem, strCommand);
                             continue;
                         case RE_PARENTS_EQ:
@@ -426,7 +425,64 @@ public class PsiWalkFunctions {
     }
 
     //TODO think about a better backtracking syntax.
+    private static Stream<PsiElementContext> inverseQuery(Stream<PsiElementContext> subItem, Object[] commands) {
 
+
+        for (Object command : commands) {
+            if (isStringElement(command)) {
+                //lets reduce mem consumption by distincting the subset results
+                subItem = subItem.distinct();
+
+                String strCommand = ((String) command).trim();
+                SIMPLE_COMMAND simpleCommand = SIMPLE_COMMAND.fromValue(strCommand);
+                if (simpleCommand != null) {//command found
+                    switch (simpleCommand) {
+                        case CHILD_ELEM:
+                            subItem = subItem.flatMap(theItem -> theItem.parent().stream());
+                            continue;
+                        case RE_EL_TEXT_EQ:
+                            subItem = handleTextEQ(subItem, strCommand);
+                            continue;
+                        case RE_EL_TEXT_STARTS_WITH:
+                            subItem = handleTextStartsWith(subItem, strCommand);
+                            continue;
+                        case RE_EL_NAME_EQ:
+                            subItem = handleNameEQ(subItem, strCommand);
+                            continue;
+                        case RE_EL_NAME_STARTS_WITH:
+                            subItem = handleNameStartsWith(subItem, strCommand);
+                            continue;
+                        case RE_PARENTS_EQ:
+                            subItem = handleParentsEq(subItem, strCommand);
+                            continue;
+                        case RE_PARENTS_EQ_FIRST:
+                            subItem = handleParentsEqFirst(subItem, strCommand);
+                            continue;
+                        case RE_PARENTS_EQ_LAST:
+                            subItem = handleParentsEqLast(subItem, strCommand);
+                            continue;
+                        case P_FIRST:
+                            subItem = handlePFirst(subItem);
+                            continue;
+                        case P_PARENTS:
+                            subItem = parentsOf(subItem);
+                            continue;
+                        case P_PARENT:
+                            subItem = parentOf(subItem);
+                            continue;
+                        case P_LAST:
+                            subItem = handlePLast(subItem);
+                            continue;
+                    }
+                }
+                subItem = elementTypeMatch(subItem, strCommand);
+                continue;
+
+            }
+            subItem = functionTokenMatch(subItem, command);
+        }
+        return subItem.distinct();
+    }
 
 
     @NotNull
@@ -582,7 +638,7 @@ public class PsiWalkFunctions {
 
     @NotNull
     private static Stream<PsiElementContext> handleNameStartsWith(Stream<PsiElementContext> subItem, String text) {
-        Pattern p = Pattern.compile(RE_NAME_STARTS_WITH);
+        Pattern p = Pattern.compile(RE_EL_NAME_STARTS_WITH);
         subItem = subItem.filter(psiElementContext -> {
 
             Matcher m = p.matcher(text);
@@ -600,7 +656,7 @@ public class PsiWalkFunctions {
 
     @NotNull
     private static Stream<PsiElementContext> handleNameEQ(Stream<PsiElementContext> subItem, String text) {
-        Pattern p = Pattern.compile(RE_NAME_EQ);
+        Pattern p = Pattern.compile(RE_EL_NAME_EQ);
         subItem = subItem.filter(psiElementContext -> {
 
             Matcher m = p.matcher(text);
@@ -621,7 +677,7 @@ public class PsiWalkFunctions {
 
     @NotNull
     private static Stream<PsiElementContext> handleTextStartsWith(Stream<PsiElementContext> subItem, String text) {
-        Pattern p = Pattern.compile(RE_TEXT_STARTS_WITH);
+        Pattern p = Pattern.compile(RE_EL_TEXT_STARTS_WITH);
         subItem = subItem.filter(psiElementContext -> {
 
             Matcher m = p.matcher(text);
@@ -637,7 +693,7 @@ public class PsiWalkFunctions {
 
     @NotNull
     private static Stream<PsiElementContext> handleTextEQ(Stream<PsiElementContext> subItem, String text) {
-        Pattern p = Pattern.compile(RE_TEXT_EQ);
+        Pattern p = Pattern.compile(RE_EL_TEXT_EQ);
         subItem = subItem.filter(psiElementContext -> {
 
             Matcher m = p.matcher(text);

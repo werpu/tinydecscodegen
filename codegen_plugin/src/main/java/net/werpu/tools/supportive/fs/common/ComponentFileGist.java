@@ -164,14 +164,14 @@ public class ComponentFileGist {
         } else {
             Optional<PsiElement> template;
             if (componentAnn == null) {
-                template = new IntellijFileContext(file.getProject(), file).$q(JS_PROPERTY, NAME_EQ(JS_PROP_TEMPLATE))
+                template = new IntellijFileContext(file.getProject(), file).$q(JS_PROPERTY, EL_NAME_EQ(JS_PROP_TEMPLATE))
                         .filter(PsiWalkFunctions::inTemplateHolder)
                         .map(PsiElementContext::getElement)
                         .findFirst();
             } else {
                 template = Arrays.stream(componentAnn.getChildren())
                         .map(PsiElementContext::new)
-                        .flatMap(ctx -> ctx.$q(JS_PROPERTY, NAME_EQ(JS_PROP_TEMPLATE)))
+                        .flatMap(ctx -> ctx.$q(JS_PROPERTY, EL_NAME_EQ(JS_PROP_TEMPLATE)))
                         .filter(PsiWalkFunctions::inTemplateHolder)
                         .map(PsiElementContext::getElement)
                         .findFirst();

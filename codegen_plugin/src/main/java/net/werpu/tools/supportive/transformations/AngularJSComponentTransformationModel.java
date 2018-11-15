@@ -1,6 +1,5 @@
 package net.werpu.tools.supportive.transformations;
 
-import com.google.common.base.Strings;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -100,7 +99,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     private void parseTemplate() {
-        Optional<PsiElementContext> returnStmt = rootBlock.$q(TYPE_SCRIPT_FIELD, NAME_EQ("template"), JS_RETURN_STATEMENT).findFirst();
+        Optional<PsiElementContext> returnStmt = rootBlock.$q(TYPE_SCRIPT_FIELD, EL_NAME_EQ("template"), JS_RETURN_STATEMENT).findFirst();
         returnStmt.ifPresent((el) -> {
             Optional<PsiElementContext> found = Stream.concat(el.$q(PSI_ELEMENT_JS_STRING_LITERAL), el.$q(PSI_ELEMENT_JS_IDENTIFIER)).findFirst();
             if (found.isPresent() && found.get().getElement().toString().startsWith(PSI_ELEMENT_JS_IDENTIFIER)) {
@@ -196,7 +195,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     private void parseConstructor() {
-        constructorDef = rootBlock.$q(TYPE_SCRIPT_FIELD, NAME_EQ("controller")).findFirst();
+        constructorDef = rootBlock.$q(TYPE_SCRIPT_FIELD, EL_NAME_EQ("controller")).findFirst();
         constructorBlock = constructorDef.get().$q(TYPE_SCRIPT_FUNC_EXPR, JS_BLOCK_STATEMENT).findFirst();
 
     }

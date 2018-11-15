@@ -79,12 +79,10 @@ public class PsiElementContext {
             return emptyList();
         }
 
-        for (PsiElement el : element.getChildren()) {
-            if (psiElementVisitor == null || psiElementVisitor.apply(el)) {
-                retVal.add(new PsiElementContext(el));
-            }
-        }
-        return retVal;
+        return Arrays.stream(element.getChildren())
+                .filter(el -> psiElementVisitor == null || psiElementVisitor.apply(el))
+                .map(PsiElementContext::new)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -172,7 +170,7 @@ public class PsiElementContext {
     }
 
     public List<PsiElementContext> getImportIdentifiers(String varToCheck) {
-        return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, "TEXT:(" + varToCheck + ")").collect(Collectors.toList());
+        return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ( varToCheck )).collect(Collectors.toList());
     }
 
     @Override

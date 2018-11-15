@@ -7,7 +7,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import net.werpu.tools.supportive.fs.common.*;
-import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -208,13 +207,13 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         IntellijFileContext pageController = new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(StringUtils.stripQuotes(importPath.get().getText()) + getTsExtension()));
 
-        Optional<PsiElementContext> controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, "TEXT*:(@Controller)", JS_PROPERTY, "NAME:(name)", PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+        Optional<PsiElementContext> controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH("@Controller"), JS_PROPERTY, EL_NAME_EQ("name"), PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
 
         if (!controllerDef.isPresent()) {
-            controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, "TEXT*:(@Component)", JS_PROPERTY, "NAME:(name)", PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+            controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH("@Component"), JS_PROPERTY, EL_NAME_EQ("name"), PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
         }
         if (!controllerDef.isPresent()) {
-            controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, "TEXT*:(@Component)", JS_PROPERTY, "NAME:(selector)", PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+            controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, EL_TEXT_STARTS_WITH("@Component"), JS_PROPERTY, EL_NAME_EQ("selector"), PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
         }
 
         String name = "";
@@ -249,7 +248,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
     @NotNull
     public Boolean urlMatch(Route routeData, PsiElementContext constructor, String routeProviderName) {
         //TODO also url match against the linked components, but for now this suffices
-        return constructor.queryContent(JS_ARGUMENTS_LIST, ":PARENTS", JS_EXPRESSION_STATEMENT, "TEXT*:(" + routeProviderName + ")", PSI_ELEMENT_JS_STRING_LITERAL, "TEXT:('" + routeData.getUrl() + "')").findFirst().isPresent();
+        return constructor.queryContent(JS_ARGUMENTS_LIST, ":PARENTS", JS_EXPRESSION_STATEMENT, EL_TEXT_STARTS_WITH( routeProviderName ), PSI_ELEMENT_JS_STRING_LITERAL, EL_TEXT_EQ("'" + routeData.getUrl() + "'")).findFirst().isPresent();
     }
 
     public String getStateOrRouteProviderName(PsiElementContext constructor) {

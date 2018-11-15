@@ -37,9 +37,9 @@ public class ContextFactory {
 
     @Nullable
     public static PsiRouteContext createRouteContext(TypescriptFileContext routesFile, PsiElementContext psiElementContext, Class origin) {
-        Optional<PsiElementContext> name = psiElementContext.queryContent(JS_PROPERTY, "NAME:(name)", PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
-        Optional<PsiElementContext> url = psiElementContext.queryContent(JS_PROPERTY, "NAME:(url)", PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
-        Optional<PsiElementContext> component = psiElementContext.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("component"), PARENTS_EQ(JS_PROPERTY), JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
+        Optional<PsiElementContext> name = psiElementContext.queryContent(JS_PROPERTY, EL_NAME_EQ("name"), PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
+        Optional<PsiElementContext> url = psiElementContext.queryContent(JS_PROPERTY,  EL_NAME_EQ("url"), PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
+        Optional<PsiElementContext> component = psiElementContext.queryContent(PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("component"), PARENTS_EQ(JS_PROPERTY), JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
         String sName = "";
         String sUrl = "";
         String sComponent = "";
