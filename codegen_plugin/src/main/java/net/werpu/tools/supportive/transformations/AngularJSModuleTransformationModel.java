@@ -37,7 +37,7 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 public class AngularJSModuleTransformationModel extends TypescriptFileContext {
 
 
-    public static final Object[] ANGULAR_MOD_DEF = {P_PARENTS, TYPE_SCRIPT_VARIABLE, JS_CALL_EXPRESSION};
+    public static final Object[] ANGULAR_MOD_DEF = {PARENTS_EQ_FIRST(TYPE_SCRIPT_VARIABLE), JS_CALL_EXPRESSION};
 
     /**
      * psi element covering the entire angular module defintion
@@ -143,7 +143,7 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext {
 
     public String getLegacyName() {
         if(moduleDefStart.isPresent()) {
-            return moduleDefStart.get().$q(P_PARENTS, TYPE_SCRIPT_VARIABLE).findFirst().get().getName();
+            return moduleDefStart.get().$q(PARENTS_EQ_FIRST(TYPE_SCRIPT_VARIABLE)).findFirst().get().getName();
         }
         return "legacy_"+this.moduleName;
     }

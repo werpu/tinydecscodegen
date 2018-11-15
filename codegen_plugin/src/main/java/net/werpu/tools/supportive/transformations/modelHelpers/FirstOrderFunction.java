@@ -69,9 +69,9 @@ public class FirstOrderFunction {
      * is externalizable from its shell method/function
      */
     public boolean isExternalizale() {
-        return exernalizables
-                .parallelStream()
-                .anyMatch(ExternalVariable::isExternalizable);
+        //function needs to be this assignable
+        return this.functionElement.getText().startsWith("this.") &&
+                exernalizables.isEmpty();
     }
 
 }

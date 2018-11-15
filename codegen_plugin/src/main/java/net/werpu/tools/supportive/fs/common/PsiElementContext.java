@@ -14,6 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Collections.emptyList;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.utils.StringUtils.elVis;
 
@@ -75,7 +76,7 @@ public class PsiElementContext {
     public List<PsiElementContext> getChildren(@Nullable Function<PsiElement, Boolean> psiElementVisitor) {
         final List<PsiElementContext> retVal = new LinkedList<>();
         if (element == null) {//not parseable
-            return Collections.emptyList();
+            return emptyList();
         }
 
         for (PsiElement el : element.getChildren()) {
@@ -86,15 +87,40 @@ public class PsiElementContext {
         return retVal;
     }
 
+    /**
+     * all parents
+     * @return all parents of the current element
+     */
     public List<PsiElementContext> parents() {
         return this.walkParents(el -> true);
     }
+
+    /**
+     * single parent
+     * @return a single parent as list or empty if none is found
+     */
+    public List<PsiElementContext> parent() {
+        return this.walkParent(el -> true)
+                .map(Arrays::asList).orElse(emptyList());
+    }
+
+
+    /**
+     * n parents
+     */
+    public List<PsiElementContext> parents(int n) {
+        List<PsiElementContext> allParents = this.walkParents(el -> true);
+        return allParents.subList(0, Math.min(n, allParents.size()));
+    }
+
 
     public List<PsiElementContext> walkParents(Function<PsiElement, Boolean> psiElementVisitor) {
         return PsiWalkFunctions.walkParents(getElement(), psiElementVisitor).stream()
                 .map(PsiElementContext::new)
                 .collect(Collectors.toList());
     }
+
+
 
     public Optional<PsiElementContext> walkParent(Function<PsiElement, Boolean> psiElementVisitor) {
         Optional<PsiElement> foundElement = PsiWalkFunctions.walkParent(getElement(), psiElementVisitor);
@@ -107,7 +133,7 @@ public class PsiElementContext {
     protected List<PsiElementContext> findPsiElements(Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly) {
         final List<PsiElement> retVal;
         if (element == null) {//not parseable
-            return Collections.emptyList();
+            return emptyList();
         }
 
         retVal = walkPsiTree(element, psiElementVisitor, firstOnly);

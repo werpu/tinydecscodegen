@@ -21,6 +21,8 @@ export class ProbeComponent implements IComponentOptions {
 
             let myVar2:string = "booga";
 
+            //not refactorable to the outside
+            //because of its references into myvar2
             this.getClass = () => {
                 let columnsNo = this.searchOptions.columnsNo;
 
@@ -44,7 +46,8 @@ export class ProbeComponent implements IComponentOptions {
             };
 
             this.blarg = function() {
-                //
+                //prevents refactoring to the outside
+                //because if the _t reference
                 _t.$onInit();
             };
 
@@ -54,7 +57,8 @@ export class ProbeComponent implements IComponentOptions {
             if(true == (() => {return true})()) {
             }
 
-
+            //this one only has this references
+            //which means we can refactor it
             this.$onInit = () => {
                 this.GlobalSearchableEntityType = GlobalSearchableEntityType;
             }

@@ -23,6 +23,7 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 public class AngularJSComponentTransformationModel extends TypescriptFileContext {
 
 
+    public static final Object[] INLINE_FUNC_DECL = {TYPE_SCRIPT_FUNC_EXPR, PARENTS_EQ_FIRST(JS_EXPRESSION_STATEMENT)};
     Optional<PsiElementContext> lastImport;
     PsiElementContext rootBlock;
     String controllerAs;
@@ -32,7 +33,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     Optional<PsiElementContext> constructorDef;
     Optional<PsiElementContext> constructorBlock;
 
-    List<PsiElementContext> inlineFunctions;
+    List<FirstOrderFunction> inlineFunctions;
     String template; //original template after being found
     List<BindingTypes> bindings;
 
@@ -95,7 +96,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         if (clazzDcl.isPresent()) {
             clazzName = clazzDcl.get().getName();
         }
-        //TODO look iz up in the parent module
+        //TODO look it up in the parent module
     }
 
     private void parseTemplate() {
@@ -114,9 +115,21 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     private void parseInlineFunctions() {
-        inlineFunctions = constructorBlock.get().$q(TYPE_SCRIPT_FUNC_EXPR)
-                .filter(expr -> !Strings.isNullOrEmpty(expr.getName()))
+        inlineFunctions = constructorBlock.get()
+                //first we search for inline functions
+                //including the variable definition aka let a = func...
+                //or this.onInit = ....
+                .$q(INLINE_FUNC_DECL)
+                //now we have all function expressions
+                //.filter(expr -> !Strings.isNullOrEmpty(expr.getName()))
+
+                //then we drag the function data out to have a better grip on the variables etc...
+                //if not parseable we will skip thje refactoring
+                .map(this::parseFunctionData)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
+
     }
 
     /**
@@ -127,10 +140,18 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
      * @return
      */
     private List<PsiElementContext> parseFunctionVariableDecls(PsiElementContext parentFunctionBlock) {
+
         return parentFunctionBlock.queryContent(JS_VAR_STATEMENT)
-                .filter(e -> e.queryContent(P_PARENTS, TYPE_SCRIPT_FUNC_EXPR, JS_BLOCK_STATEMENT)
+                .filter(e -> e.queryContent(P_PARENTS, TYPE_SCRIPT_FUNC_EXPR, CHILD_ELEM, JS_BLOCK_STATEMENT)
+                        //only the first parent is valid, the variable must be declared
+                        //in the parent function definition
+                        .distinct()
+                        //final check, the parent function found must be the parent block
                         .filter(e2 -> e2.getTextOffset() == parentFunctionBlock.getTextOffset()).findFirst().isPresent())
                 .collect(Collectors.toList());
+
+
+
     }
 
     /**
@@ -159,12 +180,13 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
             //for the possibility of mapping into an external candidate
 
             List<ExternalVariable> foundExternalizables = inlineFunction.$q(JS_REFERENCE_EXPRESSION).map(el -> {
-                String refName = el.getText();
+                String refExpr = el.getText();
+                String refName = refExpr.split("\\.")[0];
                 return possibleInlineCandidates.containsKey(refName) ? possibleInlineCandidates.get(refName) : null;
-            }).filter(e -> e != null).collect(Collectors.toList());
+            }).filter(e -> e != null).distinct().collect(Collectors.toList());
 
             //TODO
-            return Optional.ofNullable(new FirstOrderFunction(inlineFunction, funtionDefinition.get(),   functionBlock.get(),null, foundExternalizables));
+            return Optional.ofNullable(new FirstOrderFunction(inlineFunction, funtionDefinition.get(), functionBlock.get(), null, foundExternalizables));
         }
         return Optional.empty();
     }

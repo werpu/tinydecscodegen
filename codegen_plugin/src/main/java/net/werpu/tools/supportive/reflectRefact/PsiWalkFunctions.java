@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.empty;
 import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
 import static net.werpu.tools.supportive.utils.StringUtils.literalStartsWith;
 
@@ -84,6 +85,7 @@ public class PsiWalkFunctions {
 
     public static final String JS_VAR_STATEMENT = "JSVarStatement";
     public static final String P_PARENTS = ":PARENTS";
+    public static final String P_PARENT = ":PARENT";
     public static final String PARENTS = "PARENTS:";
     public static final String P_LAST = ":LAST";
     public static final String P_FIRST = ":first";
@@ -149,6 +151,7 @@ public class PsiWalkFunctions {
 
     /*Specific queries used by the transformations*/
 
+    //TODO possible problem with multiple modules per file here
     public static final Object[] ANG1_MODULE_DCL = {JS_CALL_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("module"), P_PARENTS, JS_CALL_EXPRESSION};
     //module name starting from DCL
     public static final Object[] ANG1_MODULE_NAME = {JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
@@ -163,6 +166,14 @@ public class PsiWalkFunctions {
     /*helpers*/
     public static String PARENTS_EQ(String val) {
         return "PARENTS:(" + val + ")";
+    }
+
+    public static String PARENTS_EQ_FIRST(String val) {
+        return "PARENTS_FIRST:(" + val + ")";
+    }
+
+    public static String PARENTS_EQ_LAST(String val) {
+        return "PARENTS_LAST:(" + val + ")";
     }
 
     public static String TEXT_EQ(String val) {
@@ -199,6 +210,8 @@ public class PsiWalkFunctions {
     static final String RE_STRING_LITERAL = "^[\\\"\\'](.*)[\\\"\\']$";
     static final String RE_NAME_STARTS_WITH = "^\\s*NAME\\*\\s*\\:\\s*\\((.*)\\)\\s*$";
     static final String RE_PARENTS_EQ = "^\\s*PARENTS\\s*\\:\\s*\\((.*)\\)\\s*$";
+    static final String RE_PARENTS_EQ_FIRST = "^\\s*PARENTS_FIRST\\s*\\:\\s*\\((.*)\\)\\s*$";
+    static final String RE_PARENTS_EQ_LAST = "^\\s*PARENTS_LAST\\s*\\:\\s*\\((.*)\\)\\s*$";
 
 
     public static boolean inTemplateHolder(PsiElement element) {
@@ -341,7 +354,7 @@ public class PsiWalkFunctions {
      *
      *          ELEMENT_TYPE: char*
      *
-     *          SIMPLE_COMMAND: > | :FIRST | TEXT:(<char *>) | TEXT*:(<char *>) | NAME:(<char *>) | NAME*:(<char *>) | PARENTS:(<char *> | ElementType) | PARENTS:  | :LAST | :FIRST
+     *          SIMPLE_COMMAND: > | :FIRST | TEXT:(<char *>) | TEXT*:(<char *>) | NAME:(<char *>) | NAME*:(<char *>) | PARENTS_EQ:(<char *> | ElementType) | PARENTS_EQ_FIRST:(<char *> | ElementType) | PARENTS_EQ_LAST:(<char *> | ElementType)   | PARENTS: | PARENT:   | :LAST | :FIRST
      *              PARENTS:(COMMAND) shortcut for PARENTS:, TEXT:(...) or :PARENTS,COMMAND
      *
      *          FUNC: CONSUMER | PREDICATE | FUNCTION
@@ -383,11 +396,20 @@ public class PsiWalkFunctions {
                         case RE_PARENTS_EQ:
                             subItem = handleParentsEq(subItem, strCommand);
                             continue;
+                        case RE_PARENTS_EQ_FIRST:
+                            subItem = handleParentsEqFirst(subItem, strCommand);
+                            continue;
+                        case RE_PARENTS_EQ_LAST:
+                            subItem = handleParentsEqLast(subItem, strCommand);
+                            continue;
                         case P_FIRST:
                             subItem = handlePFirst(subItem);
                             continue;
                         case P_PARENTS:
                             subItem = parentsOf(subItem);
+                            continue;
+                        case P_PARENT:
+                            subItem = parentOf(subItem);
                             continue;
                         case P_LAST:
                             subItem = handlePLast(subItem);
@@ -403,8 +425,18 @@ public class PsiWalkFunctions {
         return subItem.distinct();
     }
 
+    //TODO think about a better backtracking syntax.
+
+
+
     @NotNull
     private static Stream<PsiElementContext> parentsOf(Stream<PsiElementContext> subItem) {
+        return subItem.flatMap(theItem -> theItem.parents().stream());
+    }
+
+
+    @NotNull
+    private static Stream<PsiElementContext> parentOf(Stream<PsiElementContext> subItem) {
         return subItem.flatMap(theItem -> theItem.parents().stream());
     }
 
@@ -501,6 +533,41 @@ public class PsiWalkFunctions {
         }));
         return subItem;
     }
+
+    @NotNull
+    private static Stream<PsiElementContext> handleParentsEqFirst(Stream<PsiElementContext> subItem, String text) {
+        Pattern p = Pattern.compile(RE_PARENTS_EQ_FIRST);
+        return subItem.map(theItem -> theItem.parents().stream().filter(psiElementContext -> {
+
+            Matcher m = p.matcher(text);
+            if (!m.find()) {
+                return false;
+            }
+            String matchText = m.group(1);
+
+            return literalStartsWith(psiElementContext.getName(), matchText) || literalStartsWith(psiElementContext.getElement().toString(), matchText);
+        }).findFirst())
+                .filter(item -> item.isPresent()).map(Optional::get);
+
+
+    }
+
+    @NotNull
+    private static Stream<PsiElementContext> handleParentsEqLast(Stream<PsiElementContext> subItem, String text) {
+        Pattern p = Pattern.compile(RE_PARENTS_EQ_LAST);
+        return subItem.map(theItem -> theItem.parents().stream().filter(psiElementContext -> {
+
+            Matcher m = p.matcher(text);
+            if (!m.find()) {
+                return false;
+            }
+            String matchText = m.group(1);
+
+            return literalStartsWith(psiElementContext.getName(), matchText) || literalStartsWith(psiElementContext.getElement().toString(), matchText);
+        }).reduce((e1, e2) -> e2)).filter(item -> item.isPresent()).map(Optional::get);
+
+    }
+
 
     @NotNull
     private static Stream<PsiElementContext> handlePFirst(Stream<PsiElementContext> subItem) {

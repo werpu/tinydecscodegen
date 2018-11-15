@@ -21,8 +21,11 @@ public enum SIMPLE_COMMAND {
     RE_NAME_EQ("RE_NAME_EQ", PsiWalkFunctions.RE_NAME_EQ),
     RE_NAME_STARTS_WITH("RE_NAME_STARTS_WITH", PsiWalkFunctions.RE_NAME_STARTS_WITH),
     RE_PARENTS_EQ("RE_PARENTS_EQ", PsiWalkFunctions.RE_PARENTS_EQ),
+    RE_PARENTS_EQ_FIRST("RE_PARENTS_EQ_FIRST", PsiWalkFunctions.RE_PARENTS_EQ_FIRST),
+    RE_PARENTS_EQ_LAST("RE_PARENTS_EQ_LAST", PsiWalkFunctions.RE_PARENTS_EQ_LAST),
     P_FIRST("P_FIRST", PsiWalkFunctions.P_FIRST),
     P_PARENTS("P_PARENTS", PsiWalkFunctions.P_PARENTS),
+    P_PARENT("P_PARENT", PsiWalkFunctions.P_PARENT),
     P_LAST("P_LAST", PsiWalkFunctions.P_LAST);
 
     private String name;

@@ -87,7 +87,19 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
         assertTrue(ctx.getInjects().get(0).getName().equals("$scope"));
 
 
+        //3 inline functions only one of those should be externalizable
+        //by contract
+        //a function can only be externalizable
+        //if it does not have any references into its outer shell
+        //we cannot simply remap parameters, because those functions
+        //might be used within the template, where
+        //we do not have parameter control at all
+
         assertTrue(ctx.getInlineFunctions().size() == 3);
+        assertTrue(!ctx.getInlineFunctions().get(0).isExternalizale());
+        assertTrue(!ctx.getInlineFunctions().get(1).isExternalizale());
+        //TODO not yet implemented
+        assertTrue(ctx.getInlineFunctions().get(2).isExternalizale());
         assertTrue(ctx.getSelectorName().equals("probe-component"));
 
 
