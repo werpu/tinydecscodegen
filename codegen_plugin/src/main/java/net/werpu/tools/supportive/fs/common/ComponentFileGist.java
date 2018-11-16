@@ -165,14 +165,14 @@ public class ComponentFileGist {
             Optional<PsiElement> template;
             if (componentAnn == null) {
                 template = new IntellijFileContext(file.getProject(), file).$q(JS_PROPERTY, EL_NAME_EQ(JS_PROP_TEMPLATE))
-                        .filter(PsiWalkFunctions::inTemplateHolder)
+                        .filter(ComponentFileGist::inTemplateHolder)
                         .map(PsiElementContext::getElement)
                         .findFirst();
             } else {
                 template = Arrays.stream(componentAnn.getChildren())
                         .map(PsiElementContext::new)
                         .flatMap(ctx -> ctx.$q(JS_PROPERTY, EL_NAME_EQ(JS_PROP_TEMPLATE)))
-                        .filter(PsiWalkFunctions::inTemplateHolder)
+                        .filter(ComponentFileGist::inTemplateHolder)
                         .map(PsiElementContext::getElement)
                         .findFirst();
             }
@@ -180,5 +180,20 @@ public class ComponentFileGist {
             return template;
         }
 
+    }
+
+     static boolean inTemplateHolder(PsiElement element) {
+
+        return concat(concat(queryContent(element, COMPONENT_CLASS),
+                queryContent(element, DIRECTIVE_CLASS)),
+                queryContent(element, CONTROLLER_CLASS)).findFirst()
+                .isPresent();
+
+    }
+
+     static boolean inTemplateHolder(PsiElementContext element) {
+        PsiElement element1 = element.getElement();
+
+        return inTemplateHolder(element1);
     }
 }

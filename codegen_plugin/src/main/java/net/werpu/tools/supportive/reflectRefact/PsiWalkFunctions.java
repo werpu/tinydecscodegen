@@ -6,7 +6,10 @@ import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -160,9 +163,8 @@ public class PsiWalkFunctions {
     public static final Object JS_STRING_TEMPLATE_EXPRESSION = "JSStringTemplateExpression";
 
 
-
-
-    /*helpers*/
+    /*Several helpers, which extend the core functionality
+     * (walking matching  via strings) with some typesave high level routines*/
     public static String PARENTS_EQ(String val) {
         return ":PARENTS(" + val + ")";
     }
@@ -187,8 +189,8 @@ public class PsiWalkFunctions {
         return ":TEXT*(" + val + ")";
     }
 
-    public static String DIRECT_CHILD(String val) {
-        return CHILD_ELEM + val;
+    public static Object DIRECT_CHILD(String val) {
+        return new Object[]{CHILD_ELEM, val};
     }
 
     public static Object[] DEF_CALL(String callType) {
@@ -199,6 +201,35 @@ public class PsiWalkFunctions {
     public static Object[] TN_DEC_COMPONENT_NAME(String className) {
         return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, EL_NAME_EQ(className), P_PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     }
+
+    /**
+     * a helper which inverses the search order into the opposite direction
+     * note... some special semantic commands like CHILD (>) do not work in this direction
+     * and will throw an error
+     *
+     * @param cmdOrFunction
+     * @return
+     */
+    public Function<Stream<PsiElementContext>, Stream<PsiElementContext>> PARENT_SEARCH(Object... cmdOrFunction) {
+        return (Stream<PsiElementContext> items) -> {
+            return exec(items, cmdOrFunction, false);
+        };
+    }
+
+    /**
+     * child search wthin a parent search
+     *
+     * @param cmdOrFunction
+     * @return
+     */
+    public Function<Stream<PsiElementContext>, Stream<PsiElementContext>> CHILD_SEARCH(Object... cmdOrFunction) {
+        return (Stream<PsiElementContext> items) -> {
+            return exec(items, cmdOrFunction, true);
+        };
+    }
+
+
+
     /*helpers end*/
 
 
@@ -213,20 +244,7 @@ public class PsiWalkFunctions {
     static final String RE_PARENTS_EQ_LAST = "^\\s*:PARENTS_LAST\\s*\\((.*)\\)\\s*$";
 
 
-    public static boolean inTemplateHolder(PsiElement element) {
 
-        return concat(concat(queryContent(element, COMPONENT_CLASS),
-                queryContent(element, DIRECTIVE_CLASS)),
-                queryContent(element, CONTROLLER_CLASS)).findFirst()
-                .isPresent();
-
-    }
-
-    public static boolean inTemplateHolder(PsiElementContext element) {
-        PsiElement element1 = element.getElement();
-
-        return inTemplateHolder(element1);
-    }
 
     /**
      * Psi file walker
@@ -349,25 +367,30 @@ public class PsiWalkFunctions {
      * Syntax
      * <p>
      * QUERY: COMMAND*
-     *      COMMAND: ELEMENT_TYPE | SIMPLE_COMMAND | FUNC
+     * COMMAND: ELEMENT_TYPE | SIMPLE_COMMAND | FUNC
+     * <p>
+     * ELEMENT_TYPE: char*
+     * <p>
+     * SIMPLE_COMMAND: > | :FIRST | :TEXT(<char *>) | :TEXT*(<char *>) | :NAME(<char *>) | :NAME*(<char *>) | PARENTS_EQ:(<char *> | ElementType) | PARENTS_EQ_FIRST:(<char *> | ElementType) | PARENTS_EQ_LAST:(<char *> | ElementType)   | :PARENTS | :PARENT   | :LAST | :FIRST
+     * :PARENTS(COMMAND) shortcut for :PARENTS, :TEXT(...) or :PARENTS,COMMAND
+     * <p>
+     * FUNC: CONSUMER | PREDICATE | FUNCTION
+     * CONSUMER: Function as defined by Java
+     * PREDICATE: Function as defined by Java
+     * FUNCTION: Function as defined by Java
      *
-     *          ELEMENT_TYPE: char*
-     *
-     *          SIMPLE_COMMAND: > | :FIRST | :TEXT(<char *>) | :TEXT*(<char *>) | :NAME(<char *>) | :NAME*(<char *>) | PARENTS_EQ:(<char *> | ElementType) | PARENTS_EQ_FIRST:(<char *> | ElementType) | PARENTS_EQ_LAST:(<char *> | ElementType)   | :PARENTS | :PARENT   | :LAST | :FIRST
-     *              :PARENTS(COMMAND) shortcut for :PARENTS, :TEXT(...) or :PARENTS,COMMAND
-     *
-     *          FUNC: CONSUMER | PREDICATE | FUNCTION
-     *              CONSUMER: Function as defined by Java
-     *              PREDICATE: Function as defined by Java
-     *              FUNCTION: Function as defined by Java
-     *
-     * @param subItem item to be queried
+     * @param subItem  item to be queried
      * @param commands the list of commands to be processed
      * @return
      */
     private static Stream<PsiElementContext> execQuery(Stream<PsiElementContext> subItem, Object[] commands) {
 
 
+        return exec(subItem, commands, true);
+    }
+
+    @NotNull
+    private static Stream<PsiElementContext> exec(Stream<PsiElementContext> subItem, Object[] commands, boolean directionDown) {
         for (Object command : commands) {
             if (isStringElement(command)) {
                 //lets reduce mem consumption by distincting the subset results
@@ -415,67 +438,7 @@ public class PsiWalkFunctions {
                             continue;
                     }
                 }
-                subItem = elementTypeMatch(subItem, strCommand);
-                continue;
-
-            }
-            subItem = functionTokenMatch(subItem, command);
-        }
-        return subItem.distinct();
-    }
-
-    //TODO think about a better backtracking syntax.
-    private static Stream<PsiElementContext> inverseQuery(Stream<PsiElementContext> subItem, Object[] commands) {
-
-
-        for (Object command : commands) {
-            if (isStringElement(command)) {
-                //lets reduce mem consumption by distincting the subset results
-                subItem = subItem.distinct();
-
-                String strCommand = ((String) command).trim();
-                SIMPLE_COMMAND simpleCommand = SIMPLE_COMMAND.fromValue(strCommand);
-                if (simpleCommand != null) {//command found
-                    switch (simpleCommand) {
-                        case CHILD_ELEM:
-                            subItem = subItem.flatMap(theItem -> theItem.parent().stream());
-                            continue;
-                        case RE_EL_TEXT_EQ:
-                            subItem = handleTextEQ(subItem, strCommand);
-                            continue;
-                        case RE_EL_TEXT_STARTS_WITH:
-                            subItem = handleTextStartsWith(subItem, strCommand);
-                            continue;
-                        case RE_EL_NAME_EQ:
-                            subItem = handleNameEQ(subItem, strCommand);
-                            continue;
-                        case RE_EL_NAME_STARTS_WITH:
-                            subItem = handleNameStartsWith(subItem, strCommand);
-                            continue;
-                        case RE_PARENTS_EQ:
-                            subItem = handleParentsEq(subItem, strCommand);
-                            continue;
-                        case RE_PARENTS_EQ_FIRST:
-                            subItem = handleParentsEqFirst(subItem, strCommand);
-                            continue;
-                        case RE_PARENTS_EQ_LAST:
-                            subItem = handleParentsEqLast(subItem, strCommand);
-                            continue;
-                        case P_FIRST:
-                            subItem = handlePFirst(subItem);
-                            continue;
-                        case P_PARENTS:
-                            subItem = parentsOf(subItem);
-                            continue;
-                        case P_PARENT:
-                            subItem = parentOf(subItem);
-                            continue;
-                        case P_LAST:
-                            subItem = handlePLast(subItem);
-                            continue;
-                    }
-                }
-                subItem = elementTypeMatch(subItem, strCommand);
+                subItem = (directionDown) ? elementTypeMatch(subItem, strCommand) : elementParentMatch(subItem, strCommand);
                 continue;
 
             }
@@ -493,7 +456,7 @@ public class PsiWalkFunctions {
 
     @NotNull
     private static Stream<PsiElementContext> parentOf(Stream<PsiElementContext> subItem) {
-        return subItem.flatMap(theItem -> theItem.parents().stream());
+        return subItem.flatMap(item -> item.parents(1).stream());
     }
 
     /**
@@ -507,8 +470,8 @@ public class PsiWalkFunctions {
      * the returned stream is the filtered stream of the old one</li>
      * <li>Function&lt;PsiElementContext, PsiElementContext&gt;</li>
      *
-     * @param subItem       the subitem to be resolved
-     * @param func a function of Consumer, Predicate, or (Function<PsiElementContext, PsiElementContext>)
+     * @param subItem the subitem to be resolved
+     * @param func    a function of Consumer, Predicate, or (Function<PsiElementContext, PsiElementContext>)
      * @return the processed subitem
      */
     @NotNull
@@ -533,6 +496,25 @@ public class PsiWalkFunctions {
     @NotNull
     private static Stream<PsiElementContext> elementTypeMatch(Stream<PsiElementContext> subItem, String finalSubCommand) {
         subItem = subItem.flatMap(psiItem -> psiItem.findPsiElements(psiElement -> {
+            String cmdString = psiElement.toString();
+            return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand + ":");
+        }).stream())
+                .distinct()
+                .collect(Collectors.toList()).stream();
+        return subItem;
+    }
+
+
+    /**
+     * walk the tree upwards until a parent is found
+     *
+     * @param subItem
+     * @param finalSubCommand
+     * @return
+     */
+    @NotNull
+    private static Stream<PsiElementContext> elementParentMatch(Stream<PsiElementContext> subItem, String finalSubCommand) {
+        subItem = subItem.flatMap(psiItem -> psiItem.walkParents(psiElement -> {
             String cmdString = psiElement.toString();
             return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand + ":");
         }).stream())
