@@ -1,15 +1,13 @@
 package net.werpu.tools.supportive.reflectRefact;
 
+import com.google.common.collect.Lists;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -234,7 +232,15 @@ public class PsiWalkFunctions {
         };
     }
 
-
+    /**
+     * child search wthin a parent search
+     *
+     * @param cmdOrFunction
+     * @return
+     */
+    public static Object[] INVERSE(Object... cmdOrFunction) {
+        return Lists.reverse(Arrays.asList(cmdOrFunction)).toArray();
+    }
 
     /*helpers end*/
 

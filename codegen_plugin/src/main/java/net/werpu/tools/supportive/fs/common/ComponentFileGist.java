@@ -196,9 +196,9 @@ public class ComponentFileGist {
 
     static boolean inTemplateHolder(PsiElement element) {
 
-        return concat(concat(queryContent(element, PARENT_SEARCH(EL_TEXT_STARTS_WITH(NG_CONTROLLER))),
-                queryContent(element, PARENT_SEARCH(EL_TEXT_STARTS_WITH(NG_COMPONENT)))),
-                queryContent(element, PARENT_SEARCH(EL_TEXT_STARTS_WITH(NG_DIRECTIVE)))).findFirst()
+        return concat(concat(queryContent(element, PARENT_SEARCH(INVERSE(CONTROLLER_ANN))),
+                queryContent(element, PARENT_SEARCH(INVERSE(COMPONENT_ANN)))),
+                queryContent(element, PARENT_SEARCH(INVERSE(DIRECTIVE_ANN)))).findFirst()
                 .isPresent();
 
     }
