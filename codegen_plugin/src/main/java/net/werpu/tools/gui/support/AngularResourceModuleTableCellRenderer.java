@@ -16,6 +16,7 @@ public class AngularResourceModuleTableCellRenderer extends DefaultTableCellRend
             String displayName = mappedValue.getDisplayName();
             String name = displayName.substring(displayName.indexOf("[") + 1, displayName.indexOf("]"));
             super.setValue(name);
+            super.setToolTipText(name);
             return;
         }
 

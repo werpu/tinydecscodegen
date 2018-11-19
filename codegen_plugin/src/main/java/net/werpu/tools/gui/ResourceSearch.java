@@ -93,7 +93,7 @@ public class ResourceSearch {
     private void setupColumns(TableColumnModel columnModel) {
         columnModel.setColumnSelectionAllowed(false);
         columnModel.getColumn(0).setCellRenderer(col0Renderer);
-        columnModel.getColumn(0).setPreferredWidth(100);
+        columnModel.getColumn(0).setPreferredWidth(700);
         columnModel.getColumn(1).setCellRenderer(col1Renderer);
         columnModel.getColumn(1).setPreferredWidth(100);
         columnModel.getColumn(2).setCellRenderer(col2Renderer);

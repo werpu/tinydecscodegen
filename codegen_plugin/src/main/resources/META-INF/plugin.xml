@@ -293,9 +293,10 @@
         <!-- editor -->
         <group>
 
-            <group id="Refactorings" text="Refactorings" description="Tiny Dec Refactorings" icon="/images/tt.png" popup="true">
+            <group id="Refactorings" text="Code Transformations" description="Annotated Code Transformations" icon="/images/tt.png" popup="true">
                 <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
-                <action id="RefactorIntoTnDecModule" class="net.werpu.tools.actions_all.RefactorIntoTnDecModule" text="Refactor Current Module into Tiny Decorations Module"/>
+                <action id="RefactorIntoAnnModule" class="net.werpu.tools.actions_all.RefactorIntoTnDecModule" text="Annotated Module Proposal"/>
+                <action id="RefactorIntoAnnComponent" class="net.werpu.tools.actions_all.RefactorIntoAnnotatedComponent" text="Annotated Component Proposal"/>
             </group>
 
             <action id="TTNG_CreateRestEndpoint3" class="net.werpu.tools.actions_all.CreateRestEndpoint" text="Create Rest Endpoint"

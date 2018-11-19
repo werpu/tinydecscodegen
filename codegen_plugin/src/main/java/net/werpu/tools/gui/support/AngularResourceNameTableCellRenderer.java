@@ -16,7 +16,9 @@ public class AngularResourceNameTableCellRenderer extends DefaultTableCellRender
             String name = mappedValue.getDisplayName();
             Icon icon = mappedValue.getIcon();
             super.setIcon(icon);
-            super.setValue(name.replaceAll("\\s*\\[.*\\]", ""));
+            String value1 = name.replaceAll("\\s*\\[.*\\]", "");
+            super.setValue(value1);
+            super.setToolTipText(value1);
             return;
         }
 

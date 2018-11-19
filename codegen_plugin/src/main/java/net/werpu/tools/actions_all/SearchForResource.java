@@ -20,9 +20,11 @@ import net.werpu.tools.supportive.fs.common.*;
 import net.werpu.tools.supportive.utils.SwingUtils;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.awt.event.KeyEvent.*;
@@ -77,6 +79,8 @@ public class SearchForResource extends AnAction {
                 .setMayBeParent(true)
                 .setCancelOnClickOutside(true)
 
+                .setDimensionServiceKey(project.getProject(), "SEARCH_FOR_ANG_RESOURCE", true)
+
                 .setRequestFocus(true)
                 .setCancelKeyEnabled(false)
 
@@ -100,6 +104,7 @@ public class SearchForResource extends AnAction {
         WindowMoveListener windowListener = new WindowMoveListener(popup.getContent());
         mainPanel.addMouseListener(windowListener);
         mainPanel.addMouseMotionListener(windowListener);
+        mainPanel.setPreferredSize(new Dimension(900, 600));
 
 
         resourceSearchPanel.getRbInProject().addActionListener((ev) -> searchRefresh(resourceSearchPanel, project, fileContext));

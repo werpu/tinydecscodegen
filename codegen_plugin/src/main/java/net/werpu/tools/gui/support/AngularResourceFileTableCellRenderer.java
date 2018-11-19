@@ -15,7 +15,9 @@ public class AngularResourceFileTableCellRenderer extends DefaultTableCellRender
             String projectPath = mappedValue.getPsiFile().getProject().getBaseDir().getPath();
             Path relativize = Paths.get(projectPath).relativize(Paths.get(mappedValue.getVirtualFile().getPath()));
 
-            super.setValue(relativize.toString());
+            String value1 = relativize.toString();
+            super.setValue(value1);
+            super.setToolTipText(value1);
             return;
         }
         super.setValue(value);
