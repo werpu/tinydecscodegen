@@ -138,6 +138,9 @@ public class ComponentFileContext extends AngularResourceContext {
             this.rangeMarker = empty();
         }
         Optional<PsiElement> template = getTemplate();
+        if(!template.isPresent()) {
+            template = getTemplateURL();
+        }
 
         clazzName = ComponentFileGist.getFileData(getPsiFile()).getClassName();
 
@@ -165,6 +168,10 @@ public class ComponentFileContext extends AngularResourceContext {
 
     private Optional<PsiElement> getTemplate() {
         return ComponentFileGist.getTemplate(psiFile, componentAnnotation);
+    }
+
+    private Optional<PsiElement> getTemplateURL() {
+        return ComponentFileGist.getTemplateURL(psiFile, componentAnnotation);
     }
 
 

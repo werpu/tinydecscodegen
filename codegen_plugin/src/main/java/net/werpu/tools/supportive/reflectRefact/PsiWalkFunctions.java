@@ -23,6 +23,11 @@ import static java.util.stream.Stream.concat;
 import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
 import static net.werpu.tools.supportive.utils.StringUtils.literalStartsWith;
 
+
+interface StreamFunc extends Function<Stream<PsiElementContext>, Stream<PsiElementContext>> {
+
+}
+
 /**
  * this is the central hub for all code analysis
  * and refactoring
@@ -210,9 +215,10 @@ public class PsiWalkFunctions {
      * @param cmdOrFunction
      * @return
      */
-    public Function<Stream<PsiElementContext>, Stream<PsiElementContext>> PARENT_SEARCH(Object... cmdOrFunction) {
+    public static StreamFunc PARENT_SEARCH(Object... cmdOrFunction) {
         return (Stream<PsiElementContext> items) -> {
-            return exec(items, cmdOrFunction, false);
+
+            return exec(items.flatMap(item -> item.$q(P_PARENTS)), cmdOrFunction, false);
         };
     }
 
@@ -222,7 +228,7 @@ public class PsiWalkFunctions {
      * @param cmdOrFunction
      * @return
      */
-    public Function<Stream<PsiElementContext>, Stream<PsiElementContext>> CHILD_SEARCH(Object... cmdOrFunction) {
+    public static StreamFunc CHILD_SEARCH(Object... cmdOrFunction) {
         return (Stream<PsiElementContext> items) -> {
             return exec(items, cmdOrFunction, true);
         };
@@ -438,7 +444,7 @@ public class PsiWalkFunctions {
                             continue;
                     }
                 }
-                subItem = (directionDown) ? elementTypeMatch(subItem, strCommand) : elementParentMatch(subItem, strCommand);
+                subItem = elementTypeMatch(subItem, strCommand);
                 continue;
 
             }
@@ -476,7 +482,10 @@ public class PsiWalkFunctions {
      */
     @NotNull
     private static Stream<PsiElementContext> functionTokenMatch(Stream<PsiElementContext> subItem, Object func) {
-        if (func instanceof Consumer) {
+        if(func instanceof StreamFunc) {
+            subItem = ((StreamFunc) func).apply(subItem);
+        }
+        else if (func instanceof Consumer) {
             subItem = handleConsumer(subItem, (Consumer) func);
         } else if (func instanceof Predicate) {
             subItem = handlePredicate(subItem, (Predicate) func);

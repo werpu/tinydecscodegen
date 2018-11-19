@@ -8,7 +8,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.gist.GistManagerImpl;
 import com.intellij.util.gist.PsiFileGist;
 import com.intellij.util.io.DataExternalizer;
-import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -159,19 +158,33 @@ public class ComponentFileGist {
         int hash = file.getVirtualFile().getPath().hashCode();
         String key = hash + "$$TPL_CTX";
         Object data = volatileData.getIfPresent(key);
+        return getProp(file, componentAnn, data, JS_PROP_TEMPLATE);
+
+    }
+
+
+    public static Optional<PsiElement> getTemplateURL(PsiFile file, PsiElement componentAnn) {
+        int hash = file.getVirtualFile().getPath().hashCode();
+        String key = hash + "$$TPL_CTX";
+        Object data = volatileData.getIfPresent(key);
+        return getProp(file, componentAnn, data, JS_PROP_TEMPLATE_URL);
+
+    }
+
+    private static Optional<PsiElement> getProp(PsiFile file, PsiElement componentAnn, Object data, String propName) {
         if (data != null) {
             return (Optional<PsiElement>) data;
         } else {
             Optional<PsiElement> template;
             if (componentAnn == null) {
-                template = new IntellijFileContext(file.getProject(), file).$q(JS_PROPERTY, EL_NAME_EQ(JS_PROP_TEMPLATE))
+                template = new IntellijFileContext(file.getProject(), file).$q(JS_PROPERTY, EL_NAME_EQ(propName))
                         .filter(ComponentFileGist::inTemplateHolder)
                         .map(PsiElementContext::getElement)
                         .findFirst();
             } else {
                 template = Arrays.stream(componentAnn.getChildren())
                         .map(PsiElementContext::new)
-                        .flatMap(ctx -> ctx.$q(JS_PROPERTY, EL_NAME_EQ(JS_PROP_TEMPLATE)))
+                        .flatMap(ctx -> ctx.$q(JS_PROPERTY, EL_NAME_EQ(propName)))
                         .filter(ComponentFileGist::inTemplateHolder)
                         .map(PsiElementContext::getElement)
                         .findFirst();
@@ -179,14 +192,13 @@ public class ComponentFileGist {
 
             return template;
         }
-
     }
 
-     static boolean inTemplateHolder(PsiElement element) {
+    static boolean inTemplateHolder(PsiElement element) {
 
-        return concat(concat(queryContent(element, COMPONENT_CLASS),
-                queryContent(element, DIRECTIVE_CLASS)),
-                queryContent(element, CONTROLLER_CLASS)).findFirst()
+        return concat(concat(queryContent(element, PARENT_SEARCH(EL_TEXT_STARTS_WITH(NG_CONTROLLER))),
+                queryContent(element, PARENT_SEARCH(EL_TEXT_STARTS_WITH(NG_COMPONENT)))),
+                queryContent(element, PARENT_SEARCH(EL_TEXT_STARTS_WITH(NG_DIRECTIVE)))).findFirst()
                 .isPresent();
 
     }

@@ -3,12 +3,14 @@ package net.werpu.tools.supportive.fs.common;
 import com.intellij.psi.PsiElement;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import net.werpu.tools.supportive.refactor.IRefactorUnit;
 import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
+import net.werpu.tools.supportive.utils.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Array;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -172,6 +174,16 @@ public class PsiElementContext {
     public List<PsiElementContext> getImportIdentifiers(String varToCheck) {
         return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ( varToCheck )).collect(Collectors.toList());
     }
+
+    public String calculateRefactoring(List<IRefactorUnit> refactorings) {
+        if (refactorings.isEmpty()) {
+            return this.element.getText();
+        }
+        //all refactorings must be of the same vFile TODO add check here
+        String toSplit = this.element.getText();
+        return StringUtils.refactor(refactorings, toSplit);
+    }
+
 
     @Override
     public boolean equals(Object o) {

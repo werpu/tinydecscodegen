@@ -35,13 +35,13 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
-import net.werpu.tools.indexes.AngularIndex;
 import lombok.Getter;
-import org.apache.commons.lang3.ArrayUtils;
+import net.werpu.tools.indexes.AngularIndex;
 import net.werpu.tools.supportive.refactor.IRefactorUnit;
 import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import net.werpu.tools.supportive.utils.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -91,7 +91,7 @@ public class IntellijFileContext {
 
     public static VirtualFile getProjectFile(Project project) {
         VirtualFile projectFile = project.getProjectFile();
-        if(projectFile == null) {
+        if (projectFile == null) {
             projectFile = project.getBaseDir();
         }
         return projectFile;
@@ -126,6 +126,9 @@ public class IntellijFileContext {
 
     public String getText() {
         try {
+            if (virtualFile.isDirectory()) {
+                return "";
+            }
             return new String(virtualFile.contentsToByteArray(), virtualFile.getCharset());
         } catch (IOException e) {
             e.printStackTrace();
@@ -272,24 +275,16 @@ public class IntellijFileContext {
         if (refactorings.isEmpty()) {
             return;
         }
+        this.setText(calculateRefactoring(refactorings));
+    }
+
+    public String calculateRefactoring(List<IRefactorUnit> refactorings)  {
+        if (refactorings.isEmpty()) {
+            return refactorings.get(0).getFile().getText();
+        }
         //all refactorings must be of the same vFile TODO add check here
         String toSplit = refactorings.get(0).getFile().getText();
-        int start = 0;
-        int end = 0;
-        List<String> retVal = Lists.newArrayListWithCapacity(refactorings.size() * 2);
-
-        for (IRefactorUnit refactoring : refactorings) {
-            if (refactoring.getStartOffset() > 0 && end < refactoring.getStartOffset()) {
-                retVal.add(toSplit.substring(start, refactoring.getStartOffset()));
-                start = refactoring.getEndOffset();
-            }
-            retVal.add(refactoring.getRefactoredText());
-            end = refactoring.getEndOffset();
-        }
-        if (end < toSplit.length()) {
-            retVal.add(toSplit.substring(end));
-        }
-        this.setText(Joiner.on("").join(retVal));
+        return StringUtils.refactor(refactorings, toSplit);
     }
 
     protected List<PsiElement> findPsiElements(Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly) {
@@ -415,7 +410,7 @@ public class IntellijFileContext {
         return new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(stripQuotes(importStr.getText()) + getTsExtension()));
     }
 
-    public  Optional<NgModuleFileContext> getNearestModule() {
+    public Optional<NgModuleFileContext> getNearestModule() {
         IntellijFileContext project = new IntellijFileContext(this.getProject());
         ContextFactory ctxf = ContextFactory.getInstance(project);
         String filterStr = StringUtils.normalizePath(this.getFolderPath());

@@ -1,0 +1,29 @@
+import {AString, Both, Component, Func, Inject, Input} from "TinyDecorations";
+import IScope = angular.IScope;
+
+/**
+ * Component MyComponent
+ * @author ${AUTHOR}
+ */
+@Component({
+    selector: "${data.selectorName}",
+    template: `${data.template}`,
+    controllerAs: "${data.controllerAs}"
+
+})
+export class ${data.clazzName} {
+
+#foreach($binding in ${data.bindings})
+    ${binding.toString()}
+#end
+
+
+    constructor(${data.injectsStr}) ${data.refactoredConstructorBlock}
+
+
+#foreach($firstOrderFunction in ${data.inlineFunctions})
+    ${$firstOrderFunction.toExternalString()}
+#end
+
+
+}

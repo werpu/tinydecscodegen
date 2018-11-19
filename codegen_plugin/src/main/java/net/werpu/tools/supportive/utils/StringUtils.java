@@ -1,10 +1,14 @@
 package net.werpu.tools.supportive.utils;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import net.werpu.tools.supportive.refactor.IRefactorUnit;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -133,4 +137,23 @@ public class StringUtils {
     }
 
 
+    @NotNull
+    public static String refactor(List<IRefactorUnit> refactorings, String toSplit) {
+        int start = 0;
+        int end = 0;
+        List<String> retVal = Lists.newArrayListWithCapacity(refactorings.size() * 2);
+
+        for (IRefactorUnit refactoring : refactorings) {
+            if (refactoring.getStartOffset() > 0 && end < refactoring.getStartOffset()) {
+                retVal.add(toSplit.substring(start, refactoring.getStartOffset()));
+                start = refactoring.getEndOffset();
+            }
+            retVal.add(refactoring.getRefactoredText());
+            end = refactoring.getEndOffset();
+        }
+        if (end < toSplit.length()) {
+            retVal.add(toSplit.substring(end));
+        }
+        return  Joiner.on("").join(retVal);
+    }
 }

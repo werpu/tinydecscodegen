@@ -8,6 +8,9 @@ import lombok.Getter;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
+import net.werpu.tools.supportive.refactor.DummyInsertPsiElement;
+import net.werpu.tools.supportive.refactor.IRefactorUnit;
+import net.werpu.tools.supportive.refactor.RefactorUnit;
 import net.werpu.tools.supportive.transformations.modelHelpers.*;
 import net.werpu.tools.supportive.utils.StringUtils;
 
@@ -250,4 +253,24 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
             return new BindingTypes(BindingType.translate(type), propName);
         }).collect(Collectors.toList());
     }
+
+    public String getInjectsStr() {
+        return injects.stream().map(el -> el.toString()).reduce((str1, str2) -> str1+","+str2).orElse("");
+    }
+
+    public String getRefactoredConstructorBlock() {
+
+        //TODO return the refactored constructor block after
+        //all headers are done
+        List<IRefactorUnit> refactorings = inlineFunctions.stream()
+                .filter(FirstOrderFunction::isExternalizale)
+                .map(el -> {
+                    PsiElementContext functionElement = el.getFunctionElement();
+                    return new RefactorUnit(functionElement.getElement().getContainingFile(), functionElement, "");
+                }).collect(Collectors.toList());
+
+        return calculateRefactoring(refactorings);
+    }
+
+
 }

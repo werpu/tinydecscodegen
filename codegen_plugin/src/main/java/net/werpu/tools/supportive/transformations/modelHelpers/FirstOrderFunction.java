@@ -4,10 +4,12 @@ package net.werpu.tools.supportive.transformations.modelHelpers;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.JS_DEFINITION_EXPRESSION;
 
 /**
  * defines the data needed to refactor
@@ -39,7 +41,7 @@ public class FirstOrderFunction {
      * to avoid unneccesary parsing we parse the headers
      * and bodies upfront
      *
-     * this is the function header
+     * this is the function body
      * aka {....}
      */
     PsiElementContext functionBody;
@@ -72,6 +74,40 @@ public class FirstOrderFunction {
         //function needs to be this assignable
         return this.functionElement.getText().startsWith("this.") &&
                 exernalizables.isEmpty();
+    }
+
+    /**
+     * rewrite of the first order function as externalizable
+     * @return
+     */
+    public String toExternalString() {
+        if(!this.isExternalizale()) {
+            return "";
+        }
+        StringBuilder retVal = new StringBuilder();
+        retVal.append(getFunctionName());
+        retVal.append("(");
+        retVal.append(getParametersAsStr());
+        retVal.append(")");
+        retVal.append(functionBody.getText());
+
+
+        return retVal.toString();
+    }
+
+    public String getFunctionName() {
+        String name = functionElement.$q(JS_DEFINITION_EXPRESSION).map(e -> e.getText()).findFirst().get();
+        if(name.startsWith("this.")) {
+            name = name.substring("this.".length());
+        }
+        return name;
+    }
+
+    @NotNull
+    public String getParametersAsStr() {
+        return parameterList.stream()
+                .map(functionParameter -> functionParameter.getVariableName()+":"+functionParameter.getVariableType())
+                .reduce((par1, par2) -> par1+","+par2).get();
     }
 
 }
