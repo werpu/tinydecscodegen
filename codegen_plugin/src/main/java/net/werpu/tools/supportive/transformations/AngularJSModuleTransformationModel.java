@@ -34,7 +34,7 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
  * if there is a forward way for Angular2 as well, but I doubt it)
  */
 @Getter
-public class AngularJSModuleTransformationModel extends TypescriptFileContext {
+public class AngularJSModuleTransformationModel extends TypescriptFileContext implements ITransformationModel {
 
 
     public static final Object[] ANGULAR_MOD_DEF = {PARENTS_EQ_FIRST(TYPE_SCRIPT_VARIABLE), JS_CALL_EXPRESSION};

@@ -22,7 +22,7 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 
 
 @Getter
-public class AngularJSComponentTransformationModel extends TypescriptFileContext {
+public class AngularJSComponentTransformationModel extends TypescriptFileContext implements ITransformationModel {
 
 
     public static final Object[] INLINE_FUNC_DECL = {TYPE_SCRIPT_FUNC_EXPR, PARENTS_EQ_FIRST(JS_EXPRESSION_STATEMENT)};
