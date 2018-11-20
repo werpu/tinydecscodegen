@@ -105,7 +105,7 @@ public class FirstOrderFunction {
 
     @NotNull
     public String getParametersAsStr() {
-        return parameterList.stream()
+        return parameterList == null ? "" : parameterList.stream()
                 .map(functionParameter -> functionParameter.getVariableName()+":"+functionParameter.getVariableType())
                 .reduce((par1, par2) -> par1+","+par2).get();
     }

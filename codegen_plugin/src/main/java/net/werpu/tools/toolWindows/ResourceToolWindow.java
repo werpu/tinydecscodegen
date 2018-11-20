@@ -158,7 +158,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     private void updateSecondaryTree(NgModuleFileContext fileSelected) {
         invokeLater(() -> {
             NgModuleFileContext module = fileSelected;
-            String moduleFileName = module.getParent().get().getFolderPath();
+            String moduleFileName = module.getParent().isPresent() ? module.getParent().get().getFolderPath(): "";
             moduleFileName = normalizePath(moduleFileName);
             otherResourcesModule.filterTree(moduleFileName, "Resources " + "[" + module.getModuleName() + "]");
             runReadSmart(module.getProject(), () -> otherResourcesModule.restoreExpansion());

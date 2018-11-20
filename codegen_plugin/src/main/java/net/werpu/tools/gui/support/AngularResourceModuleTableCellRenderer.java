@@ -1,5 +1,6 @@
 package net.werpu.tools.gui.support;
 
+import com.google.common.base.Strings;
 import net.werpu.tools.supportive.fs.common.IAngularFileContext;
 
 import javax.swing.table.DefaultTableCellRenderer;
@@ -13,8 +14,8 @@ public class AngularResourceModuleTableCellRenderer extends DefaultTableCellRend
         if (value instanceof IAngularFileContext) {
             IAngularFileContext mappedValue = (IAngularFileContext) value;
 
-            String displayName = mappedValue.getDisplayName();
-            String name = displayName.substring(displayName.indexOf("[") + 1, displayName.indexOf("]"));
+            String displayName = Strings.nullToEmpty(mappedValue.getDisplayName()) ;
+            String name = (displayName.contains("[") && displayName.contains("]")) ? displayName.substring(displayName.indexOf("[") + 1, displayName.indexOf("]")) : "";
             super.setValue(name);
             super.setToolTipText(name);
             return;

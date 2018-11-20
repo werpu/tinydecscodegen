@@ -6,4 +6,6 @@ public interface IArtifactTransformation {
     String getTnDecTransformation() throws IOException;
 
     String getNgTransformation() throws IOException;
+
+    ITransformationModel getTransformationModel();
 }

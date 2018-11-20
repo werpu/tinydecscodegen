@@ -260,16 +260,24 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
     public String getRefactoredConstructorBlock() {
 
+        return constructorBlock.get().getText() +
+                inlineFunctions.stream()
+                        .filter(FirstOrderFunction::isExternalizale)
+                        .map(el -> el.toExternalString())
+                        .reduce((el1, el2) -> el1 + el2);
+
+
+
         //TODO return the refactored constructor block after
         //all headers are done
-        List<IRefactorUnit> refactorings = inlineFunctions.stream()
+        /*List<IRefactorUnit> refactorings = inlineFunctions.stream()
                 .filter(FirstOrderFunction::isExternalizale)
                 .map(el -> {
                     PsiElementContext functionElement = el.getFunctionElement();
                     return new RefactorUnit(functionElement.getElement().getContainingFile(), functionElement, "");
                 }).collect(Collectors.toList());
 
-        return calculateRefactoring(refactorings);
+        return calculateRefactoring(refactorings);*/
     }
 
 

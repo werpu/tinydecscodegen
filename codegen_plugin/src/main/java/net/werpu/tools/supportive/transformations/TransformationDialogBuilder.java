@@ -33,8 +33,10 @@ public class TransformationDialogBuilder {
     private boolean isModule = true;
 
 
-    TransformationInvoker invokeTnTransformation = (fileContext, editor, model) -> () -> {};
-    TransformationInvoker invokeNgTnTransformation = (fileContext, editor, model) -> () -> {};
+    TransformationInvoker invokeTnTransformation = (fileContext, editor, model) -> () -> {
+    };
+    TransformationInvoker invokeNgTnTransformation = (fileContext, editor, model) -> () -> {
+    };
     Function<ActionEvent, Boolean> okPressed = (ActionEvent ev) -> Boolean.TRUE;
     Function<ActionEvent, Boolean> cancelPressed = (ActionEvent ev) -> Boolean.TRUE;
 
@@ -51,6 +53,7 @@ public class TransformationDialogBuilder {
         invokeNgTnTransformation = invoker;
         return this;
     }
+
     public TransformationDialogBuilder withTnTransformation(TransformationInvoker invoker) {
         invokeTnTransformation = invoker;
         return this;
@@ -102,7 +105,7 @@ public class TransformationDialogBuilder {
                         .create();
 
 
-                ModuleTransformation moduleTransformation = (ModuleTransformation) modelTransformer.apply(fileContext, mainForm);
+                IArtifactTransformation moduleTransformation = modelTransformer.apply(fileContext, mainForm);
 
 
                 mainForm.getEditorScroll().getViewport().setView(editor.getComponent());
@@ -110,8 +113,13 @@ public class TransformationDialogBuilder {
                 mainForm.onTnDecSelected(() -> runWriteCommandAction(fileContext.getProject(), invokeTnTransformation.createAction(fileContext, editor, moduleTransformation)));
                 mainForm.onbNgSelected(() -> runWriteCommandAction(fileContext.getProject(), invokeNgTnTransformation.createAction(fileContext, editor, moduleTransformation)));
                 mainForm.onStartupModuleChange((isSelected) -> {
-                    moduleTransformation.getTransformationModel().setApplicationBootstrap(isSelected);
-                    if(mainForm.getRbNg().isSelected()) {
+
+                    ITransformationModel transformationModel = moduleTransformation.getTransformationModel();
+                    if (transformationModel instanceof AngularJSModuleTransformationModel) {
+                        ((AngularJSModuleTransformationModel) transformationModel).setApplicationBootstrap(isSelected);
+                    }
+
+                    if (mainForm.getRbNg().isSelected()) {
                         runWriteCommandAction(fileContext.getProject(), invokeNgTnTransformation.createAction(fileContext, editor, moduleTransformation));
                     } else {
                         runWriteCommandAction(fileContext.getProject(), invokeTnTransformation.createAction(fileContext, editor, moduleTransformation));
