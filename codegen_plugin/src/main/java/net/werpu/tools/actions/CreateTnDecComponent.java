@@ -189,7 +189,7 @@ public class CreateTnDecComponent extends AnAction {
             attrs.put("SELECTOR", model.getSelector());
             attrs.put("NAME", className);
             attrs.put("TEMPLATE", model.getTemplate());
-            attrs.put("TN_COMP_CONTROLLER_AS", model.getControllerAs());
+            attrs.put("CONTROLLER_AS", model.getControllerAs());
 
             attrs.put("COMPONENT_ATTRS", cAttrs);
 
