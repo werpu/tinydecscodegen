@@ -51,8 +51,6 @@ public class ComponentFileContext extends AngularResourceContext {
     private AssociativeArraySection params;
 
 
-
-
     public ComponentFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
 
@@ -178,6 +176,9 @@ public class ComponentFileContext extends AngularResourceContext {
     public Optional<String> getTemplateTextAsStr() {
 
         Optional<PsiElement> template = getTemplate();
+        if(!template.isPresent()) {
+            template = getTemplateURL();
+        }
         if (template.isPresent()) {
             Optional<PsiElement> templateString = new PsiElementContext(template.get()).$q(JS_STRING_TEMPLATE_EXPRESSION)
                     .map(el-> el.getElement()).findFirst();
