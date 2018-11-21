@@ -25,12 +25,6 @@ import static java.util.stream.Stream.concat;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.utils.IntellijUtils.getTsExtension;
 
-
-//TODO handle files with html refs instead of embedded and typescript variable refs
-//TODO clean this mess up
-
-
-
 /**
  * Component file context
  * with meta info and refactoring capabilites
@@ -223,7 +217,6 @@ public class ComponentFileContext extends AngularResourceContext {
             String importstr = psiImportString.get().getText().trim();
             importstr = importstr.substring(1, importstr.length() - 1);
             if (!importstr.endsWith(getTsExtension())) {
-                //TODO default typescript extension info from intellij
                 importstr = importstr + getTsExtension();
             }
 
