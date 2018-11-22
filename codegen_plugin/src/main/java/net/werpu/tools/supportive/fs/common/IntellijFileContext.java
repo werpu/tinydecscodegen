@@ -42,6 +42,7 @@ import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.fest.util.Strings;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -128,6 +129,9 @@ public class IntellijFileContext {
         try {
             if (virtualFile.isDirectory()) {
                 return "";
+            }
+            if(psiFile != null && !Strings.isNullOrEmpty(psiFile.getText()))  {
+                return psiFile.getText();
             }
             return new String(virtualFile.contentsToByteArray(), virtualFile.getCharset());
         } catch (IOException e) {
