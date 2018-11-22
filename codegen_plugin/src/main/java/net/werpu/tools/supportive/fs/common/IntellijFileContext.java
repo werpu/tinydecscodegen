@@ -22,6 +22,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package net.werpu.tools.supportive.fs.common;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
@@ -42,7 +43,7 @@ import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.fest.util.Strings;
+
 
 import java.io.IOException;
 import java.nio.file.Path;
