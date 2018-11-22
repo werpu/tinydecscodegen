@@ -20,3 +20,6 @@ resources_en.jar
 
 For the full built to work you need to dump
 those jars in here
+
+put those jars into the codegen_plugin/libs/transient folder
+
