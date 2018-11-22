@@ -21,6 +21,7 @@ import net.werpu.tools.factories.TnDecGroupFactory;
 import net.werpu.tools.gui.CreateTnProject;
 import net.werpu.tools.gui.support.InputDialogWrapperBuilder;
 import net.werpu.tools.gui.support.UIActionSequence;
+import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.IntellijResourceDir;
@@ -187,7 +188,9 @@ public class CreateTnDecProject extends AnAction {
 
 
                 data = data.replaceAll(RE_DEPLOYMENT_ROOT, relPath);
-                data = data.replaceAll(RE_PROJ_ROOT, projRelPath);
+                //windows fix, in windows the template resolution maps the backslashes away
+                //in the velocity template
+                data = data.replaceAll(RE_PROJ_ROOT, StringUtils.normalizePath(projRelPath));
 
                 return data;
             });
