@@ -94,6 +94,8 @@ public class RefactorIntoTnDecModule extends AnAction {
         };
     }
 
+
+
     public boolean okPressed(IntellijFileContext fileContext, net.werpu.tools.gui.Refactoring mainForm) {
         return true;
     }

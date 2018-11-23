@@ -2,6 +2,7 @@ package net.werpu.tools.supportive.utils;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.intellij.psi.PsiElement;
 import net.werpu.tools.supportive.refactor.IRefactorUnit;
 import org.jetbrains.annotations.NotNull;
 
@@ -140,11 +141,11 @@ public class StringUtils {
     @NotNull
     public static String refactor(List<IRefactorUnit> refactorings, String toSplit) {
         int start = 0;
-        int end = 0;
+        int end = -1;
         List<String> retVal = Lists.newArrayListWithCapacity(refactorings.size() * 2);
 
         for (IRefactorUnit refactoring : refactorings) {
-            if (refactoring.getStartOffset() > 0 && end < refactoring.getStartOffset()) {
+            if (refactoring.getStartOffset() >= 0 && end < refactoring.getStartOffset()) {
                 retVal.add(toSplit.substring(start, refactoring.getStartOffset()));
                 start = refactoring.getEndOffset();
             }
@@ -155,5 +156,40 @@ public class StringUtils {
             retVal.add(toSplit.substring(end));
         }
         return  Joiner.on("").join(retVal);
+    }
+
+
+    @NotNull
+    public static String refactor(List<IRefactorUnit> refactorings, PsiElement rootElement) {
+
+        List<String> retVal = Lists.newArrayListWithCapacity(refactorings.size() * 2);
+
+        int rootElementOffset = rootElement.getTextOffset();
+        int elementEndOffset = rootElement.getTextOffset() + rootElement.getTextLength();
+
+        int start = 0;
+        int end = -1;
+
+        String toSplit = rootElement.getText();
+
+
+        for (IRefactorUnit refactoring : refactorings) {
+            int refactorUnitRelOffset = calcOffsetDiff(rootElementOffset, refactoring.getStartOffset());
+            if (refactorUnitRelOffset >= rootElementOffset && end < refactorUnitRelOffset
+             && refactoring.getEndOffset() < elementEndOffset) {
+                retVal.add(toSplit.substring(start, refactorUnitRelOffset));
+                start = calcOffsetDiff(rootElementOffset, refactoring.getEndOffset());
+            }
+            retVal.add(refactoring.getRefactoredText());
+            end = calcOffsetDiff(rootElementOffset, refactoring.getEndOffset());
+        }
+        if (end < toSplit.length()) {
+            retVal.add(toSplit.substring(end));
+        }
+        return  Joiner.on("").join(retVal);
+    }
+
+    private static int calcOffsetDiff(int rootElementOffset, int startOffset) {
+        return startOffset - rootElementOffset;
     }
 }

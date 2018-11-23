@@ -8,11 +8,11 @@ import lombok.Getter;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
-import net.werpu.tools.supportive.refactor.DummyInsertPsiElement;
 import net.werpu.tools.supportive.refactor.IRefactorUnit;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
 import net.werpu.tools.supportive.transformations.modelHelpers.*;
 import net.werpu.tools.supportive.utils.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -153,7 +153,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 .collect(Collectors.toList());
 
 
-
     }
 
     /**
@@ -255,29 +254,54 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     public String getInjectsStr() {
-        return injects.stream().map(el -> el.toString()).reduce((str1, str2) -> str1+","+str2).orElse("");
+        return injects.stream().map(el -> el.toString()).reduce((str1, str2) -> str1 + "," + str2).orElse("");
     }
 
     public String getRefactoredConstructorBlock() {
 
-        return constructorBlock.get().getText() +
-                inlineFunctions.stream()
-                        .filter(FirstOrderFunction::isExternalizale)
-                        .map(el -> el.toExternalString())
-                        .reduce((el1, el2) -> el1 + el2);
 
-
-
-        //TODO return the refactored constructor block after
-        //all headers are done
-        /*List<IRefactorUnit> refactorings = inlineFunctions.stream()
+        List<IRefactorUnit> refactorings = inlineFunctions.stream()
                 .filter(FirstOrderFunction::isExternalizale)
                 .map(el -> {
                     PsiElementContext functionElement = el.getFunctionElement();
                     return new RefactorUnit(functionElement.getElement().getContainingFile(), functionElement, "");
                 }).collect(Collectors.toList());
 
-        return calculateRefactoring(refactorings);*/
+        String retVal = calculateRefactoring(refactorings, constructorBlock.get());
+
+
+        //we transform the text into its own typescript shadow scratch file to perform
+        //this refactorings against the injects
+
+        for (FirstOrderFunction inlineFunction : inlineFunctions) {
+            if (!inlineFunction.isExternalizale()) {
+                continue;
+            }
+            final TypescriptFileContext ctx = TypescriptFileContext.fromText(getProject(), inlineFunction.toExternalString());
+
+            List<IRefactorUnit> injectionRefactorings = this.injects.stream()
+                    //we look for all local variable references which match the injection
+                    //TODO check why the name check fails
+                    .flatMap(injector ->  ctx.$q(matchInjection(injector)))
+                    .distinct()
+                    .map(foundRefExpr -> newThisRefactoring(ctx, foundRefExpr))
+                    .collect(Collectors.toList());
+
+
+            inlineFunction.setRefactoredContent(ctx.calculateRefactoring(injectionRefactorings));
+        }
+
+        return retVal;
+    }
+
+    @NotNull
+    public RefactorUnit newThisRefactoring(TypescriptFileContext ctx, PsiElementContext foundRefExpr) {
+        return new RefactorUnit(ctx.getPsiFile(), foundRefExpr, "this." + foundRefExpr.getText());
+    }
+
+    @NotNull
+    private Object[] matchInjection(Injector injector) {
+        return new Object[]{PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ(injector.getName())};
     }
 
 

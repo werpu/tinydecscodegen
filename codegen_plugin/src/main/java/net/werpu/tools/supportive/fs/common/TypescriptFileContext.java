@@ -22,7 +22,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package net.werpu.tools.supportive.fs.common;
 
 import com.google.common.collect.Lists;
+import com.intellij.ide.scratch.ScratchFileCreationHelper;
+import com.intellij.lang.Language;
+import com.intellij.lang.LanguageUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -85,6 +89,11 @@ public class TypescriptFileContext extends IntellijFileContext {
         super(fileContext.getProject(), fileContext.getPsiFile());
     }
 
+    public static TypescriptFileContext fromText(Project project, String string) {
+        Language typeScript = LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("TypeScript"));
+        PsiFile parsedFile = ScratchFileCreationHelper.parseHeader(project, typeScript, string);
+        return new TypescriptFileContext(project, parsedFile);
+    }
 
 
 

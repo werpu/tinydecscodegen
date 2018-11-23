@@ -292,6 +292,14 @@ public class IntellijFileContext {
         return StringUtils.refactor(refactorings, toSplit);
     }
 
+
+    public String calculateRefactoring(List<IRefactorUnit> refactorings, PsiElementContext rootElement)  {
+        if (refactorings.isEmpty()) {
+            return rootElement.getText();
+        }
+        return StringUtils.refactor(refactorings, rootElement.getElement());
+    }
+
     protected List<PsiElement> findPsiElements(Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly) {
 
 

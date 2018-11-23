@@ -22,7 +22,7 @@ export class ${data.clazzName} {
 
 
 #foreach($firstOrderFunction in ${data.inlineFunctions})
-    ${$firstOrderFunction.toExternalString()}
+    ${firstOrderFunction.toExternalString()}
 #end
 
 

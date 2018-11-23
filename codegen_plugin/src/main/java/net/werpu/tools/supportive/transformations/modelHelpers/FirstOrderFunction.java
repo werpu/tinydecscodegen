@@ -1,8 +1,10 @@
 package net.werpu.tools.supportive.transformations.modelHelpers;
 
 
+import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,7 +66,17 @@ public class FirstOrderFunction {
     List<ExternalVariable> exernalizables = newArrayList();
 
 
+    @Setter
+    String refactoredContent;
 
+
+    public FirstOrderFunction(PsiElementContext functionElement, PsiElementContext functionHeader, PsiElementContext functionBody, List<ExternalVariable> parameterList, List<ExternalVariable> exernalizables) {
+        this.functionElement = functionElement;
+        this.functionHeader = functionHeader;
+        this.functionBody = functionBody;
+        this.parameterList = parameterList;
+        this.exernalizables = exernalizables;
+    }
 
     /**
      * final conclusion if a first order function
@@ -83,6 +95,9 @@ public class FirstOrderFunction {
     public String toExternalString() {
         if(!this.isExternalizale()) {
             return "";
+        }
+        if(!Strings.isNullOrEmpty(refactoredContent)) {
+            return refactoredContent;
         }
         StringBuilder retVal = new StringBuilder();
         retVal.append(getFunctionName());
