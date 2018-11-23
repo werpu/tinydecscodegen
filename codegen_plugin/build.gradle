@@ -8,19 +8,12 @@ intellij {
     //release numbers can be found at https://s3-eu-west-1.amazonaws.com/intellij-releases/
     //localPath = '/Applications/Intellij IDEA.app'
     version = 'IU-183.4284.148'
+    type = 'IU'
+    plugins = ['JavaScriptLanguage', 'CSS']
 
 }
 
 dependencies {
     compile project(':codegen')
-
-    testCompile fileTree(dir: 'libs/transient', include: '**/*.jar')
-    /*
-
-    for version 1.1, I plan to do a navigation visualisation on the supported frameworks
-    without running the app in a browser engine
-
-    compile group: 'org.jgrapht', name: 'jgrapht-core', version: '1.1.0'
-    */
 }
 
