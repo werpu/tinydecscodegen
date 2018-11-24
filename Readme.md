@@ -55,7 +55,7 @@ and Angular Code
 
 ## Are there Demo Videos?
 
-Yes, there is a comprehensive video guide, currently for Angular 1.x only
+Yes, there is a comprehensive video guide for version 1.0, currently for AngularJS only
 (but it works the same for Angular 5+).
 
 [![Link to Youtube](https://github.com/werpu/tinydecscodegen/blob/master/docs/images/youtube_vid.jpg)](https://www.youtube.com/watch?v=MvJY0z3oIYk&list=PLNRFvroappqZZKSrCGBwOSqb-pLomytw6&index=1).
