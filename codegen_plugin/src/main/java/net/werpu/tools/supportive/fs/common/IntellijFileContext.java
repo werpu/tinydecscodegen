@@ -21,9 +21,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package net.werpu.tools.supportive.fs.common;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
@@ -44,14 +42,10 @@ import net.werpu.tools.supportive.utils.IntellijUtils;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -60,6 +54,7 @@ import static com.google.common.collect.Streams.concat;
 import static net.werpu.tools.supportive.fs.common.AngularVersion.NG;
 import static net.werpu.tools.supportive.fs.common.AngularVersion.TN_DEC;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
+import static net.werpu.tools.supportive.utils.IntellijUtils.flattendArr;
 import static net.werpu.tools.supportive.utils.IntellijUtils.getTsExtension;
 import static net.werpu.tools.supportive.utils.StringUtils.normalizePath;
 import static net.werpu.tools.supportive.utils.StringUtils.stripQuotes;
@@ -394,16 +389,18 @@ public class IntellijFileContext {
     }
 
     public Stream<PsiElementContext> $q(Object... items) {
-        return PsiWalkFunctions.queryContent(this.getPsiFile(), items);
+        return PsiWalkFunctions.queryContent(this.getPsiFile(), flattendArr(items).stream().toArray(Object[]::new));
     }
 
 
-    public Stream<PsiElementContext> $q(Object[] items, Object item) {
-        return PsiWalkFunctions.queryContent(this.getPsiFile(), ArrayUtils.add(items, item));
+
+    public Stream<PsiElementContext> $q(Object[] items, Object... items2) {
+        return PsiWalkFunctions.queryContent(this.getPsiFile(), ArrayUtils.addAll(flattendArr(items).toArray(), flattendArr(items2).toArray()));
     }
 
     public Stream<PsiElementContext> $q(Object[]... items) {
-        Object[] all = Arrays.stream(items).reduce((items1, items2) -> Stream.concat(Arrays.stream(items1), Arrays.stream(items2)).toArray()).get();
+        Object[] all = Arrays.stream(items).flatMap(item -> flattendArr(item).stream())
+                .toArray();
         return PsiWalkFunctions.queryContent(this.getPsiFile(), all);
     }
 

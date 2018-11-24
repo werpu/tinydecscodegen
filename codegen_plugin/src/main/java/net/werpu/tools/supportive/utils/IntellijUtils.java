@@ -88,6 +88,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -755,5 +756,18 @@ public class IntellijUtils {
     /*
      * Action helpers to improve readability
      */
+
+    public static List<Object> flattendArr(Object[] items) {
+        List<Object> retList = new LinkedList<>();
+        for(Object item: items) {
+            if(item.getClass().isArray()) {
+                retList.addAll(flattendArr((Object[]) item));
+            } else {
+                retList.add(item);
+            }
+        }
+        return retList;
+    }
+
 
 }

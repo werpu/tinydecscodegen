@@ -256,7 +256,15 @@ public class PsiWalkFunctions {
     static final String RE_PARENTS_EQ_LAST = "^\\s*:PARENTS_LAST\\s*\\((.*)\\)\\s*$";
 
 
+    public static Stream<PsiElementContext> queryContent(PsiFile file, Object... items) {
+        Stream<PsiElementContext> subItem = asList(file).stream().map(item -> new PsiElementContext(item));
+        return execQuery(subItem, items);
+    }
 
+    public static Stream<PsiElementContext> queryContent(PsiElement element, Object... items) {
+        Stream<PsiElementContext> subItem = asList(new PsiElementContext(element)).stream();
+        return execQuery(subItem, items);
+    }
 
     /**
      * Psi file walker
@@ -348,15 +356,7 @@ public class PsiWalkFunctions {
         return (el.toString().equals(JS_CALL_EXPRESSION)) && el.getText().startsWith(JS_UIROUTER_MODULE_FOR_ROOT);
     }
 
-    public static Stream<PsiElementContext> queryContent(PsiFile file, Object... items) {
-        Stream<PsiElementContext> subItem = asList(file).stream().map(item -> new PsiElementContext(item));
-        return execQuery(subItem, items);
-    }
 
-    public static Stream<PsiElementContext> queryContent(PsiElement element, Object... items) {
-        Stream<PsiElementContext> subItem = asList(new PsiElementContext(element)).stream();
-        return execQuery(subItem, items);
-    }
 
     /**
      * This is the central method of our query engine

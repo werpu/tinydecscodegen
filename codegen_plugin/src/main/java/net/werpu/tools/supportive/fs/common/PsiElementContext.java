@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
+import static net.werpu.tools.supportive.utils.IntellijUtils.flattendArr;
 import static net.werpu.tools.supportive.utils.StringUtils.elVis;
 
 @AllArgsConstructor
@@ -146,18 +147,6 @@ public class PsiElementContext {
 
     public Stream<PsiElementContext> $q(Object... items) {
         return PsiWalkFunctions.queryContent(this.getElement(), flattendArr(items).stream().toArray(Object[]::new));
-    }
-
-    public List<Object> flattendArr(Object[] items) {
-        List<Object> retList = new LinkedList<>();
-        for(Object item: items) {
-            if(item.getClass().isArray()) {
-                retList.addAll(flattendArr((Object[]) item));
-            } else {
-                retList.add(item);
-            }
-        }
-        return retList;
     }
 
 

@@ -1,6 +1,7 @@
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
 import org.junit.Test;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
@@ -9,8 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.EL_TEXT_EQ;
-import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.PSI_ELEMENT_JS_IDENTIFIER;
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static util.TestUtils.JS_TEST_PROBES_PATH;
 
 public class PsiQueryTest extends LightCodeInsightFixtureTestCase {
@@ -54,5 +54,21 @@ public class PsiQueryTest extends LightCodeInsightFixtureTestCase {
         assertTrue(routeProviderQuery.collect(Collectors.toList()).size() == 4);
 
 
+    }
+
+    @Test
+    public void testMethodProbe() {
+        if (!assertTestable()) {
+            return;
+        }
+        PsiFile psiFile = myFixture.configureByFile("parser/methodProbe.ts");
+        Project project = myFixture.getProject();
+
+        TypescriptFileContext ctx = new TypescriptFileContext(project, psiFile);
+
+        assertTrue(ctx.$q(JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("$scope")).findFirst().isPresent());
+        assertTrue(ctx.$q(JS_REFERENCE_EXPRESSION, CHILD_ELEM,PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("$scope")).findFirst().isPresent());
+
+        assertTrue(ctx.$q(JS_REFERENCE_EXPRESSION, DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), EL_TEXT_EQ("$scope")).findFirst().isPresent());
     }
 }
