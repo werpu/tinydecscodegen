@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Stream.concat;
+import static net.werpu.tools.supportive.utils.IntellijUtils.flattendArr;
 import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
 import static net.werpu.tools.supportive.utils.StringUtils.literalStartsWith;
 
@@ -257,11 +258,13 @@ public class PsiWalkFunctions {
 
 
     public static Stream<PsiElementContext> queryContent(PsiFile file, Object... items) {
+        items = flattendArr(items).stream().toArray(Object[]::new);
         Stream<PsiElementContext> subItem = asList(file).stream().map(item -> new PsiElementContext(item));
         return execQuery(subItem, items);
     }
 
     public static Stream<PsiElementContext> queryContent(PsiElement element, Object... items) {
+        items = flattendArr(items).stream().toArray(Object[]::new);
         Stream<PsiElementContext> subItem = asList(new PsiElementContext(element)).stream();
         return execQuery(subItem, items);
     }

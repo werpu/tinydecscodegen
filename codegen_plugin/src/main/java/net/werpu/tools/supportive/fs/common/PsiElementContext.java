@@ -146,19 +146,9 @@ public class PsiElementContext {
     }
 
     public Stream<PsiElementContext> $q(Object... items) {
-        return PsiWalkFunctions.queryContent(this.getElement(), flattendArr(items).stream().toArray(Object[]::new));
+        return PsiWalkFunctions.queryContent(this.getElement(), items);
     }
 
-
-    public Stream<PsiElementContext> $q(Object[] items, Object... items2) {
-        return PsiWalkFunctions.queryContent(this.getElement(), ArrayUtils.addAll(flattendArr(items).toArray(), flattendArr(items2).toArray()));
-    }
-
-    public Stream<PsiElementContext> $q(Object[]... items) {
-        Object[] all = Arrays.stream(items).flatMap(item -> flattendArr(item).stream())
-                .toArray();
-        return PsiWalkFunctions.queryContent(this.getElement(), all);
-    }
 
     public List<PsiElementContext> getImportIdentifiers(String varToCheck) {
         return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ( varToCheck )).collect(Collectors.toList());

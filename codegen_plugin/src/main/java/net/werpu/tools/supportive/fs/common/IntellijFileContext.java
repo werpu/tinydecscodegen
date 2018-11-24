@@ -389,19 +389,7 @@ public class IntellijFileContext {
     }
 
     public Stream<PsiElementContext> $q(Object... items) {
-        return PsiWalkFunctions.queryContent(this.getPsiFile(), flattendArr(items).stream().toArray(Object[]::new));
-    }
-
-
-
-    public Stream<PsiElementContext> $q(Object[] items, Object... items2) {
-        return PsiWalkFunctions.queryContent(this.getPsiFile(), ArrayUtils.addAll(flattendArr(items).toArray(), flattendArr(items2).toArray()));
-    }
-
-    public Stream<PsiElementContext> $q(Object[]... items) {
-        Object[] all = Arrays.stream(items).flatMap(item -> flattendArr(item).stream())
-                .toArray();
-        return PsiWalkFunctions.queryContent(this.getPsiFile(), all);
+        return PsiWalkFunctions.queryContent(this.getPsiFile(), items);
     }
 
 
