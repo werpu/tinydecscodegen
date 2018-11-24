@@ -114,7 +114,7 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
      */
     public String getTextFromImportsToModuleDcl() {
         int importEnd = getImportEnd();
-        Optional<PsiElementContext> varDcl = moduleDefStart.get().$q(P_PARENTS, JS_VAR_STATEMENT).findFirst();
+        Optional<PsiElementContext> varDcl = moduleDefStart.get().$q(TreeQueryEngine.P_PARENTS, JS_VAR_STATEMENT).findFirst();
         if(varDcl.isPresent()) {
             return this.getText().substring(importEnd, varDcl.get().getTextOffset());
         }

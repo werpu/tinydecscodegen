@@ -145,7 +145,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     private List<PsiElementContext> parseFunctionVariableDecls(PsiElementContext parentFunctionBlock) {
 
         return parentFunctionBlock.queryContent(JS_VAR_STATEMENT)
-                .filter(e -> e.queryContent(P_PARENTS, TYPE_SCRIPT_FUNC_EXPR, TreeQueryEngine.CHILD_ELEM, JS_BLOCK_STATEMENT)
+                .filter(e -> e.queryContent(TreeQueryEngine.P_PARENTS, TYPE_SCRIPT_FUNC_EXPR, TreeQueryEngine.CHILD_ELEM, JS_BLOCK_STATEMENT)
                         //only the first parent is valid, the variable must be declared
                         //in the parent function definition
                         .distinct()

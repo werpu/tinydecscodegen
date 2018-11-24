@@ -165,7 +165,7 @@ public class TypescriptFileContext extends IntellijFileContext {
     }
 
     public List<PsiElementContext> getImportsWithIdentifier(String varToCheck) {
-        return getImportIdentifiers(varToCheck).stream().flatMap(item ->item.queryContent(P_PARENTS, JS_ES_6_IMPORT_DECLARATION)).collect(Collectors.toList());
+        return getImportIdentifiers(varToCheck).stream().flatMap(item ->item.queryContent(TreeQueryEngine.P_PARENTS, JS_ES_6_IMPORT_DECLARATION)).collect(Collectors.toList());
     }
 
     public List<PsiElementContext> getImportIdentifiers(String varToCheck) {
@@ -179,8 +179,8 @@ public class TypescriptFileContext extends IntellijFileContext {
             importPath = importPath.substring(2);
         }
         final String fImportPath = importPath;
-        return importIdentifier -> importIdentifier.queryContent(P_PARENTS, JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, TreeQueryEngine.EL_TEXT_EQ("'"+fImportPath+"'")).findFirst().isPresent() ||
-                                   importIdentifier.queryContent(P_PARENTS, JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, TreeQueryEngine.EL_TEXT_EQ("'"+origImportPath+"'")).findFirst().isPresent();
+        return importIdentifier -> importIdentifier.queryContent(TreeQueryEngine.P_PARENTS, JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, TreeQueryEngine.EL_TEXT_EQ("'"+fImportPath+"'")).findFirst().isPresent() ||
+                                   importIdentifier.queryContent(TreeQueryEngine.P_PARENTS, JS_ES_6_IMPORT_DECLARATION, PSI_ELEMENT_JS_STRING_LITERAL, TreeQueryEngine.EL_TEXT_EQ("'"+origImportPath+"'")).findFirst().isPresent();
     }
 
 

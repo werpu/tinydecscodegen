@@ -176,7 +176,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
     public Optional<String> resolveJsVar(PsiElementContext call) {
         //$routeProvider.when("/view1", MetaData.routeData(View1));
         return call.findPsiElements(psiElement -> psiElement.getText().startsWith("MetaData.routeData")).stream()
-                .map(item -> item.queryContent(PSI_ELEMENT_JS_IDENTIFIER, P_LAST).findFirst().get())
+                .map(item -> item.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.P_LAST).findFirst().get())
                 .map(item -> item.getText()).findFirst();
 
     }
@@ -254,7 +254,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
     public String getStateOrRouteProviderName(PsiElementContext constructor) {
         Optional<PsiElementContext> routeProviderDef = getSateOrRouteProviderDef(constructor);
-        Optional<PsiElementContext> routeProvider = routeProviderDef.get().$q(P_PARENTS, TYPE_SCRIPT_PARAM).findFirst();
+        Optional<PsiElementContext> routeProvider = routeProviderDef.get().$q(TreeQueryEngine.P_PARENTS, TYPE_SCRIPT_PARAM).findFirst();
         return routeProvider.get().getName();
     }
 

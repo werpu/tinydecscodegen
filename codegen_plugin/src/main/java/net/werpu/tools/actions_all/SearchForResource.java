@@ -273,6 +273,6 @@ public class SearchForResource extends AnAction {
 
     @Override
     public boolean isDumbAware() {
-        return true;
+        return false;
     }
 }

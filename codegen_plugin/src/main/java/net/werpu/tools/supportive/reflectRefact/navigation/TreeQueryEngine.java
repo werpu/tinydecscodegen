@@ -29,6 +29,10 @@ public class TreeQueryEngine<T> {
     public static final String RE_EL_TEXT_STARTS_WITH = "^\\s*\\:TEXT\\*\\s*\\((.*)\\)\\s*$";
     public static final String RE_EL_NAME_EQ = "^\\s*\\:NAME\\s*\\((.*)\\)\\s*$";
     public static final String CHILD_ELEM = ">";
+    public static final String P_PARENTS = ":PARENTS";
+    public static final String P_PARENT = ":PARENT";
+    public static final String P_LAST = ":LAST";
+    public static final String P_FIRST = ":FIRST";
     static final String RE_STRING_LITERAL = "^[\\\"\\'](.*)[\\\"\\']$";
     public static final String RE_EL_NAME_STARTS_WITH = "^\\s*\\:NAME\\*\\((.*)\\)\\s*$";
     public static final String RE_PARENTS_EQ = "^\\s*:PARENTS\\s*\\((.*)\\)\\s*$";
@@ -40,6 +44,7 @@ public class TreeQueryEngine<T> {
 
 
     TreeNavigationAdapter<T> navigationAdapter;
+
 
     /*Several helpers, which extend the core functionality
      * (walking matching  via strings) with some typesave high level routines*/

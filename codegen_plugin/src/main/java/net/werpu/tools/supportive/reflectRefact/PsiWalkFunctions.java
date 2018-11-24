@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
+import net.werpu.tools.supportive.reflectRefact.navigation.BaseQueryEngineImplementation;
 import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import net.werpu.tools.supportive.reflectRefact.navigation.PsiElementNavigationAdapter;
 import net.werpu.tools.supportive.reflectRefact.navigation.StreamFunc;
@@ -24,7 +25,7 @@ import static net.werpu.tools.supportive.utils.IntellijUtils.flattendArr;
  * which eases the detection of code patterns significantly
  * It sits on top of Intellijs Psi functionality
  */
-public class PsiWalkFunctions {
+public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementContext> {
 
     private static final String ERR_UNDEFINED_QUERY_MAPPING = "Undefined query mapping";
 
@@ -80,11 +81,6 @@ public class PsiWalkFunctions {
     public static final String JS_PARAMETER_BLOCK = "JSParameterBlock";
 
     public static final String JS_VAR_STATEMENT = "JSVarStatement";
-    public static final String P_PARENTS = ":PARENTS";
-    public static final String P_PARENT = ":PARENT";
-
-    public static final String P_LAST = ":LAST";
-    public static final String P_FIRST = ":FIRST";
 
     public static final String PSI_CLASS = "PsiClass:";
     public static final String STRING_TEMPLATE_EXPR = "JSStringTemplateExpression";
@@ -147,7 +143,7 @@ public class PsiWalkFunctions {
     /*Specific queries used by the transformations*/
 
     //TODO possible problem with multiple modules per file here
-    public static final Object[] ANG1_MODULE_DCL = {JS_CALL_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ("module"), P_PARENTS, JS_CALL_EXPRESSION};
+    public static final Object[] ANG1_MODULE_DCL = {JS_CALL_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ("module"), TreeQueryEngine.P_PARENTS, JS_CALL_EXPRESSION};
     //module name starting from DCL
     public static final Object[] ANG1_MODULE_NAME = {JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     //requires starting from DCL
@@ -162,7 +158,7 @@ public class PsiWalkFunctions {
 
     @NotNull
     public static Object[] TN_DEC_COMPONENT_NAME(String className) {
-        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_NAME_EQ(className), P_PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
+        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_NAME_EQ(className), TreeQueryEngine.P_PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     }
 
     /**
@@ -176,7 +172,7 @@ public class PsiWalkFunctions {
     public static StreamFunc<PsiElementContext> PARENT_SEARCH(Object... cmdOrFunction) {
         return (Stream<PsiElementContext> items) -> {
 
-            return queryEngine.exec(items.flatMap(item -> item.$q(P_PARENTS)), cmdOrFunction, false);
+            return queryEngine.exec(items.flatMap(item -> item.$q(TreeQueryEngine.P_PARENTS)), cmdOrFunction, false);
         };
     }
 
@@ -299,16 +295,8 @@ public class PsiWalkFunctions {
     }
 
 
-    static TreeQueryEngine<PsiElementContext> queryEngine = new TreeQueryEngine<PsiElementContext>(new PsiElementNavigationAdapter());
-
-
-
-
-
-    private static Stream<PsiElementContext> execQuery(Stream<PsiElementContext> subItem, Object[] commands) {
-
-
-        return queryEngine.exec(subItem, commands, true);
+    static {
+        queryEngine = new TreeQueryEngine<PsiElementContext>(new PsiElementNavigationAdapter());
     }
 
 
