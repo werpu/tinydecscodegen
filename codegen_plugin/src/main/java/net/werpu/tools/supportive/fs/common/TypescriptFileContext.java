@@ -62,8 +62,7 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
  * Hence I simplified 90% of all parsing cases by introducing
  * a simple query api on top of the streams.
  *
- * Note this api will be refined and improved, this ia a first
- * quick hack to get the job done for 1.0.
+ * Note this api will be refined and improved, over time
  *
  */
 public class TypescriptFileContext extends IntellijFileContext {
@@ -212,7 +211,7 @@ public class TypescriptFileContext extends IntellijFileContext {
         }
 
         return Arrays.asList(theImport.get().getChildren()).stream()
-                .filter(el -> el.toString().equals("ES6FromClause"))
+                .filter(el -> el.toString().equals(JS_ES_6_FROM_CLAUSE))
                 .map(el -> el.getNode().getLastChildNode().getPsi())
                 .findFirst();
     }

@@ -1,5 +1,7 @@
 # ts-ng-tinydecorations Code Generator
 
+![Plugin in Action](https://raw.githubusercontent.com/werpu/tinydecscodegen/master/docs/images/create_component.png)
+
 This is bascially a set of Intellij plugins in development
 to support the [ts-ng-tinydecorations](https://github.com/werpu/ts-ng-tinydecorations) project.
 and [Angular 5+](https://angular.io/).
