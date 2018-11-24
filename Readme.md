@@ -3,10 +3,10 @@
 ![Plugin in Action](https://github.com/werpu/tinydecscodegen/blob/master/docs/images/create_component.jpg)
 
 This is bascially a set of Intellij plugins in development
-to support the [ts-ng-tinydecorations](https://github.com/werpu/ts-ng-tinydecorations) project.
-and [Angular 5+](https://angular.io/).
+to support the AngularJS based [ts-ng-tinydecorations](https://github.com/werpu/ts-ng-tinydecorations) project.
+and [Angular](https://angular.io/).
 
-It uses webpack in Angular 1.5+ (Tiny Decorations) and angular-cli for the Angular 5+ part.
+It uses webpack in AngularJS 1.5+ (Tiny Decorations) and angular-cli for the Angular 5+ part.
 
 Spring - Rest and JaxRS are supported (however JaxRS support is a little bit new and experimental, currently)
 
@@ -27,7 +27,9 @@ for the sources and binaries.
 
 ## What can the Plugin do
 
-* Allows you to **generate a new** TinyDecorations (Annotated Angular 1.5+) or Angular 5 **project**.
+1.0
+
+* Allows you to **generate a new** TinyDecorations (Annotated AngularJS 1.5+) or Angular 5 **project**.
 
 * Generate Typescript classes from Java Dto Files (with annotation support for mapped implementation classes)
 * Update existing generated Typescript classes via the Intellij diff editor after
@@ -41,6 +43,15 @@ a successful code generation
 * Navigational Tree for easy navigation within your project
 * Navigational helpers to easily jump between java Dtos/Rest services and their Typescript counterparts
 
+Currently in development
+
+* Better Angular integration (should work as well as the annotated AngularJS tools there were several bugs in this area in 1.0
+if you are in for Angular go for the development builds)
+* Lots of bugfixes
+* Resource view with module -> currently selected module and current editing context view
+* Transitional helper tools which help to transform existing typescript based AngularJS code into  Tinydecorations
+and Angular Code
+
 
 ## Are there Demo Videos?
 
@@ -49,6 +60,14 @@ Yes, there is a comprehensive video guide, currently for Angular 1.x only
 
 [![Link to Youtube](https://github.com/werpu/tinydecscodegen/blob/master/docs/images/youtube_vid.jpg)](https://www.youtube.com/watch?v=MvJY0z3oIYk&list=PLNRFvroappqZZKSrCGBwOSqb-pLomytw6&index=1).
 
+### Subchapters if you do not want to watch everything
+ 
+* Part 1: [Getting started, project setup](https://youtu.be/MvJY0z3oIYk)
+* Part 2: [Creating Views/Controllers](https://youtu.be/-vPs09igAvM)
+* Part 2.1: [Creating Views - additional information](https://youtu.be/aO7XTnmyXG4)
+* Part 3: [Component Creation](https://youtu.be/PWfJS6vbd-0)
+* Part 4: [Services and Rest Calls](https://youtu.be/HnHf_lfe2BY)
+   
 
 ## Is this Plugin Usable Already?
 
