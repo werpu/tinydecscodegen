@@ -5,12 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.werpu.tools.supportive.refactor.IRefactorUnit;
 import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
+import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import net.werpu.tools.supportive.utils.StringUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -18,7 +17,6 @@ import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
-import static net.werpu.tools.supportive.utils.IntellijUtils.flattendArr;
 import static net.werpu.tools.supportive.utils.StringUtils.elVis;
 
 @AllArgsConstructor
@@ -62,6 +60,11 @@ public class PsiElementContext {
         return new PsiElementContext(oldElement);
     }
 
+    public PsiElementContext getParent() {
+        PsiElement parent = element.getParent();
+        return parent != null ? new PsiElementContext(parent) : null;
+    }
+
     public List<PsiElementContext> findPsiElements(Function<PsiElement, Boolean> psiElementVisitor) {
         return findPsiElements(psiElementVisitor, false);
     }
@@ -76,8 +79,12 @@ public class PsiElementContext {
         }
     }
 
-    public List<PsiElementContext> getChildren(@Nullable Function<PsiElement, Boolean> psiElementVisitor) {
-        final List<PsiElementContext> retVal = new LinkedList<>();
+    public List<PsiElementContext> findPsiElements2(Function<PsiElementContext, Boolean> psiElementVisitor) {
+        return findPsiElements2(psiElementVisitor, false);
+    }
+
+    /*public List<PsiElementContext> getChildren(@Nullable Function<PsiElement, Boolean> psiElementVisitor) {
+
         if (element == null) {//not parseable
             return emptyList();
         }
@@ -85,6 +92,18 @@ public class PsiElementContext {
         return Arrays.stream(element.getChildren())
                 .filter(el -> psiElementVisitor == null || psiElementVisitor.apply(el))
                 .map(PsiElementContext::new)
+                .collect(Collectors.toList());
+    }*/
+
+    public List<PsiElementContext> getChildren(@Nullable Function<PsiElementContext, Boolean> psiElementVisitor) {
+
+        if (element == null) {//not parseable
+            return emptyList();
+        }
+
+        return Arrays.stream(element.getChildren())
+                .map(PsiElementContext::new)
+                .filter(el -> psiElementVisitor == null || psiElementVisitor.apply(el))
                 .collect(Collectors.toList());
     }
 
@@ -115,10 +134,8 @@ public class PsiElementContext {
     }
 
 
-    public List<PsiElementContext> walkParents(Function<PsiElement, Boolean> psiElementVisitor) {
-        return PsiWalkFunctions.walkParents(getElement(), psiElementVisitor).stream()
-                .map(PsiElementContext::new)
-                .collect(Collectors.toList());
+    public List<PsiElementContext> walkParents(Function<PsiElementContext, Boolean> psiElementVisitor) {
+        return PsiWalkFunctions.walkParents(this, psiElementVisitor);
     }
 
 
@@ -141,6 +158,16 @@ public class PsiElementContext {
         return retVal.stream().map(el -> new PsiElementContext(el)).collect(Collectors.toList());
     }
 
+    protected List<PsiElementContext> findPsiElements2(Function<PsiElementContext, Boolean> psiElementVisitor, boolean firstOnly) {
+        final List<PsiElement> retVal;
+        if (element == null) {//not parseable
+            return emptyList();
+        }
+
+        retVal = walkPsiTree(element, (psiElement -> psiElementVisitor.apply(new PsiElementContext(psiElement))), firstOnly);
+        return retVal.stream().map(el -> new PsiElementContext(el)).collect(Collectors.toList());
+    }
+
     public Stream<PsiElementContext> queryContent(Object... items) {
         return PsiWalkFunctions.queryContent(this.getElement(), items);
     }
@@ -151,7 +178,7 @@ public class PsiElementContext {
 
 
     public List<PsiElementContext> getImportIdentifiers(String varToCheck) {
-        return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ( varToCheck )).collect(Collectors.toList());
+        return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ( varToCheck )).collect(Collectors.toList());
     }
 
     public String calculateRefactoring(List<IRefactorUnit> refactorings) {

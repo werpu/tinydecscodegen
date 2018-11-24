@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import net.werpu.tools.supportive.fs.common.*;
@@ -112,7 +113,7 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
 
     @Override
     public boolean isRouteVarNameUsed(Route routeData) {
-        return getNavigationalArray().get().$q(PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ(routeData.getRouteVarName())).findAny().isPresent();
+        return getNavigationalArray().get().$q(PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ(routeData.getRouteVarName())).findAny().isPresent();
     }
 
     @Override
@@ -170,8 +171,8 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
         //<TODO subroutes>
         //nav array not proper iot cannot handle subroutes
         List<PsiElementContext> foundIdentifiers =
-                concat(this.$q(TYPE_SCRIPT_VARIABLE, JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, EL_NAME_EQ("views"), PARENTS_EQ(TYPE_SCRIPT_VARIABLE)),
-                        this.$q(TYPE_SCRIPT_VARIABLE,JS_OBJECT_LITERAL_EXPRESSION,  JS_PROPERTY, EL_NAME_EQ("component"), PARENTS_EQ(TYPE_SCRIPT_VARIABLE)))
+                concat(this.$q(TYPE_SCRIPT_VARIABLE, JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ("views"), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_VARIABLE)),
+                        this.$q(TYPE_SCRIPT_VARIABLE,JS_OBJECT_LITERAL_EXPRESSION,  JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ("component"), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_VARIABLE)))
                 .distinct()
                .collect(Collectors.toList());
 

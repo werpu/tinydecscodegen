@@ -1,23 +1,20 @@
 package net.werpu.tools.supportive.transformations;
 
-import com.intellij.ide.fileTemplates.FileTemplate;
-import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import lombok.Setter;
-import net.werpu.tools.factories.TnDecGroupFactory;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
+import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import net.werpu.tools.supportive.utils.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 
@@ -37,7 +34,7 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 public class AngularJSModuleTransformationModel extends TypescriptFileContext implements ITransformationModel {
 
 
-    public static final Object[] ANGULAR_MOD_DEF = {PARENTS_EQ_FIRST(TYPE_SCRIPT_VARIABLE), JS_CALL_EXPRESSION};
+    public static final Object[] ANGULAR_MOD_DEF = {TreeQueryEngine.PARENTS_EQ_FIRST(TYPE_SCRIPT_VARIABLE), JS_CALL_EXPRESSION};
 
     /**
      * psi element covering the entire angular module defintion
@@ -143,7 +140,7 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
 
     public String getLegacyName() {
         if(moduleDefStart.isPresent()) {
-            return moduleDefStart.get().$q(PARENTS_EQ_FIRST(TYPE_SCRIPT_VARIABLE)).findFirst().get().getName();
+            return moduleDefStart.get().$q(TreeQueryEngine.PARENTS_EQ_FIRST(TYPE_SCRIPT_VARIABLE)).findFirst().get().getName();
         }
         return "legacy_"+this.moduleName;
     }

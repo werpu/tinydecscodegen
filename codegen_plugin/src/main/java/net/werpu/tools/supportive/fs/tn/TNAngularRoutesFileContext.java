@@ -11,7 +11,7 @@ import net.werpu.tools.supportive.fs.common.PsiRouteContext;
 import net.werpu.tools.supportive.fs.common.Route;
 import net.werpu.tools.supportive.refactor.DummyInsertPsiElement;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
-import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
+import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 
 import java.util.Collections;
 import java.util.List;
@@ -52,7 +52,7 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
 
     protected void init() {
 
-        constructors = this.queryContent(CHILD_ELEM , TYPE_SCRIPT_FUNC, p_isConstructor(), p_isRouteProviderPresent()
+        constructors = this.queryContent(TreeQueryEngine.CHILD_ELEM , TYPE_SCRIPT_FUNC, p_isConstructor(), p_isRouteProviderPresent()
         ).collect(Collectors.toList());
 
 
@@ -102,7 +102,7 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
     List<PsiElementContext> getRouteParams(PsiElementContext constructor, String routeProviderName) {
 
         return constructor
-                .queryContent(PSI_ELEMENT_JS_IDENTIFIER,  EL_TEXT_EQ("'when'"))
+                .queryContent(PSI_ELEMENT_JS_IDENTIFIER,  TreeQueryEngine.EL_TEXT_EQ("'when'"))
                 .map(item -> item.walkParent(el -> {
                     return literalEquals(el.toString(), JS_EXPRESSION_STATEMENT);
                 }))

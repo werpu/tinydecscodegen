@@ -2,6 +2,7 @@ package net.werpu.tools.supportive.reflectRefact;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -15,14 +16,14 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum SIMPLE_COMMAND {
 
-    RE_EL_TEXT_EQ("RE_EL_TEXT_EQ", PsiWalkFunctions.RE_EL_TEXT_EQ),
-    CHILD_ELEM("CHILD_ELEM", PsiWalkFunctions.CHILD_ELEM),
-    RE_EL_TEXT_STARTS_WITH("RE_EL_TEXT_STARTS_WITH", PsiWalkFunctions.RE_EL_TEXT_STARTS_WITH),
-    RE_EL_NAME_EQ("RE_EL_NAME_EQ", PsiWalkFunctions.RE_EL_NAME_EQ),
-    RE_EL_NAME_STARTS_WITH("RE_EL_NAME_STARTS_WITH", PsiWalkFunctions.RE_EL_NAME_STARTS_WITH),
-    RE_PARENTS_EQ("RE_PARENTS_EQ", PsiWalkFunctions.RE_PARENTS_EQ),
-    RE_PARENTS_EQ_FIRST("RE_PARENTS_EQ_FIRST", PsiWalkFunctions.RE_PARENTS_EQ_FIRST),
-    RE_PARENTS_EQ_LAST("RE_PARENTS_EQ_LAST", PsiWalkFunctions.RE_PARENTS_EQ_LAST),
+    RE_EL_TEXT_EQ("RE_EL_TEXT_EQ", TreeQueryEngine.RE_EL_TEXT_EQ),
+    CHILD_ELEM("CHILD_ELEM", TreeQueryEngine.CHILD_ELEM),
+    RE_EL_TEXT_STARTS_WITH("RE_EL_TEXT_STARTS_WITH", TreeQueryEngine.RE_EL_TEXT_STARTS_WITH),
+    RE_EL_NAME_EQ("RE_EL_NAME_EQ", TreeQueryEngine.RE_EL_NAME_EQ),
+    RE_EL_NAME_STARTS_WITH("RE_EL_NAME_STARTS_WITH", TreeQueryEngine.RE_EL_NAME_STARTS_WITH),
+    RE_PARENTS_EQ("RE_PARENTS_EQ", TreeQueryEngine.RE_PARENTS_EQ),
+    RE_PARENTS_EQ_FIRST("RE_PARENTS_EQ_FIRST", TreeQueryEngine.RE_PARENTS_EQ_FIRST),
+    RE_PARENTS_EQ_LAST("RE_PARENTS_EQ_LAST", TreeQueryEngine.RE_PARENTS_EQ_LAST),
     P_FIRST("P_FIRST", PsiWalkFunctions.P_FIRST),
     P_PARENTS("P_PARENTS", PsiWalkFunctions.P_PARENTS),
     P_PARENT("P_PARENT", PsiWalkFunctions.P_PARENT),

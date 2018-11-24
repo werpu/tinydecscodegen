@@ -4,6 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import net.werpu.tools.indexes.*;
+import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import net.werpu.tools.supportive.fs.common.errors.ResourceClassNotFound;
@@ -37,9 +38,9 @@ public class ContextFactory {
 
     @Nullable
     public static PsiRouteContext createRouteContext(TypescriptFileContext routesFile, PsiElementContext psiElementContext, Class origin) {
-        Optional<PsiElementContext> name = psiElementContext.queryContent(JS_PROPERTY, EL_NAME_EQ("name"), PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
-        Optional<PsiElementContext> url = psiElementContext.queryContent(JS_PROPERTY,  EL_NAME_EQ("url"), PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
-        Optional<PsiElementContext> component = psiElementContext.queryContent(PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("component"), PARENTS_EQ(JS_PROPERTY), JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
+        Optional<PsiElementContext> name = psiElementContext.queryContent(JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ("name"), PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
+        Optional<PsiElementContext> url = psiElementContext.queryContent(JS_PROPERTY,  TreeQueryEngine.EL_NAME_EQ("url"), PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
+        Optional<PsiElementContext> component = psiElementContext.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ("component"), TreeQueryEngine.PARENTS_EQ(JS_PROPERTY), JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
         String sName = "";
         String sUrl = "";
         String sComponent = "";
@@ -62,7 +63,7 @@ public class ContextFactory {
 
 
             List<String> imports = routesFile.getImportIdentifiers(sComponent).stream().
-                    flatMap(item -> item.queryContent(PARENTS_EQ(JS_ES_6_IMPORT_DECLARATION), JS_ES_6_FROM_CLAUSE, PSI_ELEMENT_JS_STRING_LITERAL).map(fromImport -> fromImport.getText())).collect(Collectors.toList());
+                    flatMap(item -> item.queryContent(TreeQueryEngine.PARENTS_EQ(JS_ES_6_IMPORT_DECLARATION), JS_ES_6_FROM_CLAUSE, PSI_ELEMENT_JS_STRING_LITERAL).map(fromImport -> fromImport.getText())).collect(Collectors.toList());
 
 
             sImport = imports.isEmpty() ? "" : imports.get(0);

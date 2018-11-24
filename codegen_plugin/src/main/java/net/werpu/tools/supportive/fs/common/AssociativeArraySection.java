@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import net.werpu.tools.supportive.refactor.DummyInsertPsiElement;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
+import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -74,8 +75,8 @@ public class AssociativeArraySection extends AngularResourceContext{
 
     public Optional<PsiElementContext> get(String sectionName) throws IOException {
         //PsiElement(JS:COMMA)
-        return concat($q(JS_PROPERTY, EL_NAME_EQ(sectionName), JS_ARRAY_LITERAL_EXPRESSION),
-                $q(JS_PROPERTY, EL_NAME_EQ(sectionName), JS_LITERAL_EXPRESSION)).findFirst();
+        return concat($q(JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ(sectionName), JS_ARRAY_LITERAL_EXPRESSION),
+                $q(JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ(sectionName), JS_LITERAL_EXPRESSION)).findFirst();
     }
 
     /**
@@ -88,7 +89,7 @@ public class AssociativeArraySection extends AngularResourceContext{
      */
     public void addInsertValue(String sectionName, String value) throws IOException {
         //PsiElement(JS:COMMA)
-        Optional<PsiElementContext> propsArray = $q(JS_PROPERTY, EL_NAME_EQ(sectionName), JS_ARRAY_LITERAL_EXPRESSION).findFirst();
+        Optional<PsiElementContext> propsArray = $q(JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ(sectionName), JS_ARRAY_LITERAL_EXPRESSION).findFirst();
         boolean hasElement = propsArray.get().$q(PSI_ELEMENT_JS_IDENTIFIER).findFirst().isPresent();
         int insertPos =  propsArray.get().$q(PSI_ELEMENT_JS_RBRACKET).reduce((el1, el2) -> el2).get().getTextOffset();
         StringBuilder insertStr = new StringBuilder();
@@ -122,7 +123,7 @@ public class AssociativeArraySection extends AngularResourceContext{
     public void addOrInsertSection(String sectionName) throws IOException {
         PsiElementContext argsList = this.getResourceRoot();
 
-        if(argsList.$q(JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, EL_NAME_EQ(sectionName)).findFirst().isPresent()) {
+        if(argsList.$q(JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ(sectionName)).findFirst().isPresent()) {
             return;
         }
 

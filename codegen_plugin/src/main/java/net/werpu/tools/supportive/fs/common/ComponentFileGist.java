@@ -8,6 +8,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.gist.GistManagerImpl;
 import com.intellij.util.gist.PsiFileGist;
 import com.intellij.util.io.DataExternalizer;
+import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -177,14 +178,14 @@ public class ComponentFileGist {
         } else {
             Optional<PsiElement> template;
             if (componentAnn == null) {
-                template = new IntellijFileContext(file.getProject(), file).$q(JS_PROPERTY, EL_NAME_EQ(propName))
+                template = new IntellijFileContext(file.getProject(), file).$q(JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ(propName))
                         .filter(ComponentFileGist::inTemplateHolder)
                         .map(PsiElementContext::getElement)
                         .findFirst();
             } else {
                 template = Arrays.stream(componentAnn.getChildren())
                         .map(PsiElementContext::new)
-                        .flatMap(ctx -> ctx.$q(JS_PROPERTY, EL_NAME_EQ(propName)))
+                        .flatMap(ctx -> ctx.$q(JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ(propName)))
                         .filter(ComponentFileGist::inTemplateHolder)
                         .map(PsiElementContext::getElement)
                         .findFirst();
@@ -196,9 +197,9 @@ public class ComponentFileGist {
 
     static boolean inTemplateHolder(PsiElement element) {
 
-        return concat(concat(queryContent(element, PARENT_SEARCH(INVERSE(CONTROLLER_ANN))),
-                queryContent(element, PARENT_SEARCH(INVERSE(COMPONENT_ANN)))),
-                queryContent(element, PARENT_SEARCH(INVERSE(DIRECTIVE_ANN)))).findFirst()
+        return concat(concat(queryContent(element, PARENT_SEARCH(TreeQueryEngine.INVERSE(CONTROLLER_ANN))),
+                queryContent(element, PARENT_SEARCH(TreeQueryEngine.INVERSE(COMPONENT_ANN)))),
+                queryContent(element, PARENT_SEARCH(TreeQueryEngine.INVERSE(DIRECTIVE_ANN)))).findFirst()
                 .isPresent();
 
     }

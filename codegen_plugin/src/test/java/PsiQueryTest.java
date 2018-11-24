@@ -2,6 +2,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
+import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import org.junit.Test;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
@@ -47,10 +48,10 @@ public class PsiQueryTest extends LightCodeInsightFixtureTestCase {
 
         IntellijFileContext fileContext = new IntellijFileContext(project, psiFile);
 
-        Stream<PsiElementContext> routeProviderQuery = fileContext.queryContent(PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("$routeProvider"));
+        Stream<PsiElementContext> routeProviderQuery = fileContext.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ("$routeProvider"));
         Optional routeProvider = routeProviderQuery.findFirst();
         assertTrue(routeProvider.isPresent());
-        routeProviderQuery = fileContext.queryContent(PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("$routeProvider"));
+        routeProviderQuery = fileContext.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ("$routeProvider"));
         assertTrue(routeProviderQuery.collect(Collectors.toList()).size() == 4);
 
 
@@ -66,9 +67,9 @@ public class PsiQueryTest extends LightCodeInsightFixtureTestCase {
 
         TypescriptFileContext ctx = new TypescriptFileContext(project, psiFile);
 
-        assertTrue(ctx.$q(JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("$scope")).findFirst().isPresent());
-        assertTrue(ctx.$q(JS_REFERENCE_EXPRESSION, CHILD_ELEM,PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("$scope")).findFirst().isPresent());
+        assertTrue(ctx.$q(JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ("$scope")).findFirst().isPresent());
+        assertTrue(ctx.$q(JS_REFERENCE_EXPRESSION, TreeQueryEngine.CHILD_ELEM,PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ("$scope")).findFirst().isPresent());
 
-        assertTrue(ctx.$q(JS_REFERENCE_EXPRESSION, DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), EL_TEXT_EQ("$scope")).findFirst().isPresent());
+        assertTrue(ctx.$q(JS_REFERENCE_EXPRESSION, TreeQueryEngine.DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), TreeQueryEngine.EL_TEXT_EQ("$scope")).findFirst().isPresent());
     }
 }

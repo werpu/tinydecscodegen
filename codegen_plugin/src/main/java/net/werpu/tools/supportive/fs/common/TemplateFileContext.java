@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
+import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 
 import java.util.Optional;
 
@@ -79,12 +80,12 @@ public class TemplateFileContext extends TypescriptFileContext {
     }
 
     Optional<PsiElement> getPsiTemplateText() {
-        Optional<PsiElementContext> elCtx =  super.queryContent(TYPE_SCRIPT_VARIABLE, EL_NAME_EQ(refName), STRING_TEMPLATE_EXPR).findFirst();
+        Optional<PsiElementContext> elCtx =  super.queryContent(TYPE_SCRIPT_VARIABLE, TreeQueryEngine.EL_NAME_EQ(refName), STRING_TEMPLATE_EXPR).findFirst();
         if(elCtx.isPresent()) {
             return Optional.of(elCtx.get().element);
         } else {
             //fallback to literal expression for other not determinalbe strings
-            elCtx =  super.queryContent(TYPE_SCRIPT_VARIABLE, EL_NAME_EQ(refName), JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+            elCtx =  super.queryContent(TYPE_SCRIPT_VARIABLE, TreeQueryEngine.EL_NAME_EQ(refName), JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
             if(elCtx.isPresent()) {
                 return Optional.of(elCtx.get().element);
             }

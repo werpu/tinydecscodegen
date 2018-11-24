@@ -8,7 +8,7 @@ import net.werpu.tools.supportive.utils.IntellijUtils;
 
 import java.util.Optional;
 
-import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.EL_TEXT_EQ;
+import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.EL_TEXT_EQ;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.JS_ES_6_DECORATOR;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.PSI_ELEMENT_JS_IDENTIFIER;
 import static net.werpu.tools.supportive.utils.IntellijUtils.getTsExtension;

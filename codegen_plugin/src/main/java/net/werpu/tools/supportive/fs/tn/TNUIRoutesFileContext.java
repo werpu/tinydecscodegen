@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import net.werpu.tools.indexes.ModuleIndex;
+import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import net.werpu.tools.supportive.fs.common.*;
@@ -28,7 +29,7 @@ import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
 public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     private static final Logger log = Logger.getInstance(TNUIRoutesFileContext.class);
-    public static final Object[] STATE_PROVIDER_VAR = {JS_EXPRESSION_STATEMENT, JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, EL_NAME_EQ("$stateProvider")};
+    public static final Object[] STATE_PROVIDER_VAR = {JS_EXPRESSION_STATEMENT, JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_NAME_EQ("$stateProvider")};
 
     public TNUIRoutesFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
@@ -54,7 +55,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     protected void init() {
 
-        constructors = this.$q(CHILD_ELEM, TYPE_SCRIPT_FUNC, p_isConstructor(), p_isStateProviderPresent()
+        constructors = this.$q(TreeQueryEngine.CHILD_ELEM, TYPE_SCRIPT_FUNC, p_isConstructor(), p_isStateProviderPresent()
         ).collect(Collectors.toList());
     }
 
@@ -145,7 +146,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
         return constructor
                 //.state(...
-                .$q(PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("'state'"))
+                .$q(PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ("'state'"))
                 //$stateProvider.state
                 .map(item -> item.walkParent(el -> {
                     return literalEquals(el.toString(), JS_EXPRESSION_STATEMENT);
@@ -170,7 +171,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
         //first part either name or call or map
         try {
             Optional<PsiElementContext> routeName = argumentsList.$q(JS_LITERAL_EXPRESSION,  PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
-            Optional<PsiElementContext> parmsCall = argumentsList.$q(JS_REFERENCE_EXPRESSION, EL_TEXT_EQ("MetaData.routeData")).findFirst();
+            Optional<PsiElementContext> parmsCall = argumentsList.$q(JS_REFERENCE_EXPRESSION, TreeQueryEngine.EL_TEXT_EQ("MetaData.routeData")).findFirst();
             Optional<PsiElementContext> controller = argumentsList.$q(JS_CALL_EXPRESSION, JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst();
             Optional<PsiElementContext> parmsMap = argumentsList.$q(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
             List<PsiRouteContext> target = resolveParms(argumentsList, routeName, parmsCall, controller, parmsMap);
@@ -266,7 +267,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     public List<PsiRouteContext> resolveViews(PsiElementContext routeCall, Optional<PsiElementContext> routeName, Optional<PsiElementContext> controller, Optional<PsiElementContext> views) {
 
-         return views.get().$q(CHILD_ELEM, JS_PROPERTY).flatMap(prop -> {
+         return views.get().$q(TreeQueryEngine.CHILD_ELEM, JS_PROPERTY).flatMap(prop -> {
             /**
              *   "viewMain": MetaData.routeData(View2,
              *        {
@@ -281,9 +282,9 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
                 Optional<PsiElementContext> newParamsMap = prop.$q(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
 
                 final String viewName = propKey.get().getText();
-                Optional<PsiElementContext> callExpr = prop.$q(CHILD_ELEM, JS_CALL_EXPRESSION).findFirst();
-                Optional<PsiElementContext> controller2 = callExpr.isPresent() ? callExpr.get().$q(CHILD_ELEM, JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst() : Optional.empty();
-                Optional<PsiElementContext> paramsMap2 = callExpr.isPresent() ? callExpr.get().$q(CHILD_ELEM, JS_ARGUMENTS_LIST, JS_OBJECT_LITERAL_EXPRESSION).findFirst(): Optional.empty();
+                Optional<PsiElementContext> callExpr = prop.$q(TreeQueryEngine.CHILD_ELEM, JS_CALL_EXPRESSION).findFirst();
+                Optional<PsiElementContext> controller2 = callExpr.isPresent() ? callExpr.get().$q(TreeQueryEngine.CHILD_ELEM, JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst() : Optional.empty();
+                Optional<PsiElementContext> paramsMap2 = callExpr.isPresent() ? callExpr.get().$q(TreeQueryEngine.CHILD_ELEM, JS_ARGUMENTS_LIST, JS_OBJECT_LITERAL_EXPRESSION).findFirst(): Optional.empty();
                 List<PsiRouteContext> rets = resolveParms(routeCall, routeName, callExpr, controller2.isPresent() ? controller2 : controller,newParamsMap.isPresent() ? newParamsMap : paramsMap2);
                 rets.stream().forEach(el -> {
                     el.getRoute().setViewName(viewName);
@@ -306,8 +307,8 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     @NotNull
     public Optional<PsiElementContext> findFirstPropKey(PsiElementContext prop) {
-        Optional<PsiElementContext> el1 =  prop.$q(CHILD_ELEM, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
-        Optional<PsiElementContext> el2=  prop.$q(CHILD_ELEM, JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
+        Optional<PsiElementContext> el1 =  prop.$q(TreeQueryEngine.CHILD_ELEM, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+        Optional<PsiElementContext> el2=  prop.$q(TreeQueryEngine.CHILD_ELEM, JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
 
         Optional<PsiElementContext> propKey = null;
         if(el1.isPresent() && !el2.isPresent()) {
@@ -401,16 +402,16 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     public boolean hasControllerName(String controllerName, Optional<PsiElementContext> el2) {
         return el2.isPresent() && el2.get()
-                .$q(PSI_ELEMENT_JS_STRING_LITERAL, EL_TEXT_EQ(controllerName))
+                .$q(PSI_ELEMENT_JS_STRING_LITERAL, TreeQueryEngine.EL_TEXT_EQ(controllerName))
                 .findFirst().isPresent();
     }
 
     public Stream<PsiElementContext> queryController(IntellijFileContext fc) {
-        return fc.$q(PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("controller"));
+        return fc.$q(PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ("controller"));
     }
 
     public Stream<PsiElementContext> queryComponent(IntellijFileContext fc) {
-        return fc.$q(PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ("component"));
+        return fc.$q(PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ("component"));
     }
 
     public static Optional<PsiElementContext> findMethodCallStart(PsiElementContext el, String jsCallExpression) {
@@ -451,7 +452,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
     }
 
     private Optional<PsiElementContext> resolveProp(PsiElementContext paramsMap, String prop, String targetType) {
-        return paramsMap.$q(JS_PROPERTY, EL_NAME_EQ(prop), targetType).findFirst();
+        return paramsMap.$q(JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ(prop), targetType).findFirst();
     }
 
 

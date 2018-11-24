@@ -10,6 +10,7 @@ import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
 import net.werpu.tools.supportive.refactor.IRefactorUnit;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
+import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import net.werpu.tools.supportive.transformations.modelHelpers.*;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +26,7 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 public class AngularJSComponentTransformationModel extends TypescriptFileContext implements ITransformationModel {
 
 
-    public static final Object[] INLINE_FUNC_DECL = {TYPE_SCRIPT_FUNC_EXPR, PARENTS_EQ_FIRST(JS_EXPRESSION_STATEMENT)};
+    public static final Object[] INLINE_FUNC_DECL = {TYPE_SCRIPT_FUNC_EXPR, TreeQueryEngine.PARENTS_EQ_FIRST(JS_EXPRESSION_STATEMENT)};
     Optional<PsiElementContext> lastImport;
     PsiElementContext rootBlock;
     String controllerAs;
@@ -102,7 +103,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     private void parseTemplate() {
-        Optional<PsiElementContext> returnStmt = rootBlock.$q(TYPE_SCRIPT_FIELD, EL_NAME_EQ("template"), JS_RETURN_STATEMENT).findFirst();
+        Optional<PsiElementContext> returnStmt = rootBlock.$q(TYPE_SCRIPT_FIELD, TreeQueryEngine.EL_NAME_EQ("template"), JS_RETURN_STATEMENT).findFirst();
         returnStmt.ifPresent((el) -> {
             Optional<PsiElementContext> found = Stream.concat(el.$q(PSI_ELEMENT_JS_STRING_LITERAL), el.$q(PSI_ELEMENT_JS_IDENTIFIER)).findFirst();
             if (found.isPresent() && found.get().getElement().toString().startsWith(PSI_ELEMENT_JS_IDENTIFIER)) {
@@ -144,7 +145,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     private List<PsiElementContext> parseFunctionVariableDecls(PsiElementContext parentFunctionBlock) {
 
         return parentFunctionBlock.queryContent(JS_VAR_STATEMENT)
-                .filter(e -> e.queryContent(P_PARENTS, TYPE_SCRIPT_FUNC_EXPR, CHILD_ELEM, JS_BLOCK_STATEMENT)
+                .filter(e -> e.queryContent(P_PARENTS, TYPE_SCRIPT_FUNC_EXPR, TreeQueryEngine.CHILD_ELEM, JS_BLOCK_STATEMENT)
                         //only the first parent is valid, the variable must be declared
                         //in the parent function definition
                         .distinct()
@@ -197,7 +198,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     private void parseConstructor() {
-        constructorDef = rootBlock.$q(TYPE_SCRIPT_FIELD, EL_NAME_EQ("controller")).findFirst();
+        constructorDef = rootBlock.$q(TYPE_SCRIPT_FIELD, TreeQueryEngine.EL_NAME_EQ("controller")).findFirst();
         constructorBlock = constructorDef.get().$q(TYPE_SCRIPT_FUNC_EXPR, JS_BLOCK_STATEMENT).findFirst();
 
     }
@@ -301,7 +302,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
     @NotNull
     private Object[] matchInjection(Injector injector) {
-        return new Object[]{PSI_ELEMENT_JS_IDENTIFIER, EL_TEXT_EQ(injector.getName())};
+        return new Object[]{PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ(injector.getName())};
     }
 
 
