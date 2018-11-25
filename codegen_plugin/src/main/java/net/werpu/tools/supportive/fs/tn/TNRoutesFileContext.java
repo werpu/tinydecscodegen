@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 
 import static java.lang.Integer.valueOf;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
+import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.P_PARENTS;
 import static net.werpu.tools.supportive.utils.IntellijUtils.getTsExtension;
 import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
 
@@ -208,13 +209,13 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         IntellijFileContext pageController = new IntellijFileContext(getProject(), getVirtualFile().getParent().findFileByRelativePath(StringUtils.stripQuotes(importPath.get().getText()) + getTsExtension()));
 
-        Optional<PsiElementContext> controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH("@Controller"), JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ("name"), PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+        Optional<PsiElementContext> controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH("@Controller"), JS_PROPERTY, TreeQueryEngine.NAME_EQ("name"), PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
 
         if (!controllerDef.isPresent()) {
-            controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH("@Component"), JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ("name"), PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+            controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH("@Component"), JS_PROPERTY, TreeQueryEngine.NAME_EQ("name"), PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
         }
         if (!controllerDef.isPresent()) {
-            controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH("@Component"), JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ("selector"), PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+            controllerDef = pageController.queryContent(JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH("@Component"), JS_PROPERTY, TreeQueryEngine.NAME_EQ("selector"), PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
         }
 
         String name = "";
@@ -249,12 +250,12 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
     @NotNull
     public Boolean urlMatch(Route routeData, PsiElementContext constructor, String routeProviderName) {
         //TODO also url match against the linked components, but for now this suffices
-        return constructor.queryContent(JS_ARGUMENTS_LIST, ":PARENTS", JS_EXPRESSION_STATEMENT, TreeQueryEngine.EL_TEXT_STARTS_WITH( routeProviderName ), PSI_ELEMENT_JS_STRING_LITERAL, TreeQueryEngine.EL_TEXT_EQ("'" + routeData.getUrl() + "'")).findFirst().isPresent();
+        return constructor.queryContent(JS_ARGUMENTS_LIST, P_PARENTS, JS_EXPRESSION_STATEMENT, TreeQueryEngine.TEXT_STARTS_WITH( routeProviderName ), PSI_ELEMENT_JS_STRING_LITERAL, TreeQueryEngine.TEXT_EQ("'" + routeData.getUrl() + "'")).findFirst().isPresent();
     }
 
     public String getStateOrRouteProviderName(PsiElementContext constructor) {
         Optional<PsiElementContext> routeProviderDef = getSateOrRouteProviderDef(constructor);
-        Optional<PsiElementContext> routeProvider = routeProviderDef.get().$q(TreeQueryEngine.P_PARENTS, TYPE_SCRIPT_PARAM).findFirst();
+        Optional<PsiElementContext> routeProvider = routeProviderDef.get().$q(P_PARENTS, TYPE_SCRIPT_PARAM).findFirst();
         return routeProvider.get().getName();
     }
 

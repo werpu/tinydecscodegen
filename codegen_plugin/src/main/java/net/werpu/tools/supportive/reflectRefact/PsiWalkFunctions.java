@@ -6,8 +6,7 @@ import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.reflectRefact.navigation.BaseQueryEngineImplementation;
 import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
-import net.werpu.tools.supportive.reflectRefact.navigation.PsiElementNavigationAdapter;
-import net.werpu.tools.supportive.reflectRefact.navigation.StreamFunc;
+import net.werpu.tools.supportive.reflectRefact.navigation.PsiElementQueryAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -71,12 +70,12 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final String PSI_ELEMENT_JS_RBRACKET = "PsiElement(JS:RBRACKET)";
     public static final String PSI_ELEMENT_JS_IDENTIFIER = "PsiElement(JS:IDENTIFIER)";
     public static final String PSI_ELEMENT_JS_STRING_LITERAL = "PsiElement(JS:STRING_LITERAL)";
-    public static final Object[] TN_COMP_CONTROLLER_AS = {TYPE_SCRIPT_FIELD, TreeQueryEngine.EL_NAME_EQ("controllerAs"), PSI_ELEMENT_JS_STRING_LITERAL};
+    public static final Object[] TN_COMP_CONTROLLER_AS = {TYPE_SCRIPT_FIELD, TreeQueryEngine.NAME_EQ("controllerAs"), PSI_ELEMENT_JS_STRING_LITERAL};
     public static final String PSI_ELEMENT_JS_STRING_TEMPLATE_PART = "PsiElement(JS:STRING_TEMPLATE_PART)";
     public static final String JS_PROPERTY = "JSProperty";
-    public static final Object[] TN_COMP_BINDINGS = {TYPE_SCRIPT_FIELD, TreeQueryEngine.EL_NAME_EQ("bindings"), JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY};
+    public static final Object[] TN_COMP_BINDINGS = {TYPE_SCRIPT_FIELD, TreeQueryEngine.NAME_EQ("bindings"), JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY};
     public static final String JS_ARRAY_LITERAL_EXPRESSION = "JSArrayLiteralExpression";
-    public static final Object[] TN_COMP_CONTROLLER_ARR = {TYPE_SCRIPT_FIELD, TreeQueryEngine.EL_NAME_EQ("controller"), JS_ARRAY_LITERAL_EXPRESSION};
+    public static final Object[] TN_COMP_CONTROLLER_ARR = {TYPE_SCRIPT_FIELD, TreeQueryEngine.NAME_EQ("controller"), JS_ARRAY_LITERAL_EXPRESSION};
     public static final String JS_ARGUMENTS_LIST = "JSArgumentList";
     public static final String JS_PARAMETER_BLOCK = "JSParameterBlock";
 
@@ -88,50 +87,50 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
 
     public static final String NG_MODULE = "@NgModule";
     /*prdefined queries*/
-    public static final Object[] MODULE_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_MODULE), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] MODULE_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_MODULE), JS_ARGUMENTS_LIST};
-    public static final Object[] MODULE_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_MODULE), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] MODULE_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_MODULE), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] MODULE_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_MODULE), JS_ARGUMENTS_LIST};
+    public static final Object[] MODULE_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_MODULE), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
-    public static final Object[] COMPONENT_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_COMPONENT), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] COMPONENT_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_COMPONENT), JS_ARGUMENTS_LIST};
-    public static final Object[] COMPONENT_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_COMPONENT), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] COMPONENT_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_COMPONENT), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] COMPONENT_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_COMPONENT), JS_ARGUMENTS_LIST};
+    public static final Object[] COMPONENT_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_COMPONENT), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
     public static final String NG_DIRECTIVE = "@Directive";
-    public static final Object[] DIRECTIVE_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_DIRECTIVE), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] DIRECTIVE_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_DIRECTIVE), JS_ARGUMENTS_LIST};
-    public static final Object[] DIRECTIVE_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_DIRECTIVE), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] DIRECTIVE_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_DIRECTIVE), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] DIRECTIVE_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_DIRECTIVE), JS_ARGUMENTS_LIST};
+    public static final Object[] DIRECTIVE_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_DIRECTIVE), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
-    public static final Object[] CONFIG_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_CONFIG), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] CONFIG_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_CONFIG), JS_ARGUMENTS_LIST};
-    public static final Object[] CONFIG_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_CONFIG), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] CONFIG_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_CONFIG), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] CONFIG_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_CONFIG), JS_ARGUMENTS_LIST};
+    public static final Object[] CONFIG_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_CONFIG), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
     public static final String NG_FILTER = "@Filter";
-    public static final Object[] FILTER_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_FILTER), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] FILTER_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_FILTER), JS_ARGUMENTS_LIST};
-    public static final Object[] FILTER_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_FILTER), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] FILTER_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_FILTER), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] FILTER_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_FILTER), JS_ARGUMENTS_LIST};
+    public static final Object[] FILTER_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_FILTER), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
     public static final String NG_PIPE = "@Pipe";
-    public static final Object[] PIPE_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_PIPE), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] PIPE_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_PIPE), JS_ARGUMENTS_LIST};
-    public static final Object[] PIPE_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_PIPE), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] PIPE_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_PIPE), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] PIPE_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_PIPE), JS_ARGUMENTS_LIST};
+    public static final Object[] PIPE_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_PIPE), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
     public static final String NG_INJECTABLE = "@Injectable";
-    public static final Object[] SERVICE_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_INJECTABLE), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] SERVICE_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_INJECTABLE), JS_ARGUMENTS_LIST};
-    public static final Object[] SERVICE_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_INJECTABLE), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] SERVICE_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_INJECTABLE), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] SERVICE_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_INJECTABLE), JS_ARGUMENTS_LIST};
+    public static final Object[] SERVICE_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_INJECTABLE), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
-    public static final Object[] CONTROLLER_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_CONTROLLER), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] CONTROLLER_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_CONTROLLER), JS_ARGUMENTS_LIST};
-    public static final Object[] CONTROLLER_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_CONTROLLER), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] CONTROLLER_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_CONTROLLER), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] CONTROLLER_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_CONTROLLER), JS_ARGUMENTS_LIST};
+    public static final Object[] CONTROLLER_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_CONTROLLER), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
     public static final String NG_DTO = "@Dto";
-    public static final Object[] DTO_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_DTO), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
-    public static final Object[] DTO_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_DTO), JS_ARGUMENTS_LIST};
-    public static final Object[] DTO_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.EL_TEXT_STARTS_WITH(NG_DTO), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
+    public static final Object[] DTO_ANN = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_DTO), TreeQueryEngine.PARENTS_EQ(JS_ES_6_DECORATOR)};
+    public static final Object[] DTO_ARGS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_DTO), JS_ARGUMENTS_LIST};
+    public static final Object[] DTO_CLASS = {JS_ES_6_DECORATOR, TreeQueryEngine.TEXT_STARTS_WITH(NG_DTO), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_CLASS)};
 
 
     public static final Object[] TN_COMP_CONTROLLER_FUNC = {TreeQueryEngine.CHILD_ELEM, TYPESCRIPT_FUNCTION_EXPRESSION};
@@ -143,7 +142,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     /*Specific queries used by the transformations*/
 
     //TODO possible problem with multiple modules per file here
-    public static final Object[] ANG1_MODULE_DCL = {JS_CALL_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ("module"), TreeQueryEngine.P_PARENTS, JS_CALL_EXPRESSION};
+    public static final Object[] ANG1_MODULE_DCL = {JS_CALL_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.TEXT_EQ("module"), TreeQueryEngine.P_PARENTS, JS_CALL_EXPRESSION};
     //module name starting from DCL
     public static final Object[] ANG1_MODULE_NAME = {JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     //requires starting from DCL
@@ -153,32 +152,17 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
 
 
     public static Object[] DEF_CALL(String callType) {
-        return new Object[]{JS_CALL_EXPRESSION, TreeQueryEngine.DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), TreeQueryEngine.EL_TEXT_EQ(callType)};
+        return new Object[]{JS_CALL_EXPRESSION, TreeQueryEngine.DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), TreeQueryEngine.TEXT_EQ(callType)};
     }
 
     @NotNull
     public static Object[] TN_DEC_COMPONENT_NAME(String className) {
-        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_NAME_EQ(className), TreeQueryEngine.P_PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
+        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.NAME_EQ(className), TreeQueryEngine.P_PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     }
 
-    /**
-     * a helper which inverses the search order into the opposite direction
-     * note... some special semantic commands like CHILD (>) do not work in this direction
-     * and will throw an error
-     *
-     * @param cmdOrFunction
-     * @return
-     */
-    public static StreamFunc<PsiElementContext> PARENT_SEARCH(Object... cmdOrFunction) {
-        return (Stream<PsiElementContext> items) -> {
 
-            return queryEngine.exec(items.flatMap(item -> item.$q(TreeQueryEngine.P_PARENTS)), cmdOrFunction, false);
-        };
-    }
 
     /*helpers end*/
-
-
     public static Stream<PsiElementContext> queryContent(PsiFile file, Object... items) {
         items = flattendArr(items).stream().toArray(Object[]::new);
         Stream<PsiElementContext> subItem = asList(file).stream().map(item -> new PsiElementContext(item));
@@ -220,18 +204,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
         return Optional.empty();
     }
 
-    public static List<PsiElement> walkParents(PsiElement element, Function<PsiElement, Boolean> psiElementVisitor) {
-        PsiElement walkElem = element;
-        List<PsiElement> retVal = new LinkedList<>();
-        do {
-            if (psiElementVisitor.apply(walkElem)) {
-                retVal.add(walkElem);
-            }
-            walkElem = walkElem.getParent();
-        } while (walkElem != null);
 
-        return retVal;
-    }
 
     public static List<PsiElementContext> walkParents(PsiElementContext element, Function<PsiElementContext, Boolean> psiElementVisitor) {
         PsiElementContext walkElem = element;
@@ -296,7 +269,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
 
 
     static {
-        queryEngine = new TreeQueryEngine<PsiElementContext>(new PsiElementNavigationAdapter());
+        queryEngine = new TreeQueryEngine<PsiElementContext>(new PsiElementQueryAdapter());
     }
 
 

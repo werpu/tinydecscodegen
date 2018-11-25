@@ -102,7 +102,7 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
     List<PsiElementContext> getRouteParams(PsiElementContext constructor, String routeProviderName) {
 
         return constructor
-                .queryContent(PSI_ELEMENT_JS_IDENTIFIER,  TreeQueryEngine.EL_TEXT_EQ("'when'"))
+                .queryContent(PSI_ELEMENT_JS_IDENTIFIER,  TreeQueryEngine.TEXT_EQ("'when'"))
                 .map(item -> item.walkParent(el -> {
                     return literalEquals(el.toString(), JS_EXPRESSION_STATEMENT);
                 }))

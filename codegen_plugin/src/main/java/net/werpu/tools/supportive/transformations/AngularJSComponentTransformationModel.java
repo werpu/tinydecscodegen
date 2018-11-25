@@ -103,7 +103,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     private void parseTemplate() {
-        Optional<PsiElementContext> returnStmt = rootBlock.$q(TYPE_SCRIPT_FIELD, TreeQueryEngine.EL_NAME_EQ("template"), JS_RETURN_STATEMENT).findFirst();
+        Optional<PsiElementContext> returnStmt = rootBlock.$q(TYPE_SCRIPT_FIELD, TreeQueryEngine.NAME_EQ("template"), JS_RETURN_STATEMENT).findFirst();
         returnStmt.ifPresent((el) -> {
             Optional<PsiElementContext> found = Stream.concat(el.$q(PSI_ELEMENT_JS_STRING_LITERAL), el.$q(PSI_ELEMENT_JS_IDENTIFIER)).findFirst();
             if (found.isPresent() && found.get().getElement().toString().startsWith(PSI_ELEMENT_JS_IDENTIFIER)) {
@@ -198,7 +198,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     private void parseConstructor() {
-        constructorDef = rootBlock.$q(TYPE_SCRIPT_FIELD, TreeQueryEngine.EL_NAME_EQ("controller")).findFirst();
+        constructorDef = rootBlock.$q(TYPE_SCRIPT_FIELD, TreeQueryEngine.NAME_EQ("controller")).findFirst();
         constructorBlock = constructorDef.get().$q(TYPE_SCRIPT_FUNC_EXPR, JS_BLOCK_STATEMENT).findFirst();
 
     }
@@ -302,7 +302,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
     @NotNull
     private Object[] matchInjection(Injector injector) {
-        return new Object[]{PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.EL_TEXT_EQ(injector.getName())};
+        return new Object[]{PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.TEXT_EQ(injector.getName())};
     }
 
 

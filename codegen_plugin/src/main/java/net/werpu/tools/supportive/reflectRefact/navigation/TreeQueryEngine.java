@@ -2,7 +2,7 @@ package net.werpu.tools.supportive.reflectRefact.navigation;
 
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
-import net.werpu.tools.supportive.reflectRefact.SIMPLE_COMMAND;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -12,8 +12,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,52 +23,97 @@ import static net.werpu.tools.supportive.utils.StringUtils.literalStartsWith;
 public class TreeQueryEngine<T> {
 
     /*predefined rex for deeper string analysis*/
-    public static final String RE_EL_TEXT_EQ = "^\\s*\\:TEXT\\s*\\((.*)\\)\\s*$";
-    public static final String RE_EL_TEXT_STARTS_WITH = "^\\s*\\:TEXT\\*\\s*\\((.*)\\)\\s*$";
-    public static final String RE_EL_NAME_EQ = "^\\s*\\:NAME\\s*\\((.*)\\)\\s*$";
-    public static final String CHILD_ELEM = ">";
-    public static final String P_PARENTS = ":PARENTS";
-    public static final String P_PARENT = ":PARENT";
-    public static final String P_LAST = ":LAST";
-    public static final String P_FIRST = ":FIRST";
-    static final String RE_STRING_LITERAL = "^[\\\"\\'](.*)[\\\"\\']$";
-    public static final String RE_EL_NAME_STARTS_WITH = "^\\s*\\:NAME\\*\\((.*)\\)\\s*$";
-    public static final String RE_PARENTS_EQ = "^\\s*:PARENTS\\s*\\((.*)\\)\\s*$";
-    public static final String RE_PARENTS_EQ_FIRST = "^\\s*:PARENTS_FIRST\\s*\\((.*)\\)\\s*$";
-    public static final String RE_PARENTS_EQ_LAST = "^\\s*:PARENTS_LAST\\s*\\((.*)\\)\\s*$";
+
+    public static final UnaryCommand CHILD_ELEM = UnaryCommand.CHILD_ELEM;
+    public static final UnaryCommand P_PARENTS = UnaryCommand.P_PARENTS;
+    public static final UnaryCommand P_PARENT = UnaryCommand.P_PARENT;
+    public static final UnaryCommand P_LAST = UnaryCommand.P_LAST;
+    public static final UnaryCommand P_FIRST = UnaryCommand.P_FIRST;
     private static final String ERR_UNDEFINED_QUERY_MAPPING = "Undefined query mapping";
 
 
 
-
-    TreeNavigationAdapter<T> navigationAdapter;
+    @Getter
+    TreeQueryAdapter<T> navigationAdapter;
 
 
     /*Several helpers, which extend the core functionality
      * (walking matching  via strings) with some typesave high level routines*/
-    public static String PARENTS_EQ(String val) {
-        return ":PARENTS(" + val + ")";
+
+    public static <T> QueryExtension<T>  PARENTS_EQ(String val) {
+        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
+                .flatMap(theItem -> engine.getNavigationAdapter().parents(theItem).stream())
+                .filter(el -> {
+            TreeQueryAdapter<T> navigationAdapter = engine.getNavigationAdapter();
+            return literalStartsWith(navigationAdapter.getName(el), val) || literalStartsWith(navigationAdapter.toString(el), val);
+        });
     }
 
-    public static String PARENTS_EQ_FIRST(String val) {
-        return ":PARENTS_FIRST(" + val + ")";
+    public static <T> QueryExtension<T>  PARENTS_EQ_FIRST(String val) {
+        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
+                .map(theItem -> engine.getNavigationAdapter().walkParents(theItem,
+                        (el) -> {
+                            TreeQueryAdapter<T> navigationAdapter = engine.getNavigationAdapter();
+                            return literalStartsWith(navigationAdapter.getName(el), val) || literalStartsWith(navigationAdapter.toString(el), val);
+                        }
+                ).stream()
+                        .findFirst()
+                        .orElse(null))
+                .filter(el -> el != null);
     }
 
-    public static String PARENTS_EQ_LAST(String val) {
-        return ":PARENTS_LAST(" + val + ")";
+    public static <T> QueryExtension<T>  PARENTS_EQ_LAST(String val) {
+        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
+                .map(theItem -> engine.getNavigationAdapter().walkParents(theItem,
+                        (el) -> {
+                            TreeQueryAdapter<T> navigationAdapter = engine.getNavigationAdapter();
+                            return literalStartsWith(navigationAdapter.getName(el), val) || literalStartsWith(navigationAdapter.toString(el), val);
+                        }
+                ).stream()
+                        .reduce((e1, e2) -> e2)
+                        .orElse(null))
+                .filter(el -> el != null);
     }
 
-    public static String EL_TEXT_EQ(String val) {
-        return ":TEXT(" + val + ")";
+
+    public static <T> QueryExtension<T> TEXT_EQ(String val) {
+        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
+                .filter(el -> {
+            return literalEquals(engine.getNavigationAdapter().getText(el), val);
+        });
     }
 
-    public static String EL_NAME_EQ(String val) {
-        return ":NAME(" + val + ")";
+    public static <T> QueryExtension<T> NAME_EQ(String val) {
+        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream.filter(el -> {
+            return literalEquals(engine.getNavigationAdapter().getName(el),val);
+        });
     }
 
-    public static String EL_TEXT_STARTS_WITH(String val) {
-        return ":TEXT*(" + val + ")";
+    public static <T> QueryExtension<T> TEXT_STARTS_WITH(String val) {
+        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream.filter(el -> {
+            return literalStartsWith(engine.getNavigationAdapter().getText(el),val);
+        });
     }
+
+    public static <T> QueryExtension<T> NAME_STARTS_WITH(String val) {
+        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream.filter(el -> {
+            return literalStartsWith(engine.getNavigationAdapter().getName(el),val);
+        });
+    }
+
+
+    /**
+     * a helper which inverses the search order into the opposite direction
+     * note... some special semantic commands like CHILD (>) do not work in this direction
+     * and will throw an error
+     *
+     * @param cmdOrFunction
+     * @return
+     */
+    public static <T> QueryExtension<T> PARENT_SEARCH(Object... cmdOrFunction) {
+        return (TreeQueryEngine<T> engine, Stream<T> items) -> engine.exec(items.flatMap(item -> engine.getNavigationAdapter().parents(item).stream()), cmdOrFunction, false);
+    }
+
 
     public static Object DIRECT_CHILD(String val) {
         return new Object[]{CHILD_ELEM, val};
@@ -87,6 +130,12 @@ public class TreeQueryEngine<T> {
     }
 
     /**
+     * TODO update the grammar after we go for a smalltalk like
+     * small extensible core
+     *
+
+     *
+     *
      * This is the central method of our query engine
      * it follows a very simple grammar which distincts
      * between string matches and simple commands and function
@@ -98,26 +147,28 @@ public class TreeQueryEngine<T> {
      * once this is done, if you want to avoid that behavior
      * you either can use a firstElem() or reduce
      * or as shortcut if you do not want to leave the query
-     * P_FIRST (:FIRST)
-     * or
-     * P_LAST (:LAST)
-     * <p>
-     * to make the reduction within the query
-     * <p>
-     * Syntax
-     * <p>
+     *
      * QUERY: COMMAND*
-     * COMMAND: ELEMENT_TYPE | SIMPLE_COMMAND | FUNC
-     * <p>
-     * ELEMENT_TYPE: char*
-     * <p>
-     * SIMPLE_COMMAND: > | :FIRST | :TEXT(<char *>) | :TEXT*(<char *>) | :NAME(<char *>) | :NAME*(<char *>) | PARENTS_EQ:(<char *> | ElementType) | PARENTS_EQ_FIRST:(<char *> | ElementType) | PARENTS_EQ_LAST:(<char *> | ElementType)   | :PARENTS | :PARENT   | :LAST | :FIRST
-     * :PARENTS(COMMAND) shortcut for :PARENTS, :TEXT(...) or :PARENTS,COMMAND
-     * <p>
-     * FUNC: CONSUMER | PREDICATE | FUNCTION
+     * COMMAND: UNARY_COMMAND | FUNC | NameMatch
+     * UNARY_COMMAND: CHILD_ELEM, P_FIRST, P_PARENTS, P_PARENT, P_LAST
+     *
+     * FUNC: EXTENSION | CONSUMER | PREDICATE | FUNCTION
      * CONSUMER: Function as defined by Java
      * PREDICATE: Function as defined by Java
      * FUNCTION: Function as defined by Java
+     *
+     * EXTENSION:
+     *  PARENTS_EQ(NameMatch) |
+     *  PARENTS_EQ_FIRST(NameMatch) |
+     *  PARENTS_EQ_LAST(NameMatch) |
+     *  TEXT_EQ(TextMatch) |
+     *  NAME_EQ(NameMatch) |
+     *  TEXT_STARTS_WITH(TextMatch) |
+     *  NAME_STARTS_WITH(NameMatch) |
+     *  PARENT_SEARCH(QUERY)
+     *
+     *  And whatever the user defines
+     *
      *
      * @param subItem  item to be queried
      * @param commands the list of commands to be processed
@@ -126,37 +177,21 @@ public class TreeQueryEngine<T> {
     @NotNull
     public Stream<T> exec(Stream<T> subItem, Object[] commands, boolean directionDown) {
         for (Object command : commands) {
+            //name match
             if (isStringElement(command)) {
                 //lets reduce mem consumption by distincting the subset results
                 subItem = subItem.distinct();
 
                 String strCommand = ((String) command).trim();
-                SIMPLE_COMMAND simpleCommand = SIMPLE_COMMAND.fromValue(strCommand);
+                subItem = elementTypeMatch(subItem, strCommand);
+                continue;
+
+            } else if(command instanceof UnaryCommand) {
+                UnaryCommand simpleCommand = (UnaryCommand) command;
                 if (simpleCommand != null) {//command found
                     switch (simpleCommand) {
                         case CHILD_ELEM:
                             subItem = subItem.flatMap(theItem -> navigationAdapter.findChildren(theItem, el -> Boolean.TRUE).stream());
-                            continue;
-                        case RE_EL_TEXT_EQ:
-                            subItem = handleTextEQ(subItem, strCommand);
-                            continue;
-                        case RE_EL_TEXT_STARTS_WITH:
-                            subItem = handleTextStartsWith(subItem, strCommand);
-                            continue;
-                        case RE_EL_NAME_EQ:
-                            subItem = handleNameEQ(subItem, strCommand);
-                            continue;
-                        case RE_EL_NAME_STARTS_WITH:
-                            subItem = handleNameStartsWith(subItem, strCommand);
-                            continue;
-                        case RE_PARENTS_EQ:
-                            subItem = handleParentsEq(subItem, strCommand);
-                            continue;
-                        case RE_PARENTS_EQ_FIRST:
-                            subItem = handleParentsEqFirst(subItem, strCommand);
-                            continue;
-                        case RE_PARENTS_EQ_LAST:
-                            subItem = handleParentsEqLast(subItem, strCommand);
                             continue;
                         case P_FIRST:
                             subItem = handlePFirst(subItem);
@@ -172,9 +207,6 @@ public class TreeQueryEngine<T> {
                             continue;
                     }
                 }
-                subItem = elementTypeMatch(subItem, strCommand);
-                continue;
-
             }
             subItem = functionTokenMatch(subItem, command);
         }
@@ -212,6 +244,8 @@ public class TreeQueryEngine<T> {
     private Stream<T> functionTokenMatch(Stream<T> subItem, Object func) {
         if(func instanceof StreamFunc) {
             subItem = ((StreamFunc<T>) func).apply(subItem);
+        } else  if(func instanceof QueryExtension) {
+            subItem = ((QueryExtension<T>) func).apply(this, subItem);
         }
         else if (func instanceof Consumer) {
             subItem = handleConsumer(subItem, (Consumer) func);
@@ -252,143 +286,15 @@ public class TreeQueryEngine<T> {
         return item instanceof String;
     }
 
-    @NotNull
-    private Stream<T> handleTextStartsWith(Stream<T> subItem, String text) {
-        Pattern p = Pattern.compile(RE_EL_TEXT_STARTS_WITH);
-        subItem = subItem.filter(psiElementContext -> {
-
-            Matcher m = p.matcher(text);
-            if (!m.find()) {
-                return false;
-            }
-            String matchText = m.group(1);
-
-            return literalStartsWith(getText(psiElementContext), matchText) || getText(psiElementContext).startsWith(matchText);
-        });
-        return subItem;
-    }
-
-    @NotNull
-    private Stream<T> handleTextEQ(Stream<T> subItem, String text) {
-        Pattern p = Pattern.compile(RE_EL_TEXT_EQ);
-        subItem = subItem.filter(psiElementContext -> {
-
-            Matcher m = p.matcher(text);
-            if (!m.find()) {
-                return false;
-            }
-            String matchText = m.group(1);
-            boolean literalEquals = false;
-            if (matchText.matches(RE_STRING_LITERAL)) {
-                matchText = matchText.substring(1, matchText.length() - 1);
-                literalEquals = true;
-            }
-
-            return literalEquals ? literalEquals(getText(psiElementContext), matchText) : matchText.equals(getText(psiElementContext));
-        });
-        return subItem;
-    }
-
-    @NotNull
-    private Stream<T> handleNameStartsWith(Stream<T> subItem, String text) {
-        Pattern p = Pattern.compile(RE_EL_NAME_STARTS_WITH);
-        subItem = subItem.filter(psiElementContext -> {
-
-            Matcher m = p.matcher(text);
-            if (!m.find()) {
-                return false;
-            }
-            String matchText = m.group(1);
-
-            return literalStartsWith(getName(psiElementContext), matchText) ||
-
-                    getName(psiElementContext).startsWith(matchText);
-        });
-        return subItem;
-    }
-
-    @NotNull
-    private Stream<T> handleNameEQ(Stream<T> subItem, String text) {
-        Pattern p = Pattern.compile(RE_EL_NAME_EQ);
-        subItem = subItem.filter(psiElementContext -> {
-
-            Matcher m = p.matcher(text);
-            if (!m.find()) {
-                return false;
-            }
-            String matchText = m.group(1);
-            boolean literalEquals = false;
-            if (matchText.matches(RE_STRING_LITERAL)) {
-                matchText = matchText.substring(1, matchText.length() - 1);
-                literalEquals = true;
-            }
-
-            return literalEquals ? literalEquals(getName(psiElementContext), matchText) : matchText.equals(getName(psiElementContext));
-        });
-        return subItem;
-    }
-
-    private String getName(T psiElementContext) {
-        return navigationAdapter.getName(psiElementContext);
-    }
-
-    @NotNull
-    private Stream<T> handleParentsEq(Stream<T> subItem, String text) {
-        Pattern p = Pattern.compile(RE_PARENTS_EQ);
-        subItem = subItem.flatMap(theItem -> parents(theItem).stream().filter(psiElementContext -> {
-
-            Matcher m = p.matcher(text);
-            if (!m.find()) {
-                return false;
-            }
-            String matchText = m.group(1);
-
-            return literalStartsWith(getName(psiElementContext), matchText) || literalStartsWith(toString(psiElementContext), matchText);
-        }));
-        return subItem;
-    }
-
-    @NotNull
-    private Stream<T> handleParentsEqFirst(Stream<T> subItem, String text) {
-        Pattern p = Pattern.compile(RE_PARENTS_EQ_FIRST);
-        return subItem.map(theItem -> parents(theItem).stream().filter(psiElementContext -> {
-
-            Matcher m = p.matcher(text);
-            if (!m.find()) {
-                return false;
-            }
-            String matchText = m.group(1);
-
-            return literalStartsWith(getName(psiElementContext), matchText) || literalStartsWith(toString(psiElementContext), matchText);
-        }).findFirst())
-                .filter(item -> item.isPresent()).map(Optional::get);
 
 
-    }
+
 
     private String toString(T psiElementContext) {
         return navigationAdapter.toString(psiElementContext);
     }
 
-    private String getText(T psiElementContext) {
-        return navigationAdapter.getText(psiElementContext);
-    }
 
-    @NotNull
-    private  Stream<T> handleParentsEqLast(Stream<T> subItem, String text) {
-        Pattern p = Pattern.compile(RE_PARENTS_EQ_LAST);
-        return subItem.map(theItem -> parents(theItem).stream().filter(psiElementContext -> {
-
-            Matcher m = p.matcher(text);
-            if (!m.find()) {
-                return false;
-            }
-            String matchText = m.group(1);
-
-            return literalStartsWith(getName(psiElementContext), matchText) || literalStartsWith(toString(psiElementContext), matchText);
-        }).reduce((e1, e2) -> e2)).filter(item -> item.isPresent()).map(Optional::get);
-
-    }
 
 
     @NotNull

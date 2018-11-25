@@ -24,6 +24,8 @@ import static com.intellij.util.io.IOUtil.readUTF;
 import static com.intellij.util.io.IOUtil.writeUTF;
 import static java.util.stream.Stream.concat;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
+import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.INVERSE;
+import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.PARENT_SEARCH;
 
 /**
  * Gists are  caches
@@ -178,14 +180,14 @@ public class ComponentFileGist {
         } else {
             Optional<PsiElement> template;
             if (componentAnn == null) {
-                template = new IntellijFileContext(file.getProject(), file).$q(JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ(propName))
+                template = new IntellijFileContext(file.getProject(), file).$q(JS_PROPERTY, TreeQueryEngine.NAME_EQ(propName))
                         .filter(ComponentFileGist::inTemplateHolder)
                         .map(PsiElementContext::getElement)
                         .findFirst();
             } else {
                 template = Arrays.stream(componentAnn.getChildren())
                         .map(PsiElementContext::new)
-                        .flatMap(ctx -> ctx.$q(JS_PROPERTY, TreeQueryEngine.EL_NAME_EQ(propName)))
+                        .flatMap(ctx -> ctx.$q(JS_PROPERTY, TreeQueryEngine.NAME_EQ(propName)))
                         .filter(ComponentFileGist::inTemplateHolder)
                         .map(PsiElementContext::getElement)
                         .findFirst();
@@ -197,9 +199,9 @@ public class ComponentFileGist {
 
     static boolean inTemplateHolder(PsiElement element) {
 
-        return concat(concat(queryContent(element, PARENT_SEARCH(TreeQueryEngine.INVERSE(CONTROLLER_ANN))),
-                queryContent(element, PARENT_SEARCH(TreeQueryEngine.INVERSE(COMPONENT_ANN)))),
-                queryContent(element, PARENT_SEARCH(TreeQueryEngine.INVERSE(DIRECTIVE_ANN)))).findFirst()
+        return concat(concat(queryContent(element, PARENT_SEARCH(INVERSE(CONTROLLER_ANN))),
+                queryContent(element, PARENT_SEARCH(INVERSE(COMPONENT_ANN)))),
+                queryContent(element, PARENT_SEARCH(INVERSE(DIRECTIVE_ANN)))).findFirst()
                 .isPresent();
 
     }
