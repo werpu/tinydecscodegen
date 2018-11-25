@@ -16,19 +16,55 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
+import static net.werpu.tools.supportive.utils.IntellijUtils.flattendArr;
 import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
 import static net.werpu.tools.supportive.utils.StringUtils.literalStartsWith;
 
+/**
+ * central query engine.
+ * We are opting here for a typesafe query engine
+ * to avoid the parser overhead
+ *
+ * The syntax is rather straight forward
+ * and in a smalltalk/scala way uses a small core
+ * of unary/extensions and functions
+ * which allows for abitrary tree ops in both directions
+ *
+ * QUERY: COMMAND*
+ * COMMAND: UNARY_COMMAND | FUNC | NAME_MATCH | QUERY
+ * UNARY_COMMAND: CHILD_ELEM, FIRST, PARENTS, PARENT, LAST
+ *
+ * FUNC: EXTENSION | CONSUMER | PREDICATE | FUNCTION
+ *
+ * CONSUMER: Function as defined by Java
+ * PREDICATE: Function as defined by Java
+ * FUNCTION: Function as defined by Java
+ *
+ * EXTENSION:
+ *  PARENTS_EQ(NAME_MATCH) |
+ *  PARENTS_EQ_FIRST(NAME_MATCH) |
+ *  PARENTS_EQ_LAST(NAME_MATCH) |
+ *  TEXT_EQ(NAME_MATCH) |
+ *  NAME_EQ(NAME_MATCH) |
+ *  TEXT_STARTS_WITH(NAME_MATCH) |
+ *  NAME_STARTS_WITH(NAME_MATCH) |
+ *  PARENT_SEARCH(QUERY)
+ *
+ *  NAME_MATCH: char*
+ *
+ *  And whatever the user defines
+ *
+ * @param <T>
+ */
 @AllArgsConstructor
 public class TreeQueryEngine<T> {
 
-    /*predefined rex for deeper string analysis*/
-
+    /*unary core commands*/
     public static final UnaryCommand CHILD_ELEM = UnaryCommand.CHILD_ELEM;
-    public static final UnaryCommand P_PARENTS = UnaryCommand.P_PARENTS;
-    public static final UnaryCommand P_PARENT = UnaryCommand.P_PARENT;
-    public static final UnaryCommand P_LAST = UnaryCommand.P_LAST;
-    public static final UnaryCommand P_FIRST = UnaryCommand.P_FIRST;
+    public static final UnaryCommand PARENTS = UnaryCommand.PARENTS;
+    public static final UnaryCommand PARENT = UnaryCommand.PARENT;
+    public static final UnaryCommand LAST = UnaryCommand.LAST;
+    public static final UnaryCommand FIRST = UnaryCommand.FIRST;
     private static final String ERR_UNDEFINED_QUERY_MAPPING = "Undefined query mapping";
 
 
@@ -147,27 +183,7 @@ public class TreeQueryEngine<T> {
      * once this is done, if you want to avoid that behavior
      * you either can use a firstElem() or reduce
      * or as shortcut if you do not want to leave the query
-     *
-     * QUERY: COMMAND*
-     * COMMAND: UNARY_COMMAND | FUNC | NameMatch
-     * UNARY_COMMAND: CHILD_ELEM, P_FIRST, P_PARENTS, P_PARENT, P_LAST
-     *
-     * FUNC: EXTENSION | CONSUMER | PREDICATE | FUNCTION
-     * CONSUMER: Function as defined by Java
-     * PREDICATE: Function as defined by Java
-     * FUNCTION: Function as defined by Java
-     *
-     * EXTENSION:
-     *  PARENTS_EQ(NameMatch) |
-     *  PARENTS_EQ_FIRST(NameMatch) |
-     *  PARENTS_EQ_LAST(NameMatch) |
-     *  TEXT_EQ(TextMatch) |
-     *  NAME_EQ(NameMatch) |
-     *  TEXT_STARTS_WITH(TextMatch) |
-     *  NAME_STARTS_WITH(NameMatch) |
-     *  PARENT_SEARCH(QUERY)
-     *
-     *  And whatever the user defines
+
      *
      *
      * @param subItem  item to be queried
@@ -175,42 +191,53 @@ public class TreeQueryEngine<T> {
      * @return
      */
     @NotNull
-    public Stream<T> exec(Stream<T> subItem, Object[] commands, boolean directionDown) {
+    public Stream<T> exec(Stream<T> subItem, Object[] query, boolean directionDown) {
+        Object [] commands = flattendArr(query).stream().toArray(Object[]::new);
         for (Object command : commands) {
             //name match
-            if (isStringElement(command)) {
-                //lets reduce mem consumption by distincting the subset results
-                subItem = subItem.distinct();
-
-                String strCommand = ((String) command).trim();
-                subItem = elementTypeMatch(subItem, strCommand);
+            if (NAME_MATCH(command)) {
+                subItem = NAME_MATCH(subItem, (String) command);
                 continue;
 
-            } else if(command instanceof UnaryCommand) {
+            } else if(UNARY_COMMAND(command)) {
                 UnaryCommand simpleCommand = (UnaryCommand) command;
                 if (simpleCommand != null) {//command found
                     switch (simpleCommand) {
                         case CHILD_ELEM:
                             subItem = subItem.flatMap(theItem -> navigationAdapter.findChildren(theItem, el -> Boolean.TRUE).stream());
                             continue;
-                        case P_FIRST:
+                        case FIRST:
                             subItem = handlePFirst(subItem);
                             continue;
-                        case P_PARENTS:
+                        case PARENTS:
                             subItem = parentsOf(subItem);
                             continue;
-                        case P_PARENT:
+                        case PARENT:
                             subItem = parentOf(subItem);
                             continue;
-                        case P_LAST:
+                        case LAST:
                             subItem = handlePLast(subItem);
                             continue;
                     }
                 }
             }
-            subItem = functionTokenMatch(subItem, command);
+            subItem = FUNC(subItem, command);
         }
         return subItem.distinct();
+    }
+
+    public boolean UNARY_COMMAND(Object command) {
+        return command instanceof UnaryCommand;
+    }
+
+    @NotNull
+    public Stream<T> NAME_MATCH(Stream<T> subItem, String command) {
+        //lets reduce mem consumption by distincting the subset results
+        subItem = subItem.distinct();
+
+        String strCommand = command.trim();
+        subItem = elementTypeMatch(subItem, strCommand);
+        return subItem;
     }
 
 
@@ -241,7 +268,7 @@ public class TreeQueryEngine<T> {
      * @return the processed subitem
      */
     @NotNull
-    private Stream<T> functionTokenMatch(Stream<T> subItem, Object func) {
+    private Stream<T> FUNC(Stream<T> subItem, Object func) {
         if(func instanceof StreamFunc) {
             subItem = ((StreamFunc<T>) func).apply(subItem);
         } else  if(func instanceof QueryExtension) {
@@ -282,7 +309,7 @@ public class TreeQueryEngine<T> {
 
 
 
-    private static boolean isStringElement(Object item) {
+    private static boolean NAME_MATCH(Object item) {
         return item instanceof String;
     }
 

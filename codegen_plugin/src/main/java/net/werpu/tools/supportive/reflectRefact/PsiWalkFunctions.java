@@ -142,7 +142,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     /*Specific queries used by the transformations*/
 
     //TODO possible problem with multiple modules per file here
-    public static final Object[] ANG1_MODULE_DCL = {JS_CALL_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.TEXT_EQ("module"), TreeQueryEngine.P_PARENTS, JS_CALL_EXPRESSION};
+    public static final Object[] ANG1_MODULE_DCL = {JS_CALL_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.TEXT_EQ("module"), TreeQueryEngine.PARENTS, JS_CALL_EXPRESSION};
     //module name starting from DCL
     public static final Object[] ANG1_MODULE_NAME = {JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     //requires starting from DCL
@@ -157,7 +157,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
 
     @NotNull
     public static Object[] TN_DEC_COMPONENT_NAME(String className) {
-        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.NAME_EQ(className), TreeQueryEngine.P_PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
+        return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.NAME_EQ(className), TreeQueryEngine.PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     }
 
 

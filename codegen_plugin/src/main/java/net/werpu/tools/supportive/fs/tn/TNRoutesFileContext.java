@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 import static java.lang.Integer.valueOf;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
-import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.P_PARENTS;
+import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.PARENTS;
 import static net.werpu.tools.supportive.utils.IntellijUtils.getTsExtension;
 import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
 
@@ -177,7 +177,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
     public Optional<String> resolveJsVar(PsiElementContext call) {
         //$routeProvider.when("/view1", MetaData.routeData(View1));
         return call.findPsiElements(psiElement -> psiElement.getText().startsWith("MetaData.routeData")).stream()
-                .map(item -> item.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.P_LAST).findFirst().get())
+                .map(item -> item.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.LAST).findFirst().get())
                 .map(item -> item.getText()).findFirst();
 
     }
@@ -250,12 +250,12 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
     @NotNull
     public Boolean urlMatch(Route routeData, PsiElementContext constructor, String routeProviderName) {
         //TODO also url match against the linked components, but for now this suffices
-        return constructor.queryContent(JS_ARGUMENTS_LIST, P_PARENTS, JS_EXPRESSION_STATEMENT, TreeQueryEngine.TEXT_STARTS_WITH( routeProviderName ), PSI_ELEMENT_JS_STRING_LITERAL, TreeQueryEngine.TEXT_EQ("'" + routeData.getUrl() + "'")).findFirst().isPresent();
+        return constructor.queryContent(JS_ARGUMENTS_LIST, PARENTS, JS_EXPRESSION_STATEMENT, TreeQueryEngine.TEXT_STARTS_WITH( routeProviderName ), PSI_ELEMENT_JS_STRING_LITERAL, TreeQueryEngine.TEXT_EQ("'" + routeData.getUrl() + "'")).findFirst().isPresent();
     }
 
     public String getStateOrRouteProviderName(PsiElementContext constructor) {
         Optional<PsiElementContext> routeProviderDef = getSateOrRouteProviderDef(constructor);
-        Optional<PsiElementContext> routeProvider = routeProviderDef.get().$q(P_PARENTS, TYPE_SCRIPT_PARAM).findFirst();
+        Optional<PsiElementContext> routeProvider = routeProviderDef.get().$q(PARENTS, TYPE_SCRIPT_PARAM).findFirst();
         return routeProvider.get().getName();
     }
 

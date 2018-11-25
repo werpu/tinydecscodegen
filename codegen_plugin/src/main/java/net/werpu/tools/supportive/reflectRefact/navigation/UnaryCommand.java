@@ -16,9 +16,9 @@ import java.util.Arrays;
 public enum UnaryCommand {
 
     CHILD_ELEM,
-    P_FIRST,
-    P_PARENTS,
-    P_PARENT,
-    P_LAST
+    FIRST,
+    PARENTS,
+    PARENT,
+    LAST
 
 }
