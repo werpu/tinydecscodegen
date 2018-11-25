@@ -24,35 +24,35 @@ import static net.werpu.tools.supportive.utils.StringUtils.literalStartsWith;
  * central query engine.
  * We are opting here for a typesafe query engine
  * to avoid the parser overhead
- *
+ * <p>
  * The syntax is rather straight forward
  * and in a smalltalk/scala way uses a small core
  * of unary/extensions and functions
  * which allows for abitrary tree ops in both directions
- *
+ * <p>
  * QUERY: COMMAND*
  * COMMAND: UNARY_COMMAND | FUNC | NAME_MATCH | QUERY
  * UNARY_COMMAND: CHILD_ELEM, FIRST, PARENTS, PARENT, LAST
- *
+ * <p>
  * FUNC: EXTENSION | CONSUMER | PREDICATE | FUNCTION
- *
+ * <p>
  * CONSUMER: Function as defined by Java
  * PREDICATE: Function as defined by Java
  * FUNCTION: Function as defined by Java
- *
+ * <p>
  * EXTENSION:
- *  PARENTS_EQ(NAME_MATCH) |
- *  PARENTS_EQ_FIRST(NAME_MATCH) |
- *  PARENTS_EQ_LAST(NAME_MATCH) |
- *  TEXT_EQ(NAME_MATCH) |
- *  NAME_EQ(NAME_MATCH) |
- *  TEXT_STARTS_WITH(NAME_MATCH) |
- *  NAME_STARTS_WITH(NAME_MATCH) |
- *  PARENT_SEARCH(QUERY)
- *
- *  NAME_MATCH: char*
- *
- *  And whatever the user defines
+ * PARENTS_EQ(NAME_MATCH) |
+ * PARENTS_EQ_FIRST(NAME_MATCH) |
+ * PARENTS_EQ_LAST(NAME_MATCH) |
+ * TEXT_EQ(NAME_MATCH) |
+ * NAME_EQ(NAME_MATCH) |
+ * TEXT_STARTS_WITH(NAME_MATCH) |
+ * NAME_STARTS_WITH(NAME_MATCH) |
+ * PARENT_SEARCH(QUERY)
+ * <p>
+ * NAME_MATCH: char*
+ * <p>
+ * And whatever the user defines
  *
  * @param <T>
  */
@@ -68,7 +68,6 @@ public class TreeQueryEngine<T> {
     private static final String ERR_UNDEFINED_QUERY_MAPPING = "Undefined query mapping";
 
 
-
     @Getter
     TreeQueryAdapter<T> navigationAdapter;
 
@@ -76,17 +75,17 @@ public class TreeQueryEngine<T> {
     /*Several helpers, which extend the core functionality
      * (walking matching  via strings) with some typesave high level routines*/
 
-    public static <T> QueryExtension<T>  PARENTS_EQ(String val) {
-        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
+    public static <T> QueryExtension<T> PARENTS_EQ(String val) {
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
                 .flatMap(theItem -> engine.getNavigationAdapter().parents(theItem).stream())
                 .filter(el -> {
-            TreeQueryAdapter<T> navigationAdapter = engine.getNavigationAdapter();
-            return literalStartsWith(navigationAdapter.getName(el), val) || literalStartsWith(navigationAdapter.toString(el), val);
-        });
+                    TreeQueryAdapter<T> navigationAdapter = engine.getNavigationAdapter();
+                    return literalStartsWith(navigationAdapter.getName(el), val) || literalStartsWith(navigationAdapter.toString(el), val);
+                });
     }
 
-    public static <T> QueryExtension<T>  PARENTS_EQ_FIRST(String val) {
-        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
+    public static <T> QueryExtension<T> PARENTS_EQ_FIRST(String val) {
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
                 .map(theItem -> engine.getNavigationAdapter().walkParents(theItem,
                         (el) -> {
                             TreeQueryAdapter<T> navigationAdapter = engine.getNavigationAdapter();
@@ -98,8 +97,38 @@ public class TreeQueryEngine<T> {
                 .filter(el -> el != null);
     }
 
-    public static <T> QueryExtension<T>  PARENTS_EQ_LAST(String val) {
-        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
+    private static <T> Stream<T> any(Stream<T> str1, Stream<T> str2) {
+
+        List<T> strList1 = str1.collect(Collectors.toList());
+        List<T> strList2 = str1.collect(Collectors.toList());
+        return strList1.isEmpty() ? strList2.stream() : strList1.stream();
+
+    }
+
+    public static <T> QueryExtension<T> ANY(Object[] str1, Object[] str2) {
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
+            List<T> itemlist = stream.collect(Collectors.toList());
+            return any(engine.exec(itemlist.stream(), str1, false),
+                    engine.exec(itemlist.stream(), str2, false));
+
+        };
+    }
+
+    private static <T> Stream<T> all(Stream<T> str1, Stream<T> str2) {
+        return Stream.concat(str1, str2);
+    }
+
+    public static <T> QueryExtension<T> ALL(Object[] str1, Object[] str2) {
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
+            List<T> itemlist = stream.collect(Collectors.toList());
+            return all(engine.exec(itemlist.stream(), str1, false),
+                    engine.exec(itemlist.stream(), str2, false));
+
+        };
+    }
+
+    public static <T> QueryExtension<T> PARENTS_EQ_LAST(String val) {
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
                 .map(theItem -> engine.getNavigationAdapter().walkParents(theItem,
                         (el) -> {
                             TreeQueryAdapter<T> navigationAdapter = engine.getNavigationAdapter();
@@ -113,27 +142,27 @@ public class TreeQueryEngine<T> {
 
 
     public static <T> QueryExtension<T> TEXT_EQ(String val) {
-        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
                 .filter(el -> {
-            return literalEquals(engine.getNavigationAdapter().getText(el), val);
-        });
+                    return literalEquals(engine.getNavigationAdapter().getText(el), val);
+                });
     }
 
     public static <T> QueryExtension<T> NAME_EQ(String val) {
-        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream.filter(el -> {
-            return literalEquals(engine.getNavigationAdapter().getName(el),val);
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream.filter(el -> {
+            return literalEquals(engine.getNavigationAdapter().getName(el), val);
         });
     }
 
     public static <T> QueryExtension<T> TEXT_STARTS_WITH(String val) {
-        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream.filter(el -> {
-            return literalStartsWith(engine.getNavigationAdapter().getText(el),val);
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream.filter(el -> {
+            return literalStartsWith(engine.getNavigationAdapter().getText(el), val);
         });
     }
 
     public static <T> QueryExtension<T> NAME_STARTS_WITH(String val) {
-        return  (TreeQueryEngine<T> engine, Stream<T> stream) -> stream.filter(el -> {
-            return literalStartsWith(engine.getNavigationAdapter().getName(el),val);
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream.filter(el -> {
+            return literalStartsWith(engine.getNavigationAdapter().getName(el), val);
         });
     }
 
@@ -168,10 +197,10 @@ public class TreeQueryEngine<T> {
     /**
      * TODO update the grammar after we go for a smalltalk like
      * small extensible core
-     *
-
-     *
-     *
+     * <p>
+     * <p>
+     * <p>
+     * <p>
      * This is the central method of our query engine
      * it follows a very simple grammar which distincts
      * between string matches and simple commands and function
@@ -183,8 +212,6 @@ public class TreeQueryEngine<T> {
      * once this is done, if you want to avoid that behavior
      * you either can use a firstElem() or reduce
      * or as shortcut if you do not want to leave the query
-
-     *
      *
      * @param subItem  item to be queried
      * @param commands the list of commands to be processed
@@ -192,14 +219,14 @@ public class TreeQueryEngine<T> {
      */
     @NotNull
     public Stream<T> exec(Stream<T> subItem, Object[] query, boolean directionDown) {
-        Object [] commands = flattendArr(query).stream().toArray(Object[]::new);
+        Object[] commands = flattendArr(query).stream().toArray(Object[]::new);
         for (Object command : commands) {
             //name match
             if (NAME_MATCH(command)) {
                 subItem = NAME_MATCH(subItem, (String) command);
                 continue;
 
-            } else if(UNARY_COMMAND(command)) {
+            } else if (UNARY_COMMAND(command)) {
                 UnaryCommand simpleCommand = (UnaryCommand) command;
                 if (simpleCommand != null) {//command found
                     switch (simpleCommand) {
@@ -243,7 +270,7 @@ public class TreeQueryEngine<T> {
 
     @NotNull
     private Stream<T> elementTypeMatch(Stream<T> subItem, String finalSubCommand) {
-        subItem = subItem.flatMap(psiItem ->  navigationAdapter.findElements(psiItem, psiElement -> {
+        subItem = subItem.flatMap(psiItem -> navigationAdapter.findElements(psiItem, psiElement -> {
             String cmdString = toString(psiElement);
             return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand + ":");
         }).stream())
@@ -269,12 +296,11 @@ public class TreeQueryEngine<T> {
      */
     @NotNull
     private Stream<T> FUNC(Stream<T> subItem, Object func) {
-        if(func instanceof StreamFunc) {
+        if (func instanceof StreamFunc) {
             subItem = ((StreamFunc<T>) func).apply(subItem);
-        } else  if(func instanceof QueryExtension) {
+        } else if (func instanceof QueryExtension) {
             subItem = ((QueryExtension<T>) func).apply(this, subItem);
-        }
-        else if (func instanceof Consumer) {
+        } else if (func instanceof Consumer) {
             subItem = handleConsumer(subItem, (Consumer) func);
         } else if (func instanceof Predicate) {
             subItem = handlePredicate(subItem, (Predicate) func);
@@ -287,19 +313,19 @@ public class TreeQueryEngine<T> {
     }
 
     @NotNull
-    private  Stream<T> handleFunction(Stream<T> subItem, Function<T, T> item) {
+    private Stream<T> handleFunction(Stream<T> subItem, Function<T, T> item) {
         subItem = subItem.map(item::apply);
         return subItem;
     }
 
     @NotNull
-    private  Stream<T> handlePredicate(Stream<T> subItem, Predicate item) {
+    private Stream<T> handlePredicate(Stream<T> subItem, Predicate item) {
         subItem = subItem.filter(item::test);
         return subItem;
     }
 
     @NotNull
-    private  Stream<T> handleConsumer(Stream<T> subItem, Consumer item) {
+    private Stream<T> handleConsumer(Stream<T> subItem, Consumer item) {
         subItem.forEach(elem -> {
             item.accept(elem);
         });
@@ -308,20 +334,14 @@ public class TreeQueryEngine<T> {
     }
 
 
-
     private static boolean NAME_MATCH(Object item) {
         return item instanceof String;
     }
 
 
-
-
-
     private String toString(T psiElementContext) {
         return navigationAdapter.toString(psiElementContext);
     }
-
-
 
 
     @NotNull
@@ -336,7 +356,7 @@ public class TreeQueryEngine<T> {
     }
 
     @NotNull
-    private  Stream<T> handlePLast(Stream<T> subItem) {
+    private Stream<T> handlePLast(Stream<T> subItem) {
         Optional<T> reduced = subItem.reduce((theItem, theItem2) -> theItem2);
         if (reduced.isPresent()) {
             subItem = asList(reduced.get()).stream();
@@ -359,7 +379,7 @@ public class TreeQueryEngine<T> {
 
     @NotNull
     private Stream<T> parentOf(Stream<T> subItem) {
-        return subItem.flatMap(item -> parents(item,1).stream());
+        return subItem.flatMap(item -> parents(item, 1).stream());
     }
 
     private static <T> Stream<T> emptyStream() {
