@@ -72,7 +72,13 @@ public class ExpansionMonitor {
                     key = ((IAngularFileContext)userObject).getVirtualFile().getPath();
                 }
                 if(key != null && expanded.contains(key)) {
-                    tree.expandPath(new TreePath(node.getPath()));
+                    try {
+                        tree.expandPath(new TreePath(node.getPath()));
+                    } catch(ArrayIndexOutOfBoundsException ex) {
+                        //workaround for a tree issue
+                        //we simply skin the expansion in this case
+                    }
+
                 }
             });
             tree.doLayout();
