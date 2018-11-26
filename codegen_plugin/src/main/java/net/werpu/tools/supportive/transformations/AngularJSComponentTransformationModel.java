@@ -288,7 +288,9 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                     .map(foundRefExpr -> newThisRefactoring(ctx, foundRefExpr))
                     .collect(Collectors.toList());
 
-
+            if(injectionRefactorings.isEmpty()) {
+                continue;
+            }
             inlineFunction.setRefactoredContent(ctx.calculateRefactoring(injectionRefactorings));
         }
 

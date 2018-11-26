@@ -102,7 +102,7 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
         assertTrue(ctx.getInlineFunctions().get(2).isExternalizale());
         assertTrue(ctx.getSelectorName().equals("probe-component"));
 
-
+        assertTrue(ctx.getRefactoredConstructorBlock().contains("{"));
 
 
     }
