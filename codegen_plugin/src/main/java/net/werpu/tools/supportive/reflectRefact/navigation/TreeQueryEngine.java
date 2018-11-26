@@ -77,10 +77,10 @@ public class TreeQueryEngine<T> {
 
     public static <T> QueryExtension<T> PARENTS_EQ(String val) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
-                .flatMap(theItem -> engine.getNavigationAdapter().parents(theItem).stream())
+                .flatMap(theItem -> engine.getNavigationAdapter().walkParents(theItem, el -> Boolean.TRUE).stream())
                 .filter(el -> {
                     TreeQueryAdapter<T> navigationAdapter = engine.getNavigationAdapter();
-                    return literalStartsWith(navigationAdapter.getName(el), val) || literalStartsWith(navigationAdapter.toString(el), val);
+                    return literalStartsWith(navigationAdapter.getIdentifier(el), val) || literalStartsWith(navigationAdapter.toString(el), val);
                 });
     }
 
@@ -89,7 +89,7 @@ public class TreeQueryEngine<T> {
                 .map(theItem -> engine.getNavigationAdapter().walkParents(theItem,
                         (el) -> {
                             TreeQueryAdapter<T> navigationAdapter = engine.getNavigationAdapter();
-                            return literalStartsWith(navigationAdapter.getName(el), val) || literalStartsWith(navigationAdapter.toString(el), val);
+                            return literalStartsWith(navigationAdapter.getIdentifier(el), val) || literalStartsWith(navigationAdapter.toString(el), val);
                         }
                 ).stream()
                         .findFirst()
@@ -132,7 +132,7 @@ public class TreeQueryEngine<T> {
                 .map(theItem -> engine.getNavigationAdapter().walkParents(theItem,
                         (el) -> {
                             TreeQueryAdapter<T> navigationAdapter = engine.getNavigationAdapter();
-                            return literalStartsWith(navigationAdapter.getName(el), val) || literalStartsWith(navigationAdapter.toString(el), val);
+                            return literalStartsWith(navigationAdapter.getIdentifier(el), val) || literalStartsWith(navigationAdapter.toString(el), val);
                         }
                 ).stream()
                         .reduce((e1, e2) -> e2)
@@ -150,7 +150,7 @@ public class TreeQueryEngine<T> {
 
     public static <T> QueryExtension<T> NAME_EQ(String val) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream.filter(el -> {
-            return literalEquals(engine.getNavigationAdapter().getName(el), val);
+            return literalEquals(engine.getNavigationAdapter().getIdentifier(el), val);
         });
     }
 
@@ -162,7 +162,7 @@ public class TreeQueryEngine<T> {
 
     public static <T> QueryExtension<T> NAME_STARTS_WITH(String val) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream.filter(el -> {
-            return literalStartsWith(engine.getNavigationAdapter().getName(el), val);
+            return literalStartsWith(engine.getNavigationAdapter().getIdentifier(el), val);
         });
     }
 
@@ -176,7 +176,7 @@ public class TreeQueryEngine<T> {
      * @return
      */
     public static <T> QueryExtension<T> PARENT_SEARCH(Object... cmdOrFunction) {
-        return (TreeQueryEngine<T> engine, Stream<T> items) -> engine.exec(items.flatMap(item -> engine.getNavigationAdapter().parents(item).stream()), cmdOrFunction, false);
+        return (TreeQueryEngine<T> engine, Stream<T> items) -> engine.exec(items.flatMap(item -> engine.getNavigationAdapter().walkParents(item, el -> Boolean.TRUE).stream()), cmdOrFunction, false);
     }
 
 
@@ -373,7 +373,7 @@ public class TreeQueryEngine<T> {
     }
 
     private List<T> parents(T theItem) {
-        return navigationAdapter.parents(theItem);
+        return navigationAdapter.walkParents(theItem, el -> Boolean.TRUE);
     }
 
 

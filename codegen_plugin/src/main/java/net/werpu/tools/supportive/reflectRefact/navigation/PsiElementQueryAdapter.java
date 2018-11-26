@@ -7,14 +7,6 @@ import java.util.function.Function;
 
 public class PsiElementQueryAdapter implements TreeQueryAdapter<PsiElementContext> {
 
-    /**
-     * get all parents
-     */
-    @Override
-    public List<PsiElementContext> parents(PsiElementContext ctx) {
-        return ctx.parents();
-    }
-
 
     /**
      * find an element among the direct children
@@ -47,7 +39,7 @@ public class PsiElementQueryAdapter implements TreeQueryAdapter<PsiElementContex
     }
 
     @Override
-    public String getName(PsiElementContext ctx) {
+    public String getIdentifier(PsiElementContext ctx) {
         return ctx.getName();
     }
 

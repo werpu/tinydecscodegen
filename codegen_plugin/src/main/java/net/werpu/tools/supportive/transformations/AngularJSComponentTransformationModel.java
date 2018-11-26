@@ -124,7 +124,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 //or this.onInit = ....
                 .$q(INLINE_FUNC_DECL)
                 //now we have all function expressions
-                //.filter(expr -> !Strings.isNullOrEmpty(expr.getName()))
+                //.filter(expr -> !Strings.isNullOrEmpty(expr.getIdentifier()))
 
                 //then we drag the function data out to have a better grip on the variables etc...
                 //if not parseable we will skip thje refactoring
