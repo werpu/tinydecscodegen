@@ -2,6 +2,7 @@ package net.werpu.tools.supportive.transformations.modelHelpers;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +19,7 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.TYPE_SCR
  */
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ExternalVariable implements Cloneable {
 
     /**

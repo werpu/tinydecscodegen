@@ -14,13 +14,14 @@ import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import net.werpu.tools.supportive.transformations.modelHelpers.*;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
-import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.CHILD_ELEM;
+import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
 
 
 @Getter
@@ -36,6 +37,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
     Optional<PsiElementContext> constructorDef;
     Optional<PsiElementContext> constructorBlock;
+    Optional<PsiElementContext> transclude;
 
     List<FirstOrderFunction> inlineFunctions;
     String template; //original template after being found
@@ -44,6 +46,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     String clazzName;
 
     List<PsiElementContext> attributes;
+
 
 
 
@@ -98,6 +101,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         parseClassName();
         parseSelectorName();
         parseControllerAs();
+        parseTransclude();
         parseAttributes();
 
     }
@@ -153,7 +157,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     private List<PsiElementContext> parseFunctionVariableDecls(PsiElementContext parentFunctionBlock) {
 
         return parentFunctionBlock.queryContent(JS_VAR_STATEMENT)
-                .filter(e -> e.queryContent(TreeQueryEngine.PARENTS, TYPE_SCRIPT_FUNC_EXPR, CHILD_ELEM, JS_BLOCK_STATEMENT)
+                .filter(e -> e.$q(PARENT_SEARCH(TYPE_SCRIPT_FUNC_EXPR, FIRST), CHILD_ELEM, JS_BLOCK_STATEMENT)
                         //only the first parent is valid, the variable must be declared
                         //in the parent function definition
                         .distinct()
@@ -195,8 +199,12 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 return possibleInlineCandidates.containsKey(refName) ? possibleInlineCandidates.get(refName) : null;
             }).filter(e -> e != null).distinct().collect(Collectors.toList());
 
-            //TODO
-            return Optional.ofNullable(new FirstOrderFunction(inlineFunction, funtionDefinition.get(), functionBlock.get(), null, foundExternalizables));
+            List<ParameterDeclaration> parameters = parameterList.isPresent() ?  parameterList.get().$q(TYPE_SCRIPT_PARAM).map(
+                    param -> new ParameterDeclaration(param)
+            ).collect(Collectors.toList()) : Collections.emptyList();
+
+
+            return Optional.ofNullable(new FirstOrderFunction(inlineFunction, funtionDefinition.get(), functionBlock.get(), parameters, foundExternalizables));
         }
         return Optional.empty();
     }
@@ -248,6 +256,10 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 .findFirst().orElse(StringUtils.toDash(getClazzName()));
     }
 
+    private void parseTransclude() {
+        transclude = rootBlock.$q(TN_COMP_TRANSCLUDE).findFirst();
+    }
+
     private void parseControllerAs() {
         controllerAs = rootBlock.$q(TN_COMP_CONTROLLER_AS)
                 .map(el -> el.getText()).findFirst().orElse("ctrl");
@@ -256,7 +268,9 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     private void parseAttributes() {
         attributes = rootBlock.$q(CHILD_ELEM, JS_ES_6_FIELD_STATEMENT, CHILD_ELEM, TYPE_SCRIPT_FIELD)
                 .filter(el -> !el.getName().equals("bindings") && !el.getName().equals("controllerAs")
-                        && !el.getName().equals("controller") && !el.getName().equals("template"))
+                        && !el.getName().equals("controller") && !el.getName().equals("template")
+                        && !el.getName().equals("transclude")
+                )
                 .collect(Collectors.toList());
     }
 
@@ -323,5 +337,12 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         return new Object[]{PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.TEXT_EQ(injector.getName())};
     }
 
+    @Nullable
+    public String getTranscludeText() {
+        if(transclude.isPresent()) {
+            return transclude.get().getText();
+        }
+        return null;
+    }
 
 }

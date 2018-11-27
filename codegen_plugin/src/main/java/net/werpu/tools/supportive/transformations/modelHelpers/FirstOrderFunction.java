@@ -55,7 +55,7 @@ public class FirstOrderFunction {
      * as the external variables, but with a different attribute
      * as model holder
      */
-    List<ExternalVariable> parameterList;
+    List<ParameterDeclaration> parameterList;
 
     /**
      * a list of variable parsing definition which possibly can
@@ -70,7 +70,7 @@ public class FirstOrderFunction {
     String refactoredContent;
 
 
-    public FirstOrderFunction(PsiElementContext functionElement, PsiElementContext functionHeader, PsiElementContext functionBody, List<ExternalVariable> parameterList, List<ExternalVariable> exernalizables) {
+    public FirstOrderFunction(PsiElementContext functionElement, PsiElementContext functionHeader, PsiElementContext functionBody, List<ParameterDeclaration> parameterList, List<ExternalVariable> exernalizables) {
         this.functionElement = functionElement;
         this.functionHeader = functionHeader;
         this.functionBody = functionBody;
@@ -120,7 +120,7 @@ public class FirstOrderFunction {
 
     @NotNull
     public String getParametersAsStr() {
-        return parameterList == null ? "" : parameterList.stream()
+        return (parameterList == null || parameterList.isEmpty()) ? "" : parameterList.stream()
                 .map(functionParameter -> functionParameter.getVariableName()+":"+functionParameter.getVariableType())
                 .reduce((par1, par2) -> par1+","+par2).get();
     }

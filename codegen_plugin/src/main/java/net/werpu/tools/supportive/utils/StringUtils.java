@@ -159,6 +159,17 @@ public class StringUtils {
     }
 
 
+    /**
+     * Generic refactoring function
+     *
+     * Which allows to calculate a refactoring relative from a root
+     * element without writing the data back
+     * @param refactorings a list of generic refactorings which might be part of the given
+     *                     element or not
+     * @param rootElement the psi element identifiyng the refactoring root
+     *
+     * @return a string with the refactored content of the root element
+     */
     @NotNull
     public static String refactor(List<IRefactorUnit> refactorings, PsiElement rootElement) {
 

@@ -8,7 +8,9 @@ import IScope = angular.IScope;
 @Component({
     selector: "${data.selectorName}",
     template: `${data.template}`,
-    controllerAs: "${data.controllerAs}"
+    controllerAs: "${data.controllerAs}"#if($data.transcludeText),
+    transclude: ${data.transcludeText}
+    #end
 
 })
 export class ${data.clazzName} {

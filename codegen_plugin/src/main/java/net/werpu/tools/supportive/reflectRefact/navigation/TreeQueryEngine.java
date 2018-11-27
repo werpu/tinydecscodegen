@@ -108,8 +108,8 @@ public class TreeQueryEngine<T> {
     public static <T> QueryExtension<T> ANY(Object[] str1, Object[] str2) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
             List<T> itemlist = stream.collect(Collectors.toList());
-            return any(engine.exec(itemlist.stream(), str1, false),
-                    engine.exec(itemlist.stream(), str2, false));
+            return any(engine.exec(itemlist.stream(), str1, true),
+                    engine.exec(itemlist.stream(), str2, true));
 
         };
     }
@@ -121,8 +121,8 @@ public class TreeQueryEngine<T> {
     public static <T> QueryExtension<T> ALL(Object[] str1, Object[] str2) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
             List<T> itemlist = stream.collect(Collectors.toList());
-            return all(engine.exec(itemlist.stream(), str1, false),
-                    engine.exec(itemlist.stream(), str2, false));
+            return all(engine.exec(itemlist.stream(), str1, true),
+                    engine.exec(itemlist.stream(), str2, true));
 
         };
     }
@@ -223,7 +223,10 @@ public class TreeQueryEngine<T> {
         for (Object command : commands) {
             //name match
             if (NAME_MATCH(command)) {
-                subItem = NAME_MATCH(subItem, (String) command);
+                //in case of a name match, we have a difference between the search
+                //direction down, we simply walk down the entire tree two dimensionally
+                //in case of an up we walk up the tree one dimensionally with a match in the row up
+                subItem = (directionDown) ? NAME_MATCH(subItem, (String) command) : NAME_UP_MATCH(subItem, (String) command);
                 continue;
 
             } else if (UNARY_COMMAND(command)) {
@@ -267,6 +270,26 @@ public class TreeQueryEngine<T> {
         return subItem;
     }
 
+
+
+
+    @NotNull
+    public Stream<T> NAME_UP_MATCH(Stream<T> subItem, String command) {
+        //lets reduce mem consumption by distincting the subset results
+        subItem = subItem.distinct();
+
+        String strCommand = command.trim();
+        subItem = elementTypeEQ(subItem, strCommand);
+        return subItem;
+    }
+
+    @NotNull
+    private Stream<T> elementTypeEQ(Stream<T> subItem, String finalSubCommand) {
+        return subItem.filter(el -> {
+            String cmdString = toString(el);
+            return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand + ":");
+        });
+    }
 
     @NotNull
     private Stream<T> elementTypeMatch(Stream<T> subItem, String finalSubCommand) {
