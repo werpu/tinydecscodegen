@@ -118,6 +118,16 @@ public class FirstOrderFunction {
         return name;
     }
 
+    public boolean isNeedsToBeDeclared() {
+        String name = functionElement.$q(JS_DEFINITION_EXPRESSION).map(e -> e.getText()).findFirst().get();
+        return name.startsWith("this.");
+    }
+
+    public String getDeclarationName() {
+        String name = functionElement.$q(JS_DEFINITION_EXPRESSION).map(e -> e.getText()).findFirst().get();
+        return name.substring(name.indexOf(".")+1);
+    }
+
     @NotNull
     public String getParametersAsStr() {
         return (parameterList == null || parameterList.isEmpty()) ? "" : parameterList.stream()

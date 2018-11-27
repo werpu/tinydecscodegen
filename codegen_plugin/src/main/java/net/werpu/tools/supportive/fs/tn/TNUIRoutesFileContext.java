@@ -55,7 +55,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     protected void init() {
 
-        constructors = this.$q(TreeQueryEngine.CHILD_ELEM, TYPE_SCRIPT_FUNC, p_isConstructor(), p_isStateProviderPresent()
+        constructors = this.$q(TYPE_SCRIPT_FUNC, p_isConstructor(), p_isStateProviderPresent()
         ).collect(Collectors.toList());
     }
 
@@ -307,8 +307,8 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
     @NotNull
     public Optional<PsiElementContext> findFirstPropKey(PsiElementContext prop) {
-        Optional<PsiElementContext> el1 =  prop.$q(TreeQueryEngine.CHILD_ELEM, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
-        Optional<PsiElementContext> el2=  prop.$q(TreeQueryEngine.CHILD_ELEM, JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
+        Optional<PsiElementContext> el1 =  prop.$q( PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+        Optional<PsiElementContext> el2=  prop.$q( JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
 
         Optional<PsiElementContext> propKey = null;
         if(el1.isPresent() && !el2.isPresent()) {

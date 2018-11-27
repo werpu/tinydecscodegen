@@ -125,4 +125,19 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
         assertTrue(ctx.getRefactoredConstructorBlock().trim().endsWith("}"));
     }
 
+    /**
+     * tests a parameter regression
+     * where sometimes a load of weird parameters
+     * are added to our function parameters.
+     * The regression was found while testing probe 3
+     */
+    public void testParameterRegression() {
+        PsiFile module =  myFixture.configureByFile("pureAngularJS/probeModule.ts");
+        PsiFile psiFile = myFixture.configureByFile("pureAngularJS/probeComponent3.ts");
+        Project project = myFixture.getProject();
+
+        AngularJSComponentTransformationModel ctx = new AngularJSComponentTransformationModel(new IntellijFileContext(project, psiFile));
+        assertTrue(ctx.getInjects().size() == 5);
+    }
+
 }

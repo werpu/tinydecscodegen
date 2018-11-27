@@ -23,6 +23,12 @@ export class ${data.clazzName} {
     ${attr.text};
 #end
 
+#foreach($func in ${data.inlineFunctions})
+#if(${func.externalizale} == false && ${func.needsToBeDeclared})
+    ${func.declarationName}: Function;
+#end
+#end
+
     constructor(${data.injectsStr}) ${data.refactoredConstructorBlock}
 
 

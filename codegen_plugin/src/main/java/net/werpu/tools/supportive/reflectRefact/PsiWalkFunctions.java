@@ -78,7 +78,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final String JS_PROPERTY = "JSProperty";
     public static final Object[] TN_COMP_BINDINGS = {TYPE_SCRIPT_FIELD, NAME_EQ("bindings"), JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY};
     public static final String JS_ARRAY_LITERAL_EXPRESSION = "JSArrayLiteralExpression";
-    public static final Object[] TN_COMP_CONTROLLER_ARR = {TYPE_SCRIPT_FIELD, NAME_EQ("controller"), JS_ARRAY_LITERAL_EXPRESSION};
+    public static final Object[] TN_COMP_CONTROLLER_ARR = {TYPE_SCRIPT_FIELD, NAME_EQ("controller"), JS_ARRAY_LITERAL_EXPRESSION , FIRST};
     public static final String JS_ARGUMENTS_LIST = "JSArgumentList";
     public static final String JS_PARAMETER_BLOCK = "JSParameterBlock";
 
@@ -138,7 +138,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
 
     public static final Object[] TN_COMP_CONTROLLER_FUNC = {CHILD_ELEM, TYPESCRIPT_FUNCTION_EXPRESSION};
     public static final Object[] TN_COMP_PARAM_LISTS = {TN_COMP_CONTROLLER_ARR, TN_COMP_CONTROLLER_FUNC, CHILD_ELEM, TYPE_SCRIPT_PARAMETER_LIST, TYPE_SCRIPT_PARAM};
-    public static final Object[] TN_COMP_STR_INJECTS = {CHILD_ELEM, JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL};
+    public static final Object[] TN_COMP_STR_INJECTS = {CHILD_ELEM, JS_LITERAL_EXPRESSION, CHILD_ELEM, PSI_ELEMENT_JS_STRING_LITERAL};
     /*prdefined queries end*/
 
 
@@ -259,7 +259,6 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
                     if (firstOnly) {
                         stopWalking();
                     }
-                    return;
                 }
                 super.visitElement(element);
             }

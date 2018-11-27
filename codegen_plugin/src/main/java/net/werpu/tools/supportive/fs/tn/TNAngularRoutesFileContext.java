@@ -52,7 +52,7 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
 
     protected void init() {
 
-        constructors = this.queryContent(TreeQueryEngine.CHILD_ELEM , TYPE_SCRIPT_FUNC, p_isConstructor(), p_isRouteProviderPresent()
+        constructors = this.queryContent( TYPE_SCRIPT_FUNC, p_isConstructor(), p_isRouteProviderPresent()
         ).collect(Collectors.toList());
 
 

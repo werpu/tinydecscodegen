@@ -31,6 +31,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     public static final Object[] INLINE_FUNC_DECL = {TYPE_SCRIPT_FUNC_EXPR, TreeQueryEngine.PARENTS_EQ_FIRST(JS_EXPRESSION_STATEMENT)};
     Optional<PsiElementContext> lastImport;
     PsiElementContext rootBlock;
+    PsiElementContext classBlock;
     String controllerAs;
     List<Injector> injects; //imports into the constructor
     String selectorName; //trace back into the module declaration for this component and then run our string dash transformation
@@ -88,6 +89,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     protected void postConstruct2() {
 
         parseImport();
+        parseClassBlock();
 
         parseConstructor();
 
@@ -213,6 +215,10 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         lastImport = this.$q(JS_ES_6_IMPORT_DECLARATION).reduce((e1, e2) -> e2);
     }
 
+    private void parseClassBlock() {
+        classBlock = rootBlock.$q(TYPE_SCRIPT_CLASS).findFirst().get();
+    }
+
     private void parseConstructor() {
         constructorDef = rootBlock.$q(TYPE_SCRIPT_FIELD, TreeQueryEngine.NAME_EQ("controller")).findFirst();
         constructorBlock = constructorDef.get().$q(TYPE_SCRIPT_FUNC_EXPR, JS_BLOCK_STATEMENT).findFirst();
@@ -261,12 +267,12 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     private void parseControllerAs() {
-        controllerAs = rootBlock.$q(TN_COMP_CONTROLLER_AS)
+        controllerAs = classBlock.$q(TN_COMP_CONTROLLER_AS)
                 .map(el -> el.getText()).findFirst().orElse("ctrl");
     }
 
     private void parseAttributes() {
-        attributes = rootBlock.$q(CHILD_ELEM, JS_ES_6_FIELD_STATEMENT, CHILD_ELEM, TYPE_SCRIPT_FIELD)
+        attributes = classBlock.$q(CHILD_ELEM, JS_ES_6_FIELD_STATEMENT, CHILD_ELEM, TYPE_SCRIPT_FIELD)
                 .filter(el -> !el.getName().equals("bindings") && !el.getName().equals("controllerAs")
                         && !el.getName().equals("controller") && !el.getName().equals("template")
                         && !el.getName().equals("transclude")
@@ -276,7 +282,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
 
     private void parseBindings() {
-        bindings = rootBlock.$q(TN_COMP_BINDINGS).map(el -> {
+        bindings = classBlock.$q(TN_COMP_BINDINGS).map(el -> {
             String propName = el.getName();
             Optional<PsiElementContext> first = el.$q(PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
             String type = (first.isPresent()) ? first.get().getText() : "<";

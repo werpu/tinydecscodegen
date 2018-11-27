@@ -101,7 +101,13 @@ public class PsiElementContext {
             return emptyList();
         }
 
-        return Arrays.stream(element.getChildren())
+        PsiElement[] children = element.getChildren();
+        //seems like a bug in the api, getChildren returns an empty array
+        //first child works however
+        if(children.length == 0 && element.getFirstChild() != null)  {
+            children = new PsiElement[] {element.getFirstChild()};
+        }
+        return Arrays.stream(children)
                 .map(PsiElementContext::new)
                 .filter(el -> psiElementVisitor == null || psiElementVisitor.apply(el))
                 .collect(Collectors.toList());

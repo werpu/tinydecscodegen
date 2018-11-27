@@ -220,13 +220,21 @@ public class TreeQueryEngine<T> {
     @NotNull
     public Stream<T> exec(Stream<T> subItem, Object[] query, boolean directionDown) {
         Object[] commands = flattendArr(query).stream().toArray(Object[]::new);
+        boolean childsOnly = false;
         for (Object command : commands) {
             //name match
             if (NAME_MATCH(command)) {
                 //in case of a name match, we have a difference between the search
                 //direction down, we simply walk down the entire tree two dimensionally
                 //in case of an up we walk up the tree one dimensionally with a match in the row up
-                subItem = (directionDown) ? NAME_MATCH(subItem, (String) command) : NAME_UP_MATCH(subItem, (String) command);
+                List helpList = subItem.collect(Collectors.toList());
+                subItem = helpList.stream();
+                if(!childsOnly) {
+                    subItem = (directionDown) ? NAME_MATCH(subItem, (String) command) : NAME_UP_MATCH(subItem, (String) command);
+                } else {
+                    childsOnly = false;
+                    subItem = elementTypeEQ(subItem, (String) command);
+                }
                 continue;
 
             } else if (UNARY_COMMAND(command)) {
@@ -234,7 +242,10 @@ public class TreeQueryEngine<T> {
                 if (simpleCommand != null) {//command found
                     switch (simpleCommand) {
                         case CHILD_ELEM:
-                            subItem = subItem.flatMap(theItem -> navigationAdapter.findChildren(theItem, el -> Boolean.TRUE).stream());
+                            //child elements always only take the next element into consideration
+                            subItem = subItem.flatMap(theItem -> navigationAdapter.findChildren(theItem, el -> Boolean.TRUE)
+                                    .stream());
+                            childsOnly = true;
                             continue;
                         case FIRST:
                             subItem = handlePFirst(subItem);
@@ -297,7 +308,7 @@ public class TreeQueryEngine<T> {
             String cmdString = toString(psiElement);
             return cmdString.equalsIgnoreCase(finalSubCommand) || cmdString.startsWith(finalSubCommand + ":");
         }).stream())
-                .distinct()
+                //.distinct()
                 .collect(Collectors.toList()).stream();
         return subItem;
     }
