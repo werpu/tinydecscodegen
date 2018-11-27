@@ -340,7 +340,8 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     @Nullable
     public String getTranscludeText() {
         if(transclude.isPresent()) {
-            return transclude.get().getText();
+            String text = transclude.get().getText();
+            return (text.contains(":")) ? text.substring(text.indexOf(':')+1) : text;
         }
         return null;
     }
