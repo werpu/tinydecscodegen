@@ -15,7 +15,7 @@ export class SuggestionPanel implements IComponentOptions{
         showAllSuggestions: '='
     };
 
-    controllerAs:string = "ctrl";
+    controllerAs:string = "ctrl2";
 
     booga = 1;
 

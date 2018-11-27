@@ -59,6 +59,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final String TYPESCRIPT_FUNCTION_EXPRESSION = "TypeScriptFunctionExpression";
     public static final String JS_ES_6_IMPORT_DECLARATION = "ES6ImportDeclaration";
     public static final String JS_ES_6_IMPORT_SPECIFIER = "ES6ImportSpecifier";
+    public static final String JS_ES_6_FIELD_STATEMENT = "ES6FieldStatement";
 
     public static final String JS_CALL_EXPRESSION = "JSCallExpression";
     public static final String JS_UIROUTER_MODULE_FOR_ROOT = "UIRouterModule.forRoot";

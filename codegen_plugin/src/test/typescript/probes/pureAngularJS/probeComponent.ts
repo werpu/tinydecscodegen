@@ -15,6 +15,8 @@ export class ProbeComponent implements IComponentOptions {
     };
     controllerAs: string = "ctrl";
 
+    boogaVar: string;
+
     controller: any = ["$scope",
         function ($scope: IScope) {
             var _t = this;

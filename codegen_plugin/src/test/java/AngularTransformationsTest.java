@@ -104,7 +104,25 @@ public class AngularTransformationsTest extends LightCodeInsightFixtureTestCase 
 
         assertTrue(ctx.getRefactoredConstructorBlock().contains("{"));
 
+        assertTrue(!ctx.getAttributes().isEmpty());
+        assertTrue(ctx.getAttributes().size() < 3);
+        assertTrue(ctx.getAttributes().stream().filter(el->el.getText().contains("boogaVar")).findFirst().isPresent());
 
+    }
+
+
+    public void testMoreDifficultComponent() {
+        PsiFile module =  myFixture.configureByFile("pureAngularJS/probeModule.ts");
+        PsiFile psiFile = myFixture.configureByFile("pureAngularJS/probeComponent2.ts");
+        Project project = myFixture.getProject();
+
+        AngularJSComponentTransformationModel ctx = new AngularJSComponentTransformationModel(new IntellijFileContext(project, psiFile));
+
+        assertTrue(ctx.getClazzName().equals("SuggestionPanel"));
+        assertTrue(ctx.getControllerAs().equals("ctrl2"));
+        assertTrue(ctx.getRefactoredConstructorBlock().contains("var _t"));
+        assertTrue(ctx.getRefactoredConstructorBlock().trim().startsWith("{"));
+        assertTrue(ctx.getRefactoredConstructorBlock().trim().endsWith("}"));
     }
 
 }

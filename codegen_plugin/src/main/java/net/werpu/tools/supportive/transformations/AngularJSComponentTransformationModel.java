@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
+import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.CHILD_ELEM;
 
 
 @Getter
@@ -41,6 +42,12 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     List<BindingTypes> bindings;
 
     String clazzName;
+
+    List<PsiElementContext> attributes;
+
+
+
+
 
 
     public AngularJSComponentTransformationModel(Project project, PsiFile psiFile, PsiElementContext rootBlock) {
@@ -91,6 +98,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         parseClassName();
         parseSelectorName();
         parseControllerAs();
+        parseAttributes();
 
     }
 
@@ -145,7 +153,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     private List<PsiElementContext> parseFunctionVariableDecls(PsiElementContext parentFunctionBlock) {
 
         return parentFunctionBlock.queryContent(JS_VAR_STATEMENT)
-                .filter(e -> e.queryContent(TreeQueryEngine.PARENTS, TYPE_SCRIPT_FUNC_EXPR, TreeQueryEngine.CHILD_ELEM, JS_BLOCK_STATEMENT)
+                .filter(e -> e.queryContent(TreeQueryEngine.PARENTS, TYPE_SCRIPT_FUNC_EXPR, CHILD_ELEM, JS_BLOCK_STATEMENT)
                         //only the first parent is valid, the variable must be declared
                         //in the parent function definition
                         .distinct()
@@ -244,6 +252,14 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         controllerAs = rootBlock.$q(TN_COMP_CONTROLLER_AS)
                 .map(el -> el.getText()).findFirst().orElse("ctrl");
     }
+
+    private void parseAttributes() {
+        attributes = rootBlock.$q(CHILD_ELEM, JS_ES_6_FIELD_STATEMENT, CHILD_ELEM, TYPE_SCRIPT_FIELD)
+                .filter(el -> !el.getName().equals("bindings") && !el.getName().equals("controllerAs")
+                        && !el.getName().equals("controller") && !el.getName().equals("template"))
+                .collect(Collectors.toList());
+    }
+
 
     private void parseBindings() {
         bindings = rootBlock.$q(TN_COMP_BINDINGS).map(el -> {

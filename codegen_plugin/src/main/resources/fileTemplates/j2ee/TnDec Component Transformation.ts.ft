@@ -17,6 +17,9 @@ export class ${data.clazzName} {
     ${binding.toString()}
 #end
 
+#foreach($attr in ${data.attributes})
+    ${attr.text};
+#end
 
     constructor(${data.injectsStr}) ${data.refactoredConstructorBlock}
 

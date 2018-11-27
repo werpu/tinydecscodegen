@@ -175,7 +175,7 @@ public class StringUtils {
 
         for (IRefactorUnit refactoring : refactorings) {
             int refactorUnitRelOffset = calcOffsetDiff(rootElementOffset, refactoring.getStartOffset());
-            if (refactorUnitRelOffset >= rootElementOffset && end < refactorUnitRelOffset
+            if ((refactorUnitRelOffset) >= 0 && end < refactorUnitRelOffset
              && refactoring.getEndOffset() < elementEndOffset) {
                 retVal.add(toSplit.substring(start, refactorUnitRelOffset));
                 start = calcOffsetDiff(rootElementOffset, refactoring.getEndOffset());
