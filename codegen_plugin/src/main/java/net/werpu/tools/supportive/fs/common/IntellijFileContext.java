@@ -283,6 +283,7 @@ public class IntellijFileContext {
         if (refactorings.isEmpty()) {
             return refactorings.get(0).getFile().getText();
         }
+
         //all refactorings must be of the same vFile TODO add check here
         String toSplit = refactorings.get(0).getFile().getText();
         return StringUtils.refactor(refactorings, toSplit);
@@ -293,6 +294,7 @@ public class IntellijFileContext {
         if (refactorings.isEmpty()) {
             return rootElement.getText();
         }
+
         return StringUtils.refactor(refactorings, rootElement.getElement());
     }
 

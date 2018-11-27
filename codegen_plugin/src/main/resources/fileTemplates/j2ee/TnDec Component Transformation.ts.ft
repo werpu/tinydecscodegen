@@ -1,13 +1,14 @@
+${data.imports}
 import {AString, Both, Component, Func, Inject, Input} from "TinyDecorations";
-import IScope = angular.IScope;
+
 
 /**
- * Component MyComponent
+ * Component ${data.selectorName}
  * @author ${AUTHOR}
  */
 @Component({
     selector: "${data.selectorName}",
-    template: `${data.template}`,
+    template: ${data.template},
     controllerAs: "${data.controllerAs}"#if($data.transcludeText),
     transclude: ${data.transcludeText}
     #end

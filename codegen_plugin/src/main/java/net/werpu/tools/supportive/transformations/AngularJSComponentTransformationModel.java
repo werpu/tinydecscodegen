@@ -117,17 +117,32 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     private void parseTemplate() {
-        Optional<PsiElementContext> returnStmt = rootBlock.$q(TYPE_SCRIPT_FIELD, TreeQueryEngine.NAME_EQ("template"), JS_RETURN_STATEMENT).findFirst();
-        returnStmt.ifPresent((el) -> {
-            Optional<PsiElementContext> found = Stream.concat(el.$q(PSI_ELEMENT_JS_STRING_LITERAL), el.$q(PSI_ELEMENT_JS_IDENTIFIER)).findFirst();
+        Optional<PsiElementContext> returnStmt = rootBlock.$q(TYPE_SCRIPT_FIELD, NAME_EQ("template"), JS_RETURN_STATEMENT).findFirst();
+        Optional<PsiElementContext> stringTemplate = rootBlock.$q(TYPE_SCRIPT_FIELD, NAME_EQ("template"), PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+        Optional<PsiElementContext> refTemplate = rootBlock.$q(TYPE_SCRIPT_FIELD, NAME_EQ("template"), PSI_ELEMENT_JS_IDENTIFIER).findFirst();
+        returnStmt.map((el) -> {
+            Optional<PsiElementContext> found = Stream.concat(el.$q(PSI_ELEMENT_JS_STRING_LITERAL), el.$q(PSI_ELEMENT_JS_IDENTIFIER)).reduce((e1, e2) -> e2);
             if (found.isPresent() && found.get().getElement().toString().startsWith(PSI_ELEMENT_JS_IDENTIFIER)) {
                 //identifier resolution
-            } else if (found.isPresent() && found.get().getElement().getText().endsWith(".html")) {
+                template = found.get().getText();
+
+            } else if (found.isPresent()) {
                 //file resolution
+                template = "`"+found.get().getText()+"`";
+
             } else if (found.isPresent()) {
                 //string resolution
+                template = "``;//ERROR Template could not be resolved";
             }
-        });
+            return null;
+        }).orElse((stringTemplate.isPresent()) ? stringTemplate.map(el -> {
+            template = "`"+el.getText()+"`";
+            return null;
+        }):refTemplate.map(el -> {
+            template = el.getText();
+            return null;
+        }).orElse(null));
+
 
     }
 
@@ -144,6 +159,9 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 //if not parseable we will skip thje refactoring
                 .map(this::parseFunctionData)
                 .filter(Optional::isPresent)
+                .filter(el -> {
+                    return el.get().getFunctionElement().getParent().getTextOffset() == constructorBlock.get().getTextOffset();
+                })
                 .map(Optional::get)
                 .collect(Collectors.toList());
 
@@ -220,7 +238,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     private void parseConstructor() {
-        constructorDef = rootBlock.$q(TYPE_SCRIPT_FIELD, TreeQueryEngine.NAME_EQ("controller")).findFirst();
+        constructorDef = rootBlock.$q(TYPE_SCRIPT_FIELD, NAME_EQ("controller")).findFirst();
         constructorBlock = constructorDef.get().$q(TYPE_SCRIPT_FUNC_EXPR, JS_BLOCK_STATEMENT).findFirst();
 
     }
@@ -324,6 +342,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                     .map(foundRefExpr -> newThisRefactoring(ctx, foundRefExpr))
                     .collect(Collectors.toList());
 
+
             if(injectionRefactorings.isEmpty()) {
                 continue;
             }
@@ -350,6 +369,10 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
             return (text.contains(":")) ? text.substring(text.indexOf(':')+1) : text;
         }
         return null;
+    }
+
+    public String getImports() {
+        return rootBlock.getText().substring(0, lastImport.get().getTextOffset()+lastImport.get().getTextLength()+1);
     }
 
 }

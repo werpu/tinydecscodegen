@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -142,6 +143,7 @@ public class StringUtils {
     public static String refactor(List<IRefactorUnit> refactorings, String toSplit) {
         int start = 0;
         int end = -1;
+        Collections.sort(refactorings, (el1, el2) -> el1.getStartOffset() - el2.getEndOffset());
         List<String> retVal = Lists.newArrayListWithCapacity(refactorings.size() * 2);
 
         for (IRefactorUnit refactoring : refactorings) {
@@ -172,7 +174,7 @@ public class StringUtils {
      */
     @NotNull
     public static String refactor(List<IRefactorUnit> refactorings, PsiElement rootElement) {
-
+        Collections.sort(refactorings, (el1, el2) -> el1.getStartOffset() - el2.getEndOffset());
         List<String> retVal = Lists.newArrayListWithCapacity(refactorings.size() * 2);
 
         int rootElementOffset = rootElement.getTextOffset();
