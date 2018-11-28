@@ -110,11 +110,19 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     private void parseClassName() {
-        Optional<PsiElementContext> clazzDcl = rootBlock.$q(TYPE_SCRIPT_CLASS).findFirst();
-        if (clazzDcl.isPresent()) {
-            clazzName = clazzDcl.get().getName();
+        List<PsiElementContext> classes = rootBlock.$q(TYPE_SCRIPT_CLASS).collect(Collectors.toList());
+        if(classes.size() == 1) {
+            clazzName = classes.get(0).getName();
+            return;
+        } else if(classes.size() > 1) {
+            Optional<PsiElementContext> ctx = classes.stream().filter(el -> {
+                return el.getText().contains("IComponentOptions") || el.getText().contains("controller");
+
+            }).findFirst();
+            if(ctx.isPresent()) {
+                clazzName = ctx.get().getName();
+            }
         }
-        //TODO look it up in the parent module
     }
 
     private void parseTemplate() {
@@ -373,7 +381,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     public String getTranscludeText() {
         if(transclude.isPresent()) {
             String text = transclude.get().getText();
-            return (text.contains(":")) ? text.substring(text.indexOf(':')+1) : text;
+            return  (text.contains("=")) ? text.substring(text.indexOf("=") + 1 ) : ((text.contains(":")) ? text.substring(text.indexOf(':')+1) : text);
         }
         return null;
     }
