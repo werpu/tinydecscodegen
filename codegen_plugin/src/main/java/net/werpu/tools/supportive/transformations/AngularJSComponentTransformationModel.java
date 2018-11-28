@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Stream.concat;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
 
@@ -120,8 +121,9 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         Optional<PsiElementContext> returnStmt = rootBlock.$q(TYPE_SCRIPT_FIELD, NAME_EQ("template"), JS_RETURN_STATEMENT).findFirst();
         Optional<PsiElementContext> stringTemplate = rootBlock.$q(TYPE_SCRIPT_FIELD, NAME_EQ("template"), PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
         Optional<PsiElementContext> refTemplate = rootBlock.$q(TYPE_SCRIPT_FIELD, NAME_EQ("template"), PSI_ELEMENT_JS_IDENTIFIER).findFirst();
-        returnStmt.map((el) -> {
-            Optional<PsiElementContext> found = Stream.concat(el.$q(PSI_ELEMENT_JS_STRING_LITERAL), el.$q(PSI_ELEMENT_JS_IDENTIFIER)).reduce((e1, e2) -> e2);
+        if(returnStmt.isPresent()) {
+            PsiElementContext el = returnStmt.get();
+            Optional<PsiElementContext> found = concat(el.$q(PSI_ELEMENT_JS_STRING_TEMPLATE_PART), concat(el.$q(PSI_ELEMENT_JS_STRING_LITERAL), el.$q(PSI_ELEMENT_JS_IDENTIFIER))).reduce((e1, e2) -> e2);
             if (found.isPresent() && found.get().getElement().toString().startsWith(PSI_ELEMENT_JS_IDENTIFIER)) {
                 //identifier resolution
                 template = found.get().getText();
@@ -134,14 +136,19 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 //string resolution
                 template = "``;//ERROR Template could not be resolved";
             }
-            return null;
-        }).orElse((stringTemplate.isPresent()) ? stringTemplate.map(el -> {
-            template = "`"+el.getText()+"`";
-            return null;
-        }):refTemplate.map(el -> {
-            template = el.getText();
-            return null;
-        }).orElse(null));
+
+        } else {
+            if(stringTemplate.isPresent()) {
+                PsiElementContext el = stringTemplate.get();
+                template = "`"+el.getText()+"`";
+            } else if(refTemplate.isPresent()) {
+                PsiElementContext el = refTemplate.get();
+                template = "`"+el.getText()+"`";
+            } else {
+                template = "``;//ERROR Template could not be resolved";
+            }
+        }
+
 
 
     }
