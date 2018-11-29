@@ -104,7 +104,7 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
      */
     public String getImportText() {
         PsiElementContext lastImport = this.getLastImport().get();
-        return this.getText().substring(0, lastImport.getTextOffset()+lastImport.getTextLength()+1);
+        return this.getText().substring(0, lastImport.getTextRangeOffset()+lastImport.getTextLength()+1);
     }
 
     /**
@@ -116,9 +116,9 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
         int importEnd = getImportEnd();
         Optional<PsiElementContext> varDcl = moduleDefStart.get().$q(TreeQueryEngine.PARENTS, JS_VAR_STATEMENT).findFirst();
         if(varDcl.isPresent()) {
-            return this.getText().substring(importEnd, varDcl.get().getTextOffset());
+            return this.getText().substring(importEnd, varDcl.get().getTextRangeOffset());
         }
-        return this.getText().substring(importEnd, moduleDeclStart.get().getTextOffset());
+        return this.getText().substring(importEnd, moduleDeclStart.get().getTextRangeOffset());
     }
 
     public String getModuleClassName() {
@@ -127,7 +127,7 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
 
     public String getDeclarationsPart() {
         if(moduleDefStart.isPresent()) {
-            return this.getPsiFile().getText().substring(moduleDeclStart.get().getTextOffset()+moduleDeclStart.get().getTextLength()).trim();
+            return this.getPsiFile().getText().substring(moduleDeclStart.get().getTextRangeOffset()+moduleDeclStart.get().getTextLength()).trim();
         }
         return "";
     }
@@ -157,8 +157,8 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
         moduleDeclStart = this.$q(ANG1_MODULE_DCL).findFirst();
         moduleDeclStart.ifPresent(psiElementContext -> {
             Optional<PsiElementContext> nameLiteral = psiElementContext.$q(ANG1_MODULE_NAME).findFirst();
-            moduleName = nameLiteral.isPresent() ? nameLiteral.get().getText() : "";
-            requires = moduleDeclStart.get().$q(ANG1_MODULE_REQUIRES).map(el -> el.getText()).collect(Collectors.toList());
+            moduleName = nameLiteral.isPresent() ? nameLiteral.get().getUnquotedText() : "";
+            requires = moduleDeclStart.get().$q(ANG1_MODULE_REQUIRES).map(el -> el.getUnquotedText()).collect(Collectors.toList());
             moduleDefStart = moduleDeclStart.get().$q(ANGULAR_MOD_DEF).findFirst();
         });
         lastImport = this.$q(JS_ES_6_IMPORT_DECLARATION).reduce((e1, e2) -> e2);
@@ -166,7 +166,7 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
 
     private int getImportEnd() {
         PsiElementContext lastImport = this.getLastImport().get();
-        return lastImport.getTextOffset() + lastImport.getTextLength() + 1;
+        return lastImport.getTextRangeOffset() + lastImport.getTextLength() + 1;
     }
 
 

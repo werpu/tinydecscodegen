@@ -143,7 +143,7 @@ public class TypescriptFileContext extends IntellijFileContext {
             Optional<PsiElementContext> lastImport = this.queryContent(JS_ES_6_IMPORT_DECLARATION).reduce((import1, import2) -> import2);
             int insertPos = 0;
             if(lastImport.isPresent()) {
-                insertPos = lastImport.get().getTextOffset() + lastImport.get().getTextLength();
+                insertPos = lastImport.get().getTextRangeOffset() + lastImport.get().getTextLength();
             }
 
             String insert = varPostfix.isEmpty() ?

@@ -1,6 +1,7 @@
 ${data.imports}
 import {AString, Both, Component, Func, Inject, Input} from "TinyDecorations";
 
+${data.fromImportsToClassDecl}
 
 /**
  * Component ${data.selectorName}

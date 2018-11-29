@@ -91,7 +91,7 @@ public class AssociativeArraySection extends AngularResourceContext{
         //PsiElement(JS:COMMA)
         Optional<PsiElementContext> propsArray = $q(JS_PROPERTY, TreeQueryEngine.NAME_EQ(sectionName), JS_ARRAY_LITERAL_EXPRESSION).findFirst();
         boolean hasElement = propsArray.get().$q(PSI_ELEMENT_JS_IDENTIFIER).findFirst().isPresent();
-        int insertPos =  propsArray.get().$q(PSI_ELEMENT_JS_RBRACKET).reduce((el1, el2) -> el2).get().getTextOffset();
+        int insertPos =  propsArray.get().$q(PSI_ELEMENT_JS_RBRACKET).reduce((el1, el2) -> el2).get().getTextRangeOffset();
         StringBuilder insertStr = new StringBuilder();
         if(hasElement) {
             insertStr.append(", ");
@@ -110,7 +110,7 @@ public class AssociativeArraySection extends AngularResourceContext{
         if(ngModuleArgs.get().$q(JS_OBJECT_LITERAL_EXPRESSION).findFirst().isPresent()) {
             return;
         }
-        addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(ngModuleArgs.get().getTextOffset() + 1), "{}"));
+        addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(ngModuleArgs.get().getTextRangeOffset() + 1), "{}"));
         commit();
     }
 
@@ -133,7 +133,7 @@ public class AssociativeArraySection extends AngularResourceContext{
         if(!lastSectionEnd.isPresent()) {
             addSection(sectionName);
         } else {
-            addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(lastSectionEnd.get().getTextOffset()+1), ",\n    "+sectionName+": []"));
+            addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(lastSectionEnd.get().getTextRangeOffset()+1), ",\n    "+sectionName+": []"));
 
         }
         commit();
@@ -146,7 +146,7 @@ public class AssociativeArraySection extends AngularResourceContext{
     public void addSection(String sectionName) throws IOException {
 
         PsiElementContext argsList = this.getResourceRoot();
-        int insertPos = argsList.getTextOffset()+ Math.round(argsList.getTextLength() / 2);
+        int insertPos = argsList.getTextRangeOffset()+ Math.round(argsList.getTextLength() / 2);
         addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(insertPos), "\n    "+sectionName+": []\n"));
         commit();
     }

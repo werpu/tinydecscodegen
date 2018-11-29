@@ -38,7 +38,7 @@ public class ServiceContext extends AngularResourceContext {
         Optional<PsiElementContext> serviceClass = resolveClass();
         Optional<PsiElementContext> psiServiceName = resolveName();
         clazzName = serviceClass.get().getName();
-        artifactName = psiServiceName.isPresent() ? psiServiceName.get().getText() : clazzName;
+        artifactName = psiServiceName.isPresent() ? psiServiceName.get().getUnquotedText() : clazzName;
 
         findParentModule();
     }

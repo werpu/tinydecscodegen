@@ -65,7 +65,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         if (!retVal.isPresent()) {
             retVal = constructor.queryContent(PSI_ELEMENT_JS_IDENTIFIER,
-                    (Predicate<PsiElementContext>) ident -> isRouteProvider(ident.getText()) || isStateProvider(ident.getText())).findFirst();
+                    (Predicate<PsiElementContext>) ident -> isRouteProvider(ident.getUnquotedText()) || isStateProvider(ident.getUnquotedText())).findFirst();
         }
 
         return retVal;
@@ -95,7 +95,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         if (!retVal.isPresent()) {
             retVal = constructor.queryContent(PSI_ELEMENT_JS_IDENTIFIER,
-                    (Predicate<PsiElementContext>)  ident -> isStateProvider(ident.getText())).findFirst();
+                    (Predicate<PsiElementContext>)  ident -> isStateProvider(ident.getUnquotedText())).findFirst();
         }
 
         return retVal;
@@ -109,7 +109,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         if (!retVal.isPresent()) {
             retVal = constructor.queryContent(PSI_ELEMENT_JS_IDENTIFIER,
-                    (Predicate<PsiElementContext>)  ident -> isRouteProvider(ident.getText())).findFirst();
+                    (Predicate<PsiElementContext>)  ident -> isRouteProvider(ident.getUnquotedText())).findFirst();
         }
 
         return retVal;
@@ -178,7 +178,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
         //$routeProvider.when("/view1", MetaData.routeData(View1));
         return call.findPsiElements(psiElement -> psiElement.getText().startsWith("MetaData.routeData")).stream()
                 .map(item -> item.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.LAST).findFirst().get())
-                .map(item -> item.getText()).findFirst();
+                .map(item -> item.getUnquotedText()).findFirst();
 
     }
 
@@ -194,7 +194,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         return calcModel.stream()
                 .filter(o1 -> o1.isPresent())
-                .sorted((o1, o2) -> valueOf(o1.get().getTextOffset()).compareTo(o2.get().getTextOffset()))
+                .sorted((o1, o2) -> valueOf(o1.get().getTextRangeOffset()).compareTo(o2.get().getTextRangeOffset()))
                 .findFirst().orElse(Optional.empty());
     }
 
@@ -220,13 +220,13 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         String name = "";
         if (controllerDef.isPresent()) {
-            name = StringUtils.stripQuotes(controllerDef.get().getText());
+            name = StringUtils.stripQuotes(controllerDef.get().getUnquotedText());
         }
 
         //now we have resolved the name, we have enough data to build our routes object
 
 
-        String url = (oUrl.isPresent()) ? oUrl.get().getText() : "";
+        String url = (oUrl.isPresent()) ? oUrl.get().getUnquotedText() : "";
         String component = classIdentifier.orElse("No Class");
         Route route = new Route(name, url, component, "", pageController.getVirtualFile().getPath(), this.getClass());
 

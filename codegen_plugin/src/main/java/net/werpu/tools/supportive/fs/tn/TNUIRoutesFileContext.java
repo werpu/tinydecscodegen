@@ -200,10 +200,10 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
          */
 
 
-        if (parmsMap.isPresent() && routeName.isPresent() && controller.isPresent() && parmsCall.isPresent() && routeName.get().getTextOffset() < parmsCall.get().getTextOffset()) {
+        if (parmsMap.isPresent() && routeName.isPresent() && controller.isPresent() && parmsCall.isPresent() && routeName.get().getTextRangeOffset() < parmsCall.get().getTextRangeOffset()) {
             //route name and parms call
             Optional<IntellijFileContext> pageController = resolveController(controller);
-            Route target = new Route(routeName.get().getText(), "", controller.get().getText(), this.getClass());
+            Route target = new Route(routeName.get().getUnquotedText(), "", controller.get().getUnquotedText(), this.getClass());
             if (pageController.isPresent()) {
                 target.setComponentPath(pageController.get().getVirtualFile().getPath());
                 //TODO error log to identify the issue
@@ -219,13 +219,13 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
                 return resolveViews(routeCall, routeName, controller, views);
             }
 
-        } else if (routeName.isPresent() && parmsMap.isPresent() && routeName.get().getTextOffset() < parmsMap.get().getTextOffset()) {
+        } else if (routeName.isPresent() && parmsMap.isPresent() && routeName.get().getTextRangeOffset() < parmsMap.get().getTextRangeOffset()) {
             //no controller present
 
             //map without views or map with views
             Optional<PsiElementContext> views = resolveObjectProp(parmsMap.get(), "views");
             if (!views.isPresent()) {
-                Route target = new Route(routeName.get().getText(), "", "", this.getClass());
+                Route target = new Route(routeName.get().getUnquotedText(), "", "", this.getClass());
                 resolveParamsMap(target, parmsMap.get());
                 return Collections.singletonList(new PsiRouteContext(routeCall.getElement(), target));
             } else {
@@ -245,7 +245,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
              */
             Optional<IntellijFileContext> pageController = controller.isPresent() ? resolveController(controller) : Optional.empty();
 
-            Route rt = new Route("", "", controller.isPresent() ? controller.get().getText() : "", this.getClass());
+            Route rt = new Route("", "", controller.isPresent() ? controller.get().getUnquotedText() : "", this.getClass());
 
             rt.setComponentPath(pageController.isPresent() ? pageController.get().getVirtualFile().getPath() : "");
             Optional<PsiElementContext> views = Optional.empty();
@@ -281,7 +281,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
                 Optional<PsiElementContext> propKey = findFirstPropKey(prop);
                 Optional<PsiElementContext> newParamsMap = prop.$q(JS_OBJECT_LITERAL_EXPRESSION).findFirst();
 
-                final String viewName = propKey.get().getText();
+                final String viewName = propKey.get().getUnquotedText();
                 Optional<PsiElementContext> callExpr = prop.$q(TreeQueryEngine.CHILD_ELEM, JS_CALL_EXPRESSION).findFirst();
                 Optional<PsiElementContext> controller2 = callExpr.isPresent() ? callExpr.get().$q(TreeQueryEngine.CHILD_ELEM, JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION).findFirst() : Optional.empty();
                 Optional<PsiElementContext> paramsMap2 = callExpr.isPresent() ? callExpr.get().$q(TreeQueryEngine.CHILD_ELEM, JS_ARGUMENTS_LIST, JS_OBJECT_LITERAL_EXPRESSION).findFirst(): Optional.empty();
@@ -289,7 +289,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
                 rets.stream().forEach(el -> {
                     el.getRoute().setViewName(viewName);
                     if(Strings.isNullOrEmpty(el.getRoute().getRouteKey()) && routeName.isPresent()) {
-                        el.getRoute().setRouteKey(routeName.get().getText());
+                        el.getRoute().setRouteKey(routeName.get().getUnquotedText());
                     }
                     if(Strings.isNullOrEmpty(el.getRoute().getComponentPath()) && controller.isPresent()) {
                         Optional<IntellijFileContext> intellijFileContext = resolveController(controller);
@@ -316,14 +316,14 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
         } else if(el2.isPresent() && !el1.isPresent()) {
             propKey = el2;
         } else {
-            propKey = el1.get().getTextOffset() < el1.get().getTextOffset() ? el1 : el2;
+            propKey = el1.get().getTextRangeOffset() < el1.get().getTextRangeOffset() ? el1 : el2;
         }
         return propKey;
     }
 
     @NotNull
     public Optional<IntellijFileContext> resolveController(Optional<PsiElementContext> controller) {
-        String controllerName = controller.get().getText();
+        String controllerName = controller.get().getUnquotedText();
         Optional<PsiElement> importStr = findImportString(controllerName);
         if (!importStr.isPresent()) {
             return findExternalImport(controllerName);
@@ -397,7 +397,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
         PsiElementContext ctrl = el.get()
                 .$q(JS_REFERENCE_EXPRESSION)
                 .reduce((el1, el2) -> el2).get();
-        return findImportString(new TypescriptFileContext(fc), ctrl.getText());
+        return findImportString(new TypescriptFileContext(fc), ctrl.getUnquotedText());
     }
 
     public boolean hasControllerName(String controllerName, Optional<PsiElementContext> el2) {
@@ -428,7 +428,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
         if (controller.isPresent()) {
             Optional<IntellijFileContext> controllerFile = resolveController(controller);
 
-            target.setComponent(controller.get().getText());
+            target.setComponent(controller.get().getUnquotedText());
             if (controllerFile.isPresent()) {
                 target.setComponentPath(controllerFile.get().getVirtualFile().getPath());
             }
@@ -436,10 +436,10 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
         }
 
         if (name.isPresent()) {
-            target.setRouteKey(name.get().getText());
+            target.setRouteKey(name.get().getUnquotedText());
         }
         if (url.isPresent()) {
-            target.setUrl(url.get().getText());
+            target.setUrl(url.get().getUnquotedText());
         }
     }
 

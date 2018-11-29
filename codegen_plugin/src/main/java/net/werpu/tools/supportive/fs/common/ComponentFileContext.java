@@ -207,7 +207,7 @@ public class ComponentFileContext extends AngularResourceContext {
 
 
         if (templateRef.isPresent()) {
-            final String templateVarName = templateRef.get().getText();
+            final String templateVarName = templateRef.get().getUnquotedText();
             //now lets find the imports
             Optional<PsiElement> psiImportString = findImportString(root, templateVarName);
 
@@ -236,7 +236,7 @@ public class ComponentFileContext extends AngularResourceContext {
         PsiElementContext psiElementContext = new PsiElementContext(template);
         Optional<PsiElementContext> templateFile = psiElementContext.$q(PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
         if (templateFile.isPresent()) {
-            final String templateFileName = templateFile.get().getText();
+            final String templateFileName = templateFile.get().getUnquotedText();
             TemplateFileContext ref = new TemplateFileContext(templateFileName, getProject(), getVirtualFile().getParent().findFileByRelativePath(templateFileName));
             if (!ref.getVirtualFile().exists()) {
                 return empty();

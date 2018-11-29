@@ -1,5 +1,7 @@
 package net.werpu.tools.supportive.reflectRefact.navigation;
 
+import net.werpu.tools.supportive.fs.common.PsiElementContext;
+
 import java.util.List;
 import java.util.function.Function;
 
@@ -32,6 +34,8 @@ public interface TreeQueryAdapter<T> {
      * of the subtree below and including the node)
      */
     String getText(T ctx);
+
+    String getUnquotedText(PsiElementContext ctx);
 
     /**
      * non unique string representation of

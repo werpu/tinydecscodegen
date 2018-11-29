@@ -148,7 +148,7 @@ public class ComponentFileGist {
         try {
             selector = _resolveParameters(file).get("selector");
             if (selector.isPresent()) {
-                return selector.get().getText();
+                return selector.get().getUnquotedText();
             }
         } catch (IOException e) {
             //NOOP for now

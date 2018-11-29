@@ -43,7 +43,7 @@ public class FilterPipeContext extends AngularResourceContext {
         Optional<PsiElementContext> thePsiArtifactName = clazz.get().$q(SERVICE_ANN, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
 
         clazzName = clazz.get().getName();
-        artifactName = thePsiArtifactName.isPresent() ? thePsiArtifactName.get().getText() : clazzName;
+        artifactName = thePsiArtifactName.isPresent() ? thePsiArtifactName.get().getUnquotedText() : clazzName;
 
         findParentModule();
     }

@@ -32,6 +32,12 @@ public class PsiElementContext {
 
     public String getText() {
         String text = element.getText();
+        //text = text.replaceAll("^[\\\"\\'](.*)[\\\"\\']$", "$1");
+        return text;
+    }
+
+    public String getUnquotedText() {
+        String text = element.getText();
         text = text.replaceAll("^[\\\"\\'](.*)[\\\"\\']$", "$1");
         return text;
     }
@@ -43,11 +49,22 @@ public class PsiElementContext {
         return element.getTextLength();
     }
 
+    /**
+     *
+     * @return the logical offset for editing of an element beginning from the start of the file
+     */
     @Contract(
             pure = true
     )
     public int getTextOffset() {
         return element.getTextOffset();
+    }
+
+    /**
+     * @return the absolute offset (not taking editing into consideration)
+     */
+    public int getTextRangeOffset() {
+        return element.getTextRange().getStartOffset();
     }
 
     public PsiElementContext getRootElement() {

@@ -112,7 +112,7 @@ public class FirstOrderFunction {
 
     public String getFunctionName() {
         String name = functionElement.$q(JS_DEFINITION_EXPRESSION).map(e -> e.getText()).findFirst().get();
-        if(name.startsWith("this.")) {
+        if(isNeedsToBeDeclared() && name.split("\\.").length == 1) {
             name = name.substring("this.".length());
         }
         return name;
@@ -120,12 +120,13 @@ public class FirstOrderFunction {
 
     public boolean isNeedsToBeDeclared() {
         String name = functionElement.$q(JS_DEFINITION_EXPRESSION).map(e -> e.getText()).findFirst().get();
-        return name.startsWith("this.");
+        return name.startsWith("this.") || name.startsWith("_t.") || name.startsWith("_t_.");
     }
 
     public String getDeclarationName() {
         String name = functionElement.$q(JS_DEFINITION_EXPRESSION).map(e -> e.getText()).findFirst().get();
-        return name.substring(name.indexOf(".")+1);
+        return name.substring(name.lastIndexOf(".")+1);
+
     }
 
     @NotNull

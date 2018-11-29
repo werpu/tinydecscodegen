@@ -47,18 +47,18 @@ public class ContextFactory {
         boolean found = false;
 
         if (name.isPresent()) {
-            sName = name.get().getText();
+            sName = name.get().getUnquotedText();
             found = true;
         }
         if (url.isPresent()) {
-            sUrl = url.get().getText();
+            sUrl = url.get().getUnquotedText();
             found = true;
         }
 
 
         String sImport = "";
         if (component.isPresent()) {
-            sComponent = component.get().getText();
+            sComponent = component.get().getUnquotedText();
             //now we try to find the include
 
 

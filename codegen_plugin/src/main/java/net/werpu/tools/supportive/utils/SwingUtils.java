@@ -141,6 +141,7 @@ public class SwingUtils {
         FileEditor[] editors = (FileEditorManager.getInstance(foundContext.getElement().getProject())).openFile(foundContext.getElement().getContainingFile().getVirtualFile(), true);
         if (editors.length > 0 && elVis(editors[0], Labels.PROP_EDITOR).isPresent()) {
             CaretModel editor = ((Editor) elVis(editors[0], Labels.PROP_EDITOR).get()).getCaretModel();
+            //we move to the next possible editing offset
             editor.moveToOffset(foundContext.getTextOffset());
             editor.moveCaretRelatively(0, 0, false, false, true);
         }

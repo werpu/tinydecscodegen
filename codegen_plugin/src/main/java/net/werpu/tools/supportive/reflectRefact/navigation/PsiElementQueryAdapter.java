@@ -39,6 +39,11 @@ public class PsiElementQueryAdapter implements TreeQueryAdapter<PsiElementContex
     }
 
     @Override
+    public String getUnquotedText(PsiElementContext ctx) {
+        return ctx.getUnquotedText();
+    }
+
+    @Override
     public String getIdentifier(PsiElementContext ctx) {
         return ctx.getName();
     }

@@ -92,7 +92,7 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
             PsiElementContext elementContext = whenCallArgs.get(whenCallArgs.size() - 1);
             insertPos = elementContext.getElement().getTextOffset()+elementContext.getTextLength()+1;
         } else {
-            insertPos = body.get().getTextOffset() + 1;
+            insertPos = body.get().getTextRangeOffset() + 1;
         }
         return insertPos;
     }

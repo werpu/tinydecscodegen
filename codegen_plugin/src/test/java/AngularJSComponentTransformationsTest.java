@@ -55,7 +55,7 @@ public class AngularJSComponentTransformationsTest extends LightCodeInsightFixtu
         assertTrue(ctx.getRequires().contains("bla1"));
         assertTrue(ctx.getRequires().size() == 2);
         assertTrue(ctx.getModuleDefStart().isPresent() &&
-                ctx.getModuleDefStart().get().getTextOffset() == ctx.getModuleDeclStart().get().getTextOffset() );
+                ctx.getModuleDefStart().get().getTextRangeOffset() == ctx.getModuleDeclStart().get().getTextRangeOffset() );
 
         assertTrue(ctx.getLegacyName().equals("entry"));
         assertTrue(ctx.getLegacyName().equals("entry"));
