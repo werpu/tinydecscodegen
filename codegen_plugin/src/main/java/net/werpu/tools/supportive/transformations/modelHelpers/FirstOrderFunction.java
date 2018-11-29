@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
+import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -112,7 +113,7 @@ public class FirstOrderFunction {
 
     public String getFunctionName() {
         String name = functionElement.$q(JS_DEFINITION_EXPRESSION).map(e -> e.getText()).findFirst().get();
-        if(isNeedsToBeDeclared() && name.split("\\.").length == 1) {
+        if(isNeedsToBeDeclared() && name.split("\\.").length == 2) {
             name = name.substring("this.".length());
         }
         return name;
@@ -120,7 +121,7 @@ public class FirstOrderFunction {
 
     public boolean isNeedsToBeDeclared() {
         String name = functionElement.$q(JS_DEFINITION_EXPRESSION).map(e -> e.getText()).findFirst().get();
-        return name.startsWith("this.") || name.startsWith("_t.") || name.startsWith("_t_.");
+        return StringUtils.isThis(name);
     }
 
     public String getDeclarationName() {

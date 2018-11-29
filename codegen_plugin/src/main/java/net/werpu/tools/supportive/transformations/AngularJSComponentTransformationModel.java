@@ -17,12 +17,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Stream.concat;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
+import static net.werpu.tools.supportive.utils.StringUtils.isThis;
 
 
 @Getter
@@ -78,6 +80,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
      * root element the class
      */
     public static final Object[] CONTROLLER_FIELD = {TYPE_SCRIPT_FIELD, NAME_EQ("controller")};
+    public static final Object[] CLASS_VARIABLE_CANDIDATES = {CHILD_ELEM, JS_EXPRESSION_STATEMENT, TEXT_STARTS_WITH("this."), CHILD_ELEM, JS_ASSIGNMENT_EXPRESSION, CHILD_ELEM, JS_DEFINITION_EXPRESSION};
 
     Optional<PsiElementContext> lastImport;
     PsiElementContext rootBlock;
@@ -91,17 +94,13 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     Optional<PsiElementContext> transclude;
 
     List<FirstOrderFunction> inlineFunctions;
+    List<ClassAttribute> possibleClassAttributes;
     String template; //original template after being found
     List<BindingTypes> bindings;
 
     String clazzName;
 
     List<PsiElementContext> attributes;
-
-
-
-
-
 
 
     public AngularJSComponentTransformationModel(Project project, PsiFile psiFile, PsiElementContext rootBlock) {
@@ -170,7 +169,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         parseControllerAs();
         parseTransclude();
         parseAttributes();
-
+        parseInlineClassAttributeCandidates();
     }
 
     private void parseClassName() {
@@ -182,7 +181,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         Optional<PsiElementContext> returnStmt = classBlock.$q(TEMPLATE_RETURN_STMT).findFirst();
         Optional<PsiElementContext> stringTemplate = classBlock.$q(TEMPLATE_STR_LIT).findFirst();
         Optional<PsiElementContext> refTemplate = classBlock.$q(TEMPLATE_IDENTIFIER).findFirst();
-        if(returnStmt.isPresent()) {
+        if (returnStmt.isPresent()) {
             PsiElementContext el = returnStmt.get();
             Optional<PsiElementContext> found = concat(el.$q(PSI_ELEMENT_JS_STRING_TEMPLATE_PART), concat(el.$q(PSI_ELEMENT_JS_STRING_LITERAL), el.$q(PSI_ELEMENT_JS_IDENTIFIER))).reduce((e1, e2) -> e2);
             if (found.isPresent() && found.get().getElement().toString().startsWith(PSI_ELEMENT_JS_IDENTIFIER)) {
@@ -191,7 +190,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
             } else if (found.isPresent()) {
                 //file resolution
-                template = "`"+found.get().getUnquotedText()+"`";
+                template = "`" + found.get().getUnquotedText() + "`";
 
             } else if (found.isPresent()) {
                 //string resolution
@@ -199,17 +198,16 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
             }
 
         } else {
-            if(stringTemplate.isPresent()) {
+            if (stringTemplate.isPresent()) {
                 PsiElementContext el = stringTemplate.get();
-                template = "`"+el.getUnquotedText()+"`";
-            } else if(refTemplate.isPresent()) {
+                template = "`" + el.getUnquotedText() + "`";
+            } else if (refTemplate.isPresent()) {
                 PsiElementContext el = refTemplate.get();
-                template = "`"+el.getUnquotedText()+"`";
+                template = "`" + el.getUnquotedText() + "`";
             } else {
                 template = "``;//ERROR Template could not be resolved";
             }
         }
-
 
 
     }
@@ -287,7 +285,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 return possibleInlineCandidates.containsKey(refName) ? possibleInlineCandidates.get(refName) : null;
             }).filter(e -> e != null).distinct().collect(Collectors.toList());
 
-            List<ParameterDeclaration> parameters = parameterList.isPresent() ?  parameterList.get().$q(TYPE_SCRIPT_PARAM).map(
+            List<ParameterDeclaration> parameters = parameterList.isPresent() ? parameterList.get().$q(TYPE_SCRIPT_PARAM).map(
                     param -> new ParameterDeclaration(param)
             ).collect(Collectors.toList()) : Collections.emptyList();
 
@@ -295,6 +293,50 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
             return Optional.ofNullable(new FirstOrderFunction(inlineFunction, funtionDefinition.get(), functionBlock.get(), parameters, foundExternalizables));
         }
         return Optional.empty();
+    }
+
+    private void parseInlineClassAttributeCandidates() {
+        Set<String> ignore = new HashSet<>(getInjectsAsStr());
+        ignore.addAll(getFunctionNames());
+        possibleClassAttributes =
+                constructorBlock.get().$q(JS_DEFINITION_EXPRESSION)
+                        .filter(el -> isThis(el.getText()) && el.getText().split("\\.").length == 2)
+                        .filter(isDirectConstructorCild())
+                        .filter(notIgnorable(ignore))
+                        .map(el -> new ClassAttribute(el))
+                        .distinct()
+                        .collect(Collectors.toList());
+
+
+    }
+
+    @NotNull
+    private List<String> getFunctionNames() {
+        return inlineFunctions.stream().map(el -> {
+            String functionName = el.getFunctionName();
+            return functionName.substring(functionName.lastIndexOf(".") + 1);
+        }).collect(Collectors.toList());
+    }
+
+    @NotNull
+    private List<String> getInjectsAsStr() {
+        return injects.stream().map(el -> el.getName()).collect(Collectors.toList());
+    }
+
+    @NotNull
+    private Predicate<PsiElementContext> notIgnorable(Set<String> ignore) {
+        return el -> {
+            String name = el.getName();
+            return !ignore.contains(name);
+        };
+    }
+
+    @NotNull
+    private Predicate<PsiElementContext> isDirectConstructorCild() {
+        return el -> {
+            Optional<PsiElementContext> first = el.$q(PARENT_FUNCTION, FIRST).findFirst();
+            return first.isPresent() && first.get().getTextOffset() == constructorBlock.get().getTextOffset();
+        };
     }
 
     private void parseImport() {
@@ -411,13 +453,13 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
             List<IRefactorUnit> injectionRefactorings = this.injects.stream()
                     //we look for all local variable references which match the injection
                     //TODO check why the name check fails
-                    .flatMap(injector ->  ctx.$q(matchInjection(injector)))
+                    .flatMap(injector -> ctx.$q(matchInjection(injector)))
                     .distinct()
                     .map(foundRefExpr -> newThisRefactoring(ctx, foundRefExpr))
                     .collect(Collectors.toList());
 
 
-            if(injectionRefactorings.isEmpty()) {
+            if (injectionRefactorings.isEmpty()) {
                 continue;
             }
             inlineFunction.setRefactoredContent(ctx.calculateRefactoring(injectionRefactorings));
@@ -438,19 +480,19 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
     @Nullable
     public String getTranscludeText() {
-        if(transclude.isPresent()) {
+        if (transclude.isPresent()) {
             String text = transclude.get().getUnquotedText();
-            return  (text.contains("=")) ? text.substring(text.indexOf("=") + 1 ) : ((text.contains(":")) ? text.substring(text.indexOf(':')+1) : text);
+            return (text.contains("=")) ? text.substring(text.indexOf("=") + 1) : ((text.contains(":")) ? text.substring(text.indexOf(':') + 1) : text);
         }
         return null;
     }
 
     public String getImports() {
-        return rootBlock.getText().substring(0, lastImport.get().getTextRangeOffset()+lastImport.get().getTextLength()+1);
+        return rootBlock.getText().substring(0, lastImport.get().getTextRangeOffset() + lastImport.get().getTextLength() + 1);
     }
 
     public String getFromImportsToClassDecl() {
-        return rootBlock.getText().substring(lastImport.get().getTextRangeOffset()+lastImport.get().getTextLength()+1, classBlock.getTextRangeOffset());
+        return rootBlock.getText().substring(lastImport.get().getTextRangeOffset() + lastImport.get().getTextLength() + 1, classBlock.getTextRangeOffset());
     }
 
 }

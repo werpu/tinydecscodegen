@@ -25,6 +25,10 @@ export class ${data.clazzName} {
     ${attr.text};
 #end
 
+#foreach($attr in ${data.possibleClassAttributes})
+    ${attr.text};
+#end
+
 #foreach($func in ${data.inlineFunctions})
 #if(${func.externalizale} == false && ${func.needsToBeDeclared})
     ${func.declarationName}: Function;

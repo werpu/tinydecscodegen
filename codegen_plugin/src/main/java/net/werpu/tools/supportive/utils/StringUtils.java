@@ -205,4 +205,8 @@ public class StringUtils {
     private static int calcOffsetDiff(int rootElementOffset, int startOffset) {
         return startOffset - rootElementOffset;
     }
+
+    public static boolean isThis(String name) {
+        return name.startsWith("this.") || name.startsWith("_t.") || name.startsWith("_t_.");
+    }
 }

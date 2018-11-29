@@ -38,6 +38,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final String JS_DEFINITION_EXPRESSION = "JSDefinitionExpression";
     public static final String JS_BLOCK_STATEMENT = "JSBlockStatement";
     public static final String JS_OBJECT_LITERAL_EXPRESSION = "JSObjectLiteralExpression";
+    public static final String JS_ASSIGNMENT_EXPRESSION = "JSAssignmentExpression";
     public static final String JS_LITERAL_EXPRESSION = "JSLiteralExpression";
     public static final String JS_ES_6_DECORATOR = "ES6Decorator";
     public static final String JS_ES_6_FROM_CLAUSE = "ES6FromClause";
