@@ -415,7 +415,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     private boolean isNotStandardAttr(PsiElementContext el) {
         return !el.getName().equals("bindings") && !el.getName().equals("controllerAs")
                 && !el.getName().equals("controller") && !el.getName().equals("template")
-                && !el.getName().equals("transclude");
+                && !el.getName().equals("transclude") && !el.getName().equals("restrict");
     }
 
 
