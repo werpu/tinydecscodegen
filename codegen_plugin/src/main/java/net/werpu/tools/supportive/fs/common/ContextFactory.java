@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import static net.werpu.tools.supportive.fs.common.AngularVersion.NG;
 import static net.werpu.tools.supportive.fs.common.AngularVersion.TN_DEC;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
+import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.PARENT_SEARCH;
 
 /**
  * factory for our various system contexts
@@ -63,7 +64,7 @@ public class ContextFactory {
 
 
             List<String> imports = routesFile.getImportIdentifiers(sComponent).stream().
-                    flatMap(item -> item.queryContent(TreeQueryEngine.PARENTS_EQ(JS_ES_6_IMPORT_DECLARATION), JS_ES_6_FROM_CLAUSE, PSI_ELEMENT_JS_STRING_LITERAL).map(fromImport -> fromImport.getText())).collect(Collectors.toList());
+                    flatMap(item -> item.queryContent(PARENT_SEARCH(ANY_TS_IMPORT), JS_ES_6_FROM_CLAUSE, PSI_ELEMENT_JS_STRING_LITERAL).map(fromImport -> fromImport.getText())).collect(Collectors.toList());
 
 
             sImport = imports.isEmpty() ? "" : imports.get(0);

@@ -127,6 +127,7 @@ public class TreeQueryEngine<T> {
         };
     }
 
+
     public static <T> QueryExtension<T> PARENTS_EQ_LAST(String val) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
                 .map(theItem -> engine.getNavigationAdapter().walkParents(theItem,

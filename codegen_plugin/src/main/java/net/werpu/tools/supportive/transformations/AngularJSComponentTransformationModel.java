@@ -80,6 +80,9 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
      * root element the class
      */
     public static final Object[] CONTROLLER_FIELD = {TYPE_SCRIPT_FIELD, NAME_EQ("controller")};
+    /**
+     * potential candidates for the class attributes from the constructor function
+     */
     public static final Object[] CLASS_VARIABLE_CANDIDATES = {CHILD_ELEM, JS_EXPRESSION_STATEMENT, TEXT_STARTS_WITH("this."), CHILD_ELEM, JS_ASSIGNMENT_EXPRESSION, CHILD_ELEM, JS_DEFINITION_EXPRESSION};
 
     Optional<PsiElementContext> lastImport;
@@ -340,7 +343,8 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     private void parseImport() {
-        lastImport = this.$q(JS_ES_6_IMPORT_DECLARATION).reduce((e1, e2) -> e2);
+        lastImport =
+                this.$q(ANY_TS_IMPORT).reduce((e1, e2) -> e2);
     }
 
     private void parseClassBlock() {

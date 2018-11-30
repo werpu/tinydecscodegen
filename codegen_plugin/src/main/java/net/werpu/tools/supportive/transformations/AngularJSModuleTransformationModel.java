@@ -161,7 +161,7 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
             requires = moduleDeclStart.get().$q(ANG1_MODULE_REQUIRES).map(el -> el.getUnquotedText()).collect(Collectors.toList());
             moduleDefStart = moduleDeclStart.get().$q(ANGULAR_MOD_DEF).findFirst();
         });
-        lastImport = this.$q(JS_ES_6_IMPORT_DECLARATION).reduce((e1, e2) -> e2);
+        lastImport = this.$q(ANY_TS_IMPORT).reduce((e1, e2) -> e2);
     }
 
     private int getImportEnd() {

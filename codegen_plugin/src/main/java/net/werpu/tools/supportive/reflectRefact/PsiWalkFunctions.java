@@ -5,6 +5,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.reflectRefact.navigation.BaseQueryEngineImplementation;
+import net.werpu.tools.supportive.reflectRefact.navigation.QueryExtension;
 import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import net.werpu.tools.supportive.reflectRefact.navigation.PsiElementQueryAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +52,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final String TYPE_SCRIPT_CLASS = "TypeScriptClass";
     public static final String TYPE_SCRIPT_FIELD = "TypeScriptField";
     public static final String TYPE_SCRIPT_NEW_EXPRESSION = "TypeScriptNewExpression";
+    public static final String TYPESCRIPT_IMPORT_STATEMENT = "TypeScriptImportStatement";
     public static final String TYPE_SCRIPT_VARIABLE = "TypeScriptVariable";
     public static final String TYPE_SCRIPT_PARAM = "TypeScriptParameter";
     public static final String TYPE_SCRIPT_FUNC = "TypeScriptFunction";
@@ -59,6 +61,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final String PSI_METHOD = "PsiMethod";
     public static final String TYPESCRIPT_FUNCTION_EXPRESSION = "TypeScriptFunctionExpression";
     public static final String JS_ES_6_IMPORT_DECLARATION = "ES6ImportDeclaration";
+    public static final QueryExtension<Object> ANY_TS_IMPORT = ALL(SUB_QUERY(JS_ES_6_IMPORT_DECLARATION), SUB_QUERY(TYPESCRIPT_IMPORT_STATEMENT));
     public static final String JS_ES_6_IMPORT_SPECIFIER = "ES6ImportSpecifier";
     public static final String JS_ES_6_FIELD_STATEMENT = "ES6FieldStatement";
 
@@ -276,4 +279,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     }
 
 
+    public static Object[] SUB_QUERY(Object ... str1) {
+        return str1;
+    }
 }

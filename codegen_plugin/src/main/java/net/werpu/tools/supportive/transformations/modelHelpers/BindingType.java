@@ -20,19 +20,19 @@ public enum BindingType {
     INPUT, BOTH, ASTRING, FUNC, OPT_INPUT, OPT_BOTH, OPT_ASTRING, OPT_FUNC;
 
     public static BindingType translate(String in) {
-        if (in.equals("<")) {
+        if (in.startsWith("<")) {
             return INPUT;
-        } else if (in.equals("<?")) {
+        } else if (in.startsWith("<?")) {
             return OPT_INPUT;
-        } else if (in.equals("@")) {
+        } else if (in.startsWith("@")) {
             return ASTRING;
-        } else if (in.equals("@?")) {
+        } else if (in.startsWith("@?")) {
             return OPT_ASTRING;
-        } else if (in.equals("=")) {
+        } else if (in.startsWith("=")) {
             return BOTH;
-        } else if (in.equals("=?")) {
+        } else if (in.startsWith("=?")) {
             return OPT_BOTH;
-        } else if (in.equals("&")) {
+        } else if (in.startsWith("&")) {
             return FUNC;
         } else {
             return OPT_FUNC;

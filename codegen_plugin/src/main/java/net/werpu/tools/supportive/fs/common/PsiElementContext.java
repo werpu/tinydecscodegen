@@ -201,7 +201,7 @@ public class PsiElementContext {
 
 
     public List<PsiElementContext> getImportIdentifiers(String varToCheck) {
-        return this.queryContent(JS_ES_6_IMPORT_DECLARATION, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.TEXT_EQ( varToCheck )).collect(Collectors.toList());
+        return this.queryContent(ANY_TS_IMPORT, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.TEXT_EQ( varToCheck )).collect(Collectors.toList());
     }
 
     public String calculateRefactoring(List<IRefactorUnit> refactorings) {
