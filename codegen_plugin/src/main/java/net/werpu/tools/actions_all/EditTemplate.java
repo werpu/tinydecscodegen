@@ -59,6 +59,7 @@ import java.util.concurrent.TimeoutException;
 
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.invokeLater;
+import static net.werpu.tools.supportive.utils.IntellijUtils.createRamFileFromText;
 import static net.werpu.tools.supportive.utils.SwingUtils.createHtmlEditor;
 
 
@@ -109,8 +110,8 @@ public class EditTemplate extends AnAction implements EditorCallback {
             //and on every doc update I update the original editor document
             //intellij handles the rest
             String title = TEMPLATE_OF + fileContext.getVirtualFile().getName();
-            PsiFile workFile = PsiFileFactory.getInstance(fileContext.getProject()).createFileFromText(title,
-                    HTMLLanguage.INSTANCE, "");
+            PsiFile workFile = createRamFileFromText(fileContext.getProject(),title,
+                    "", HTMLLanguage.INSTANCE);
 
 
             final RetVal htmlEditContext = createDoubleBuffer(fileContext, workFile);

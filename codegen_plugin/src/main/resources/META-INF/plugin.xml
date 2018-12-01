@@ -186,9 +186,9 @@
         -->
         <!-- File Menu -->
         <group id="TD_TinyDecsContextMenu" text="_Tiny Decorations" popup="true"
-               description="Tiny decorations context actions" icon="/images/tt.png">
+               description="Tiny Decorations Context Actions" icon="/images/tt.png">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
-            <action id="TD_CreateProject" class="net.werpu.tools.actions.CreateTnDecProject" text="Create Tiny Decorations Project"
+            <action id="TD_CreateProject" class="net.werpu.tools.actions.CreateTnDecProject" text="Create Project"
                     description="Create a an Angular Tiny Decorations Project" icon="/images/tt.png">
             </action>
 
@@ -239,11 +239,11 @@
 
 
 
-        <group id="NG_TinyDecsContextMenu" text="_Angular NG" popup="true" description="Angular NG Actions"
+        <group id="NG_TinyDecsContextMenu" text="_Angular NG" popup="true" description="Angular Actions"
                icon="/images/ng.png">
 
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
-            <action id="NG_CreateProject2" class="net.werpu.tools.actions_ng.CreateNgProject" text="Create Angular Ng Project"
+            <action id="NG_CreateProject2" class="net.werpu.tools.actions_ng.CreateNgProject" text="Create Project"
                     description="Create a an Angular Ng Project" icon="/images/tt.png">
             </action>
 
@@ -295,8 +295,9 @@
 
             <group id="Refactorings" text="Code Transformations" description="Annotated Code Transformations" icon="/images/tt.png" popup="true">
                 <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
-                <action id="RefactorIntoAnnModule" class="net.werpu.tools.actions_all.RefactorIntoTnDecModule" text="Annotated Module Proposal"/>
-                <action id="RefactorIntoAnnComponent" class="net.werpu.tools.actions_all.RefactorIntoAnnotatedComponent" text="Annotated Component Proposal"/>
+                <action id="RefactorIntoAnnModule" class="net.werpu.tools.actions_all.RefactorIntoTnDecModule" text="Tiny Decorations Module"/>
+                <action id="RefactorIntoAngularModule" class="net.werpu.tools.actions_all.RefactorIntoAngularModule" text="Angular Module"/>
+                <action id="RefactorIntoAnnComponent" class="net.werpu.tools.actions_all.RefactorIntoAnnotatedComponent" text="Tiny Decorations Component"/>
             </group>
 
             <action id="TTNG_CreateRestEndpoint3" class="net.werpu.tools.actions_all.CreateRestEndpoint" text="Create Rest Endpoint"

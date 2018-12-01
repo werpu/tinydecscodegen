@@ -479,7 +479,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
     @NotNull
     private Object[] matchInjection(Injector injector) {
-        return new Object[]{PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.TEXT_EQ(injector.getName())};
+        return new Object[]{PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ(injector.getName())};
     }
 
     @Nullable

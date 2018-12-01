@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static net.werpu.tools.actions_all.shared.FormAssertions.*;
+import static net.werpu.tools.supportive.utils.IntellijUtils.createRamFileFromText;
 
 /**
  * Create a Tiny Decs artefact.
@@ -64,8 +65,8 @@ public class CreateTnDecController extends AnAction {
 
         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
 
-            PsiFile workFile = PsiFileFactory.getInstance(fileContext.getProject()).createFileFromText("create.html",
-                    HTMLLanguage.INSTANCE, "");
+            PsiFile workFile = createRamFileFromText(fileContext.getProject(), "create.html","",
+                    HTMLLanguage.INSTANCE);
 
             Document document = workFile.getViewProvider().getDocument();
 

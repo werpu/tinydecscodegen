@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import static net.werpu.tools.actions_all.shared.FormAssertions.assertNotNullOrEmpty;
 import static net.werpu.tools.actions_all.shared.FormAssertions.assertPattern;
 import static net.werpu.tools.actions_all.shared.Messages.ERR_ELTYPE_SEL;
+import static net.werpu.tools.supportive.utils.IntellijUtils.createRamFileFromText;
 import static reflector.TransclusionReflector.getPossibleTransclusionSlots;
 import static reflector.TransclusionReflector.hasTransclude;
 
@@ -65,8 +66,8 @@ public class CreateTnDecDirective extends AnAction {
 
         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
 
-            PsiFile workFile = PsiFileFactory.getInstance(fileContext.getProject()).createFileFromText("create.html",
-                    HTMLLanguage.INSTANCE, "");
+            PsiFile workFile = createRamFileFromText(fileContext.getProject(),"create.html",
+                     "", HTMLLanguage.INSTANCE);
 
             Document document = workFile.getViewProvider().getDocument();
             Editor editor = SwingUtils.createHtmlEditor(fileContext.getProject(), document);

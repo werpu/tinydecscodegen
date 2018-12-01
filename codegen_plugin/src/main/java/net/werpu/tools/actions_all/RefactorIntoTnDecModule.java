@@ -15,10 +15,8 @@ import com.intellij.psi.PsiFileFactory;
 import net.werpu.tools.actions_all.shared.TransformationInvoker;
 import net.werpu.tools.gui.support.InputDialogWrapperBuilder;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
-import net.werpu.tools.supportive.transformations.AngularJSModuleTransformationModel;
-import net.werpu.tools.supportive.transformations.IArtifactTransformation;
-import net.werpu.tools.supportive.transformations.ModuleTransformation;
-import net.werpu.tools.supportive.transformations.TransformationDialogBuilder;
+import net.werpu.tools.supportive.transformations.*;
+import net.werpu.tools.supportive.utils.IntellijUtils;
 import net.werpu.tools.supportive.utils.SwingUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,49 +54,26 @@ public class RefactorIntoTnDecModule extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        net.werpu.tools.gui.Refactoring mainForm = new net.werpu.tools.gui.Refactoring();
+
         final IntellijFileContext fileContext = new IntellijFileContext(event);
-        TransformationDialogBuilder builder = new TransformationDialogBuilder(fileContext, DIMENSION_KEY,  DLG_TITLE);
-        builder.withTnTransformation((fileContext1, editor, model) -> loadTnDecTransformation(fileContext1, editor, (ModuleTransformation) model));
-        builder.withNgTransformation((fileContext1, editor, model) -> loadNgTransformation(fileContext1, editor, (ModuleTransformation) model));
-        builder.create();
+
+
+        AngularJSModuleTransformationModel transformationModel = new AngularJSModuleTransformationModel(fileContext);
+        ModuleTransformation transformation = new ModuleTransformation(transformationModel);
+
+        try {
+            Language typescript = IntellijUtils.getTypescriptLanguageDef();
+            PsiFile transformed = IntellijUtils.createRamFileFromText(fileContext.getProject(),
+                    transformationModel.getPsiFile().getName(),
+                    reformat(fileContext.getProject(), typescript, transformation.getTnDecTransformation()), typescript);
+            IntellijUtils.showDiff(fileContext.getProject(), "Difference", fileContext.getPsiFile(), transformed, true);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
-
-
-
-    @NotNull
-    public Runnable loadTnDecTransformation(IntellijFileContext fileContext, Editor editor, ModuleTransformation moduleTransformation) {
-        Language typeScript = LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("TypeScript"));
-
-        return () -> {
-            try {
-                String text = reformat(fileContext.getProject(), typeScript,  moduleTransformation.getTnDecTransformation());
-                editor.getDocument().setText(text);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        };
-    }
-
-    @NotNull
-    public Runnable loadNgTransformation(IntellijFileContext fileContext, Editor editor, ModuleTransformation moduleTransformation) {
-        Language typeScript = LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("TypeScript"));
-        return () -> {
-            try {
-                String text = reformat(fileContext.getProject(), typeScript,  moduleTransformation.getNgTransformation());
-                editor.getDocument().setText(text);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        };
-    }
-
-
-
-    public boolean okPressed(IntellijFileContext fileContext, net.werpu.tools.gui.Refactoring mainForm) {
-        return true;
-    }
 
 
     @Override

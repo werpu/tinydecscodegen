@@ -21,6 +21,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package net.werpu.tools.supportive.utils;
 
+import com.intellij.codeInsight.documentation.DocumentationManager;
+import com.intellij.lang.LanguageUtil;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.impl.PsiAwareFileEditorManagerImpl;
+import com.intellij.openapi.fileTypes.FileType;
 import net.werpu.tools.actions_all.shared.FileNameTransformer;
 import net.werpu.tools.actions_all.shared.SimpleFileNameTransformer;
 import com.google.common.base.Strings;
@@ -123,7 +128,7 @@ public class IntellijUtils {
         text = text.replaceAll("\\r", "");
         final Collection<PsiFile> alreadyExisting = Arrays.stream(((PsiJavaFile) javaFile).getClasses()).flatMap(psiJavaClass -> IntellijUtils.searchRefs(project, psiJavaClass.getQualifiedName(), "ts").stream()).collect(Collectors.toList());
 
-        PsiFile file = PsiFileFactory.getInstance(project).createFileFromText(fileName, Language.findLanguageByID("TypeScript"), text);
+        PsiFile file = createRamFileFromText(project,fileName, text, Language.findLanguageByID("TypeScript"));
         ApplicationManager.getApplication().runWriteAction(() -> {
             moveFileToGeneratedDir(file, project, module);
             boolean diffed = false;
@@ -131,7 +136,7 @@ public class IntellijUtils {
 
                 for (PsiFile origFile : alreadyExisting) {
 
-                    diffed = diffed || showDiff(project, file, origFile, javaFile, alreadyExisting.size() == 1);
+                    diffed = diffed || showDiff(project, file, origFile,  alreadyExisting.size() == 1);
                 }
             }
             if (!diffed) {
@@ -189,21 +194,50 @@ public class IntellijUtils {
      * @param project  the hosting project
      * @param file     the newly generated file
      * @param origFile the original file
-     * @param javaFile the root java file for the diff
      */
-    public static boolean showDiff(Project project, PsiFile file, PsiFile origFile, PsiFile javaFile, boolean showTemp) {
+    public static boolean showDiff(Project project, PsiFile origFile,  PsiFile file, boolean showTemp) {
         //we do not show the diffs of target files
+        String title = "Reference already exists";
+        return showDiff(project, title, origFile, file, showTemp);
+    }
+
+    public static boolean showDiff(Project project, String title, PsiFile origFile, PsiFile file, boolean showTemp) {
         if (!showTemp && origFile.getVirtualFile().getPath().contains("target/generated-sources")) {
             return false;
         }
+
         SimpleDiffRequest request = new SimpleDiffRequest(
-                "Reference already exists",
+                title,
                 new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(origFile)),
                 new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(file)),
                 //new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(javaFile)),
                 "Original File: " + origFile.getVirtualFile().getPath().substring(project.getBasePath().length()),
                 "Newly Generated File"//,
                 /*"Java File: "+javaFile.getVirtualFile().getPath().substring(project.getBasePath().length()*/);
+
+
+        DiffManager.getInstance().showDiff(project, request);
+        return true;
+    }
+
+
+    /**
+     * Shows a three panel diff
+     *
+     * @param project  the hosting project
+     * @param file     the newly generated file
+     * @param origFile the original file
+     */
+    public static boolean showDiff(String title, Project project, Document origFile, Document file,  boolean showTemp) {
+        //we do not show the diffs of target files
+
+        SimpleDiffRequest request = new SimpleDiffRequest(
+                title,
+                new DocumentContentImpl(origFile),
+                new DocumentContentImpl(file),
+
+                "Original File ",
+                "Altered File");
 
 
         DiffManager.getInstance().showDiff(project, request);
@@ -768,6 +802,28 @@ public class IntellijUtils {
         }
         return retList;
     }
+
+    /**
+     * one of the most important functions
+     * this creates a shadow file (mostly in use by the html)
+     * The Psi file then later can be stored or whatever...
+     *
+     * @param project
+     * @param name
+     * @param text
+     * @param language
+     * @return
+     */
+    public static PsiFile createRamFileFromText(Project project, String name, String text, Language language) {
+        return PsiFileFactory.getInstance(project).createFileFromText(name,
+                language, text);
+    }
+
+
+    public static Language getTypescriptLanguageDef() {
+        return LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("TypeScript"));
+    }
+
 
 
 }

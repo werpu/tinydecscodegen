@@ -20,6 +20,7 @@ import java.util.function.Function;
 
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
 import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
+import static net.werpu.tools.supportive.utils.IntellijUtils.createRamFileFromText;
 
 /**
  * a helper class to isolate the common dialog behavior
@@ -89,8 +90,7 @@ public class TransformationDialogBuilder {
         runWriteCommandAction(fileContext.getProject(), () -> {
 
             Language typeScript = LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("TypeScript"));
-            PsiFile workFile = PsiFileFactory.getInstance(fileContext.getProject()).createFileFromText("newModule.ts",
-                    typeScript, "");
+            PsiFile workFile = createRamFileFromText(fileContext.getProject(), "newModule.ts","", typeScript);
 
             Document document = workFile.getViewProvider().getDocument();
             final Editor editor = SwingUtils.createTypescriptEdfitor(fileContext.getProject(), document);
