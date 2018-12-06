@@ -1,20 +1,24 @@
 package net.werpu.tools.supportive.transformations.modelHelpers;
 
+import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 
 import java.util.List;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class GenericFunction {
-    String functionName;
+    private final String functionName;
 
-    List<ParameterDeclaration> parameterList;
-    PsiElementContext functionBody;
+    private final List<ParameterDeclaration> parameterList;
+    private final PsiElementContext functionBody;
 
-
+    @Setter
+    String refactoredContent;
 
 
     public String getParametersAsString() {
@@ -24,6 +28,6 @@ public class GenericFunction {
     }
 
     public String toExternalString() {
-        return functionName+"("+getParametersAsString()+")" + functionBody.getText();
+        return (!Strings.isNullOrEmpty(refactoredContent))?  refactoredContent : functionName+"("+getParametersAsString()+")" + functionBody.getText();
     }
 }

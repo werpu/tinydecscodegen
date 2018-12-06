@@ -15,7 +15,7 @@ public class Injector {
 
     @Override
     public String toString() {
-        return "@Inject('"+name+"') private "+tsNameType;
+        return "@Inject('"+name+"') private "+name+" "+tsNameType;
     }
 
 

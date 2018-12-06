@@ -494,6 +494,12 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         //we transform the text into its own typescript shadow scratch file to perform
         //this refactorings against the injects
 
+        refactoriThisIntoFunctions();
+
+        return retVal;
+    }
+
+    public void refactoriThisIntoFunctions() {
         for (FirstOrderFunction inlineFunction : inlineFunctions) {
             if (!inlineFunction.isExternalizale()) {
                 continue;
@@ -514,8 +520,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
             }
             inlineFunction.setRefactoredContent(ctx.calculateRefactoring(injectionRefactorings));
         }
-
-        return retVal;
     }
 
     @NotNull

@@ -12,7 +12,6 @@ import net.werpu.tools.supportive.transformations.modelHelpers.Injector;
 import net.werpu.tools.supportive.transformations.modelHelpers.ParameterDeclaration;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -93,6 +92,7 @@ public class AngularJSDirectiveTransformationModel extends AngularJSComponentTra
         additionalFunctions = classBlock.$q(DEFINITION_BLOCK, CHILD_ELEM, JS_PROPERTY).map(el -> mapToFunction(el))
                 .filter(el -> el != null)
                 .collect(Collectors.toList());
+        refactoriThisIntoFunctions();
 
     }
 
@@ -138,6 +138,32 @@ public class AngularJSDirectiveTransformationModel extends AngularJSComponentTra
                         injects.add(injector);
                     }
                 });
+    }
+
+
+    public void refactoriThisIntoFunctions() {
+
+        //TODO we have to exclude the parameters we pass in from our
+        //this list, the rest then can be thised.
+
+        /*for (GenericFunction inlineFunction : additionalFunctions) {
+
+            final TypescriptFileContext ctx = TypescriptFileContext.fromText(getProject(), inlineFunction.toExternalString());
+
+            List<IRefactorUnit> injectionRefactorings = this.injects.stream()
+                    //we look for all local variable references which match the injection
+                    //TODO check why the name check fails
+                    .flatMap(injector -> ctx.$q(matchInjection(injector)))
+                    .distinct()
+                    .map(foundRefExpr -> newThisRefactoring(ctx, foundRefExpr))
+                    .collect(Collectors.toList());
+
+
+            if (injectionRefactorings.isEmpty()) {
+                continue;
+            }
+            inlineFunction.setRefactoredContent(ctx.calculateRefactoring(injectionRefactorings));
+        }*/
     }
 
     /*@Override
