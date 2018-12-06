@@ -96,6 +96,22 @@ public class AngularJSDirectiveTransformationModel extends AngularJSComponentTra
 
     }
 
+    @Override
+    protected void parseRestrict() {
+        restrict = "\"" +classBlock.$q(DEFINITION_BLOCK, JS_PROPERTY, NAME_EQ("restrict"), PSI_ELEMENT_JS_STRING_LITERAL)
+                .map(el -> el.getUnquotedText()).findFirst().orElse("E")+"\"";
+    }
+
+    @Override
+    protected void parsePriority() {
+        priority = classBlock.$q(DEFINITION_BLOCK, JS_PROPERTY, NAME_EQ("priority"), PSI_ELEMENT_JS_NUMERIC_LITERAL)
+                .map(el -> el.getText()).findFirst().orElse(null);
+    }
+
+    protected void parseTransclude() {
+        transclude = classBlock.$q(DEFINITION_BLOCK, JS_PROPERTY, NAME_EQ("transclude")).findFirst();
+    }
+
     @Nullable
     private GenericFunction mapToFunction(PsiElementContext el) {
         String propName = el.getName();
@@ -133,7 +149,7 @@ public class AngularJSDirectiveTransformationModel extends AngularJSComponentTra
                     String paramName = param.getName();
                     Optional<PsiElementContext> psiParamType = param.$q(TYPE_SCRIPT_SINGLE_TYPE).findFirst();
                     String paramType = (psiParamType.isPresent()) ? psiParamType.get().getText() : "any";
-                    Injector injector = new Injector(paramName, paramType);
+                    Injector injector = new Injector(paramName,paramName+": "+ paramType);
                     if (!injects.contains(injector)) {
                         injects.add(injector);
                     }

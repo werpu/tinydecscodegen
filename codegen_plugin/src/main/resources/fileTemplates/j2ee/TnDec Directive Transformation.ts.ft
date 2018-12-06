@@ -12,9 +12,12 @@ ${data.fromImportsToClassDecl}
     template: ${data.template},
     bindToController: ${data.bindToController},
     restrict: ${data.restrict},
+#if(${data.priority})
+    priority: ${data.priority},
+#end
     controllerAs: "${data.controllerAs}"#if($data.transcludeText),
     transclude: ${data.transcludeText}
-    #end
+#end
 
 })
 export class ${data.clazzName} {

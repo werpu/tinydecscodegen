@@ -182,6 +182,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         parseRestrict();
         parseTransclude();
         parseAttributes();
+        parsePriority();
         parseInlineClassAttributeCandidates();
     }
 
@@ -427,7 +428,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 .map(el -> el.getUnquotedText()).findFirst().orElse("ctrl");
     }
 
-
     protected void parsePriority() {
         priority = classBlock.$q(TN_COMP_PRIORITY)
                 .map(el -> el.getUnquotedText()).findFirst().orElse(null);
@@ -475,7 +475,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     public String getInjectsStr() {
-        return injects.stream().map(el -> el.toString()).reduce((str1, str2) -> str1 + "," + str2).orElse("");
+        return injects.stream().map(el -> el.toString()).reduce((str1, str2) -> str1 + ", " + str2).orElse("");
     }
 
     public String getRefactoredConstructorBlock() {

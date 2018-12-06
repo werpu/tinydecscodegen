@@ -180,6 +180,7 @@ public class AngularJSComponentTransformationsTest extends LightCodeInsightFixtu
        // assertTrue(model.getBindings().contains(new ComponentBinding(ASTRING, "transclude")));
         assertTrue(model.getAdditionalFunctions().size() == 1);
         assertTrue(model.getAdditionalFunctions().get(0).getFunctionName().equals("link"));
+        assertTrue(model.getRestrict().equals("\"EA\""));
 
 
     }

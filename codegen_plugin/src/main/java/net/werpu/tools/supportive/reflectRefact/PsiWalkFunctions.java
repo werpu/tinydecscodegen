@@ -76,6 +76,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final String PSI_ELEMENT_JS_RBRACKET = "PsiElement(JS:RBRACKET)";
     public static final String PSI_ELEMENT_JS_IDENTIFIER = "PsiElement(JS:IDENTIFIER)";
     public static final String PSI_ELEMENT_JS_STRING_LITERAL = "PsiElement(JS:STRING_LITERAL)";
+    public static final String PSI_ELEMENT_JS_NUMERIC_LITERAL = "PsiElement(JS:NUMERIC_LITERAL)";
     public static final Object[] TN_COMP_CONTROLLER_AS = {TYPE_SCRIPT_FIELD, NAME_EQ("controllerAs"), PSI_ELEMENT_JS_STRING_LITERAL};
     public static final Object[] TN_COMP_SELECTOR = {TYPE_SCRIPT_FIELD, NAME_EQ("selector"), PSI_ELEMENT_JS_STRING_LITERAL};
     public static final Object[] TN_COMP_BIND_TO_CONTROLLER = {TYPE_SCRIPT_FIELD, NAME_EQ("bindToController"), PSI_ELEMENT_JS_STRING_LITERAL};

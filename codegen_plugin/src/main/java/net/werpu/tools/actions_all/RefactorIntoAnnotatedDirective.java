@@ -26,7 +26,7 @@ public class RefactorIntoAnnotatedDirective extends AnAction {
         try {
             IntellijFileContext ctx = new IntellijFileContext(e);
             e.getPresentation().setEnabledAndVisible(false);
-            if (ctx.getText().contains("link")) {
+            if (ctx.getText().contains("link") || ctx.getText().contains("restrict") || ctx.getText().contains("bindToController") || ctx.getText().contains("replace")) {
                 AngularJSDirectiveTransformationModel model = new AngularJSDirectiveTransformationModel(new IntellijFileContext(e));
                 e.getPresentation().setEnabledAndVisible(model.getConstructorBlock().isPresent());
             }
