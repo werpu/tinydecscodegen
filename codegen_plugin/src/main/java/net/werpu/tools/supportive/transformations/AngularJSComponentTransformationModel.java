@@ -64,7 +64,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
      * feches the injecs for a given controller
      * root element the class block
      */
-    public static final Object[] CONTROLLER_INJECTS = {TN_COMP_CONTROLLER_ARR, TN_COMP_STR_INJECTS};
+    public static final Object[] CONTROLLER_INJECTS = {ANY(TN_COMP_CONTROLLER_ARR, TN_COMP_CONTROLLER_FUNC_ARR), TN_COMP_STR_INJECTS};
     /**
      * fetches the parent function of a given element
      * root element anything whithin a function
@@ -80,31 +80,39 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
      * root element the class
      */
     public static final Object[] CONTROLLER_FIELD = {TYPE_SCRIPT_FIELD, NAME_EQ("controller")};
+    public static final Object[] CONTROLLER_PROPERTY = {JS_PROPERTY, NAME_EQ("controller")};
     /**
      * potential candidates for the class attributes from the constructor function
      */
     public static final Object[] CLASS_VARIABLE_CANDIDATES = {CHILD_ELEM, JS_EXPRESSION_STATEMENT, TEXT_STARTS_WITH("this."), CHILD_ELEM, JS_ASSIGNMENT_EXPRESSION, CHILD_ELEM, JS_DEFINITION_EXPRESSION};
 
-    Optional<PsiElementContext> lastImport;
-    PsiElementContext rootBlock;
-    PsiElementContext classBlock;
-    String controllerAs;
-    List<Injector> injects; //imports into the constructor
-    String selectorName; //trace back into the module declaration for this component and then run our string dash transformation
+    protected Optional<PsiElementContext> lastImport;
+    protected PsiElementContext rootBlock;
+    protected PsiElementContext classBlock;
+    protected String controllerAs;
+    protected String bindToController;
+    protected String restrict;
+    protected List<Injector> injects; //imports into the constructor
+    protected String selectorName; //trace back into the module declaration for this component and then run our string dash transformation
+    protected String priority; //trace back into the module declaration for this component and then run our string dash transformation
 
-    Optional<PsiElementContext> constructorDef;
-    Optional<PsiElementContext> constructorBlock;
-    Optional<PsiElementContext> transclude;
+    protected Optional<PsiElementContext> constructorDef;
+    protected Optional<PsiElementContext> constructorBlock;
+    protected Optional<PsiElementContext> transclude;
 
-    List<FirstOrderFunction> inlineFunctions;
-    List<ClassAttribute> possibleClassAttributes;
-    String template; //original template after being found
-    List<BindingTypes> bindings;
+    protected List<FirstOrderFunction> inlineFunctions;
+    protected List<ClassAttribute> possibleClassAttributes;
+    protected String template; //original template after being found
+    protected List<ComponentBinding> bindings;
 
-    String clazzName;
+    protected String clazzName;
 
-    List<PsiElementContext> attributes;
+    protected List<PsiElementContext> attributes;
 
+
+    public List<String> getAttributesAsString() {
+         return attributes.stream().map(attr -> attr.getName()).collect(Collectors.toList());
+    }
 
     public AngularJSComponentTransformationModel(Project project, PsiFile psiFile, PsiElementContext rootBlock) {
         super(project, psiFile);
@@ -170,17 +178,20 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         parseClassName();
         parseSelectorName();
         parseControllerAs();
+        parseBindToController();
+        parseRestrict();
         parseTransclude();
         parseAttributes();
         parseInlineClassAttributeCandidates();
     }
 
-    private void parseClassName() {
+
+    protected void parseClassName() {
         clazzName = classBlock.getName();
 
     }
 
-    private void parseTemplate() {
+    protected void parseTemplate() {
         Optional<PsiElementContext> returnStmt = classBlock.$q(TEMPLATE_RETURN_STMT).findFirst();
         Optional<PsiElementContext> stringTemplate = classBlock.$q(TEMPLATE_STR_LIT).findFirst();
         Optional<PsiElementContext> refTemplate = classBlock.$q(TEMPLATE_IDENTIFIER).findFirst();
@@ -215,7 +226,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
     }
 
-    private void parseInlineFunctions() {
+    protected void parseInlineFunctions() {
         inlineFunctions = constructorBlock.get()
                 //first we search for inline functions
                 //including the variable definition aka let a = func...
@@ -243,7 +254,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
      * @param parentFunctionBlock
      * @return
      */
-    private List<PsiElementContext> parseFunctionVariableDecls(PsiElementContext parentFunctionBlock) {
+    protected List<PsiElementContext> parseFunctionVariableDecls(PsiElementContext parentFunctionBlock) {
 
         return parentFunctionBlock.queryContent(JS_VAR_STATEMENT)
                 .filter(e -> e.$q(PARENT_FUNCTION)
@@ -266,7 +277,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
      * we can skip the externalization because some vital data might be missing
      * to produce again working code
      */
-    private Optional<FirstOrderFunction> parseFunctionData(PsiElementContext inlineFunction) {
+    protected Optional<FirstOrderFunction> parseFunctionData(PsiElementContext inlineFunction) {
         Optional<PsiElementContext> funtionDefinition = inlineFunction.$q(JS_DEFINITION_EXPRESSION).findFirst();
         Optional<PsiElementContext> functionBlock = inlineFunction.$q(JS_BLOCK_STATEMENT).findFirst();
         Optional<PsiElementContext> parameterList = inlineFunction.$q(TYPE_SCRIPT_PARAMETER_LIST).findFirst();
@@ -298,7 +309,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         return Optional.empty();
     }
 
-    private void parseInlineClassAttributeCandidates() {
+    protected void parseInlineClassAttributeCandidates() {
         Set<String> ignore = new HashSet<>(getInjectsAsStr());
         ignore.addAll(getFunctionNames());
         possibleClassAttributes =
@@ -314,7 +325,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     @NotNull
-    private List<String> getFunctionNames() {
+    protected List<String> getFunctionNames() {
         return inlineFunctions.stream().map(el -> {
             String functionName = el.getFunctionName();
             return functionName.substring(functionName.lastIndexOf(".") + 1);
@@ -322,12 +333,12 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     @NotNull
-    private List<String> getInjectsAsStr() {
+    protected List<String> getInjectsAsStr() {
         return injects.stream().map(el -> el.getName()).collect(Collectors.toList());
     }
 
     @NotNull
-    private Predicate<PsiElementContext> notIgnorable(Set<String> ignore) {
+    protected Predicate<PsiElementContext> notIgnorable(Set<String> ignore) {
         return el -> {
             String name = el.getName();
             return !ignore.contains(name);
@@ -335,38 +346,39 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     @NotNull
-    private Predicate<PsiElementContext> isDirectConstructorCild() {
+    protected Predicate<PsiElementContext> isDirectConstructorCild() {
         return el -> {
             Optional<PsiElementContext> first = el.$q(PARENT_FUNCTION, FIRST).findFirst();
             return first.isPresent() && first.get().getTextOffset() == constructorBlock.get().getTextOffset();
         };
     }
 
-    private void parseImport() {
+    protected void parseImport() {
         lastImport =
                 this.$q(ANY_TS_IMPORT).reduce((e1, e2) -> e2);
     }
 
-    private void parseClassBlock() {
+    protected void parseClassBlock() {
         Stream<PsiElementContext> psiElementContextStream = rootBlock.$q(TYPE_SCRIPT_CLASS)
                 .filter(el -> el.getText().contains("template") && el.getText().contains("controller"));
         classBlock = psiElementContextStream.findFirst().get();
     }
 
-    private void parseConstructor() {
-        constructorDef = classBlock.$q(CONTROLLER_FIELD).findFirst();
+    protected void parseConstructor() {
+        constructorDef = classBlock.$q(ALL(CONTROLLER_FIELD, CONTROLLER_PROPERTY)).findFirst();
         constructorBlock = constructorDef.get().$q(FUNCTION_BLOCK).findFirst();
 
     }
 
-    private void parseInjects() {
+    protected void parseInjects() {
         injects = new ArrayList<>();
         List<String> strInjects =
-                rootBlock.$q(CONTROLLER_INJECTS)
+                classBlock.$q(CONTROLLER_INJECTS)
                         .map(el -> el.getUnquotedText())
                         .collect(Collectors.toList());
 
-        List<String> tsInjects = rootBlock.$q(TN_COMP_PARAM_LISTS)
+        //static injects $inject must be there on IComponent level
+        List<String> tsInjects = classBlock.$q(TN_COMP_PARAM_LISTS)
                 .map(el -> el.getUnquotedText())
                 .collect(Collectors.toList());
 
@@ -378,9 +390,19 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
     }
 
-    private void parseSelectorName() {
+    protected void parseSelectorName() {
 
+        Optional<String> selectorNameDefined =  classBlock.$q(TN_COMP_SELECTOR)
+                .map(el -> el.getUnquotedText()).findFirst();
+        if(selectorNameDefined.isPresent()) {
+            selectorName = selectorNameDefined.get();
+            return;
+        }
 
+        getSelectorFromDefinitionName();
+    }
+
+    protected void getSelectorFromDefinitionName() {
         selectorName = super.findFirstUpwards(el -> {
             Optional<PsiElementContext> ctx = new IntellijFileContext(getProject(), el).$q(TN_DEC_COMPONENT_NAME(clazzName)).findFirst();
             if (!ctx.isPresent()) {
@@ -396,35 +418,59 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 .findFirst().orElse(StringUtils.toDash(getClazzName()));
     }
 
-    private void parseTransclude() {
+    protected void parseTransclude() {
         transclude = classBlock.$q(TN_COMP_TRANSCLUDE).findFirst();
     }
 
-    private void parseControllerAs() {
+    protected void parseControllerAs() {
         controllerAs = classBlock.$q(TN_COMP_CONTROLLER_AS)
                 .map(el -> el.getUnquotedText()).findFirst().orElse("ctrl");
     }
 
-    private void parseAttributes() {
+
+    protected void parsePriority() {
+        priority = classBlock.$q(TN_COMP_PRIORITY)
+                .map(el -> el.getUnquotedText()).findFirst().orElse(null);
+    }
+
+
+
+    protected void parseBindToController() {
+        bindToController = classBlock.$q(TN_COMP_BIND_TO_CONTROLLER)
+                .map(el -> el.getUnquotedText()).findFirst().orElse("true");
+    }
+
+    protected void parseRestrict() {
+        restrict = classBlock.$q(TN_COMP_BIND_RESTRICT)
+                .map(el -> el.getUnquotedText()).findFirst().orElse("E");
+    }
+
+
+    protected void parseAttributes() {
         attributes = classBlock.$q(CLASS_ATTRS)
                 .filter(el -> isNotStandardAttr(el)
                 )
                 .collect(Collectors.toList());
     }
 
-    private boolean isNotStandardAttr(PsiElementContext el) {
+    protected boolean isNotStandardAttr(PsiElementContext el) {
         return !el.getName().equals("bindings") && !el.getName().equals("controllerAs")
+                && !el.getName().equals("bindToController") && !el.getName().equals("restrict")
                 && !el.getName().equals("controller") && !el.getName().equals("template")
-                && !el.getName().equals("transclude") && !el.getName().equals("restrict");
+                && !el.getName().equals("priority")&& !el.getName().equals("scope");
     }
 
 
-    private void parseBindings() {
-        bindings = classBlock.$q(TN_COMP_BINDINGS).map(el -> {
+    protected void parseBindings() {
+        parseBindings(TN_COMP_BINDINGS);
+    }
+
+    protected void parseBindings(Object ... query) {
+        bindings = classBlock.$q(query).map(el -> {
             String propName = el.getName();
             Optional<PsiElementContext> first = el.$q(PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
             String type = (first.isPresent()) ? first.get().getUnquotedText() : "<";
-            return new BindingTypes(BindingType.translate(type), propName);
+            return new ComponentBinding(BindingType.translate(type), propName);
         }).collect(Collectors.toList());
     }
 
@@ -478,7 +524,7 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     }
 
     @NotNull
-    private Object[] matchInjection(Injector injector) {
+    protected Object[] matchInjection(Injector injector) {
         return new Object[]{PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ(injector.getName())};
     }
 
@@ -497,6 +543,11 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
     public String getFromImportsToClassDecl() {
         return rootBlock.getText().substring(lastImport.get().getTextRangeOffset() + lastImport.get().getTextLength() + 1, classBlock.getTextRangeOffset());
+    }
+
+
+    public String getCodeBetweenDefinitionAndClassBlock() {
+        return "";
     }
 
 }

@@ -100,7 +100,7 @@ public class TreeQueryEngine<T> {
     private static <T> Stream<T> any(Stream<T> str1, Stream<T> str2) {
 
         List<T> strList1 = str1.collect(Collectors.toList());
-        List<T> strList2 = str1.collect(Collectors.toList());
+        List<T> strList2 = str2.collect(Collectors.toList());
         return strList1.isEmpty() ? strList2.stream() : strList1.stream();
 
     }
@@ -110,6 +110,7 @@ public class TreeQueryEngine<T> {
             List<T> itemlist = stream.collect(Collectors.toList());
             return any(engine.exec(itemlist.stream(), str1, true),
                     engine.exec(itemlist.stream(), str2, true));
+
 
         };
     }

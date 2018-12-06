@@ -298,6 +298,7 @@
                 <action id="RefactorIntoAnnModule" class="net.werpu.tools.actions_all.RefactorIntoTnDecModule" text="Tiny Decorations Module"/>
                 <action id="RefactorIntoAngularModule" class="net.werpu.tools.actions_all.RefactorIntoAngularModule" text="Angular Module"/>
                 <action id="RefactorIntoAnnComponent" class="net.werpu.tools.actions_all.RefactorIntoAnnotatedComponent" text="Tiny Decorations Component"/>
+                <action id="RefactorIntoAnnDirective" class="net.werpu.tools.actions_all.RefactorIntoAnnotatedDirective" text="Tiny Decorations Directive"/>
             </group>
 
             <action id="TTNG_CreateRestEndpoint3" class="net.werpu.tools.actions_all.CreateRestEndpoint" text="Create Rest Endpoint"

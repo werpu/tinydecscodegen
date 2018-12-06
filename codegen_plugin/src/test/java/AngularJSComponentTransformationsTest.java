@@ -3,9 +3,10 @@ import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.transformations.AngularJSComponentTransformationModel;
+import net.werpu.tools.supportive.transformations.AngularJSDirectiveTransformationModel;
 import net.werpu.tools.supportive.transformations.AngularJSModuleTransformationModel;
-import net.werpu.tools.supportive.transformations.modelHelpers.BindingType;
-import org.junit.Ignore;
+import net.werpu.tools.supportive.transformations.modelHelpers.ComponentBinding;
+import net.werpu.tools.supportive.transformations.modelHelpers.Injector;
 import util.TestUtils;
 
 import static net.werpu.tools.supportive.transformations.modelHelpers.BindingType.*;
@@ -149,6 +150,38 @@ public class AngularJSComponentTransformationsTest extends LightCodeInsightFixtu
         assertTrue(ctx.getInlineFunctions().size() == 9);
 
         ctx.getRefactoredConstructorBlock();
+    }
+
+
+
+    public void testDirective() {
+        PsiFile module =  myFixture.configureByFile("pureAngularJS/probeModule.ts");
+        PsiFile psiFile = myFixture.configureByFile("pureAngularJS/probeDirective.ts");
+        Project project = myFixture.getProject();
+
+        AngularJSDirectiveTransformationModel model = new AngularJSDirectiveTransformationModel(new IntellijFileContext(project, psiFile));
+
+        assertTrue(model.getClazzName().equals("BootstrapPopup"));
+        assertTrue(model.getTemplate() != null && model.getTemplate().length() > 0);
+        assertTrue(model.getInjects().size() == 5);
+        assertTrue(model.getInjects().contains(new Injector("$scope", "IScope")));
+        assertTrue(model.getInjects().contains(new Injector("$element", "JQuery")));
+        assertTrue(model.getInjects().contains(new Injector("$timeout", "ITimeoutService")));
+        assertTrue(model.getInjects().contains(new Injector("$compile", "ICompileService")));
+        assertTrue(model.getInjects().contains(new Injector("appUtils", "AppUtils")));
+
+        assertTrue(model.getCodeBetweenDefinitionAndClassBlock().trim().equals("$compile.any(\"whatever\");"));
+
+
+        assertTrue(model.getBindings().contains(new ComponentBinding(ASTRING, "template")));
+        assertTrue(model.getBindings().contains(new ComponentBinding(ASTRING, "container")));
+        assertTrue(model.getBindings().contains(new ComponentBinding(ASTRING, "selector")));
+        assertTrue(model.getBindings().contains(new ComponentBinding(ASTRING, "trigger")));
+       // assertTrue(model.getBindings().contains(new ComponentBinding(ASTRING, "transclude")));
+        assertTrue(model.getAdditionalFunctions().size() == 1);
+        assertTrue(model.getAdditionalFunctions().get(0).getFunctionName().equals("link"));
+
+
     }
 
 

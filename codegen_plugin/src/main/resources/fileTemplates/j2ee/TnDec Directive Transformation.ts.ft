@@ -1,0 +1,51 @@
+${data.imports}
+import {AString, Both, Directive, Func, Inject, Input} from "TinyDecorations";
+
+${data.fromImportsToClassDecl}
+
+/**
+ * Component ${data.selectorName}
+ * @author ${AUTHOR}
+ */
+@Directive({
+    selector: "${data.selectorName}",
+    template: ${data.template},
+    bindToController: ${data.bindToController},
+    restrict: ${data.restrict},
+    controllerAs: "${data.controllerAs}"#if($data.transcludeText),
+    transclude: ${data.transcludeText}
+    #end
+
+})
+export class ${data.clazzName} {
+
+#foreach($binding in ${data.bindings})
+    ${binding.toString()}
+#end
+
+#foreach($attr in ${data.attributes})
+    ${attr.text};
+#end
+
+#foreach($attr in ${data.possibleClassAttributes})
+    ${attr.text};
+#end
+
+#foreach($func in ${data.inlineFunctions})
+#if(${func.externalizale} == false && ${func.needsToBeDeclared})
+    ${func.declarationName}: Function;
+#end
+#end
+
+    constructor(${data.injectsStr}) ${data.refactoredConstructorBlock}
+
+
+#foreach($firstOrderFunction in ${data.inlineFunctions})
+    ${firstOrderFunction.toExternalString()}
+#end
+
+    #foreach($additionalFunction in ${data.additionalFunctions})
+        ${additionalFunction.toExternalString()}
+    #end
+
+}

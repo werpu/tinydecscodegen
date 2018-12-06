@@ -38,7 +38,11 @@ public class PsiElementContext {
 
     public String getUnquotedText() {
         String text = element.getText();
-        text = text.replaceAll("^[\\\"\\'](.*)[\\\"\\']$", "$1");
+        text = text.replaceAll("^[\\\"\\'\\`](.*)[\\\"\\'\\`]$", "$1");
+        text = text.trim(); //template quote strip fails, bug in the re engine probably
+        if(text.length() > 1 && text.startsWith("`") && text.endsWith("`")) {
+            text = text.substring(1, text.length() - 1);
+        }
         return text;
     }
 
