@@ -130,23 +130,25 @@ public class SearchableTree<V> {
     private DefaultMutableTreeNode cloneNodes(DefaultMutableTreeNode source, Function<DefaultMutableTreeNode, Boolean> filterCrit) {
         final Function<DefaultMutableTreeNode, Boolean> finalFilterFunc = (filterCrit != null) ? filterCrit : (node) -> true;
 
-        Enumeration<DefaultMutableTreeNode> en = source.breadthFirstEnumeration();
+        Enumeration en = source.breadthFirstEnumeration();
         DefaultMutableTreeNode newRootNode = new DefaultMutableTreeNode(source.getUserObject());
         final Map<TreeNode, DefaultMutableTreeNode> nodeIdx = new HashMap<>();
 
         Collections.list(en).stream()
                 // .map(node ->  (DefaultMutableTreeNode) node)
                 .filter(node -> {
-                    if (node.getParent() == null) {
+                    DefaultMutableTreeNode nodeCast = (DefaultMutableTreeNode) node;
+                    if (nodeCast.getParent() == null) {
                         return false;
                     }
-                    return finalFilterFunc.apply(node);
+                    return finalFilterFunc.apply(nodeCast);
                 })
                 .forEach(node -> {
-                    DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(node.getUserObject());
-                    nodeIdx.put(node, newNode);
+                    DefaultMutableTreeNode nodeCast = (DefaultMutableTreeNode) node;
+                    DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(nodeCast.getUserObject());
+                    nodeIdx.put(nodeCast, newNode);
 
-                    DefaultMutableTreeNode nodePar = Optional.ofNullable(nodeIdx.get(node.getParent())).orElse(newRootNode);
+                    DefaultMutableTreeNode nodePar = Optional.ofNullable(nodeIdx.get(nodeCast.getParent())).orElse(newRootNode);
                     nodePar.add(newNode);
                 });
         return newRootNode;
@@ -154,7 +156,7 @@ public class SearchableTree<V> {
 
 
     private void removeEmpties(DefaultMutableTreeNode source) {
-        Enumeration<DefaultMutableTreeNode> en = source.depthFirstEnumeration();
+        Enumeration en =  source.depthFirstEnumeration();
 
         int depth = source.getDepth();
         Set<DefaultMutableTreeNode> nodesToRemove = new ArrayListSet<>();
@@ -164,11 +166,13 @@ public class SearchableTree<V> {
         Collections.list(en)
                 .stream()
                 .forEach(node -> {
-                    boolean removalCandidate = !(node.getUserObject() instanceof IAngularFileContext) &&
-                            (node.getChildCount() == 0 ||
-                                    nodesToRemove.containsAll(Collections.list(node.children())));
+                    DefaultMutableTreeNode nodeCast = (DefaultMutableTreeNode) node;
+
+                    boolean removalCandidate = !(nodeCast.getUserObject() instanceof IAngularFileContext) &&
+                            (nodeCast.getChildCount() == 0 ||
+                                    nodesToRemove.containsAll(Collections.list(nodeCast.children())));
                     if (removalCandidate) {
-                        nodesToRemove.add(node);
+                        nodesToRemove.add(nodeCast);
                     }
 
                 });

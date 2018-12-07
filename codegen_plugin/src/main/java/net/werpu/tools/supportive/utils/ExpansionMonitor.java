@@ -59,12 +59,13 @@ public class ExpansionMonitor {
     }
 
     public void restore() {
-        Enumeration<DefaultMutableTreeNode> en = ((DefaultMutableTreeNode)tree.getModel().getRoot()).breadthFirstEnumeration();
+        Enumeration en = ((DefaultMutableTreeNode)tree.getModel().getRoot()).breadthFirstEnumeration();
 
         locked.set(true);
         try {
             Collections.list(en).stream().forEach(node -> {
-                Object userObject = node.getUserObject();
+                DefaultMutableTreeNode nodeCast = (DefaultMutableTreeNode) node;
+                Object userObject = nodeCast.getUserObject();
                 String key = null;
                 if(userObject instanceof String) {
                     key = (String) userObject;
@@ -73,7 +74,7 @@ public class ExpansionMonitor {
                 }
                 if(key != null && expanded.contains(key)) {
                     try {
-                        tree.expandPath(new TreePath(node.getPath()));
+                        tree.expandPath(new TreePath(nodeCast.getPath()));
                     } catch(ArrayIndexOutOfBoundsException ex) {
                         //workaround for a tree issue
                         //we simply skin the expansion in this case
