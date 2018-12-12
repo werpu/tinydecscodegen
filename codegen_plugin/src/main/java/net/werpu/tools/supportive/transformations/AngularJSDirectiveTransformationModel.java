@@ -24,6 +24,10 @@ import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngin
 /**
  * Directive code patterns, those are very similar to function based component definitions
  * (function based component definitions are in fact a subset of the directive based definitions)
+ *
+ * TODO maybe another approach in this case is better
+ * we might be able to just fetch all properties except for a handful of props
+ * which need special treatment
  */
 @Getter
 public class AngularJSDirectiveTransformationModel extends AngularJSComponentTransformationModel {
@@ -181,12 +185,6 @@ public class AngularJSDirectiveTransformationModel extends AngularJSComponentTra
             inlineFunction.setRefactoredContent(ctx.calculateRefactoring(injectionRefactorings));
         }*/
     }
-
-    /*@Override
-    protected void parseBindings() {
-        attributes = classBlock.$q(JS_PROPERTY, NAME_EQ("scope"), FIRST, CHILD_ELEM, JS_OBJECT_LITERAL_EXPRESSION, CHILD_ELEM, JS_PROPERTY)
-                .collect(Collectors.toList());
-    }*/
 
 
     @Override

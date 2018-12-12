@@ -14,6 +14,7 @@ import net.werpu.tools.supportive.utils.IntellijUtils;
 import java.io.IOException;
 
 import static com.intellij.ide.scratch.ScratchFileCreationHelper.reformat;
+import static net.werpu.tools.supportive.utils.IntellijUtils.*;
 
 /**
  * action endpoint for the component refactoring dialog
@@ -45,11 +46,11 @@ public class RefactorIntoAnnotatedDirective extends AnAction {
         DirectiveTransformation transformation = new DirectiveTransformation(transformationModel);
 
         try {
-            Language typescript = IntellijUtils.getTypescriptLanguageDef();
-            PsiFile transformed = IntellijUtils.createRamFileFromText(fileContext.getProject(),
+            Language typescript = getTypescriptLanguageDef();
+            PsiFile transformed = createRamFileFromText(fileContext.getProject(),
                     transformationModel.getPsiFile().getName(),
                     /*reformat(fileContext.getProject(), typescript, transformation.getTnDecTransformation())*/ transformation.getTnDecTransformation(), typescript);
-            IntellijUtils.showDiff(fileContext.getProject(), "Difference", fileContext.getPsiFile(), transformed, true);
+            showDiff(fileContext.getProject(), "Difference", fileContext.getPsiFile(), transformed, true);
 
         } catch (IOException e) {
             e.printStackTrace();

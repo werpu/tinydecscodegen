@@ -1,5 +1,6 @@
 package net.werpu.tools.actions_all;
 
+import com.intellij.openapi.ui.popup.*;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -7,9 +8,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonShortcuts;
 import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
-import com.intellij.openapi.ui.popup.JBPopup;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.ui.WindowMoveListener;
 import net.werpu.tools.gui.ResourceSearch;
@@ -18,11 +16,11 @@ import lombok.Getter;
 import lombok.Setter;
 import net.werpu.tools.supportive.fs.common.*;
 import net.werpu.tools.supportive.utils.SwingUtils;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +31,7 @@ import static net.werpu.tools.supportive.fs.common.AngularVersion.TN_DEC;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.invokeLater;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.smartInvokeLater;
 import static net.werpu.tools.supportive.utils.SwingUtils.addMouseClickedHandler;
+import static net.werpu.tools.supportive.utils.TimeoutWorker.setTimeout;
 
 @Getter
 @Setter
@@ -184,7 +183,52 @@ public class SearchForResource extends AnAction {
             resourceSearchPanel.getTxtSearch().getTextArea().requestFocusInWindow();
         });
         IdeEventQueue.getInstance().getPopupManager().closeAllPopups(false);
+
+        popup.getContent().addFocusListener(new FocusListener() {
+            public void focusGained(FocusEvent e) {
+                resourceSearchPanel.getTxtSearch().getTextArea().setFocusable(true);
+                resourceSearchPanel.getTxtSearch().getTextArea().requestFocusInWindow();
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+
+            }
+        });
+
+        popup.setRequestFocus(true);
+
+        popup.addListener(new JBPopupListener() {
+            @Override
+            public void beforeShown(@NotNull LightweightWindowEvent event) {
+                resourceSearchPanel.getTxtSearch().getTextArea().setFocusable(true);
+                resourceSearchPanel.getTxtSearch().getTextArea().requestFocus();
+            }
+        });
+        invokeLater(() -> {
+            //popup.getContent().getRootPane().setFocusable(true);
+            //popup.getContent().getRootPane().requestFocus(true);
+            //resourceSearchPanel.getTxtSearch().getTextArea().viewToModel(new Point(0,0));
+        });
+        //popup.getOwner().setFocusable(true);
+        //popup.getOwner().requestFocus();
+        popup.addListener(new JBPopupListener() {
+            @Override
+            public void beforeShown(@NotNull LightweightWindowEvent event) {
+                resourceSearchPanel.getTxtSearch().getTextArea().setFocusable(true);
+                resourceSearchPanel.getTxtSearch().getTextArea().requestFocus();
+            }
+        });
+
+        resourceSearchPanel.getTxtSearch().getTextArea().setFocusable(true);
+
         popup.showCenteredInCurrentWindow(e.getProject());
+        setTimeout(() -> {
+            invokeLater(() -> {
+                resourceSearchPanel.getTxtSearch().getTextArea().requestFocus();
+            });
+        }, 100);
+
 
 
     }
