@@ -36,6 +36,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.function.Consumer;
@@ -148,6 +150,29 @@ public class SwingUtils {
     }
 
 
+    public static ComponentListener addComponentShownHandler(Consumer<ComponentEvent> c) {
+        return new ComponentListener() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                c.accept(e);
+            }
+
+            @Override
+            public void componentMoved(ComponentEvent e) {
+
+            }
+
+            @Override
+            public void componentShown(ComponentEvent e) {
+                c.accept(e);
+            }
+
+            @Override
+            public void componentHidden(ComponentEvent e) {
+
+            }
+        };
+    }
 
 
     public static MouseListener addMouseClickedHandler(Consumer<MouseEvent> singleClick, Consumer<MouseEvent> doubleClick) {

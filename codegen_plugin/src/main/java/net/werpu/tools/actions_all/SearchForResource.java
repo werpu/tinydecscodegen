@@ -30,6 +30,7 @@ import static net.werpu.tools.supportive.fs.common.AngularVersion.NG;
 import static net.werpu.tools.supportive.fs.common.AngularVersion.TN_DEC;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.invokeLater;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.smartInvokeLater;
+import static net.werpu.tools.supportive.utils.SwingUtils.addComponentShownHandler;
 import static net.werpu.tools.supportive.utils.SwingUtils.addMouseClickedHandler;
 import static net.werpu.tools.supportive.utils.TimeoutWorker.setTimeout;
 
@@ -221,14 +222,13 @@ public class SearchForResource extends AnAction {
         });
 
         resourceSearchPanel.getTxtSearch().getTextArea().setFocusable(true);
+        resourceSearchPanel.getTxtSearch().getTextArea().addComponentListener(addComponentShownHandler(ex ->
+                smartInvokeLater(project.getProject(), () -> {
+                    resourceSearchPanel.getTxtSearch().getTextArea().requestFocus();
+                })
+        ));
 
         popup.showCenteredInCurrentWindow(e.getProject());
-        setTimeout(() -> {
-            invokeLater(() -> {
-                resourceSearchPanel.getTxtSearch().getTextArea().requestFocus();
-            });
-        }, 100);
-
 
 
     }
