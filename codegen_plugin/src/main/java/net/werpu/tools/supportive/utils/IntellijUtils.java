@@ -211,7 +211,7 @@ public class IntellijUtils {
                 new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(origFile)),
                 new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(file)),
                 //new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(javaFile)),
-                "Original File: " + origFile.getVirtualFile().getPath().substring(Math.max(0,project.getBasePath().length())),
+                "Original File: " + origFile.getVirtualFile().getPath(),
                 "Newly Generated File"//,
                 /*"Java File: "+javaFile.getVirtualFile().getPath().substring(project.getBasePath().length()*/);
 
