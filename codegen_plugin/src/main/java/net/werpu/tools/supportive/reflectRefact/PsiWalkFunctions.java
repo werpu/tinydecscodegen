@@ -2,12 +2,12 @@ package net.werpu.tools.supportive.reflectRefact;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.reflectRefact.navigation.BaseQueryEngineImplementation;
 import net.werpu.tools.supportive.reflectRefact.navigation.QueryExtension;
 import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import net.werpu.tools.supportive.reflectRefact.navigation.PsiElementQueryAdapter;
+import net.werpu.tools.supportive.reflectRefact.navigation.ideafixes.PsiRecursiveElementWalkingVisitor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
