@@ -136,7 +136,7 @@ public class IntellijUtils {
 
                 for (PsiFile origFile : alreadyExisting) {
 
-                    diffed = diffed || showDiff(project, file, origFile,  alreadyExisting.size() == 1);
+                    diffed = diffed || showDiff(project,  origFile,  file, alreadyExisting.size() == 1);
                 }
             }
             if (!diffed) {
