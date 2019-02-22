@@ -1,5 +1,6 @@
 package net.werpu.tools.supportive.transformations;
 
+import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.transformations.modelHelpers.ElementNotResolvableException;
+import net.werpu.tools.supportive.transformations.modelHelpers.PARSING_TYPE;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import net.werpu.tools.supportive.utils.StringUtils;
 import net.werpu.tools.supportive.utils.SwingUtils;
@@ -18,10 +20,6 @@ import java.util.function.Predicate;
 
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.PARENTS_EQ;
-
-enum PARSING_TYPE {
-    STRING, STRING_WITH_TRANSLATE, TEXT
-}
 
 /**
  * a central transformation
@@ -99,11 +97,12 @@ public class L18NTransformationModel implements ITransformationModel {
         };
 
 
+        Language language = IntellijUtils.getTnDecTemplateLanguageDef().orElse(IntellijUtils.getNgTemplateLanguageDef().orElse(IntellijUtils.getHtmlLanguage()));
         PsiFile ramFile = IntellijUtils.createRamFileFromText(fileContext.getProject(),
                 "template.html",
                 templateText,
                //TODO make a distinction between tndec and and ng via our internal detector engine
-               IntellijUtils.getTnDecTemplateLanguageDef().orElse(IntellijUtils.getNgTemplateLanguageDef().orElse(IntellijUtils.getHtmlLanguage())));
+                language.getDialects().size() > 0 ? language.getDialects().get(0) : language);
         //determine which case of embedding we have here
         IntellijFileContext parsingRoot = new IntellijFileContext(fileContext.getProject(), ramFile);
 
@@ -134,7 +133,8 @@ public class L18NTransformationModel implements ITransformationModel {
             //in the other cases we have to introduce an interpolation
             //sidenote interpolations for this case are already handled by the first part
             parsingType = name.equals("translate") ? PARSING_TYPE.STRING_WITH_TRANSLATE : PARSING_TYPE.TEXT;
-            applyStandardParsingValues(newOffset, foundElement);
+            applyStandardParsingValues(newOffset, foundElement.$q(XML_ATTRIBUTE_VALUE).findFirst().orElseThrow(ElementNotResolvableException::new));
+            return;
         }
 
         //most generic case, tag content
@@ -156,7 +156,7 @@ public class L18NTransformationModel implements ITransformationModel {
     private void applyStandardParsingValues(int offset, PsiElementContext foundElement) {
         from = offset+foundElement.getTextRangeOffset();
         to = from + foundElement.getTextLength();
-        key = StringUtils.toLowerDash(foundElement.getText().substring(1, foundElement.getText().length() - 1)).toUpperCase();
+        key = StringUtils.toLowerDash(foundElement.getUnquotedText()).replaceAll("\\s+", "_").toUpperCase();
 
     }
 
