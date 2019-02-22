@@ -404,7 +404,14 @@ public class IntellijFileContext {
         Path pThis = Paths.get(this.getVirtualFile().getPath());
         Path pOther = Paths.get(that.getVirtualFile().getPath());
 
-        return pThis.relativize(pOther).toString().isEmpty();
+
+        try {
+            return pThis.relativize(pOther).toString().isEmpty();
+        } catch (IllegalArgumentException ex) {
+            //different root no chance in hell that this equals out
+            return false;
+        }
+
     }
 
     public IntellijFileContext relative(PsiElement importStr) {

@@ -31,6 +31,7 @@ import net.werpu.tools.actions_all.shared.Labels;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 
 import javax.swing.*;
 import java.awt.*;
@@ -208,5 +209,50 @@ public class SwingUtils {
 
             }
         };
+    }
+
+    /**
+     * fetches the current cursor position
+     *
+     * @param ctx
+     * @return
+     */
+    public static int getCurrentCursorPos(IntellijFileContext ctx) {
+        Editor textEditor = FileEditorManager.getInstance(ctx.getProject()).getSelectedTextEditor();
+        return textEditor.getCaretModel().getOffset();
+    }
+
+    /**
+     * fetches the start of the selection
+     *
+     * @param ctx
+     * @return
+     */
+    public static int getSelectionStart(IntellijFileContext ctx) {
+        Editor textEditor = FileEditorManager.getInstance(ctx.getProject()).getSelectedTextEditor();
+        return textEditor.getSelectionModel().getSelectionStart();
+    }
+
+
+    /**
+     * fetches the end of the selection
+     *
+     * @param ctx
+     * @return
+     */
+    public static int getSelectionEnd(IntellijFileContext ctx) {
+        Editor textEditor = FileEditorManager.getInstance(ctx.getProject()).getSelectedTextEditor();
+        return textEditor.getSelectionModel().getSelectionEnd();
+    }
+
+    /**
+     * fetches the selected text
+     *
+     * @param ctx
+     * @return
+     */
+    public static String getSelectedText(IntellijFileContext ctx) {
+        Editor textEditor = FileEditorManager.getInstance(ctx.getProject()).getSelectedTextEditor();
+        return textEditor.getSelectionModel().getSelectedText();
     }
 }

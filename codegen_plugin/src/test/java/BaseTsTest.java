@@ -4,7 +4,8 @@ import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import util.TestUtils;
 
 public abstract class BaseTsTest extends LightCodeInsightFixtureTestCase {
-    PsiFile fs;Project prj;
+    PsiFile fs;
+    Project prj;
 
     @Override
     protected void setUp() throws Exception {

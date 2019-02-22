@@ -2,15 +2,27 @@ import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import net.werpu.tools.supportive.fs.common.ComponentFileContext;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
+import net.werpu.tools.supportive.transformations.L18NTransformationModel;
 import org.junit.Test;
 
 import static util.TestUtils.JS_TEST_PROBES_PATH;
 
+/**
+ * Unit tests for the L18n subsystem,
+ */
 public class L18nTest  extends LightCodeInsightFixtureTestCase {
+
+    static final int POS_STATIC_TEXT = 194;
+    static final int POS_STATIC_TEXT_2 = 200;
+    static final int POS_TRANSLATE = 229;
+    static final int POS_ATTR = 323;
+    static final int POS_EXPR = 267;
+    static final int POS_EXPR_TRANSLATE = 289;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
     }
 
 
@@ -20,25 +32,21 @@ public class L18nTest  extends LightCodeInsightFixtureTestCase {
 
 
     @Test
-    public void testController() {
-        PsiFile componentFile = myFixture.configureByFile("module1/View1.ts");
+    public void testFromComponent() {
+        PsiFile componentFile = myFixture.configureByFiles("stringRefactoring/StringView.ts", "angular_js/angular.js")[0];
         ComponentFileContext ctx = new ComponentFileContext(new IntellijFileContext(componentFile.getProject(), componentFile));
-        assertTrue(ctx.getTagName().equals("view1"));
-        assertTrue(ctx.getDisplayName().equals("View1"));
-        //assertTrue(ctx.get().equals("View1"));
-        assertTrue(ctx.getTemplateText().isPresent());
 
-    }
+        //lets try our cases on am embedded file
+        L18NTransformationModel transformationModel = new L18NTransformationModel(ctx, POS_STATIC_TEXT);
+        assertTrue(transformationModel.getFrom() > 0);
+        assertTrue(transformationModel.getTo() > 0);
 
-    @Test
-    public void testController2() {
-        myFixture.configureByFile("pages/main-page.component.html");
-        PsiFile componentFile = myFixture.configureByFile("pages/main-page.component.ts");
-        ComponentFileContext ctx = new ComponentFileContext(new IntellijFileContext(componentFile.getProject(), componentFile));
-        assertTrue(ctx.getTagName().equals("app-main-page"));
-        assertTrue(ctx.getClazzName().equals("MainPageComponent"));
-        //assertTrue(ctx.get().equals("View1"));
-        assertTrue(ctx.getTemplateRef().isPresent());
+        //TODO not working yet, but language injection finally seems to work
+        //assertTrue(transformationModel.getKey().equals("HELLO_FROM_VIEW1"));
+
+
+
+
 
     }
 

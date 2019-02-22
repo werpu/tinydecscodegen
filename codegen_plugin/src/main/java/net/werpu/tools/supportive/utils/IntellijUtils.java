@@ -21,13 +21,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package net.werpu.tools.supportive.utils;
 
-import com.intellij.codeInsight.documentation.DocumentationManager;
-import com.intellij.lang.LanguageUtil;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileEditor.impl.PsiAwareFileEditorManagerImpl;
-import com.intellij.openapi.fileTypes.FileType;
-import net.werpu.tools.actions_all.shared.FileNameTransformer;
-import net.werpu.tools.actions_all.shared.SimpleFileNameTransformer;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.intellij.diff.DiffManager;
@@ -37,6 +30,7 @@ import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.Language;
+import com.intellij.lang.LanguageUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -44,12 +38,14 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
@@ -66,20 +62,22 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiSearchHelper;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.containers.Convertor;
+import net.werpu.tools.actions_all.shared.FileNameTransformer;
+import net.werpu.tools.actions_all.shared.SimpleFileNameTransformer;
 import net.werpu.tools.configuration.ConfigSerializer;
 import net.werpu.tools.gui.Confirm;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import reflector.SpringJavaRestReflector;
-import reflector.utils.ReflectUtils;
-import rest.GenericClass;
-import rest.RestService;
 import net.werpu.tools.supportive.dtos.ArtifactType;
 import net.werpu.tools.supportive.dtos.ModuleElementScope;
 import net.werpu.tools.supportive.fs.common.IAngularFileContext;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiRouteContext;
 import net.werpu.tools.supportive.reflectRefact.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import reflector.SpringJavaRestReflector;
+import reflector.utils.ReflectUtils;
+import rest.GenericClass;
+import rest.RestService;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -91,10 +89,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -832,5 +828,23 @@ public class IntellijUtils {
     }
 
 
+    public static Optional<Language> getTnDecTemplateLanguageDef() {
+        Language lang = getHtmlLanguage();
+        Language [] dialects = LanguageUtil.getLanguageDialects(lang);
+        Optional<Language> languageVariant = Arrays.asList(dialects).stream().filter(item -> item.getDisplayName().toLowerCase().contains("angularjs")).findFirst();
+        return languageVariant;
+    }
+
+    public static Language getHtmlLanguage() {
+        return LanguageUtil.getFileTypeLanguage(StdFileTypes.HTML);
+    }
+
+
+    public static Optional<Language> getNgTemplateLanguageDef() {
+        Language lang = getHtmlLanguage();
+        Language [] dialects = LanguageUtil.getLanguageDialects(lang);
+        Optional<Language> languageVariant = Arrays.asList(dialects).stream().filter(item -> item.getDisplayName().toLowerCase().contains("angular2")).findFirst();
+        return languageVariant;
+    }
 
 }

@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
+import net.werpu.tools.supportive.transformations.L18NTransformationModel;
 import org.jetbrains.annotations.NotNull;
 
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotTs;
@@ -31,6 +32,8 @@ public class InternationalizeString extends AnAction {
         if(!assertNotTs(ctx)) {
                VisibleAssertions.cursorInTemplate(anActionEvent);
         }
+        L18NTransformationModel model = new L18NTransformationModel(new IntellijFileContext(anActionEvent));
+        model.getFrom();
     }
 
 

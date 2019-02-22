@@ -97,6 +97,21 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
 
     public static final String PSI_CLASS = "PsiClass:";
     public static final String STRING_TEMPLATE_EXPR = "JSStringTemplateExpression";
+
+    public static final String XML_TEXT = "XmlText";
+
+    public static final String XML_ATTRIBUTE_VALUE = "XmlToken:XML_ATTRIBUTE_VALUE_TOKEN";
+    public static final String XML_ATTRIBUTE_NAME = "XmlToken:XML_NAME";
+    public static final String PSI_XML_ATTRIBUTE = "PsiElement(XML_ATTRIBUTE)";
+    public static final String PSI_XML_ATTRIBUTE_VALUE = "PsiElement(XML_ATTRIBUTE_VALUE)";
+
+    //ANGULAR specific types (new stuff), we reuse some angular2 stuff for angular 1 as well
+    //this hackis but it works sufficiently
+    public static final String ANGULAR_INTERPOLATION = "Angular2Interpolation";
+    public static final String ANGULAR_PIPE = "Angular2PipeExpression";
+    public static final String ANGULAR_FILTER = "AngularJSFilterExpression";
+
+
     /*ElementTypes end*/
 
     public static final String NG_MODULE = "@NgModule";

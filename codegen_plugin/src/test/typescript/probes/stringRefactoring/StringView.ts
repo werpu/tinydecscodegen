@@ -11,7 +11,8 @@ import IScope = angular.IScope;
 <p translate="case1 from me">test</p>
 <p>case2</p>
 <p>{{'case 3'}}</p>
-<p>{{'case 4' |translate}}</p>`,
+<p>{{'case 4' |translate}}</p>
+<p booga="ATTR2">booga</p>`,
     controllerAs: "ctrl"
 })
 export class StringView {
