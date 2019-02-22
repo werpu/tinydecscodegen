@@ -778,6 +778,13 @@ public class IntellijUtils {
         return retVal;
     }
 
+    public static String getHtmlExtension() {
+        String retVal = FileTypeManager.getInstance().getStdFileType("Html").getDefaultExtension();
+        if (!retVal.startsWith(".")) {
+            retVal = "." + retVal;
+        }
+        return retVal;
+    }
 
     static String getJavaExtension() {
         String retVal = FileTypeManager.getInstance().getStdFileType("Java").getDefaultExtension();

@@ -1,16 +1,24 @@
 package net.werpu.tools.actions_all.shared;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.psi.PsiElement;
 import net.werpu.tools.indexes.AngularIndex;
 import net.werpu.tools.supportive.fs.common.AngularVersion;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
+import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.PSI_METHOD;
+import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.ALL;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.TEXT_EQ;
-import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.JS_ES_6_DECORATOR;
-import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.PSI_ELEMENT_JS_IDENTIFIER;
+import static net.werpu.tools.supportive.utils.IntellijUtils.getHtmlExtension;
 import static net.werpu.tools.supportive.utils.IntellijUtils.getTsExtension;
 
 public class VisibleAssertions {
@@ -43,6 +51,9 @@ public class VisibleAssertions {
         return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getPath().endsWith(getTsExtension());
     }
 
+    public static boolean assertNotHtml(IntellijFileContext ctx) {
+        return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getPath().endsWith(getHtmlExtension());
+    }
 
     public static boolean assertTemplated(IntellijFileContext ctx) {
         return ctx.getText().contains("@Component") ||
@@ -70,6 +81,43 @@ public class VisibleAssertions {
         }
 
         anActionEvent.getPresentation().setEnabledAndVisible(true);
+    }
+
+
+    public static void templateVisible(AnActionEvent anActionEvent) {
+        if (IntellijUtils.getFolderOrFile(anActionEvent) == null) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
+        IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
+        anActionEvent.getPresentation().setEnabledAndVisible(!(assertNotTs(ctx) && assertNotHtml(ctx)));
+
+
+
+    }
+
+    /**
+     * Check for the current cursor being in a string
+     * @param anActionEvent
+     */
+    public static void cursorInTemplate(AnActionEvent anActionEvent) {
+        //if one of its parents is a string template
+
+        Editor editor = IntellijUtils.getEditor(anActionEvent);
+        final int cursorPos = editor.getCaretModel().getOffset();
+        IntellijFileContext editorFile = new IntellijFileContext(anActionEvent);
+
+        Predicate<PsiElementContext> positionFilter = el -> {
+            int offSet = el.getTextRangeOffset();
+            int offSetEnd = offSet + el.getText().length();
+            return cursorPos >= offSet && cursorPos <= offSetEnd;
+        };
+        Optional<PsiElementContext> foundElement = editorFile.$q(ALL(SUB_QUERY(STRING_TEMPLATE_EXPR), SUB_QUERY(PSI_ELEMENT_JS_STRING_LITERAL))).filter(positionFilter).findFirst();
+        if(!foundElement.isPresent()) {
+            foundElement = editorFile.$q(SUB_QUERY(PSI_ELEMENT_JS_STRING_TEMPLATE_PART)).filter(positionFilter).findFirst();
+        }
+
+        anActionEvent.getPresentation().setEnabledAndVisible(foundElement.isPresent());
     }
 
     public static void ngVisible(AnActionEvent anActionEvent) {

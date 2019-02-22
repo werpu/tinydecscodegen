@@ -295,10 +295,15 @@
 
             <group id="Refactorings" text="Code Transformations" description="Annotated Code Transformations" icon="/images/tt.png" popup="true">
                 <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
+                <action id="TD_L18N_Single" class="net.werpu.tools.actions.InternationalizeString" text="Internationalize">
+                    <keyboard-shortcut first-keystroke="control alt T" second-keystroke="I" keymap="$default"/>
+                </action>
+                <separator />
                 <action id="RefactorIntoAnnModule" class="net.werpu.tools.actions_all.RefactorIntoTnDecModule" text="Tiny Decorations Module"/>
                 <action id="RefactorIntoAngularModule" class="net.werpu.tools.actions_all.RefactorIntoAngularModule" text="Angular Module"/>
                 <action id="RefactorIntoAnnComponent" class="net.werpu.tools.actions_all.RefactorIntoAnnotatedComponent" text="Tiny Decorations Component"/>
                 <action id="RefactorIntoAnnDirective" class="net.werpu.tools.actions_all.RefactorIntoAnnotatedDirective" text="Tiny Decorations Directive"/>
+
             </group>
 
             <action id="TTNG_CreateRestEndpoint3" class="net.werpu.tools.actions_all.CreateRestEndpoint" text="Create Rest Endpoint"
@@ -360,6 +365,8 @@
                     icon="/images/tt.png">
                 <keyboard-shortcut first-keystroke="control alt T" second-keystroke="F" keymap="$default"/>
             </action>
+
+
             <separator/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </group>
