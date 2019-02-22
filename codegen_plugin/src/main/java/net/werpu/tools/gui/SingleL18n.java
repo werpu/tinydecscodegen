@@ -1,5 +1,7 @@
 package net.werpu.tools.gui;
 
+import lombok.Getter;
+
 import javax.swing.*;
 
 /**
@@ -9,6 +11,7 @@ import javax.swing.*;
  * editing for for cases where it is not really
  * clear on how to proceed forward
  */
+@Getter
 public class SingleL18n {
     private JPanel rootPanel;
     private JLabel lblL18nFile;

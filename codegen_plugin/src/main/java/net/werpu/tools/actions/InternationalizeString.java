@@ -2,10 +2,15 @@ package net.werpu.tools.actions;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.ui.DialogWrapper;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
+import net.werpu.tools.gui.SingleL18n;
+import net.werpu.tools.gui.support.InputDialogWrapperBuilder;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.transformations.L18NTransformationModel;
 import org.jetbrains.annotations.NotNull;
+
+import java.awt.*;
 
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotTs;
 
@@ -67,6 +72,23 @@ public class InternationalizeString extends AnAction {
         //non attr text -> {'key' | translate}
         //non attr {'text' | translate} -> {'key' | translate}
 
+        final IntellijFileContext fileContext = new IntellijFileContext(e);
+        L18NTransformationModel model = new L18NTransformationModel(fileContext);
+
+        SingleL18n mainForm = new SingleL18n();
+
+        DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(fileContext.getProject(), mainForm.getRootPanel())
+                .withDimensionKey("SingleL18n")
+                .create();
+        dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
+
+
+
+        //mainForm.initDefault(dialogWrapper.getWindow());
+        dialogWrapper.show();
+        if (dialogWrapper.isOK()) {
+            //handle ok refactoring
+        }
 
     }
 }

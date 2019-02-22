@@ -26,11 +26,9 @@ public class L18nTest  extends LightCodeInsightFixtureTestCase {
 
     }
 
-
     protected String getTestDataPath() {
         return JS_TEST_PROBES_PATH;
     }
-
 
     @Test
     public void testText() {
@@ -42,7 +40,6 @@ public class L18nTest  extends LightCodeInsightFixtureTestCase {
         assertTrue(transformationModel.getFrom() > 0);
         assertTrue(transformationModel.getTo() > 0);
 
-        //TODO not working yet, but language injection finally seems to work
         assertTrue(transformationModel.getKey().equals("HELLO_FROM_VIEW1"));
         assertTrue(transformationModel.getParsingType() == PARSING_TYPE.TEXT);
 
@@ -58,7 +55,6 @@ public class L18nTest  extends LightCodeInsightFixtureTestCase {
         assertTrue(transformationModel.getFrom() > 0);
         assertTrue(transformationModel.getTo() > 0);
 
-        //TODO not working yet, but language injection finally seems to work
         assertTrue(transformationModel.getKey().equals("CASE2"));
         assertTrue(transformationModel.getParsingType() == PARSING_TYPE.TEXT);
 
@@ -75,7 +71,6 @@ public class L18nTest  extends LightCodeInsightFixtureTestCase {
         assertTrue(transformationModel.getFrom() > 0);
         assertTrue(transformationModel.getTo() > 0);
 
-        //TODO not working yet, but language injection finally seems to work
         assertTrue(transformationModel.getKey().equals("CASE1_FROM_ME"));
         assertTrue(transformationModel.getParsingType() == PARSING_TYPE.STRING_WITH_TRANSLATE);
 
@@ -91,7 +86,6 @@ public class L18nTest  extends LightCodeInsightFixtureTestCase {
         assertTrue(transformationModel.getFrom() > 0);
         assertTrue(transformationModel.getTo() > 0);
 
-        //TODO not working yet, but language injection finally seems to work
         assertTrue(transformationModel.getKey().equals("ATTR2"));
         assertTrue(transformationModel.getParsingType() == PARSING_TYPE.TEXT);
 
@@ -108,7 +102,6 @@ public class L18nTest  extends LightCodeInsightFixtureTestCase {
         assertTrue(transformationModel.getFrom() > 0);
         assertTrue(transformationModel.getTo() > 0);
 
-        //TODO not working yet, but language injection finally seems to work
         assertTrue(transformationModel.getKey().equals("CASE_3"));
         assertTrue(transformationModel.getParsingType() == PARSING_TYPE.STRING);
     }
@@ -123,7 +116,6 @@ public class L18nTest  extends LightCodeInsightFixtureTestCase {
         assertTrue(transformationModel.getFrom() > 0);
         assertTrue(transformationModel.getTo() > 0);
 
-        //TODO not working yet, but language injection finally seems to work
         assertTrue(transformationModel.getKey().equals("CASE_4"));
         assertTrue(transformationModel.getParsingType() == PARSING_TYPE.STRING_WITH_TRANSLATE);
     }
