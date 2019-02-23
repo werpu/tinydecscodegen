@@ -73,6 +73,8 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final String TN_UIROUTER_MODULE_FOR_ROOT = "TN_RootRouter";
     public static final String TN_ROUTES_UIROUTER_MODULE_FOR_ROOT = "TN_RoutesRootRouter";
     public static final String NPM_ROOT = "package.json";
+    public static final String TS_CONFIG = "tsconfig.json";
+    public static final String PACKAGE_LOCK = "package-lock.json";
     public static final String PSI_ELEMENT_JS_RBRACKET = "PsiElement(JS:RBRACKET)";
     public static final String PSI_ELEMENT_JS_IDENTIFIER = "PsiElement(JS:IDENTIFIER)";
     public static final String PSI_ELEMENT_JS_STRING_LITERAL = "PsiElement(JS:STRING_LITERAL)";

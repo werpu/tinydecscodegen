@@ -1,15 +1,20 @@
 package net.werpu.tools.actions;
 
+import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.DialogWrapper;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
 import net.werpu.tools.gui.SingleL18n;
 import net.werpu.tools.gui.support.InputDialogWrapperBuilder;
+import net.werpu.tools.indexes.L18NIndexer;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.transformations.L18NTransformationModel;
-import org.jetbrains.annotations.NotNull;
 
+import org.jetbrains.annotations.NotNull;
+import org.jdesktop.swingx.combobox.ListComboBoxModel;
+import javax.swing.*;
+import javax.swing.event.ListDataListener;
 import java.awt.*;
 
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotTs;
@@ -82,6 +87,12 @@ public class InternationalizeString extends AnAction {
                 .create();
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
+        java.util.List<IntellijFileContext> possibleL18nFiles = L18NIndexer.getAllAffectedFiles(fileContext.getProject());
+        java.util.List<String> sFiles = Lists.transform(possibleL18nFiles, item -> {
+            return item.getPsiFile().getVirtualFile().getPath();
+        });
+
+        mainForm.getCbL18NFile().setModel(new ListComboBoxModel<String>(sFiles));
 
 
         //mainForm.initDefault(dialogWrapper.getWindow());

@@ -103,7 +103,7 @@ public class AngularIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if ((!standardSimpleFileExclusion(inputData)) && inputData.getFile().getName().equals("package.json")
+            if ((!standardSimpleFileExclusion(inputData)) && inputData.getFile().getName().equals(NPM_ROOT)
                     &&
                     (inputData.getPsiFile().getText().contains(NG_MARKER) ||
                             inputData.getPsiFile().getText().contains(TN_MARKER)

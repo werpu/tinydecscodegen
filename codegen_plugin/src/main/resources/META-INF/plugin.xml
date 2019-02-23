@@ -55,6 +55,7 @@
         <fileBasedIndex implementation="net.werpu.tools.indexes.TNRoutesIndex" />
         <fileBasedIndex implementation="net.werpu.tools.indexes.AngularIndex" />
         <fileBasedIndex implementation="net.werpu.tools.indexes.ModuleIndex" />
+        <fileBasedIndex implementation="net.werpu.tools.indexes.L18NIndexer" />
 
 
 
