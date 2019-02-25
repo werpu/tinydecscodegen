@@ -62,7 +62,7 @@ public class TNUIRoutesFileContext extends TNRoutesFileContext {
     @Override
     public void addRoute(Route routeData) {
 
-        routeData.setComponent(appendImport(routeData.getComponent(), routeData.getComponentPath()));
+        routeData.setComponent(appendImport(routeData.getRawComponentName(), routeData.getComponentPath()));
 
         int cnt = 1;
         String origUrl = routeData.getUrl();

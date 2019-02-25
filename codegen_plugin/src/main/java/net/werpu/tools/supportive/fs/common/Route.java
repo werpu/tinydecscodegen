@@ -123,6 +123,10 @@ public class Route implements Cloneable, Serializable, Comparable {
         return "lRte_"+getRouteVarName();
     }
 
+    public String getRawComponentName() {
+        return getComponent().replaceAll("\\s*\\<.*", "");
+    }
+
     @Override
     public int compareTo(@NotNull Object o) {
         if (!(o instanceof Route)) {

@@ -166,11 +166,11 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
                     "\n$stateProvider.state('%s','%s', MetaData.routeData(%s), {url: '" + url + "'});";
 
 
-            return String.format(tpl, url, data.getRouteKey(), data.getComponent());
+            return String.format(tpl, url, data.getRouteKey(), data.getRawComponentName());
         } else {
             String tpl = "\n$routeProvider.when('%s', MetaData.routeData(%s));";
 
-            return String.format(tpl, data.getUrl(), data.getComponent());
+            return String.format(tpl, data.getUrl(), data.getRawComponentName());
         }
     }
 
