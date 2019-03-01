@@ -72,6 +72,24 @@ public class TreeQueryEngine<T> {
     TreeQueryAdapter<T> navigationAdapter;
 
 
+    public static <T> QueryExtension<T> NEXT_SIBLINGS(String val) {
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
+                .flatMap(theItem -> engine.getNavigationAdapter().findNextSiblings(theItem, el -> Boolean.TRUE).stream())
+                .filter(el -> {
+                    TreeQueryAdapter<T> navigationAdapter = engine.getNavigationAdapter();
+                    return literalStartsWith(navigationAdapter.getIdentifier(el), val) || literalStartsWith(navigationAdapter.toString(el), val);
+                });
+    }
+
+    public static <T> QueryExtension<T> PREV_SIBLINGS(String val) {
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
+                .flatMap(theItem -> engine.getNavigationAdapter().findPrevSiblings(theItem, el -> Boolean.TRUE).stream())
+                .filter(el -> {
+                    TreeQueryAdapter<T> navigationAdapter = engine.getNavigationAdapter();
+                    return literalStartsWith(navigationAdapter.getIdentifier(el), val) || literalStartsWith(navigationAdapter.toString(el), val);
+                });
+    }
+
     /*Several helpers, which extend the core functionality
      * (walking matching  via strings) with some typesave high level routines*/
 
@@ -104,6 +122,17 @@ public class TreeQueryEngine<T> {
         return strList1.isEmpty() ? strList2.stream() : strList1.stream();
 
     }
+
+    public static <T> QueryExtension<T> ANY(Object str1, Object str2) {
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
+            List<T> itemlist = stream.collect(Collectors.toList());
+            return any(engine.exec(itemlist.stream(), new Object[] {str1}, true),
+                    engine.exec(itemlist.stream(), new Object[] {str2}, true));
+
+
+        };
+    }
+
 
     public static <T> QueryExtension<T> ANY(Object[] str1, Object[] str2) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
@@ -188,7 +217,7 @@ public class TreeQueryEngine<T> {
 
     //TODO add a childhierarchy helper ala val1 > val2 > val3, this will be useful in the future
 
-
+    //TOD) resolve first by start
 
     /**
      * child search wthin a parent search
@@ -255,6 +284,12 @@ public class TreeQueryEngine<T> {
                             continue;
                         case FIRST:
                             subItem = handlePFirst(subItem);
+                            continue;
+                        case NEXT_SIBLINGS:
+                            subItem = nextSiblingsOf(subItem);
+                            continue;
+                        case PREV_SIBLINGS:
+                            subItem = prevSiblingsOf(subItem);
                             continue;
                         case PARENTS:
                             subItem = parentsOf(subItem);
@@ -384,6 +419,17 @@ public class TreeQueryEngine<T> {
     }
 
 
+
+    @NotNull
+    private Stream<T> handleNextSiblings(T item) {
+        return navigationAdapter.findNextSiblings(item, el -> Boolean.TRUE).stream();
+    }
+
+    @NotNull
+    private Stream<T> handlePrevSiblings(T item) {
+        return navigationAdapter.findPrevSiblings(item, el -> Boolean.TRUE).stream();
+    }
+
     @NotNull
     private Stream<T> handlePFirst(Stream<T> subItem) {
         T firstItem = subItem.findFirst().orElse(null);
@@ -410,6 +456,16 @@ public class TreeQueryEngine<T> {
     @NotNull
     private Stream<T> parentsOf(Stream<T> subItem) {
         return subItem.flatMap(theItem -> parents(theItem).stream());
+    }
+
+    @NotNull
+    private Stream<T> nextSiblingsOf(Stream<T> subItem) {
+        return subItem.flatMap(theItem -> handleNextSiblings(theItem));
+    }
+
+    @NotNull
+    private Stream<T> prevSiblingsOf(Stream<T> subItem) {
+        return subItem.flatMap(theItem -> handlePrevSiblings(theItem));
     }
 
     private List<T> parents(T theItem) {

@@ -20,6 +20,13 @@ public interface TreeQueryAdapter<T> {
      */
     List<T> findElements(T ctx, Function<T, Boolean> visitor);
 
+
+
+
+    List<T> findNextSiblings(T cty, Function<T, Boolean> visitor);
+
+    List<T> findPrevSiblings(T cty, Function<T, Boolean> visitor);
+
     /**
      * parents walker
      *

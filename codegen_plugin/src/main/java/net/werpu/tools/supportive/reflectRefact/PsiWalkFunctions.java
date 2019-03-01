@@ -256,6 +256,37 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
         return retVal;
     }
 
+    public static List<PsiElementContext> walkNextSiblings(PsiElementContext element, Function<PsiElementContext, Boolean> psiElementVisitor) {
+        PsiElementContext walkElem = element;
+        List<PsiElementContext> retVal = new LinkedList<>();
+        PsiElement sibling = element.getElement().getNextSibling();
+
+        while(sibling != null) {
+            if (psiElementVisitor.apply(new PsiElementContext(sibling))) {
+                retVal.add(new PsiElementContext(sibling));
+            }
+            sibling = sibling.getNextSibling();
+        } while (sibling != null);
+
+        return retVal;
+    }
+
+    public static List<PsiElementContext> walkPrevSibling(PsiElementContext element, Function<PsiElementContext, Boolean> psiElementVisitor) {
+        PsiElementContext walkElem = element;
+        List<PsiElementContext> retVal = new LinkedList<>();
+        PsiElement sibling = element.getElement().getPrevSibling();
+
+        while(sibling != null) {
+            if (psiElementVisitor.apply(new PsiElementContext(sibling))) {
+                retVal.add(new PsiElementContext(sibling));
+            }
+            sibling = sibling.getPrevSibling();
+        } while (sibling != null);
+
+        return retVal;
+    }
+
+
     /**
      * standardized walk the tree function which takes
      * a filter to prefilter the psi elements

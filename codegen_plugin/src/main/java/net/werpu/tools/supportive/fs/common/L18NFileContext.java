@@ -7,27 +7,28 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.yourkit.util.Strings;
 import lombok.Getter;
+import net.werpu.tools.supportive.reflectRefact.navigation.UnaryCommand;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.text.html.Option;
-
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
+import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.NEXT_SIBLINGS;
 
 
 /**
  * Parsing context for L18NFiles
- *
+ * <p>
  * We need this to be able to process L18NFiles properly
  */
 public class L18NFileContext extends IntellijFileContext {
@@ -58,38 +59,39 @@ public class L18NFileContext extends IntellijFileContext {
     }
 
 
-
     public Icon getIcon() {
         return AllIcons.Nodes.Artifact;
     }
 
     /**
      * fetches a value
+     *
      * @param key either a single key or a nested with . divided key path
      * @return
      */
     @NotNull
     public Optional<PsiElementContext> getValue(String key) {
-        if(key.contains(".")) {
-            String [] keys = key.split("\\.");
+        if (key.contains(".")) {
+            String[] keys = key.split("\\.");
             return getValue(keys);
         }
-        return resourceRoot.$q( DIRECT_CHILD(JSON_PROPERTY), DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key)).findFirst();
+        return resourceRoot.$q(DIRECT_CHILD(JSON_PROPERTY), DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key)).findFirst();
     }
 
     /**
      * deep search
-     * @param key a single key currently no . searches are allowed in case of a searchDeep == true
+     *
+     * @param key        a single key currently no . searches are allowed in case of a searchDeep == true
      * @param searchDeep if true a deep search is performed until a key is hit
      * @return
      */
     @NotNull
     public Optional<PsiElementContext> getValue(String key, boolean searchDeep) {
-        if(!searchDeep) {
+        if (!searchDeep) {
             return this.getValue(key);
         }
 
-        return resourceRoot.$q( DIRECT_CHILD(JSON_PROPERTY), DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key)).findFirst();
+        return resourceRoot.$q(DIRECT_CHILD(JSON_PROPERTY), DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key)).findFirst();
     }
 
     //deeper nesting queries with exact matches
@@ -101,18 +103,28 @@ public class L18NFileContext extends IntellijFileContext {
      * @return
      */
     @NotNull
-    public Optional<PsiElementContext> getValue(String ... keys) {
-        Stream<Object> queryItems = Arrays.asList(keys).<String>stream()
-                .flatMap((String key) -> Arrays.asList(CHILD_ELEM, JSON_STRING_LITERAL, TEXT_EQ(key)).stream());
+    public Optional<PsiElementContext> getValue(String... keys) {
 
-        return resourceRoot.$q(queryItems.toArray(Object[]::new)).findFirst();
+        List<Object> query = new LinkedList<>();
+        //query.add(CHILD_ELEM);
+        for (int cnt = 0; cnt < keys.length; cnt++) {
+            String key = keys[cnt];
+            if (cnt < keys.length - 1) {
+                query.addAll(asList(CHILD_ELEM, CHILD_ELEM, JSON_STRING_LITERAL, TEXT_EQ(key),  NEXT_SIBLINGS(JSON_OBJECT)));
+            } else {
+                query.addAll(asList(CHILD_ELEM, CHILD_ELEM, JSON_STRING_LITERAL, TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))));
+            }
+        }
+
+
+        return resourceRoot.$q(query.stream().toArray(Object[]::new)).findFirst();
     }
 
-    public Optional<String> getValueAsStr(String ... keys) {
+    public Optional<String> getValueAsStr(String... keys) {
         Optional<PsiElementContext> retVal = getValue(keys);
 
-        if(retVal.isPresent()) {
-            StringUtils.stripQuotes(retVal.get().getText());
+        if (retVal.isPresent()) {
+            return Optional.of(StringUtils.stripQuotes(retVal.get().getText()));
         }
         return Optional.empty();
     }
@@ -120,6 +132,7 @@ public class L18NFileContext extends IntellijFileContext {
     /**
      * fetches the key for a given element String, in this case it is pointless to retun
      * psi elements because we often have to combine keys as well into one
+     *
      * @param value
      * @return a list of possible entries, in case nothing is found we get an empty list back‚
      */
@@ -137,24 +150,27 @@ public class L18NFileContext extends IntellijFileContext {
     /**
      * flattens the hierarchy into a usual <key>.<key>.<key> hierarchy
      * the starting point usually is a deep node, hence we must inverse the result‚
+     *
      * @param el
      * @return
      */
     @NotNull
     private Optional<String> flattenHierarchy(PsiElementContext el) {
-        return el.parents().stream()
-                .filter(el2 -> isProperty(el2))
+        return el.$q(PARENTS_EQ(JSON_PROPERTY))
                 .map(el2 -> el2.$q(JSON_STRING_LITERAL).findFirst())
                 .filter(el2 -> el2.isPresent())
                 .map(el2 -> StringUtils.stripQuotes(el2.get().getText()))
                 .reduce((el1, el2) -> {
-            if(Strings.isNullOrEmpty(el2)) return el1;
-            return el2+"."+el1;
-        });
+                    if (Strings.isNullOrEmpty(el2)) return el1;
+                    return el2 + "." + el1;
+                });
+
+
     }
 
     /**
      * filter method which checks if a current element is a key in our L18N json file
+     *
      * @return
      */
     @NotNull
@@ -166,7 +182,7 @@ public class L18NFileContext extends IntellijFileContext {
             //key must be different
             PsiElementContext key = parent.$q(DIRECT_CHILD(JSON_STRING_LITERAL)).findFirst().get();
 
-            if(StringUtils.literalEquals(key.getText(), el.getText())) {
+            if (StringUtils.literalEquals(key.getText(), el.getText())) {
                 return Optional.empty();
             }
             return Optional.ofNullable(key);
@@ -175,7 +191,7 @@ public class L18NFileContext extends IntellijFileContext {
 
     private boolean isProperty(PsiElementContext parent) {
         String simpleName = parent.getElement().getClass().getSimpleName();
-        if(simpleName.startsWith(JSON_PROPERTY)) {
+        if (simpleName.startsWith(JSON_PROPERTY)) {
             return true;
         }
         return false;

@@ -18,6 +18,8 @@ public enum UnaryCommand {
     CHILD_ELEM,
     FIRST,
     PARENTS,
+    NEXT_SIBLINGS,
+    PREV_SIBLINGS,
     PARENT,
     LAST
 

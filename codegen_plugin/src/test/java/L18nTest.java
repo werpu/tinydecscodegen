@@ -148,8 +148,8 @@ public class L18nTest  extends LightCodeInsightFixtureTestCase {
         assertTrue(StringUtils.stripQuotes(value.get().getText()).equals("testString_xx"));
 
         Optional<String> valueStr = fc.getValueAsStr("test3","test");
-        assertTrue(value.isPresent());
-        assertTrue(value.get().equals("testString_xx"));
+        assertTrue(valueStr.isPresent());
+        assertTrue(valueStr.get().equals("testString_xx"));
 
 
     }

@@ -24,6 +24,15 @@ public class PsiElementQueryAdapter implements TreeQueryAdapter<PsiElementContex
         return ctx.findPsiElements2(visitor);
     }
 
+    @Override
+    public List<PsiElementContext> findNextSiblings(PsiElementContext cty, Function<PsiElementContext, Boolean> visitor) {
+        return cty.walkNextSiblings(visitor);
+    }
+
+    @Override
+    public List<PsiElementContext> findPrevSiblings(PsiElementContext cty, Function<PsiElementContext, Boolean> visitor) {
+       return cty.walkPrevSiblings(visitor);
+    }
 
     /**
      * recursive search up finding all matching elements

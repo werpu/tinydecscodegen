@@ -166,6 +166,12 @@ public class PsiElementContext {
     }
 
 
+    public List<PsiElementContext> walkNextSiblings(Function<PsiElementContext, Boolean> psiElementVisitor) {
+        return PsiWalkFunctions.walkNextSiblings(this, psiElementVisitor);
+    }
+    public List<PsiElementContext> walkPrevSiblings(Function<PsiElementContext, Boolean> psiElementVisitor) {
+        return PsiWalkFunctions.walkPrevSibling(this, psiElementVisitor);
+    }
 
     public Optional<PsiElementContext> walkParent(Function<PsiElement, Boolean> psiElementVisitor) {
         Optional<PsiElement> foundElement = PsiWalkFunctions.walkParent(getElement(), psiElementVisitor);
