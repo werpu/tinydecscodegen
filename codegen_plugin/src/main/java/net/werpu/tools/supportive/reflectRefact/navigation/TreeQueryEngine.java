@@ -186,6 +186,10 @@ public class TreeQueryEngine<T> {
         return new Object[]{CHILD_ELEM, val};
     }
 
+    //TODO add a childhierarchy helper ala val1 > val2 > val3, this will be useful in the future
+
+
+
     /**
      * child search wthin a parent search
      *

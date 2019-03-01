@@ -107,6 +107,12 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final String PSI_XML_ATTRIBUTE = "PsiElement(XML_ATTRIBUTE)";
     public static final String PSI_XML_ATTRIBUTE_VALUE = "PsiElement(XML_ATTRIBUTE_VALUE)";
 
+    //JSON
+    public static final String JSON_PROPERTY = "JsonProperty";
+    public static final String JSON_STRING_LITERAL = "JsonStringLiteral";
+    public static final String JSON_OBJECT = "JsonObject";
+
+
     //ANGULAR specific types (new stuff), we reuse some angular2 stuff for angular 1 as well
     //this hackis but it works sufficiently
     public static final String ANGULAR_INTERPOLATION = "Angular2Interpolation";

@@ -2,9 +2,15 @@ import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import net.werpu.tools.supportive.fs.common.ComponentFileContext;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
+import net.werpu.tools.supportive.fs.common.L18NFileContext;
+import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.transformations.L18NTransformationModel;
 import net.werpu.tools.supportive.transformations.modelHelpers.PARSING_TYPE;
+import net.werpu.tools.supportive.utils.StringUtils;
+import org.junit.Ignore;
 import org.junit.Test;
+
+import java.util.Optional;
 
 import static util.TestUtils.JS_TEST_PROBES_PATH;
 
@@ -121,4 +127,30 @@ public class L18nTest  extends LightCodeInsightFixtureTestCase {
     }
 
 
+    /**
+     * Testbed for the l18n parsing
+     */
+    @Ignore
+    @Test
+    public void testL18NFileParsing() {
+        PsiFile i18nFile = myFixture.configureByFiles("i18n/labels-en.json", "angular_js/angular.js")[0];
+
+        L18NFileContext fc = new L18NFileContext(i18nFile.getProject(), i18nFile);
+
+        String key = fc.getKey("testString").get(0);
+        assertTrue(key.equals("test"));
+
+        key = fc.getKey("testString_xx").get(0);
+        assertTrue(key.equals("test3.test"));
+
+        Optional<PsiElementContext> value = fc.getValue("test3","test");
+        assertTrue(value.isPresent());
+        assertTrue(StringUtils.stripQuotes(value.get().getText()).equals("testString_xx"));
+
+        Optional<String> valueStr = fc.getValueAsStr("test3","test");
+        assertTrue(value.isPresent());
+        assertTrue(value.get().equals("testString_xx"));
+
+
+    }
 }
