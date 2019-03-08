@@ -38,7 +38,7 @@ import static net.werpu.tools.supportive.utils.IntellijRunUtils.writeTransaction
 
 /**
  * Action for single string interationalization
- *
+ * <p>
  * the idea is
  */
 public class InternationalizeString extends AnAction {
@@ -56,8 +56,8 @@ public class InternationalizeString extends AnAction {
         VisibleAssertions.templateVisible(anActionEvent);
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         //if typescript file the cursor at least must be in a string
-        if(!assertNotTs(ctx)) {
-               VisibleAssertions.cursorInTemplate(anActionEvent);
+        if (!assertNotTs(ctx)) {
+            VisibleAssertions.cursorInTemplate(anActionEvent);
         }
         L18NTransformationModel model = new L18NTransformationModel(new IntellijFileContext(anActionEvent));
         model.getFrom();
@@ -108,9 +108,9 @@ public class InternationalizeString extends AnAction {
         //TODO mechanism if no json file exists (we implement that later)
 
         //TODO store the selected json file permanently in case of multiple files (in the project store)
-     //   java.util.List<IntelliFileContextComboboxModelEntry> possibleL18nFiles =
-     //           Lists.transform(L18NIndexer.getAllAffectedFiles(fileContext.getProject()),
-     //                   item -> new IntelliFileContextComboboxModelEntry(new L18NTransformationModel(item)));
+        //   java.util.List<IntelliFileContextComboboxModelEntry> possibleL18nFiles =
+        //           Lists.transform(L18NIndexer.getAllAffectedFiles(fileContext.getProject()),
+        //                   item -> new IntelliFileContextComboboxModelEntry(new L18NTransformationModel(item)));
 
         java.util.List<IntelliFileContextComboboxModelEntry> possibleL18nFiles = Lists.transform(L18NIndexer.getAllAffectedFiles(fileContext.getProject()), IntelliFileContextComboboxModelEntry::new);
 
@@ -132,8 +132,7 @@ public class InternationalizeString extends AnAction {
         });
 
 
-
-        if(!alreadyExistsIn.isEmpty()) {
+        if (!alreadyExistsIn.isEmpty()) {
             mainForm.switchToContainingFiles();
             applyKey(mainForm, alreadyExistsIn.get(0), model);
         } else {
@@ -148,15 +147,13 @@ public class InternationalizeString extends AnAction {
         //and then save everything away
 
 
-
-
         //mainForm.initDefault(dialogWrapper.getWindow());
         dialogWrapper.show();
         if (dialogWrapper.isOK()) {
             //handle ok refactoring
 
             IntelliFileContextComboboxModelEntry targetFile = (IntelliFileContextComboboxModelEntry) mainForm.getCbL18NFile().getSelectedItem();
-            if(targetFile == null) {
+            if (targetFile == null) {
                 //TODO error here
                 return;
             }
@@ -166,43 +163,39 @@ public class InternationalizeString extends AnAction {
             String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
             Optional<PsiElementContext> foundKey = targetFile.getValue().getValue(finalKey);
 
-            if(!foundKey.isPresent()) {
-                //no key present, simply add it as last entry at the end of the L18nfile
-                PsiElementContext resourceRoot = targetFile.getValue().getResourceRoot();
-                int startPos = resourceRoot.getTextRangeOffset()+resourceRoot.getTextLength() - 1;
+            //no key present, simply add it as last entry at the end of the L18nfile
+            PsiElementContext resourceRoot = targetFile.getValue().getResourceRoot();
+            int startPos = resourceRoot.getTextRangeOffset() + resourceRoot.getTextLength() - 1;
 
+            invokeLater(() -> writeTransaction(model.getProject(), () -> {
+                try {
+                    L18NTransformation transformation = new L18NTransformation(model, finalKey, mainForm.getTxtText().getText());
+                    //model.getFileContext().getVirtualFile().setWritable(true);
+                    //TODO add tndec ng switch here
+                    model.getFileContext().refactorContent(Arrays.asList(transformation.getTnDecRefactoring()));
+                    model.getFileContext().commit();
 
-                targetFile.getValue().addRefactoring(new RefactorUnit(targetFile.getValue().getPsiFile(), new DummyInsertPsiElement(startPos), ",\""+model.getKey()+"\": \""+model.getValue()+"\""));
-                invokeLater(() -> writeTransaction(model.getProject(), () -> {
-                    try {
-                        L18NTransformation transformation = new L18NTransformation(model, finalKey, mainForm.getTxtText().getText());
-                        model.getFileContext().getVirtualFile().setWritable(true);
-                        //TODO add tndec ng switch here
-                        model.getFileContext().refactorContent(Arrays.asList(transformation.getTnDecRefactoring()));
-                        model.getFileContext().commit();
-
+                    if (!foundKey.isPresent()) {
+                        targetFile.getValue().addRefactoring(new RefactorUnit(targetFile.getValue().getPsiFile(), new DummyInsertPsiElement(startPos), ",\"" + model.getKey() + "\": \"" + model.getValue() + "\""));
                         targetFile.getValue().commit();
                         targetFile.getValue().reformat();
-
-                        //in case of an open template we need to update the template text in the editor
-                        if(model.getFileContext().getPsiFile().getVirtualFile().getPath().substring(1).startsWith(TEMPLATE_OF)) {
-                            //java.util.List<CaretState> caretsAndSelections = editor.getCaretModel().getCaretsAndSelections();
-                            document.setText(model.getFileContext().getShadowText());
-                            //editor.getCaretModel().setCaretsAndSelections(caretsAndSelections);
-                        }
-
-                    } catch (IOException e1) {
-                        net.werpu.tools.supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "Error", e1.getMessage());
-                        e1.printStackTrace();
                     }
-                }));
 
-            }
+                    //in case of an open template we need to update the template text in the editor
+                    if (model.getFileContext().getPsiFile().getVirtualFile().getPath().substring(1).startsWith(TEMPLATE_OF)) {
+                        //java.util.List<CaretState> caretsAndSelections = editor.getCaretModel().getCaretsAndSelections();
+                        document.setText(model.getFileContext().getShadowText());
+                        //editor.getCaretModel().setCaretsAndSelections(caretsAndSelections);
+                    }
+
+                } catch (IOException e1) {
+                    net.werpu.tools.supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "Error", e1.getMessage());
+                    e1.printStackTrace();
+                }
+            }));
+
 
             //TODO if the value does not match the key anymore, ask for overwrite
-
-
-
 
         }
 
@@ -210,18 +203,19 @@ public class InternationalizeString extends AnAction {
 
     /**
      * apply the
+     *
      * @param mainForm
      * @param selectedItem
      * @param templateModel
      */
-    public void applyKey(SingleL18n mainForm, IntelliFileContextComboboxModelEntry selectedItem,   L18NTransformationModel templateModel) {
+    public void applyKey(SingleL18n mainForm, IntelliFileContextComboboxModelEntry selectedItem, L18NTransformationModel templateModel) {
         List<String> possibleKeys = selectedItem.getValue().getKey(templateModel.getValue());
         //we now transfer all possible keys in
-        if(!possibleKeys.isEmpty()) {
+        if (!possibleKeys.isEmpty()) {
             mainForm.getCbL18nKey().setModel(new ListComboBoxModel<>(possibleKeys));
             mainForm.getCbL18nKey().setSelectedItem(possibleKeys.get(0));
         } else {
-            if(isNullOrEmpty((String) mainForm.getCbL18nKey().getSelectedItem())) {
+            if (isNullOrEmpty((String) mainForm.getCbL18nKey().getSelectedItem())) {
                 mainForm.getCbL18nKey().setSelectedItem(templateModel.getKey());
             }
         }
