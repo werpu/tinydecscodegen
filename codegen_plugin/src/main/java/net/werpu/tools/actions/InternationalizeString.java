@@ -1,33 +1,31 @@
 package net.werpu.tools.actions;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.impl.VirtualFileManagerImpl;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
 import net.werpu.tools.gui.SingleL18n;
 import net.werpu.tools.gui.support.InputDialogWrapperBuilder;
+import net.werpu.tools.gui.support.IntelliFileContextComboboxModelEntry;
 import net.werpu.tools.indexes.L18NIndexer;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
+import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.transformations.L18NTransformationModel;
-
-import org.jetbrains.annotations.NotNull;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
-import javax.swing.*;
-import javax.swing.event.ListDataListener;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.netty.util.internal.StringUtil.isNullOrEmpty;
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotTs;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.TEXT_EQ;
+import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
 
 
 /**
@@ -98,13 +96,50 @@ public class InternationalizeString extends AnAction {
                 .create();
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
-        java.util.List<IntellijFileContext> possibleL18nFiles = L18NIndexer.getAllAffectedFiles(fileContext.getProject());
 
-//        mainForm.getCbL18NFile().setModel(new ListComboBoxModel<>(sFiles));
+        //TODO mechanism if no json file exists (we implement that later)
+
+        //TODO store the selected json file permanently in case of multiple files (in the project store)
+     //   java.util.List<IntelliFileContextComboboxModelEntry> possibleL18nFiles =
+     //           Lists.transform(L18NIndexer.getAllAffectedFiles(fileContext.getProject()),
+     //                   item -> new IntelliFileContextComboboxModelEntry(new L18NTransformationModel(item)));
+
+        java.util.List<IntelliFileContextComboboxModelEntry> possibleL18nFiles = Lists.transform(L18NIndexer.getAllAffectedFiles(fileContext.getProject()), IntelliFileContextComboboxModelEntry::new);
 
         //next part, we check whether the string already exists in one of the files
+        //first we have to fetch the value of our parsed element
+        //first we have to fetch the value of our parsed element
+
+        java.util.List<IntelliFileContextComboboxModelEntry> alreadyExistsIn = possibleL18nFiles.stream()
+                .filter(item -> !item.getValue().getKey(model.getValue()).isEmpty())
+                .collect(Collectors.toList());
+
+        mainForm.setAllFiles(possibleL18nFiles);
+        mainForm.setContainingFiles(alreadyExistsIn);
+
+        mainForm.addFileChangeListener(itemEvent -> {
+            IntelliFileContextComboboxModelEntry selectedItem = (IntelliFileContextComboboxModelEntry) itemEvent.getItem();
+            applyKey(mainForm, selectedItem, model);
+        });
+
+
+
+        if(!alreadyExistsIn.isEmpty()) {
+            mainForm.switchToContainingFiles();
+            applyKey(mainForm, alreadyExistsIn.get(0), model);
+        } else {
+            mainForm.switchToAllFiles();
+            applyKey(mainForm, possibleL18nFiles.get(0), model);
+        }
+
+
+        mainForm.getTxtText().setText(model.getValue());
+
         //then make a proposal which the user can alter
         //and then save everything away
+
+
+
 
         //mainForm.initDefault(dialogWrapper.getWindow());
         dialogWrapper.show();
@@ -113,6 +148,20 @@ public class InternationalizeString extends AnAction {
         }
 
     }
+
+    public void applyKey(SingleL18n mainForm, IntelliFileContextComboboxModelEntry selectedItem,   L18NTransformationModel templateModel) {
+        List<String> possibleKeys = selectedItem.getValue().getKey(templateModel.getValue());
+        //we now transfer all possible keys in
+        if(!possibleKeys.isEmpty()) {
+            mainForm.getCbL18nKey().setModel(new ListComboBoxModel<>(possibleKeys));
+            mainForm.getCbL18nKey().setSelectedItem(possibleKeys.get(0));
+        } else {
+            if(isNullOrEmpty((String) mainForm.getCbL18nKey().getSelectedItem())) {
+                mainForm.getCbL18nKey().setSelectedItem(templateModel.getKey());
+            }
+        }
+    }
+
 
     java.util.List<PsiElementContext> getAffextedContexts(IntellijFileContext ctx, java.util.List<IntellijFileContext> files, String value) {
 

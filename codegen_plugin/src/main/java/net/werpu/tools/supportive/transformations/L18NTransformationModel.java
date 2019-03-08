@@ -42,6 +42,7 @@ public class L18NTransformationModel implements ITransformationModel {
     int from;
     int to;
     String key;
+    String value;
 
 
     PARSING_TYPE parsingType;
@@ -156,7 +157,8 @@ public class L18NTransformationModel implements ITransformationModel {
     private void applyStandardParsingValues(int offset, PsiElementContext foundElement) {
         from = offset+foundElement.getTextRangeOffset();
         to = from + foundElement.getTextLength();
-        key = StringUtils.toLowerDash(foundElement.getUnquotedText()).replaceAll("\\s+", "_").toUpperCase();
+        value  = foundElement.getUnquotedText();
+        key = StringUtils.toLowerDash(value).replaceAll("[\\s+\\.]", "_").toUpperCase();
 
     }
 
@@ -166,7 +168,7 @@ public class L18NTransformationModel implements ITransformationModel {
     }
 
     public L18NTransformationModel cloneWithNewKey(String newKey) {
-        return new L18NTransformationModel(fileContext, from, to, newKey, parsingType);
+        return new L18NTransformationModel(fileContext, from, to, newKey, value, parsingType);
     }
 
 }

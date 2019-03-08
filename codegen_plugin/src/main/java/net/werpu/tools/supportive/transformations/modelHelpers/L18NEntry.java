@@ -1,6 +1,7 @@
 package net.werpu.tools.supportive.transformations.modelHelpers;
 
 import lombok.Data;
+import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 
 import java.util.Map;
@@ -14,6 +15,9 @@ import java.util.TreeMap;
  */
 @Data
 public class L18NEntry {
+
+
+    L18NFileContext rootFile;
     /**
      * key, also reflected in the parents map as key
      * but for simpler access we expose it also as attribute
@@ -33,6 +37,7 @@ public class L18NEntry {
      * (including the quotes etc...)
      */
     PsiElementContext psiElementContext;
+
 
 
     /*

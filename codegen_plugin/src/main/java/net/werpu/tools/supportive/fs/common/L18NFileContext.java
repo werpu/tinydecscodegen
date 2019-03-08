@@ -7,12 +7,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.yourkit.util.Strings;
 import lombok.Getter;
-import net.werpu.tools.supportive.reflectRefact.navigation.UnaryCommand;
+import net.werpu.tools.supportive.transformations.modelHelpers.L18NEntry;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +22,6 @@ import java.util.stream.Stream;
 import static java.util.Arrays.asList;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
-import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.NEXT_SIBLINGS;
 
 
 /**
@@ -35,6 +33,9 @@ public class L18NFileContext extends IntellijFileContext {
 
     @Getter
     PsiElementContext resourceRoot;
+
+
+    L18NEntry tree;
 
     public L18NFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
@@ -195,6 +196,10 @@ public class L18NFileContext extends IntellijFileContext {
             return true;
         }
         return false;
+    }
+
+    private void parseTree() {
+
     }
 
 
