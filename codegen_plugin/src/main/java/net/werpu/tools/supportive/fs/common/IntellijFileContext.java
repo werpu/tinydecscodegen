@@ -79,6 +79,10 @@ public class IntellijFileContext {
     Document document;
     VirtualFile virtualFile;
 
+    //workaround for shadow files and refactoring
+    //TODO find out why refactoring does not work on virtual shadow files
+    String shadowText;
+
     public IntellijFileContext(AnActionEvent event) {
         this(event.getProject(), IntellijUtils.getFolderOrFile(event));
     }
@@ -174,6 +178,7 @@ public class IntellijFileContext {
     }
 
     public void setText(String text) throws IOException {
+        this.shadowText = text;
         virtualFile.setBinaryContent(text.getBytes(virtualFile.getCharset()));
     }
 
@@ -431,4 +436,6 @@ public class IntellijFileContext {
             return folderPathFile.length() > folderPathModule.length() ? el1 : el2;
         });
     }
+
+
 }

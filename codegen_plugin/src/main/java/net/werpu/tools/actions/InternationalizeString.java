@@ -1,10 +1,10 @@
 package net.werpu.tools.actions;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.ui.DialogWrapper;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
 import net.werpu.tools.gui.SingleL18n;
@@ -12,20 +12,28 @@ import net.werpu.tools.gui.support.InputDialogWrapperBuilder;
 import net.werpu.tools.gui.support.IntelliFileContextComboboxModelEntry;
 import net.werpu.tools.indexes.L18NIndexer;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
-import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
+import net.werpu.tools.supportive.refactor.DummyInsertPsiElement;
+import net.werpu.tools.supportive.refactor.RefactorUnit;
+import net.werpu.tools.supportive.transformations.L18NTransformation;
 import net.werpu.tools.supportive.transformations.L18NTransformationModel;
+import net.werpu.tools.supportive.utils.IntellijUtils;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.netty.util.internal.StringUtil.isNullOrEmpty;
+import static net.werpu.tools.actions_all.EditTemplate.TEMPLATE_OF;
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotTs;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.TEXT_EQ;
-import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
+import static net.werpu.tools.supportive.utils.IntellijRunUtils.invokeLater;
+import static net.werpu.tools.supportive.utils.IntellijRunUtils.writeTransaction;
 
 
 /**
@@ -109,7 +117,8 @@ public class InternationalizeString extends AnAction {
         //next part, we check whether the string already exists in one of the files
         //first we have to fetch the value of our parsed element
         //first we have to fetch the value of our parsed element
-
+        Editor editor = IntellijUtils.getEditor(e);
+        Document document = editor.getDocument();
         java.util.List<IntelliFileContextComboboxModelEntry> alreadyExistsIn = possibleL18nFiles.stream()
                 .filter(item -> !item.getValue().getKey(model.getValue()).isEmpty())
                 .collect(Collectors.toList());
@@ -145,10 +154,66 @@ public class InternationalizeString extends AnAction {
         dialogWrapper.show();
         if (dialogWrapper.isOK()) {
             //handle ok refactoring
+
+            IntelliFileContextComboboxModelEntry targetFile = (IntelliFileContextComboboxModelEntry) mainForm.getCbL18NFile().getSelectedItem();
+            if(targetFile == null) {
+                //TODO error here
+                return;
+            }
+
+            //fetch the key if it is there and then just ignore any changes on the target file and simply insert the key
+            //in the editor
+            String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
+            Optional<PsiElementContext> foundKey = targetFile.getValue().getValue(finalKey);
+
+            if(!foundKey.isPresent()) {
+                //no key present, simply add it as last entry at the end of the L18nfile
+                PsiElementContext resourceRoot = targetFile.getValue().getResourceRoot();
+                int startPos = resourceRoot.getTextRangeOffset()+resourceRoot.getTextLength() - 1;
+
+
+                targetFile.getValue().addRefactoring(new RefactorUnit(targetFile.getValue().getPsiFile(), new DummyInsertPsiElement(startPos), ",\""+model.getKey()+"\": \""+model.getValue()+"\""));
+                invokeLater(() -> writeTransaction(model.getProject(), () -> {
+                    try {
+                        L18NTransformation transformation = new L18NTransformation(model, finalKey, mainForm.getTxtText().getText());
+                        model.getFileContext().getVirtualFile().setWritable(true);
+                        //TODO add tndec ng switch here
+                        model.getFileContext().refactorContent(Arrays.asList(transformation.getTnDecRefactoring()));
+                        model.getFileContext().commit();
+
+                        targetFile.getValue().commit();
+                        targetFile.getValue().reformat();
+
+                        //in case of an open template we need to update the template text in the editor
+                        if(model.getFileContext().getPsiFile().getVirtualFile().getPath().substring(1).startsWith(TEMPLATE_OF)) {
+                            //java.util.List<CaretState> caretsAndSelections = editor.getCaretModel().getCaretsAndSelections();
+                            document.setText(model.getFileContext().getShadowText());
+                            //editor.getCaretModel().setCaretsAndSelections(caretsAndSelections);
+                        }
+
+                    } catch (IOException e1) {
+                        net.werpu.tools.supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "Error", e1.getMessage());
+                        e1.printStackTrace();
+                    }
+                }));
+
+            }
+
+            //TODO if the value does not match the key anymore, ask for overwrite
+
+
+
+
         }
 
     }
 
+    /**
+     * apply the
+     * @param mainForm
+     * @param selectedItem
+     * @param templateModel
+     */
     public void applyKey(SingleL18n mainForm, IntelliFileContextComboboxModelEntry selectedItem,   L18NTransformationModel templateModel) {
         List<String> possibleKeys = selectedItem.getValue().getKey(templateModel.getValue());
         //we now transfer all possible keys in

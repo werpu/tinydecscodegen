@@ -83,10 +83,11 @@ public class L18NTransformationModel implements ITransformationModel {
             return cursorPos >= offSet && cursorPos <= offSetEnd;
         };
 
+        //search for an embedded string template in case of an embedded template
         Optional<PsiElementContext> oCtx = fileContext.$q(STRING_TEMPLATE_EXPR)
                 .filter(positionFilter)
                 .reduce((el1, el2) -> el2);
-        PsiElementContext rootElementContext = oCtx.orElse(new PsiElementContext(fileContext.getPsiFile()));
+        PsiElementContext rootElementContext = oCtx.isPresent() ? oCtx.get() : new PsiElementContext(fileContext.getPsiFile()).$q("PsiElement(HTML_DOCUMENT)").findFirst().get();
 
 
         String templateText = (oCtx.isPresent()) ? oCtx.get().getText().substring(1, Math.max(0, oCtx.get().getTextLength() - 1)) : fileContext.getText();
@@ -170,5 +171,6 @@ public class L18NTransformationModel implements ITransformationModel {
     public L18NTransformationModel cloneWithNewKey(String newKey) {
         return new L18NTransformationModel(fileContext, from, to, newKey, value, parsingType);
     }
+
 
 }

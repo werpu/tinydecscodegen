@@ -52,7 +52,7 @@ public class VisibleAssertions {
     }
 
     public static boolean assertNotHtml(IntellijFileContext ctx) {
-        return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getPath().endsWith(getHtmlExtension());
+        return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getFileType().getDefaultExtension().toLowerCase().equals("html");
     }
 
     public static boolean assertTemplated(IntellijFileContext ctx) {
@@ -103,6 +103,10 @@ public class VisibleAssertions {
     public static void cursorInTemplate(AnActionEvent anActionEvent) {
         //if one of its parents is a string template
 
+        if(!assertNotHtml(new IntellijFileContext(anActionEvent))) {
+            anActionEvent.getPresentation().setEnabledAndVisible(true);
+            return;
+        }
         Editor editor = IntellijUtils.getEditor(anActionEvent);
         final int cursorPos = editor.getCaretModel().getOffset();
         IntellijFileContext editorFile = new IntellijFileContext(anActionEvent);

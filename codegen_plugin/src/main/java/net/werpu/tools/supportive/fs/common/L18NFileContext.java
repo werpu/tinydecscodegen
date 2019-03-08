@@ -1,17 +1,23 @@
 package net.werpu.tools.supportive.fs.common;
 
+import com.google.common.collect.Lists;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.yourkit.util.Strings;
 import lombok.Getter;
+import net.werpu.tools.supportive.refactor.IRefactorUnit;
+import net.werpu.tools.supportive.refactor.RefactorUnit;
 import net.werpu.tools.supportive.transformations.modelHelpers.L18NEntry;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.io.IOException;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +42,13 @@ public class L18NFileContext extends IntellijFileContext {
 
 
     L18NEntry tree;
+
+    @Getter
+    private List<IRefactorUnit> refactorUnits = Lists.newArrayList();
+
+    @Getter
+    private String refactoredText;
+
 
     public L18NFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
@@ -198,9 +211,36 @@ public class L18NFileContext extends IntellijFileContext {
         return false;
     }
 
-    private void parseTree() {
-
+    public void setText(String text) throws IOException {
+        this.refactoredText = text;
+        virtualFile.setBinaryContent(text.getBytes(virtualFile.getCharset()));
     }
 
+    //TODO externalize this or move it into the base class
+    public void addRefactoring(RefactorUnit unit) {
+        this.refactorUnits.add(unit);
+    }
+
+    /**
+     * central commit handler to perform all refactorings on the
+     * source base this context targets
+     *
+     * @throws IOException
+     */
+    @Override
+    public void commit() throws IOException {
+
+        refactorUnits = refactorUnits.stream()
+                .sorted(Comparator.comparing(a -> Integer.valueOf(a.getStartOffset())))
+                .collect(Collectors.toList());
+
+        super.refactorContent(refactorUnits);
+        super.commit();
+        refactorUnits = Lists.newLinkedList();
+    }
+
+    public void reformat() {
+        CodeStyleManager.getInstance(project).reformat(psiFile);
+    }
 
 }
