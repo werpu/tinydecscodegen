@@ -89,7 +89,7 @@ public class L18NFileContext extends IntellijFileContext {
             String[] keys = key.split("\\.");
             return getValue(keys);
         }
-        return resourceRoot.$q(DIRECT_CHILD(JSON_PROPERTY), DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key)).findFirst();
+        return resourceRoot.$q(DIRECT_CHILD(JSON_PROPERTY), DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))).findFirst();
     }
 
     /**
@@ -104,8 +104,8 @@ public class L18NFileContext extends IntellijFileContext {
         if (!searchDeep) {
             return this.getValue(key);
         }
-
-        return resourceRoot.$q(DIRECT_CHILD(JSON_PROPERTY), DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key)).findFirst();
+        //TODO bug here
+        return resourceRoot.$q(DIRECT_CHILD(JSON_PROPERTY), DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))).findFirst();
     }
 
     //deeper nesting queries with exact matches

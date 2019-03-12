@@ -1,5 +1,7 @@
 package net.werpu.tools.gui;
 
+import lombok.Getter;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -15,6 +17,11 @@ public class OverwriteNewDialog extends JDialog {
 
     Consumer<ActionEvent> overwriteHandler;
     Consumer<ActionEvent> newEntryHandler;
+
+    @Getter
+    boolean isOverwriteOutcome;
+    @Getter
+    boolean isNewEntryOutcome;
 
 
     public OverwriteNewDialog() {
@@ -41,6 +48,8 @@ public class OverwriteNewDialog extends JDialog {
             if (newEntryHandler != null) {
                 newEntryHandler.accept(e);
             }
+            this.isNewEntryOutcome = true;
+            dispose();
         });
     }
 
@@ -49,6 +58,7 @@ public class OverwriteNewDialog extends JDialog {
         if (this.overwriteHandler != null) {
             this.overwriteHandler.accept(e);
         }
+        this.isOverwriteOutcome = true;
         dispose();
     }
 

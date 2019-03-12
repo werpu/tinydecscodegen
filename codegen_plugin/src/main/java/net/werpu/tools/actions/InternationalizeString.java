@@ -6,17 +6,21 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.ui.DialogWrapper;
+import lombok.Data;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
+import net.werpu.tools.gui.OverwriteNewDialog;
 import net.werpu.tools.gui.SingleL18n;
 import net.werpu.tools.gui.support.InputDialogWrapperBuilder;
 import net.werpu.tools.gui.support.IntelliFileContextComboboxModelEntry;
 import net.werpu.tools.indexes.L18NIndexer;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
+import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.refactor.DummyInsertPsiElement;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
 import net.werpu.tools.supportive.transformations.L18NTransformation;
 import net.werpu.tools.supportive.transformations.L18NTransformationModel;
+import net.werpu.tools.supportive.transformations.modelHelpers.ElementNotResolvableException;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +38,12 @@ import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotTs;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.TEXT_EQ;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.invokeLater;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.writeTransaction;
+import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
+
+@Data
+class DialogHolder {
+    private OverwriteNewDialog oDialog;
+}
 
 
 /**
@@ -59,8 +69,14 @@ public class InternationalizeString extends AnAction {
         if (!assertNotTs(ctx)) {
             VisibleAssertions.cursorInTemplate(anActionEvent);
         }
-        L18NTransformationModel model = new L18NTransformationModel(new IntellijFileContext(anActionEvent));
-        model.getFrom();
+        try {
+            if(anActionEvent.getPresentation().isEnabledAndVisible()) {
+                L18NTransformationModel model = new L18NTransformationModel(new IntellijFileContext(anActionEvent));
+                model.getFrom();
+            }
+        } catch (ElementNotResolvableException ex) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+        }
     }
 
 
@@ -98,9 +114,36 @@ public class InternationalizeString extends AnAction {
         L18NTransformationModel model = new L18NTransformationModel(fileContext);
 
         SingleL18n mainForm = new SingleL18n();
+        final DialogHolder oDialog = new DialogHolder();
 
         DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(fileContext.getProject(), mainForm.getRootPanel())
                 .withDimensionKey("SingleL18n")
+                .withOkHandler(() -> {
+                    String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
+                    String finalValue = mainForm.getTxtText().getText();
+                    IntelliFileContextComboboxModelEntry targetFile = (IntelliFileContextComboboxModelEntry) mainForm.getCbL18NFile().getSelectedItem();
+                    Optional<String> foundValue = targetFile.getValue().getValueAsStr(finalKey);
+
+                    finalValue = finalValue.replaceAll("\\s+", "").toLowerCase();
+                    if (foundValue.isPresent()) {
+                        String sFoundValue = foundValue.get().replaceAll("\\s+", "").toLowerCase();
+                        if (!literalEquals(finalValue, sFoundValue)) {
+                            oDialog.setODialog(new OverwriteNewDialog());
+                            oDialog.getODialog().pack();
+                            Point parentPoint = oDialog.getODialog().getParent().getLocation();
+                            Dimension parentDimension = oDialog.getODialog().getParent().getSize();
+                            Dimension dialogDimension = oDialog.getODialog().getSize();
+                            int x = (int) (parentPoint.getX() + (parentDimension.getWidth() - dialogDimension.getWidth()) / 2);
+                            int y = (int) (parentPoint.getY() + (parentDimension.getHeight() - dialogDimension.getHeight()) / 2);
+                            oDialog.getODialog().setLocation(x, y);
+                            oDialog.getODialog().setVisible(true);
+
+                            return oDialog.getODialog().isNewEntryOutcome() || oDialog.getODialog().isOverwriteOutcome();
+                        }
+                    }
+                    return true;
+
+                })
                 .create();
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
@@ -158,46 +201,125 @@ public class InternationalizeString extends AnAction {
                 return;
             }
 
-            //fetch the key if it is there and then just ignore any changes on the target file and simply insert the key
-            //in the editor
-            String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
-            Optional<PsiElementContext> foundKey = targetFile.getValue().getValue(finalKey);
-
-            //no key present, simply add it as last entry at the end of the L18nfile
-            PsiElementContext resourceRoot = targetFile.getValue().getResourceRoot();
-            int startPos = resourceRoot.getTextRangeOffset() + resourceRoot.getTextLength() - 1;
-
+            //case 1 no conflict
+            boolean noConflict = oDialog.getODialog() == null;
+            boolean conflictOverwrite = oDialog.getODialog() != null && oDialog.getODialog().isOverwriteOutcome();
+            boolean conflictNewEntry = oDialog.getODialog() != null && oDialog.getODialog().isNewEntryOutcome();
             invokeLater(() -> writeTransaction(model.getProject(), () -> {
                 try {
-                    L18NTransformation transformation = new L18NTransformation(model, finalKey, mainForm.getTxtText().getText());
-                    //model.getFileContext().getVirtualFile().setWritable(true);
-                    //TODO add tndec ng switch here
-                    model.getFileContext().refactorContent(Arrays.asList(transformation.getTnDecRefactoring()));
-                    model.getFileContext().commit();
-
-                    if (!foundKey.isPresent()) {
-                        targetFile.getValue().addRefactoring(new RefactorUnit(targetFile.getValue().getPsiFile(), new DummyInsertPsiElement(startPos), ",\"" + model.getKey() + "\": \"" + model.getValue() + "\""));
-                        targetFile.getValue().commit();
-                        targetFile.getValue().reformat();
+                    if (noConflict) {
+                        invokeNormalReplacement(fileContext, model, mainForm, document, targetFile);
+                    } else if (conflictOverwrite) {
+                        invokeOverwriteReplacement(fileContext, model, mainForm, document, targetFile);
+                    } else if (conflictNewEntry) {
+                        invokeNewEntry(fileContext, model, mainForm, document, targetFile);
                     }
-
-                    //in case of an open template we need to update the template text in the editor
-                    if (model.getFileContext().getPsiFile().getVirtualFile().getPath().substring(1).startsWith(TEMPLATE_OF)) {
-                        //java.util.List<CaretState> caretsAndSelections = editor.getCaretModel().getCaretsAndSelections();
-                        document.setText(model.getFileContext().getShadowText());
-                        //editor.getCaretModel().setCaretsAndSelections(caretsAndSelections);
-                    }
-
                 } catch (IOException e1) {
-                    net.werpu.tools.supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "Error", e1.getMessage());
+                    IntellijUtils.showErrorDialog(fileContext.getProject(), "Error", e1.getMessage());
                     e1.printStackTrace();
                 }
             }));
 
-
-            //TODO if the value does not match the key anymore, ask for overwrite
-
         }
+
+    }
+
+
+    /**
+     * case 2 overwrite the internationalization value with the new one
+     */
+    public void invokeOverwriteReplacement(IntellijFileContext fileContext, L18NTransformationModel
+            model, SingleL18n mainForm, Document document, IntelliFileContextComboboxModelEntry l18nFile) throws IOException {
+
+        String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
+        L18NFileContext l18nFileContext = l18nFile.getValue();
+
+        updateL18nFileWithNewValue(mainForm, finalKey, l18nFileContext);
+        replaceTextWithKey(mainForm, model, l18nFile, finalKey);
+        updateShadowEditor(model, document);
+
+    }
+
+    public void updateL18nFileWithNewValue(SingleL18n mainForm, String finalKey, L18NFileContext l18nFileContext) throws IOException {
+        Optional<PsiElementContext> foundValue = l18nFileContext.getValue(finalKey);
+        //no key present, simply add it as last entry at the end of the L18nfile
+        l18nFileContext.addRefactoring(new RefactorUnit(l18nFileContext.getPsiFile(), foundValue.get(), "\""+mainForm.getTxtText().getText()+"\""));
+        l18nFileContext.commit();
+        l18nFileContext.reformat();
+    }
+
+    /**
+     * case 2 simply create a new entry
+     */
+    public void invokeNewEntry(IntellijFileContext fileContext, L18NTransformationModel model, SingleL18n
+            mainForm, Document document, IntelliFileContextComboboxModelEntry l18nFile) throws IOException {
+
+        String key = (String) mainForm.getCbL18nKey().getSelectedItem();
+        final String originalKey = key;
+        Optional<PsiElementContext> foundValue = l18nFile.getValue().getValue(key);
+        int cnt = 0;
+        while(foundValue.isPresent()) {
+            key = originalKey+"_"+cnt;
+            foundValue = l18nFile.getValue().getValue(key);
+        }
+
+        replaceTextWithKey(mainForm, model, l18nFile, key);
+        updateShadowEditor(model, document);
+        model = model.cloneWithNewKey(key);
+        addKeyToL18NFile(model, l18nFile, Optional.empty());
+
+    }
+
+
+    /**
+     * case 1, normal replacement in text editor
+     * and or
+     */
+    public void invokeNormalReplacement(IntellijFileContext fileContext, L18NTransformationModel model, SingleL18n
+            mainForm, Document document, IntelliFileContextComboboxModelEntry l18nFile) throws IOException {
+
+
+        //fetch the key if it is there and then just ignore any changes on the target file and simply insert the key
+        //in the editor
+        String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
+        Optional<PsiElementContext> foundItem = l18nFile.getValue().getValue(finalKey);
+
+        //no key present, simply add it as last entry at the end of the L18nfile
+
+        replaceTextWithKey(mainForm, model, l18nFile, finalKey);
+        updateShadowEditor(model, document);
+        addKeyToL18NFile(model, l18nFile, foundItem);
+
+
+    }
+
+    public void addKeyToL18NFile(L18NTransformationModel transformationModel, IntelliFileContextComboboxModelEntry i18nFile, Optional<PsiElementContext> i18nValue) throws IOException {
+        if (!i18nValue.isPresent()) {
+            PsiElementContext resourceRoot = i18nFile.getValue().getResourceRoot();
+            int startPos = resourceRoot.getTextRangeOffset() + resourceRoot.getTextLength() - 1;
+            i18nFile.getValue().addRefactoring(new RefactorUnit(i18nFile.getValue().getPsiFile(), new DummyInsertPsiElement(startPos), ",\"" + transformationModel.getKey() + "\": \"" + transformationModel.getValue() + "\""));
+            i18nFile.getValue().commit();
+            i18nFile.getValue().reformat();
+        }
+    }
+
+
+
+    public void updateShadowEditor(L18NTransformationModel transformationModel, Document document) {
+        //in case of an open template we need to update the template text in the editor
+        if (transformationModel.getFileContext().getPsiFile().getVirtualFile().getPath().substring(1).startsWith(TEMPLATE_OF)) {
+            //java.util.List<CaretState> caretsAndSelections = editor.getCaretModel().getCaretsAndSelections();
+            document.setText(transformationModel.getFileContext().getShadowText());
+            //editor.getCaretModel().setCaretsAndSelections(caretsAndSelections);
+        }
+    }
+
+    public void replaceTextWithKey(SingleL18n uiForm, L18NTransformationModel transformationModel, IntelliFileContextComboboxModelEntry i18nFile, String finalKey) throws IOException {
+
+        L18NTransformation transformation = new L18NTransformation(transformationModel, finalKey, uiForm.getTxtText().getText());
+
+        transformationModel.getFileContext().refactorContent(Arrays.asList(transformation.getTnDecRefactoring()));
+        transformationModel.getFileContext().commit();
 
     }
 
@@ -225,7 +347,9 @@ public class InternationalizeString extends AnAction {
     java.util.List<PsiElementContext> getAffextedContexts(IntellijFileContext ctx, java.util.List<IntellijFileContext> files, String value) {
 
         return files.stream()
-                .map(l18nFile -> l18nFile.$q(TEXT_EQ(value)).findFirst().orElse(null))
+                .map(l18nFile -> l18nFile.$q(TEXT_EQ(value))
+                        .findFirst()
+                        .orElse(null))
                 .filter(el -> el != null)
                 .collect(Collectors.toList());
 

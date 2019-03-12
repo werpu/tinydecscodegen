@@ -1,13 +1,10 @@
 package net.werpu.tools.supportive.transformations;
 
-import com.intellij.openapi.project.Project;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.werpu.tools.supportive.refactor.DummyReplacePsiElement;
 import net.werpu.tools.supportive.refactor.IRefactorUnit;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
-
-import java.io.IOException;
 
 @Getter
 @AllArgsConstructor
@@ -20,10 +17,10 @@ public class L18NTransformation implements IArtifactTransformation {
 
 
     @Override
-    public String getTnDecTransformation() throws IOException {
+    public String getTnDecTransformation() {
         switch(model.getParsingType()) {
             case TEXT:
-                return "#{'"+finalKey+"' | translate}";
+                return "{{'"+finalKey+"' | translate}}";
             case STRING:
                 return "'"+finalKey+"' | translate";
             default:
@@ -32,17 +29,17 @@ public class L18NTransformation implements IArtifactTransformation {
         }
     }
 
-    public IRefactorUnit getTnDecRefactoring() throws IOException {
+    public IRefactorUnit getTnDecRefactoring() {
         return new RefactorUnit(model.getFileContext().getPsiFile(), new DummyReplacePsiElement(model.getFrom(), model.getTo()-model.getFrom()), getTnDecTransformation());
     }
 
-    public IRefactorUnit getNgRefactoring() throws IOException {
+    public IRefactorUnit getNgRefactoring() {
         return new RefactorUnit(model.getFileContext().getPsiFile(), new DummyReplacePsiElement(model.getFrom(), model.getTo()-model.getFrom()), getNgTransformation());
     }
 
 
     @Override
-    public String getNgTransformation() throws IOException {
+    public String getNgTransformation() {
         return getTnDecTransformation();
     }
 

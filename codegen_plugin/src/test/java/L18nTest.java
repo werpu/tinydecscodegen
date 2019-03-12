@@ -130,7 +130,7 @@ public class L18nTest  extends LightCodeInsightFixtureTestCase {
     /**
      * Testbed for the l18n parsing
      */
-    @Ignore
+
     @Test
     public void testL18NFileParsing() {
         PsiFile i18nFile = myFixture.configureByFiles("i18n/labels-en.json", "angular_js/angular.js")[0];

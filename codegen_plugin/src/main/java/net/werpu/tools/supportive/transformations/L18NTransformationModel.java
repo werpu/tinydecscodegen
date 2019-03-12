@@ -32,6 +32,10 @@ import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngin
  * later key reassignments check if the key exist already
  * are not part of this functionality
  * they must be handled from the outside
+ *
+ * Note, we do not use a specific psi element here
+ * because the text might not even be a single psi element
+ * it can be anything
  */
 @Getter
 @RequiredArgsConstructor
