@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import static io.netty.util.internal.StringUtil.isNullOrEmpty;
 import static net.werpu.tools.actions_all.EditTemplate.TEMPLATE_OF;
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotTs;
-import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.TEXT_EQ;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.invokeLater;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.writeTransaction;
 import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
@@ -48,8 +47,6 @@ class DialogHolder {
 
 /**
  * Action for single string interationalization
- * <p>
- * the idea is
  */
 public class InternationalizeString extends AnAction {
 
@@ -57,7 +54,7 @@ public class InternationalizeString extends AnAction {
     }
 
 
-    //TODO check whether editor in template or string and template
+    //TODO check whether the editor in template or string and template
 
 
     @Override
@@ -197,11 +194,11 @@ public class InternationalizeString extends AnAction {
 
             IntelliFileContextComboboxModelEntry targetFile = (IntelliFileContextComboboxModelEntry) mainForm.getCbL18NFile().getSelectedItem();
             if (targetFile == null) {
-                //TODO error here
+                //todo target file creation logic here
                 return;
             }
 
-            //case 1 no conflict
+
             boolean noConflict = oDialog.getODialog() == null;
             boolean conflictOverwrite = oDialog.getODialog() != null && oDialog.getODialog().isOverwriteOutcome();
             boolean conflictNewEntry = oDialog.getODialog() != null && oDialog.getODialog().isNewEntryOutcome();
@@ -341,18 +338,6 @@ public class InternationalizeString extends AnAction {
                 mainForm.getCbL18nKey().setSelectedItem(templateModel.getKey());
             }
         }
-    }
-
-
-    java.util.List<PsiElementContext> getAffextedContexts(IntellijFileContext ctx, java.util.List<IntellijFileContext> files, String value) {
-
-        return files.stream()
-                .map(l18nFile -> l18nFile.$q(TEXT_EQ(value))
-                        .findFirst()
-                        .orElse(null))
-                .filter(el -> el != null)
-                .collect(Collectors.toList());
-
     }
 
 }
