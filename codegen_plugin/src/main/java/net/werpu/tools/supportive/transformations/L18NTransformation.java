@@ -29,6 +29,9 @@ public class L18NTransformation implements IArtifactTransformation {
         }
     }
 
+
+
+
     public IRefactorUnit getTnDecRefactoring() {
         return new RefactorUnit(model.getFileContext().getPsiFile(), new DummyReplacePsiElement(model.getFrom(), model.getTo()-model.getFrom()), getTnDecTransformation());
     }

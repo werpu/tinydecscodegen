@@ -21,8 +21,8 @@ import net.werpu.tools.indexes.L18NIndexer;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
-import net.werpu.tools.supportive.refactor.DummyInsertPsiElement;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
+import net.werpu.tools.supportive.transformations.L18NDeclFileTransformation;
 import net.werpu.tools.supportive.transformations.L18NTransformation;
 import net.werpu.tools.supportive.transformations.L18NTransformationModel;
 import net.werpu.tools.supportive.transformations.modelHelpers.ElementNotResolvableException;
@@ -285,7 +285,10 @@ public class InternationalizeString extends AnAction {
     public void updateL18nFileWithNewValue(SingleL18n mainForm, String finalKey, L18NFileContext l18nFileContext) throws IOException {
         Optional<PsiElementContext> foundValue = l18nFileContext.getValue(finalKey);
         //no key present, simply add it as last entry at the end of the L18nfile
-        l18nFileContext.addRefactoring(new RefactorUnit(l18nFileContext.getPsiFile(), foundValue.get(), "\"" + mainForm.getTxtText().getText() + "\""));
+
+        L18NDeclFileTransformation transformation = new L18NDeclFileTransformation(l18nFileContext, finalKey, mainForm.getTxtText().getText());
+
+        l18nFileContext.addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
         l18nFileContext.commit();
         l18nFileContext.reformat();
     }
@@ -308,7 +311,8 @@ public class InternationalizeString extends AnAction {
         replaceTextWithKey(mainForm, model, l18nFile, key);
         updateShadowEditor(model, document);
         model = model.cloneWithNewKey(key);
-        addKeyToL18NFile(model, l18nFile, Optional.empty());
+
+        addReplaceL18NConfig(model, l18nFile, Optional.empty());
 
     }
 
@@ -330,16 +334,17 @@ public class InternationalizeString extends AnAction {
 
         replaceTextWithKey(mainForm, model, l18nFile, finalKey);
         updateShadowEditor(model, document);
-        addKeyToL18NFile(model, l18nFile, foundItem);
+        addReplaceL18NConfig(model.cloneWithNewKey(finalKey), l18nFile, foundItem);
 
 
     }
 
-    public void addKeyToL18NFile(L18NTransformationModel transformationModel, IntelliFileContextComboboxModelEntry i18nFile, Optional<PsiElementContext> i18nValue) throws IOException {
+    public void addReplaceL18NConfig(L18NTransformationModel transformationModel, IntelliFileContextComboboxModelEntry i18nFile, Optional<PsiElementContext> i18nValue) throws IOException {
         if (!i18nValue.isPresent()) {
-            PsiElementContext resourceRoot = i18nFile.getValue().getResourceRoot();
-            int startPos = resourceRoot.getTextRangeOffset() + resourceRoot.getTextLength() - 1;
-            i18nFile.getValue().addRefactoring(new RefactorUnit(i18nFile.getValue().getPsiFile(), new DummyInsertPsiElement(startPos), ",\"" + transformationModel.getKey() + "\": \"" + transformationModel.getValue() + "\""));
+
+            L18NDeclFileTransformation transformation = new L18NDeclFileTransformation(i18nFile.getValue(), transformationModel.getKey() , transformationModel.getValue());
+            i18nFile.getValue().addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
+
             i18nFile.getValue().commit();
             i18nFile.getValue().reformat();
         }
