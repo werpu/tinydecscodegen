@@ -1,13 +1,17 @@
 package net.werpu.tools.actions;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Data;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
+import net.werpu.tools.configuration.ConfigSerializer;
+import net.werpu.tools.configuration.TinyDecsConfiguration;
 import net.werpu.tools.gui.OverwriteNewDialog;
 import net.werpu.tools.gui.OverwriteNewDialogWrapper;
 import net.werpu.tools.gui.SingleL18n;
@@ -193,7 +197,18 @@ public class InternationalizeString extends AnAction {
 
         //then make a proposal which the user can alter
         //and then save everything away
+        TinyDecsConfiguration conf = ConfigSerializer.getInstance().getState();
+        String storedFileNameAll = conf.getLastSelectedL18NFileAllFiles();
+        String storedFileNameExists = conf.getLastSelectedL18NFileExistsFiles();
+        if(mainForm.getRbAll().isSelected() && !Strings.isNullOrEmpty(storedFileNameAll)) {
+            //select the item which matches
+            readjustFileSelection(mainForm, storedFileNameAll, true);
+        }
 
+        if(mainForm.getRbExists().isSelected() && !Strings.isNullOrEmpty(conf.getLastSelectedL18NFileExistsFiles())) {
+           //select the item which matches
+            readjustFileSelection(mainForm, storedFileNameExists, false);
+        }
 
         //mainForm.initDefault(dialogWrapper.getWindow());
         dialogWrapper.show();
@@ -219,6 +234,16 @@ public class InternationalizeString extends AnAction {
                     } else if (conflictNewEntry) {
                         invokeNewEntry(fileContext, model, mainForm, document, targetFile);
                     }
+
+                    VirtualFile virtualFile = targetFile.getValue().getVirtualFile();
+                    if(mainForm.getRbAll().isSelected()) {
+                        conf.setLastSelectedL18NFileAllFiles(virtualFile.getPath()+virtualFile.getName());
+                    }
+
+                    if(mainForm.getRbExists().isSelected()) {
+                        conf.setLastSelectedL18NFileExistsFiles(virtualFile.getPath()+virtualFile.getName());
+                    }
+
                 } catch (IOException e1) {
                     IntellijUtils.showErrorDialog(fileContext.getProject(), "Error", e1.getMessage());
                     e1.printStackTrace();
@@ -227,6 +252,18 @@ public class InternationalizeString extends AnAction {
 
         }
 
+    }
+
+    public void readjustFileSelection(SingleL18n mainForm, String fileName, boolean allFiles) {
+        int cnt = 0;
+        List<IntelliFileContextComboboxModelEntry> filesModel = (allFiles) ? mainForm.getAllFiles() : mainForm.getContainingFiles();
+        for(IntelliFileContextComboboxModelEntry entry: filesModel) {
+            String fileName2 = entry.getValue().getVirtualFile().getPath() + entry.getValue().getVirtualFile().getName();
+            if(fileName.equals(fileName2)) {
+                mainForm.getCbL18NFile().setSelectedIndex(cnt);
+            }
+            cnt++;
+        }
     }
 
 

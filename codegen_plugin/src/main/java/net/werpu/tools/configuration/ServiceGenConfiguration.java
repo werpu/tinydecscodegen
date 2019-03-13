@@ -40,7 +40,7 @@ public class ServiceGenConfiguration implements Configurable {
                 (String) configPanel.getSourceFramework().getSelectedItem(),
                 (String) configPanel.getTargetFramework().getSelectedItem(), false, false,
                 false, false, false, false,
-                false, "GET", true, true, true);
+                false, "GET", true, true, true, "", "");
     }
 
     @Override
