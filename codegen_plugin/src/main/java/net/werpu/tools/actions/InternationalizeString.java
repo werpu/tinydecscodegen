@@ -9,6 +9,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import lombok.Data;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
 import net.werpu.tools.gui.OverwriteNewDialog;
+import net.werpu.tools.gui.OverwriteNewDialogWrapper;
 import net.werpu.tools.gui.SingleL18n;
 import net.werpu.tools.gui.support.InputDialogWrapperBuilder;
 import net.werpu.tools.gui.support.IntelliFileContextComboboxModelEntry;
@@ -67,7 +68,7 @@ public class InternationalizeString extends AnAction {
             VisibleAssertions.cursorInTemplate(anActionEvent);
         }
         try {
-            if(anActionEvent.getPresentation().isEnabledAndVisible()) {
+            if (anActionEvent.getPresentation().isEnabledAndVisible()) {
                 L18NTransformationModel model = new L18NTransformationModel(new IntellijFileContext(anActionEvent));
                 model.getFrom();
             }
@@ -113,7 +114,7 @@ public class InternationalizeString extends AnAction {
         SingleL18n mainForm = new SingleL18n();
         final DialogHolder oDialog = new DialogHolder();
 
-        DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(fileContext.getProject(), mainForm.getRootPanel())
+        final DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(fileContext.getProject(), mainForm.getRootPanel())
                 .withDimensionKey("SingleL18n")
                 .withOkHandler(() -> {
                     String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
@@ -126,14 +127,20 @@ public class InternationalizeString extends AnAction {
                         String sFoundValue = foundValue.get().replaceAll("\\s+", "").toLowerCase();
                         if (!literalEquals(finalValue, sFoundValue)) {
                             oDialog.setODialog(new OverwriteNewDialog());
-                            oDialog.getODialog().pack();
-                            Point parentPoint = oDialog.getODialog().getParent().getLocation();
-                            Dimension parentDimension = oDialog.getODialog().getParent().getSize();
-                            Dimension dialogDimension = oDialog.getODialog().getSize();
-                            int x = (int) (parentPoint.getX() + (parentDimension.getWidth() - dialogDimension.getWidth()) / 2);
-                            int y = (int) (parentPoint.getY() + (parentDimension.getHeight() - dialogDimension.getHeight()) / 2);
-                            oDialog.getODialog().setLocation(x, y);
-                            oDialog.getODialog().setVisible(true);
+                            OverwriteNewDialogWrapper oDlgWrapper = new OverwriteNewDialogWrapper(e.getProject(), oDialog.getODialog());
+
+
+                            oDlgWrapper.pack();
+                            oDlgWrapper.show();
+
+                          /*  DialogBuilder builder = new DialogBuilder(IntellijUtils.getEditor(e).getComponent().getRootPane());
+                            builder.setCenterPanel(oDlgWrapper.getRootPane());
+
+                            builder.setDimensionServiceKey("ConfirmDialogDiffL18N");
+                            builder.setTitle("Conflict found");
+
+                            builder.show();*/
+
 
                             return oDialog.getODialog().isNewEntryOutcome() || oDialog.getODialog().isOverwriteOutcome();
                         }
@@ -142,6 +149,7 @@ public class InternationalizeString extends AnAction {
 
                 })
                 .create();
+
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
 
@@ -240,7 +248,7 @@ public class InternationalizeString extends AnAction {
     public void updateL18nFileWithNewValue(SingleL18n mainForm, String finalKey, L18NFileContext l18nFileContext) throws IOException {
         Optional<PsiElementContext> foundValue = l18nFileContext.getValue(finalKey);
         //no key present, simply add it as last entry at the end of the L18nfile
-        l18nFileContext.addRefactoring(new RefactorUnit(l18nFileContext.getPsiFile(), foundValue.get(), "\""+mainForm.getTxtText().getText()+"\""));
+        l18nFileContext.addRefactoring(new RefactorUnit(l18nFileContext.getPsiFile(), foundValue.get(), "\"" + mainForm.getTxtText().getText() + "\""));
         l18nFileContext.commit();
         l18nFileContext.reformat();
     }
@@ -255,8 +263,8 @@ public class InternationalizeString extends AnAction {
         final String originalKey = key;
         Optional<PsiElementContext> foundValue = l18nFile.getValue().getValue(key);
         int cnt = 0;
-        while(foundValue.isPresent()) {
-            key = originalKey+"_"+cnt;
+        while (foundValue.isPresent()) {
+            key = originalKey + "_" + cnt;
             foundValue = l18nFile.getValue().getValue(key);
         }
 
@@ -299,7 +307,6 @@ public class InternationalizeString extends AnAction {
             i18nFile.getValue().reformat();
         }
     }
-
 
 
     public void updateShadowEditor(L18NTransformationModel transformationModel, Document document) {

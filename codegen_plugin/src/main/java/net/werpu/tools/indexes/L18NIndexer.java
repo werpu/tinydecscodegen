@@ -81,6 +81,8 @@ public class L18NIndexer extends ScalarIndexExtension<String> {
             if ((!standardSimpleFileExclusion(inputData)) &&
                     inputData.getFile().getName().endsWith(".json") &&
                     (!inputData.getFile().getName().endsWith(NPM_ROOT)) &&
+                    (!inputData.getFile().getName().endsWith("bower.json")) &&
+                    (!inputData.getFile().getName().startsWith(".")) &&
                     (!inputData.getFile().getName().toLowerCase().endsWith(TS_CONFIG.toLowerCase())) &&
                     (!inputData.getFile().getName().toLowerCase().endsWith(PACKAGE_LOCK.toLowerCase()))
             ) {

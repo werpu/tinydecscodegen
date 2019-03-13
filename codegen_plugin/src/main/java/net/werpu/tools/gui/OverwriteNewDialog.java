@@ -1,5 +1,6 @@
 package net.werpu.tools.gui;
 
+import com.intellij.openapi.ui.DialogBuilder;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -9,23 +10,25 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.function.Consumer;
 
+@Getter
 public class OverwriteNewDialog extends JDialog {
-    private JPanel contentPane;
+    private JPanel contentPanel;
     private JButton btnOverwrite;
     private JButton btnCancel;
     private JButton btnNewEntry;
+    private JPanel mainForm;
+    private JPanel btnPanel;
 
     Consumer<ActionEvent> overwriteHandler;
     Consumer<ActionEvent> newEntryHandler;
 
-    @Getter
-    boolean isOverwriteOutcome;
-    @Getter
-    boolean isNewEntryOutcome;
 
+    boolean isOverwriteOutcome;
+    boolean isNewEntryOutcome;
+    DialogBuilder builder;
 
     public OverwriteNewDialog() {
-        setContentPane(contentPane);
+        setContentPane(contentPanel);
         setModal(true);
         getRootPane().setDefaultButton(btnOverwrite);
 
@@ -43,23 +46,42 @@ public class OverwriteNewDialog extends JDialog {
         });
 
         // call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction(e -> onCancel(null), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        contentPanel.registerKeyboardAction(e -> onCancel(null), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         btnNewEntry.addActionListener(e -> {
-            if (newEntryHandler != null) {
-                newEntryHandler.accept(e);
-            }
-            this.isNewEntryOutcome = true;
+            handleNew(e);
             dispose();
         });
     }
 
+    public void handleNew(ActionEvent e) {
+        if (newEntryHandler != null) {
+            newEntryHandler.accept(e);
+        }
+        this.isNewEntryOutcome = true;
+    }
+
     private void onOK(ActionEvent e) {
+        handleOverwrite(e);
+        dispose();
+    }
+
+    public void handleOverwrite(ActionEvent e) {
         // add your code here
         if (this.overwriteHandler != null) {
             this.overwriteHandler.accept(e);
         }
         this.isOverwriteOutcome = true;
-        dispose();
+    }
+
+
+    @Override
+    public void dispose() {
+        if(builder != null) {
+            builder.dispose();
+        } else {
+            super.dispose();
+        }
+
     }
 
     private void onCancel(ActionEvent e) {
