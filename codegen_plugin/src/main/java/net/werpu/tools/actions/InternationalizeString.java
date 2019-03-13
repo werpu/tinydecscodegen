@@ -124,7 +124,7 @@ public class InternationalizeString extends AnAction {
                     String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
                     String finalValue = mainForm.getTxtText().getText();
                     IntelliFileContextComboboxModelEntry targetFile = (IntelliFileContextComboboxModelEntry) mainForm.getCbL18NFile().getSelectedItem();
-                    Optional<String> foundValue = targetFile.getValue().getValueAsStr(finalKey);
+                    Optional<String> foundValue = targetFile.getValue().getValueAsStr(finalKey.split("\\."));
 
                     finalValue = finalValue.replaceAll("\\s+", "").toLowerCase();
                     if (foundValue.isPresent()) {
@@ -136,16 +136,6 @@ public class InternationalizeString extends AnAction {
 
                             oDlgWrapper.pack();
                             oDlgWrapper.show();
-
-                          /*  DialogBuilder builder = new DialogBuilder(IntellijUtils.getEditor(e).getComponent().getRootPane());
-                            builder.setCenterPanel(oDlgWrapper.getRootPane());
-
-                            builder.setDimensionServiceKey("ConfirmDialogDiffL18N");
-                            builder.setTitle("Conflict found");
-
-                            builder.show();*/
-
-
                             return oDialog.getODialog().isNewEntryOutcome() || oDialog.getODialog().isOverwriteOutcome();
                         }
                     }
@@ -158,12 +148,6 @@ public class InternationalizeString extends AnAction {
 
 
         //TODO mechanism if no json file exists (we implement that later)
-
-        //TODO store the selected json file permanently in case of multiple files (in the project store)
-        //   java.util.List<IntelliFileContextComboboxModelEntry> possibleL18nFiles =
-        //           Lists.transform(L18NIndexer.getAllAffectedFiles(fileContext.getProject()),
-        //                   item -> new IntelliFileContextComboboxModelEntry(new L18NTransformationModel(item)));
-
         java.util.List<IntelliFileContextComboboxModelEntry> possibleL18nFiles = Lists.transform(L18NIndexer.getAllAffectedFiles(fileContext.getProject()), IntelliFileContextComboboxModelEntry::new);
 
         //next part, we check whether the string already exists in one of the files
