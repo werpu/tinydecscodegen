@@ -27,6 +27,17 @@ for the sources and binaries.
 
 ## What can the Plugin do
 
+Latest Code:
+
+Following additional features are present at the latest development build:
+
+* Angular/AngularJS resource views and resource search
+* Improved Angular tooling and support (main development still is on Angular JS)
+* I18N refactorings
+* Tools to migrate old code typescript to annotations 
+* Lots of bugfixes
+* Support for the latest IDEA/Webstorm releases
+
 1.0
 
 * Allows you to **generate a new** TinyDecorations (Annotated AngularJS 1.5+) or Angular 5 **project**.
@@ -43,14 +54,7 @@ a successful code generation
 * Navigational Tree for easy navigation within your project
 * Navigational helpers to easily jump between java Dtos/Rest services and their Typescript counterparts
 
-Currently in development
 
-* Better Angular integration (should work as well as the annotated AngularJS tools there were several bugs in this area in 1.0
-if you are in for Angular go for the development builds)
-* Lots of bugfixes
-* Resource view with module -> currently selected module and current editing context view
-* Transitional helper tools which help to transform existing typescript based AngularJS code into  Tinydecorations
-and Angular Code
 
 
 ## Are there Demo Videos?
