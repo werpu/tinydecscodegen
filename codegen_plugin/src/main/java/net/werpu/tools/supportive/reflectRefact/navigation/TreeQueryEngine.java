@@ -211,7 +211,7 @@ public class TreeQueryEngine<T> {
     }
 
 
-    public static Object DIRECT_CHILD(String val) {
+    public static Object[] DIRECT_CHILD(String val) {
         return new Object[]{CHILD_ELEM, val};
     }
 

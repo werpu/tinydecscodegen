@@ -87,7 +87,7 @@ class ResourcePanels {
 
 public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
-    private static final Logger log = Logger.getInstance(AngularStructureToolWindow.class);
+    private static final Logger log = Logger.getInstance(AngularNavigationsToolWindow.class);
 
     private static final int ACTION_PADDING = 3;
     private SearchableTree<NgModuleFileContext> modules = new SearchableTree<>();

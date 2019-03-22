@@ -1,5 +1,6 @@
 package net.werpu.tools.indexes;
 
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -8,6 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.FileBasedIndex;
 import com.intellij.util.indexing.FileContent;
 import com.intellij.util.indexing.ID;
+import net.werpu.tools.supportive.utils.IntellijUtils;
 import org.jetbrains.annotations.NotNull;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 
@@ -29,8 +31,9 @@ public class IndexUtils {
     }
 
     public static boolean standardExclusions(@NotNull final FileContent inputData) {
+        FileType fileType = inputData.getFile().getFileType();
         return standardSimpleFileExclusion(inputData)
-                || !inputData.getFile().getFileType().getDefaultExtension().equalsIgnoreCase("ts");
+                || !IntellijUtils.isTypescript(fileType);
     }
 
     public static boolean standardSimpleFileExclusion(@NotNull FileContent inputData) {

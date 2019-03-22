@@ -52,9 +52,9 @@ import static net.werpu.tools.supportive.utils.SwingUtils.openEditor;
 import static net.werpu.tools.toolWindows.supportive.SwingRouteTreeFactory.createRouteTrees;
 
 
-public class AngularStructureToolWindow implements ToolWindowFactory {
+public class AngularNavigationsToolWindow implements ToolWindowFactory {
 
-    private static final Logger log = Logger.getInstance(AngularStructureToolWindow.class);
+    private static final Logger log = Logger.getInstance(AngularNavigationsToolWindow.class);
 
 
     private SearchableTree<PsiRouteContext> routes = new SearchableTree();
@@ -64,7 +64,7 @@ public class AngularStructureToolWindow implements ToolWindowFactory {
     private TreeSpeedSearch searchPath = null;
 
 
-    public AngularStructureToolWindow() {
+    public AngularNavigationsToolWindow() {
 
         routes.getTree().setCellRenderer(new ContextNodeRenderer());
         routes.getTree().setModel(new DefaultTreeModel(new DefaultMutableTreeNode(MSG_PLEASE_WAIT)));

@@ -5,7 +5,10 @@
   },
   "test": "testString",
   "test2": {
-    "test4": "booga"
-
+    "test4": "booga",
+    "test3": {
+        "test4": "booga2",
+        "test5": "booga3"
+    }
   }
 }

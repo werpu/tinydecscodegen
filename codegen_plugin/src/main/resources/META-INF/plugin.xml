@@ -59,7 +59,7 @@
 
 
 
-        <toolWindow id="Angular Navigations" icon="/images/tt.png" anchor="left" factoryClass="net.werpu.tools.toolWindows.AngularStructureToolWindow"/>
+        <toolWindow id="Angular Navigations" icon="/images/tt.png" anchor="left" factoryClass="net.werpu.tools.toolWindows.AngularNavigationsToolWindow"/>
         <toolWindow id="Angular Resources" icon="/images/tt.png" anchor="bottom" factoryClass="net.werpu.tools.toolWindows.ResourceToolWindow"/>
 
     </extensions>

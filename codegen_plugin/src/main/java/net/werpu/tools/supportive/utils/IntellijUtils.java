@@ -44,6 +44,7 @@ import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.module.Module;
@@ -592,6 +593,10 @@ public class IntellijUtils {
             return null;
 
         };
+    }
+
+    public static boolean isTypescript(FileType fileType) {
+        return fileType.getDefaultExtension().equalsIgnoreCase(getTsExtension());
     }
 
 
