@@ -4,7 +4,7 @@
 const merge = require('webpack-merge');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const common = require('./webpack.common.js');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const ExtractTextPlugin = require("mini-css-extract-plugin");
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 var WebpackMd5Hash = require('webpack-md5-hash');
 
@@ -31,7 +31,7 @@ module.exports = merge(common, {
         ]
     },
     plugins: [
-        new CleanWebpackPlugin(['${deployment_root_rel}']),
+        new CleanWebpackPlugin(['../../target']),
         new UglifyJSPlugin({
             sourceMap: true
         }),
