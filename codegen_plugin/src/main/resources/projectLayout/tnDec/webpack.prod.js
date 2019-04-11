@@ -37,7 +37,8 @@ module.exports = merge(common, {
         }),
         new WebpackMd5Hash(),
         new ExtractTextPlugin({
-            filename: 'index.[chunkhash].css',
+            filename: 'index.[chunk' +
+                'hash].css',
             disable: false,
             allChunks: true
         })
