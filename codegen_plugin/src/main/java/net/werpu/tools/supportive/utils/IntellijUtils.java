@@ -52,11 +52,13 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -596,7 +598,21 @@ public class IntellijUtils {
     }
 
     public static boolean isTypescript(FileType fileType) {
-        return fileType.getDefaultExtension().equalsIgnoreCase(getTsExtension());
+        String defaultExtension = fileType.getDefaultExtension();
+        if(!defaultExtension.startsWith(".")) {
+            defaultExtension = "."+defaultExtension;
+        }
+        return defaultExtension.equalsIgnoreCase(getTsExtension());
+    }
+
+    public static void refresh() {
+        try {
+            FileDocumentManager.getInstance().saveAllDocuments();
+            ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
+            VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
+        } finally {
+            ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
+        }
     }
 
 

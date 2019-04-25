@@ -66,6 +66,10 @@ public class InternationalizeString extends AnAction {
     public void update(AnActionEvent anActionEvent) {
         //must be either typescript or html to be processable
         VisibleAssertions.templateVisible(anActionEvent);
+        if(IntellijUtils.getFolderOrFile(anActionEvent) == null) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         //if typescript file the cursor at least must be in a string
         if (!assertNotTs(ctx)) {

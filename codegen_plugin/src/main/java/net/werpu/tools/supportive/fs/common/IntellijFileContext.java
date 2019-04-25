@@ -55,7 +55,7 @@ import java.util.stream.Stream;
 import static com.google.common.collect.Streams.concat;
 import static net.werpu.tools.supportive.fs.common.AngularVersion.NG;
 import static net.werpu.tools.supportive.fs.common.AngularVersion.TN_DEC;
-import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.walkPsiTree;
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.utils.IntellijUtils.getTsExtension;
 import static net.werpu.tools.supportive.utils.StringUtils.normalizePath;
 import static net.werpu.tools.supportive.utils.StringUtils.stripQuotes;
@@ -374,13 +374,13 @@ public class IntellijFileContext {
     }
 
     public Optional<IntellijFileContext> getAngularRoot() {
-        Optional<IntellijFileContext> fileContext = findFirstUpwards(psiFile -> psiFile.getVirtualFile().getName().equals("package.json")).stream().findFirst();
+        Optional<IntellijFileContext> fileContext = findFirstUpwards(psiFile -> psiFile.getVirtualFile().getName().equals(NPM_ROOT)).stream().findFirst();
+        Optional<IntellijFileContext> fileContext2 = findFirstUpwards(psiFile -> psiFile.getVirtualFile().getName().equals(NG_PRJ_MARKER)).stream().findFirst();
+        Optional<IntellijFileContext> fileContext3 = findFirstUpwards(psiFile -> psiFile.getVirtualFile().getName().equals(TN_DEC_PRJ_MARKER)).stream().findFirst();
 
-        if (!fileContext.isPresent()) {
-            return Optional.empty();
-        }
 
-        return fileContext.get().getParent();
+
+        return Optional.ofNullable(fileContext.orElse(fileContext2.orElse(fileContext3.orElse(null)))) ;
     }
 
 

@@ -73,6 +73,8 @@
             <action id="TD_CreateProject" class="net.werpu.tools.actions.CreateTnDecProject" text="Create Project"
                     description="Create a an Angular Tiny Decorations Project" icon="/images/tt.png">
             </action>
+            <action id="TD_MarkAsProject" class="net.werpu.tools.actions.MarkProjectAsTnDec" text="Mark as TN Dec Project"
+                    description="Mark current folder as Tiny Decorations project"></action>
 
             <separator/>
 
@@ -126,8 +128,11 @@
 
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
             <action id="NG_CreateProject2" class="net.werpu.tools.actions_ng.CreateNgProject" text="Create Project"
-                    description="Create a an Angular Ng Project" icon="/images/tt.png">
+                    description="Create a an Angular Project" icon="/images/tt.png">
             </action>
+            <action id="NG_MarkAsProject" class="net.werpu.tools.actions.MarkProjectAsTnDec" text="Mark as  Project"
+                    description="Mark current folder as Angular Project"></action>
+
 
 
             <separator/>
@@ -206,7 +211,7 @@
             </action>
             <action id="NG_ServiceSourcer3" class="net.werpu.tools.actions_ng.ServiceGenerateActionFromSource"
                     text="Angular NG Service Generation from Source"
-                    description="Generate a Angular Ng typescript service"
+                    description="Generate an Angular typescript service"
                     icon="/images/ng.png"
             >
             </action>

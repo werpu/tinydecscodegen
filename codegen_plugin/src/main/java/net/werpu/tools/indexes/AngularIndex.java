@@ -3,6 +3,7 @@ package net.werpu.tools.indexes;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
@@ -18,7 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static net.werpu.tools.indexes.IndexUtils.standardSimpleFileExclusion;
-import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.NPM_ROOT;
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 
 /**
  * indexing the position of all angular subprojects
@@ -50,16 +51,25 @@ public class AngularIndex extends ScalarIndexExtension<String> {
     }
 
     public static List<IntellijFileContext> getAllAffectedRoots(Project project, AngularVersion angularVersion) {
+
         return FileBasedIndex.getInstance().getContainingFiles(NAME, NPM_ROOT,
                 GlobalSearchScope.projectScope(project)).stream()
                 .filter(VirtualFile::isValid)
                 .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
                 .filter(psiFile -> {
-                    return psiFile != null && psiFile.getText().contains((angularVersion == AngularVersion.NG ? NG_MARKER : TN_MARKER));
+                    return isAngularVersion(angularVersion, psiFile);
                 })
                 .map(psiFile -> psiFile.getParent())
                 .map(psiDirectory -> new IntellijFileContext(project, psiDirectory.getVirtualFile()))
                 .collect(Collectors.toList());
+    }
+
+    public static boolean isAngularVersion(AngularVersion angularVersion, PsiFile psiFile) {
+        String fileName = psiFile != null ? psiFile.getName() : null;
+        return psiFile != null &&
+                    ((angularVersion == AngularVersion.NG ? fileName.equals(NG_PRJ_MARKER) : false)
+                ||  (angularVersion == AngularVersion.TN_DEC ? fileName.equals(TN_DEC_PRJ_MARKER) : false)
+                ||  psiFile.getText().contains((angularVersion == AngularVersion.NG ? NG_MARKER : TN_MARKER)));
     }
 
     @NotNull
@@ -88,7 +98,14 @@ public class AngularIndex extends ScalarIndexExtension<String> {
     @NotNull
     @Override
     public FileBasedIndex.InputFilter getInputFilter() {
-        return new DefaultFileTypeSpecificInputFilter(FileTypeManager.getInstance().getFileTypeByExtension(".json"));
+
+        return new FileBasedIndex.InputFilter() {
+            @Override
+            public boolean acceptInput(@NotNull VirtualFile file) {
+                return (!file.getPath().contains("node_modules")) && file.getName().equals("package.json") || file.getName().equals(TN_DEC_PRJ_MARKER) || file.getName().equals(NG_PRJ_MARKER);
+            }
+        };
+
     }
 
     @Override
@@ -102,18 +119,36 @@ public class AngularIndex extends ScalarIndexExtension<String> {
         @Override
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
-
-            if ((!standardSimpleFileExclusion(inputData)) && inputData.getFile().getName().equals(NPM_ROOT)
-                    &&
-                    (inputData.getPsiFile().getText().contains(NG_MARKER) ||
-                            inputData.getPsiFile().getText().contains(TN_MARKER)
-
-                    )) {
+            String fileName = inputData.getFile().getName();
+            if(!inputData.getFile().getName().endsWith(".json")) {
+                System.out.println("booga");
+            }
+            if(inputData.getFile().getPath().contains("node_modules")) {
+                return Collections.emptyMap();
+            }
+            if (    (!standardSimpleFileExclusion(inputData)) && (
+                    isMarkerFile(fileName) || isNpmProjectDef(inputData, fileName)))  {
                 return Collections.singletonMap(NPM_ROOT, null);
             }
 
             return Collections.emptyMap();
         }
+
+        public boolean isNpmProjectDef(@NotNull FileContent inputData, String fileName) {
+            return fileName.equals(NPM_ROOT)
+            &&
+                    isEmbbededInPackageJson(inputData);
+        }
+
+        public boolean isEmbbededInPackageJson(@NotNull FileContent inputData) {
+            return inputData.getPsiFile().getText().contains(NG_MARKER) ||
+                    inputData.getPsiFile().getText().contains(TN_MARKER);
+        }
+
+        public static boolean isMarkerFile(String fileName) {
+            return fileName.equals(TN_DEC_PRJ_MARKER) || fileName.equals(NG_PRJ_MARKER);
+        }
     }
+
 
 }

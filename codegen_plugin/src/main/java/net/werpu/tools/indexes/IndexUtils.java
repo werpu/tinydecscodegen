@@ -34,7 +34,7 @@ public class IndexUtils {
         FileType fileType = inputData.getFile().getFileType();
         return standardSimpleFileExclusion(inputData)
                 || !IntellijUtils.isTypescript(fileType);
-    }
+}
 
     public static boolean standardSimpleFileExclusion(@NotNull FileContent inputData) {
         return inputData.getFile().isDirectory()

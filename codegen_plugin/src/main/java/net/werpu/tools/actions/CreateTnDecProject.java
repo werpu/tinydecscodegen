@@ -163,7 +163,7 @@ public class CreateTnDecProject extends AnAction {
                     progressIndicator.setText("Creating the run configurations");
                     createRunConfig(project, projectName, fProjectDir);
                 })
-                .and(progressIndicator -> refresh())
+                .and(progressIndicator -> IntellijUtils.refresh())
                 .withFinishedOk(progressIndicator -> IntellijUtils.npmInstall(project, fProjectDir, "The project has been generated successfully", "Success"));
 
         sequence.run();
@@ -214,16 +214,6 @@ public class CreateTnDecProject extends AnAction {
         } catch (IOException e) {
             IntellijUtils.showErrorDialog(project, "Error", e.getMessage());
             e.printStackTrace();
-        } finally {
-            ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
-        }
-    }
-
-    private void refresh() {
-        try {
-            FileDocumentManager.getInstance().saveAllDocuments();
-            ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
-            VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
         } finally {
             ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
         }
