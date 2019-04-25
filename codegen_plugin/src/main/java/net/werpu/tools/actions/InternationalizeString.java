@@ -6,7 +6,12 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Data;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
@@ -32,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -122,7 +128,8 @@ public class InternationalizeString extends AnAction {
         SingleL18n mainForm = new SingleL18n();
         final DialogHolder oDialog = new DialogHolder();
 
-        final DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(fileContext.getProject(), mainForm.getRootPanel())
+        Project project = fileContext.getProject();
+        final DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(project, mainForm.getRootPanel())
                 .withDimensionKey("SingleL18n")
                 .withOkHandler(() -> {
                     String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
@@ -151,8 +158,35 @@ public class InternationalizeString extends AnAction {
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
 
-        //TODO mechanism if no json file exists (we implement that later)
-        java.util.List<IntelliFileContextComboboxModelEntry> possibleL18nFiles = Lists.transform(L18NIndexer.getAllAffectedFiles(fileContext.getProject()), IntelliFileContextComboboxModelEntry::new);
+
+        final java.util.List<IntelliFileContextComboboxModelEntry> possibleL18nFiles = new ArrayList<>();
+        possibleL18nFiles.addAll(Lists.transform(L18NIndexer.getAllAffectedFiles(project), IntelliFileContextComboboxModelEntry::new)) ;
+
+        //no l18n file exists,
+        if(possibleL18nFiles.isEmpty()) {
+            //no i18n file found we make a dialog prompt to create one
+            FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
+            descriptor.setTitle("Select i18n target directory");
+            descriptor.setDescription("Please choose a target directory for your internationalization file");
+
+
+            final
+            VirtualFile  vfile1 = FileChooser.chooseFile(descriptor, project, project.getProjectFile());
+            if(vfile1 != null) {
+                writeTransaction(project, () -> {
+                    try {
+                        VirtualFile i18nFile = IntellijUtils.create(project, vfile1, "{}", "labels_en.json");
+                        possibleL18nFiles.addAll(Lists.transform(Arrays.asList(new IntellijFileContext(project, i18nFile)), IntelliFileContextComboboxModelEntry::new));
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        Messages.showErrorDialog(project, ex.getMessage(), net.werpu.tools.actions_all.shared.Messages.ERR_OCCURRED);
+                    }
+                });
+
+            }
+
+        }
+
 
         //next part, we check whether the string already exists in one of the files
         //first we have to fetch the value of our parsed element
@@ -233,7 +267,7 @@ public class InternationalizeString extends AnAction {
                     }
 
                 } catch (IOException e1) {
-                    IntellijUtils.showErrorDialog(fileContext.getProject(), "Error", e1.getMessage());
+                    IntellijUtils.showErrorDialog(project, "Error", e1.getMessage());
                     e1.printStackTrace();
                 }
             }));

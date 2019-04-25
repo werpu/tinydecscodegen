@@ -19,17 +19,21 @@ public class MarkProjectAsTnDec extends AnAction {
 
     @Override
     public void update(AnActionEvent anActionEvent) {
-        IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
-        if (ctx.isAngularChild(AngularVersion.NG)) {
-            anActionEvent.getPresentation().setEnabledAndVisible(false);
-            return;
-        }
+        try {
+            IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
+            if (ctx.isAngularChild(AngularVersion.NG)) {
+                anActionEvent.getPresentation().setEnabledAndVisible(false);
+                return;
+            }
 
-        if (ctx.isAngularChild(AngularVersion.TN_DEC)) {
+            if (ctx.isAngularChild(AngularVersion.TN_DEC)) {
+                anActionEvent.getPresentation().setEnabledAndVisible(false);
+                return;
+            }
+            anActionEvent.getPresentation().setEnabledAndVisible(ctx.getVirtualFile().isDirectory());
+        } catch (Throwable t) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
-            return;
         }
-        anActionEvent.getPresentation().setEnabledAndVisible(ctx.getVirtualFile().isDirectory());
 
     }
 

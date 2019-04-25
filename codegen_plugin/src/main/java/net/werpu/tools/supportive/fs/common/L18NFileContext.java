@@ -12,6 +12,8 @@ import lombok.Getter;
 import net.werpu.tools.supportive.refactor.IRefactorUnit;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
 import net.werpu.tools.supportive.transformations.modelHelpers.L18NEntry;
+import net.werpu.tools.supportive.utils.IntellijRunUtils;
+import net.werpu.tools.supportive.utils.IntellijUtils;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,6 +30,7 @@ import java.util.stream.Stream;
 import static java.util.Arrays.asList;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
+import static net.werpu.tools.supportive.utils.IntellijRunUtils.*;
 
 
 /**
@@ -240,7 +243,13 @@ public class L18NFileContext extends IntellijFileContext {
     }
 
     public void reformat() {
-        CodeStyleManager.getInstance(project).reformat(psiFile);
+        smartInvokeLater(project, () -> {
+            writeTransaction(project, () -> {
+                CodeStyleManager.getInstance(project).reformat(psiFile);
+            });
+        });
+
+
     }
 
 }
