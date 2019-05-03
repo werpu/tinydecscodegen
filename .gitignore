@@ -20,5 +20,7 @@ codegen_plugin/build/tmp/
 codegen_plugin/out/
 out/
 .gradle
-gradle
+gradle/wrapper/gradle-wrapper.jar
 codegen_plugin/libs/transient/*.jar
+local.properties
+
