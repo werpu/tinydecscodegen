@@ -76,6 +76,10 @@
             <action id="TD_MarkAsProject" class="net.werpu.tools.actions.MarkProjectAsTnDec" text="Mark as TN Dec Project"
                     description="Mark current folder as Tiny Decorations project"></action>
 
+            <action id="TD_CreateI18NFile" class="net.werpu.tools.actions.CreateI18NFile" text="Create I18N File"
+                    description="add an i18n file into the current folder"></action>
+
+
             <separator/>
 
 

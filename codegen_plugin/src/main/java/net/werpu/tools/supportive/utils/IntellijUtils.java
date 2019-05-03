@@ -465,16 +465,30 @@ public class IntellijUtils {
     }
 
     public static VirtualFile create(Project project, VirtualFile folder, String str, String fileName) throws IOException {
-        VirtualFile virtualFile = createTempFile(fileName, str);
+        /*VirtualFile virtualFile = createTempFile(fileName, str);
         virtualFile.rename(project, fileName);
         virtualFile.move(project, folder);
 
-        return virtualFile;
+        return virtualFile;*/
+        return createFileDirectly(project, folder, str, fileName);
 
         //PsiFile psiFile = PsiFileFactory.getInstance(project).createFileFromText(folder.getPath()+"/"+fileName, Language.findLanguageByID("XML"), str);
         //return psiFile.getVirtualFile();
     }
 
+    /**
+     * code to create  a file directly without
+     * going over the temp file route
+     * way better this way.
+     *
+     * @param project the project to create the file in
+     * @param folder the target folder
+     * @param str text content of the file
+     * @param fileName the file name
+     *
+     * @return
+     * @throws IOException
+     */
     public static VirtualFile createFileDirectly(Project project, VirtualFile folder, String str, String fileName) throws IOException {
         File f = new File(folder.getPath()+"/"+fileName);
         f.createNewFile();
@@ -484,10 +498,12 @@ public class IntellijUtils {
         out.flush();
         out.close();
         VirtualFileManager.getInstance().syncRefresh();
-        String fileUrl = f.toURI().toURL().toString();
-        if(fileUrl.matches("file\\:\\/[A-Za-z0-9\\.].*")) {
-            fileUrl = "file:///"+fileUrl.substring(6);
+        URL url = new File(f.getAbsolutePath()).toURI().toURL();
+        String path = url.getPath();
+        if(path.startsWith("/")) {
+            path = path.substring(1);
         }
+        String fileUrl = url.getProtocol()+":///"+ path;
 
         VirtualFile vFile = VirtualFileManager.getInstance().findFileByUrl(fileUrl);
 
