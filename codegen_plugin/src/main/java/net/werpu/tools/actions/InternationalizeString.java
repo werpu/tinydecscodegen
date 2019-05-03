@@ -36,6 +36,7 @@ import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -156,11 +157,19 @@ public class InternationalizeString extends AnAction {
                 .create();
 
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
-
-
-
         final java.util.List<IntelliFileContextComboboxModelEntry> possibleL18nFiles = new ArrayList<>();
         possibleL18nFiles.addAll(Lists.transform(L18NIndexer.getAllAffectedFiles(project), IntelliFileContextComboboxModelEntry::new)) ;
+
+        mainForm.getBtnLoadCreate().addActionListener((ActionEvent event) -> {
+            FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
+            descriptor.setTitle("Select i18n target directory");
+            descriptor.setDescription("Please choose a file or target directory for your internationalization file");
+            FileChooserDescriptor descriptor1 = new FileChooserDescriptor(true, true, false, false, false, false);
+            selectOrCreateI18nFile(project, possibleL18nFiles, descriptor1);
+
+        });
+
+
 
         //no l18n file exists,
         if(possibleL18nFiles.isEmpty()) {
@@ -170,20 +179,7 @@ public class InternationalizeString extends AnAction {
             descriptor.setDescription("Please choose a target directory for your internationalization file");
 
 
-            final
-            VirtualFile  vfile1 = FileChooser.chooseFile(descriptor, project, project.getProjectFile());
-            if(vfile1 != null) {
-                writeTransaction(project, () -> {
-                    try {
-                        VirtualFile i18nFile = IntellijUtils.create(project, vfile1, "{}", "labels_en.json");
-                        possibleL18nFiles.addAll(Lists.transform(Arrays.asList(new IntellijFileContext(project, i18nFile)), IntelliFileContextComboboxModelEntry::new));
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                        Messages.showErrorDialog(project, ex.getMessage(), net.werpu.tools.actions_all.shared.Messages.ERR_OCCURRED);
-                    }
-                });
-
-            }
+            selectOrCreateI18nFile(project, possibleL18nFiles, descriptor);
 
         }
 
@@ -274,6 +270,26 @@ public class InternationalizeString extends AnAction {
 
         }
 
+    }
+
+    private void selectOrCreateI18nFile(Project project, List<IntelliFileContextComboboxModelEntry> possibleL18nFiles, FileChooserDescriptor descriptor) {
+        final VirtualFile vfile1 = FileChooser.chooseFile(descriptor, project, project.getProjectFile());
+        if(vfile1 != null) {
+            writeTransaction(project, () -> {
+                try {
+                    if(vfile1.isDirectory()) {
+                        VirtualFile i18nFile = IntellijUtils.createFileDirectly(project, vfile1, "{}", "labels_en.json");
+                        possibleL18nFiles.addAll(Lists.transform(Arrays.asList(new IntellijFileContext(project, i18nFile)), IntelliFileContextComboboxModelEntry::new));
+                    } else {
+                        possibleL18nFiles.addAll(Lists.transform(Arrays.asList(new IntellijFileContext(project, vfile1)), IntelliFileContextComboboxModelEntry::new));
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    Messages.showErrorDialog(project, ex.getMessage(), net.werpu.tools.actions_all.shared.Messages.ERR_OCCURRED);
+                }
+            });
+
+        }
     }
 
     public void readjustFileSelection(SingleL18n mainForm, String fileName, boolean allFiles) {

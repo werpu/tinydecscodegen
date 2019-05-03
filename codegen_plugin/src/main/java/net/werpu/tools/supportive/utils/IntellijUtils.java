@@ -87,6 +87,7 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -472,6 +473,26 @@ public class IntellijUtils {
 
         //PsiFile psiFile = PsiFileFactory.getInstance(project).createFileFromText(folder.getPath()+"/"+fileName, Language.findLanguageByID("XML"), str);
         //return psiFile.getVirtualFile();
+    }
+
+    public static VirtualFile createFileDirectly(Project project, VirtualFile folder, String str, String fileName) throws IOException {
+        File f = new File(folder.getPath()+"/"+fileName);
+        f.createNewFile();
+        f.setWritable(true);
+        PrintWriter out = new PrintWriter(folder.getPath()+"/"+fileName);
+        out.println(str);
+        out.flush();
+        out.close();
+        VirtualFileManager.getInstance().syncRefresh();
+        String fileUrl = f.toURI().toURL().toString();
+        if(fileUrl.matches("file\\:\\/[A-Za-z0-9\\.].*")) {
+            fileUrl = "file:///"+fileUrl.substring(6);
+        }
+
+        VirtualFile vFile = VirtualFileManager.getInstance().findFileByUrl(fileUrl);
+
+
+        return vFile;
     }
 
     /**

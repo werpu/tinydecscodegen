@@ -30,6 +30,7 @@ public class SingleL18n {
     private JLabel lblFileSwitcher;
     private JRadioButton rbAll;
     private JRadioButton rbExists;
+    private JButton btnLoadCreate;
 
 
     private java.util.List<IntelliFileContextComboboxModelEntry> allFiles;
