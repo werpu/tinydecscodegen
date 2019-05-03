@@ -77,7 +77,7 @@
                     description="Mark current folder as Tiny Decorations project"></action>
 
             <action id="TD_CreateI18NFile" class="net.werpu.tools.actions.CreateI18NFile" text="Create I18N File"
-                    description="add an i18n file into the current folder"></action>
+                    description="add an i18n file into the current folder" icon="/images/tt.png"></action>
 
 
             <separator/>
@@ -137,6 +137,8 @@
             <action id="NG_MarkAsProject" class="net.werpu.tools.actions.MarkProjectAsTnDec" text="Mark as  Project"
                     description="Mark current folder as Angular Project"></action>
 
+            <action id="NG_CreateI18NFile" class="net.werpu.tools.actions_ng.CreateI18NFileNG" text="Create I18N File"
+                    description="add an i18n file into the current folder" icon="/images/ng.png"></action>
 
 
             <separator/>

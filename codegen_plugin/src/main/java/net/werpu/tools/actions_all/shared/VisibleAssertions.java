@@ -67,6 +67,25 @@ public class VisibleAssertions {
 
     }
 
+
+    public static void anyAngularVisible(AnActionEvent anActionEvent) {
+        if (IntellijUtils.getFolderOrFile(anActionEvent) == null) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
+
+
+        IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
+        if (!ctx.isAngularChild(AngularVersion.TN_DEC) && !ctx.isAngularChild(AngularVersion.NG)) {
+            anActionEvent.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
+
+        anActionEvent.getPresentation().setEnabledAndVisible(true);
+    }
+
+
+
     public static void tnVisible(AnActionEvent anActionEvent) {
         if (IntellijUtils.getFolderOrFile(anActionEvent) == null) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);

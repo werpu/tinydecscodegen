@@ -7,8 +7,8 @@ import javax.swing.*;
 @Getter
 public class CreateI18NFile {
     private JPanel rootPanel;
-    private JRadioButton lblJSON;
-    private JRadioButton lblBoth;
-    private JRadioButton lblTypescript;
+    private JRadioButton rbJson;
+    private JRadioButton rbBoth;
+    private JRadioButton rbTypescript;
     private JTextField txtFilename;
 }

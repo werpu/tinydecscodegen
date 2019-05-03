@@ -44,6 +44,14 @@ public class InputDialogWrapperBuilder {
         }
     };
 
+    Supplier<List<ValidationInfo>> keystrokeValidator = new Supplier() {
+        @Override
+        public Object get() {
+            return Collections.emptyList();
+        }
+    };
+
+
     public InputDialogWrapperBuilder(Project project, JPanel mainPanel) {
         this.project = project;
         this.mainPanel = mainPanel;
@@ -80,6 +88,11 @@ public class InputDialogWrapperBuilder {
         return this;
     }
 
+    public InputDialogWrapperBuilder withRealtimeValidator(Supplier<List<ValidationInfo>> validator) {
+        this.keystrokeValidator = validator;
+        return this;
+    }
+
     public InputDialogWrapperBuilder withTitle(String title) {
         this.dlgTitle = title;
         return this;
@@ -111,7 +124,7 @@ public class InputDialogWrapperBuilder {
 
 
     DialogWrapper wrap(Project project, JPanel mainPanel, String dimensionKey, Supplier<List<ValidationInfo>> validator, DialogWrapper.IdeModalityType modalityType, boolean canBeParent) {
-        return new DialogWrapper(project, canBeParent, modalityType) {
+        return new ValidatableDialogWrapper(project, canBeParent, modalityType) {
 
             @Nullable
             @Override
@@ -128,10 +141,16 @@ public class InputDialogWrapperBuilder {
 
             @Nullable
             @NotNull
-            protected List<ValidationInfo> doValidateAll() {
+            public List<ValidationInfo> doValidateAll() {
                 return validator.get();
             }
 
+
+            @Nullable
+            @Override
+            public ValidationInfo doValidate() {
+                return super.doValidate();
+            }
 
             @Override
             protected void doOKAction() {
