@@ -29,7 +29,7 @@ import static net.werpu.tools.actions_all.shared.FormAssertions.assertNotNullOrE
 public class CreateI18NFile extends AnAction {
 
     private static final Dimension PREFERRED_SIZE = new Dimension(400, 300);
-    private static final String DEFAULT_TS_CONTENT = "export var language = {\n};";
+    private static final String DEFAULT_TS_CONTENT = "/** \n* @def: i18nfile \n*/ \nexport const language = {\n};";
     private static final String DEFAULT_JSON_CONTENT = "{\n}";
 
 
@@ -154,5 +154,4 @@ public class CreateI18NFile extends AnAction {
         return null;
 
     }
-
 }
