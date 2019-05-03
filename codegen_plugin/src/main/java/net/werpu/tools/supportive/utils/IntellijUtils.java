@@ -642,6 +642,14 @@ public class IntellijUtils {
         return defaultExtension.equalsIgnoreCase(getTsExtension());
     }
 
+    public static boolean isJSON(FileType fileType) {
+        String defaultExtension = fileType.getDefaultExtension();
+        if(!defaultExtension.startsWith(".")) {
+            defaultExtension = "."+defaultExtension;
+        }
+        return defaultExtension.equalsIgnoreCase(getTsExtension());
+    }
+
     public static void refresh() {
         try {
             FileDocumentManager.getInstance().saveAllDocuments();
@@ -826,6 +834,14 @@ public class IntellijUtils {
 
     public static String getTsExtension() {
         String retVal = FileTypeManager.getInstance().getStdFileType("TypeScript").getDefaultExtension();
+        if (!retVal.startsWith(".")) {
+            retVal = "." + retVal;
+        }
+        return retVal;
+    }
+
+    public static String getJsonExtension() {
+        String retVal = FileTypeManager.getInstance().getStdFileType("Json").getDefaultExtension();
         if (!retVal.startsWith(".")) {
             retVal = "." + retVal;
         }

@@ -18,8 +18,7 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.PSI_METHOD;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.ALL;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.TEXT_EQ;
-import static net.werpu.tools.supportive.utils.IntellijUtils.getHtmlExtension;
-import static net.werpu.tools.supportive.utils.IntellijUtils.getTsExtension;
+import static net.werpu.tools.supportive.utils.IntellijUtils.*;
 
 public class VisibleAssertions {
     public static boolean assertNotJavaRest(IntellijFileContext ctx) {
@@ -50,6 +49,20 @@ public class VisibleAssertions {
     public static boolean assertNotTs(IntellijFileContext ctx) {
         return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getPath().endsWith(getTsExtension());
     }
+
+    public static boolean assertNotJson(IntellijFileContext ctx) {
+        return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getPath().endsWith(getJsonExtension());
+    }
+
+
+    public static boolean assertTs(IntellijFileContext ctx) {
+        return !assertNotTs(ctx);
+    }
+
+    public static boolean assertJson(IntellijFileContext ctx) {
+        return !assertNotJson(ctx);
+    }
+
 
     public static boolean assertNotHtml(IntellijFileContext ctx) {
         return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getFileType().getDefaultExtension().toLowerCase().equals("html");

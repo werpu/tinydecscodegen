@@ -1,0 +1,19 @@
+L18NFile context works on json
+we need to extend the parsing also for typescript
+
+add the generic action to transform forward and backward
+with a diff editor opening up if a similar file already exist
+
+think about a way on how to handle the i18n json handling
+
+implement the i18n patterns for angular for both systems
+
+---
+
+i18n tree
+search from the i18n tree to the usages
+go from usages to i18ntree entry
+
+---
+
+refactoring, rename an i18ntree key and make a refactoring proposal
