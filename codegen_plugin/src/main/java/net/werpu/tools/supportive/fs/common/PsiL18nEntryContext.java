@@ -40,6 +40,8 @@ public class PsiL18nEntryContext extends PsiElementContext implements IAngularFi
      */
     L18NElement rootTreeReference;
 
+    String exportVarName; //only for ts maps
+
 
     public PsiL18nEntryContext(PsiElementContext rootPsiReference) {
         super(rootPsiReference.element);

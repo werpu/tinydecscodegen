@@ -37,5 +37,19 @@ public class L18NTreeTest extends LightCodeInsightFixtureTestCase {
         assertTrue("last element has subelements of subElements4", treeContext.getRootTreeReference().getSubElements().get(2).getSubElements().get(1).getSubElements().size() == 2);
     }
 
+    @Test
+    public void sameTestForTypescript() {
+        PsiFile resourceFile = myFixture.configureByFiles("i18n/labels-en.ts", "angular_js/angular.js")[0];
+        PsiL18nEntryContext treeContext = new PsiL18nEntryContext(new PsiElementContext(resourceFile));
+
+
+        assertTrue(treeContext.getRootTreeReference() != null);
+        assertTrue(treeContext.getRootTreeReference().getKey().equals(PsiL18nEntryContext.ROOT_KEY));
+        assertTrue(treeContext.getRootTreeReference().getStringValue() == null);
+        assertTrue(!treeContext.getRootTreeReference().getSubElements().isEmpty());
+        assertTrue("all keys are determined", treeContext.getRootTreeReference().getSubElements().size() == 3);
+        assertTrue("last element has subelements", !treeContext.getRootTreeReference().getSubElements().get(2).getSubElements().isEmpty());
+        assertTrue("last element has subelements of subElements4", treeContext.getRootTreeReference().getSubElements().get(2).getSubElements().get(1).getSubElements().size() == 2);
+    }
 
 }
