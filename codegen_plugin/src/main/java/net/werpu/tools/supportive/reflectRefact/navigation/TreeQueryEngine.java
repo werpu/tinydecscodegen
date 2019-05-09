@@ -115,15 +115,24 @@ public class TreeQueryEngine<T> {
                 .filter(el -> el != null);
     }
 
-    private static <T> Stream<T> any(Stream<T> str1, Stream<T> str2) {
+    private static <T> Stream<T> any(Stream<T> ...str) {
+        return Arrays.stream(str)
+                .map(item -> item.collect(Collectors.toList()))
+                .filter(list -> !list.isEmpty()).findFirst()
+                .orElse(Collections.emptyList()).stream();
+    }
+
+
+
+    /*private static <T> Stream<T> any(Stream<T> str1, Stream<T> str2) {
 
         List<T> strList1 = str1.collect(Collectors.toList());
         List<T> strList2 = str2.collect(Collectors.toList());
         return strList1.isEmpty() ? strList2.stream() : strList1.stream();
 
-    }
+    }*/
 
-    public static <T> QueryExtension<T> ANY(Object str1, Object str2) {
+    /*public static <T> QueryExtension<T> ANY(Object str1, Object str2) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
             List<T> itemlist = stream.collect(Collectors.toList());
             return any(engine.exec(itemlist.stream(), new Object[] {str1}, true),
@@ -131,10 +140,10 @@ public class TreeQueryEngine<T> {
 
 
         };
-    }
+    }*/
 
 
-    public static <T> QueryExtension<T> ANY(Object[] str1, Object[] str2) {
+    /*public static <T> QueryExtension<T> ANY(Object[] str1, Object[] str2) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
             List<T> itemlist = stream.collect(Collectors.toList());
             return any(engine.exec(itemlist.stream(), str1, true),
@@ -142,21 +151,47 @@ public class TreeQueryEngine<T> {
 
 
         };
-    }
-
-    private static <T> Stream<T> all(Stream<T> str1, Stream<T> str2) {
-        return Stream.concat(str1, str2);
-    }
-
-    public static <T> QueryExtension<T> ALL(Object[] str1, Object[] str2) {
+    }*/
+    public static <T> QueryExtension<T> ANY(Object[] ... str) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
             List<T> itemlist = stream.collect(Collectors.toList());
-            return all(engine.exec(itemlist.stream(), str1, true),
-                    engine.exec(itemlist.stream(), str2, true));
+            return any(
+                    Arrays.stream(str).map(str1 -> engine.exec(itemlist.stream(), str1, true)).toArray(Stream[]::new));
 
         };
     }
 
+    public static <T> QueryExtension<T> ANY(Object ... str) {
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
+            List<T> itemlist = stream.collect(Collectors.toList());
+            return any(
+                    Arrays.stream(str).map(str1 -> engine.exec(itemlist.stream(), BL(str1), true)).toArray(Stream[]::new));
+
+        };
+    }
+
+
+    private static <T> Stream<T> all(Stream<T> ... streams) {
+        return Arrays.stream(streams).reduce(Stream::concat).get();
+    }
+
+    public static <T> QueryExtension<T> ALL(Object[] ... str) {
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
+            List<T> itemlist = stream.collect(Collectors.toList());
+            return all(
+                    Arrays.stream(str).map(str1 -> engine.exec(itemlist.stream(), str1, true)).toArray(Stream[]::new));
+
+        };
+    }
+
+    public static <T> QueryExtension<T> ALL(Object ... str) {
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
+            List<T> itemlist = stream.collect(Collectors.toList());
+            return all(
+                    Arrays.stream(str).map(str1 -> engine.exec(itemlist.stream(), BL(str1), true)).toArray(Stream[]::new));
+
+        };
+    }
 
     public static <T> QueryExtension<T> PARENTS_EQ_LAST(String val) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
@@ -197,6 +232,17 @@ public class TreeQueryEngine<T> {
         });
     }
 
+    /**
+     * Small parenthesis like block
+     * to ease the query syntax
+     *
+     * @param subQueryItems
+     * @param <T>
+     * @return
+     */
+    public static <T> Object[] BL(Object... subQueryItems) {
+        return subQueryItems;
+    }
 
     /**
      * a helper which inverses the search order into the opposite direction

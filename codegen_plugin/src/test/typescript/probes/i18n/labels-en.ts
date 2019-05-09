@@ -6,7 +6,10 @@
 export const language = {
     test3: {
         test4: "booga",
-        test: "testString_xx"
+        test: "testString_xx",
+        testy: `testString_xx
+            booga `,
+        testx: () => {alert("bla");}
     },
     test: "testString",
     test2: {

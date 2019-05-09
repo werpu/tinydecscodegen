@@ -1,10 +1,12 @@
 package net.werpu.tools.supportive.fs.common;
 
+import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.yourkit.util.Strings;
 import lombok.Getter;
 import net.werpu.tools.supportive.utils.IntellijUtils;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.util.List;
@@ -17,13 +19,12 @@ import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngin
 
 /**
  * context for holding a L18n entry for the tree
- *
+ * <p>
  * This can be used as a base for transformations
  * and displaying the the L18N Trees
- *
+ * <p>
  * The idea is to have a context which holds both, the psi reference
  * and the tree reference for the transformation
- *
  */
 @Getter
 public class PsiL18nEntryContext extends PsiElementContext implements IAngularFileContext {
@@ -40,16 +41,23 @@ public class PsiL18nEntryContext extends PsiElementContext implements IAngularFi
      */
     L18NElement rootTreeReference;
 
-    String exportVarName; //only for ts maps
+    PsiElementContext exportVar; //only for ts maps
 
 
     public PsiL18nEntryContext(PsiElementContext rootPsiReference) {
         super(rootPsiReference.element);
-        this.rootPsiReference = rootPsiReference.$q(ANY(JSON_OBJECT, JS_OBJECT_LITERAL_EXPRESSION)).findFirst().get();
+        parseRootTreeReference(rootPsiReference);
         this.parse();
     }
 
-
+    private void parseRootTreeReference(PsiElementContext rootPsiReference) {
+        if (isTS()) {
+            this.rootPsiReference = rootPsiReference.$q(TYPE_SCRIPT_VARIABLE, JS_OBJECT_LITERAL_EXPRESSION).findFirst().get();
+            this.exportVar = this.rootPsiReference.$q(PARENTS_EQ(TYPE_SCRIPT_VARIABLE)).findFirst().get();
+        } else {
+            this.rootPsiReference = rootPsiReference.$q(ANY(JSON_OBJECT, JS_OBJECT_LITERAL_EXPRESSION)).findFirst().get();
+        }
+    }
 
 
     /**
@@ -58,36 +66,69 @@ public class PsiL18nEntryContext extends PsiElementContext implements IAngularFi
     private void parse() {
         //step 1 typescript or json parse
         rootTreeReference = new L18NElement(null, ROOT_KEY, null);
-        if(IntellijUtils.isTypescript(getPsiFile().getVirtualFile().getFileType())) {
-             rootTreeReference.getSubElements().addAll(parseTypescriptLine(rootTreeReference, rootPsiReference));
+        if (isTS()) {
+            rootTreeReference.getSubElements().addAll(parseTypescriptLine(rootTreeReference, rootPsiReference));
         } else { //json‚
-             rootTreeReference.getSubElements().addAll(parseJsonLine(rootTreeReference, rootPsiReference));
+            rootTreeReference.getSubElements().addAll(parseJsonLine(rootTreeReference, rootPsiReference));
         }
     }
 
-    public List<L18NElement> parseTypescriptLine(L18NElement parent, PsiElementContext par) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    private boolean isTS() {
+        return IntellijUtils.isTypescript(getElement().getLanguage().getAssociatedFileType());
     }
 
-
-    public List<L18NElement> parseJsonLine(L18NElement parent, PsiElementContext par) {
-        List<L18NElement> childs = par.$q(CHILD_ELEM, JSON_PROPERTY).map(foundElem -> {
-            Optional<PsiElementContext> key = foundElem.$q(CHILD_ELEM, JSON_STRING_LITERAL).findFirst();
-            Optional<PsiElementContext>  value = foundElem.$q(ALL(DIRECT_CHILD(JSON_STRING_LITERAL), DIRECT_CHILD(JSON_OBJECT)))
-                    .reduce((el1, el2) -> el2);
+    public List<L18NElement> parseTypescriptLine(L18NElement parent, PsiElementContext par) {
+        List<L18NElement> childs = par.$q(CHILD_ELEM, JS_PROPERTY).map(foundElem -> {
+            Optional<PsiElementContext> key = foundElem.$q(PSI_ELEMENT_JS_IDENTIFIER).findFirst();
+            Optional<PsiElementContext> value = foundElem.$q(ALL(
+                    BL(
+                            DIRECT_CHILD(JS_LITERAL_EXPRESSION), DIRECT_CHILD(PSI_ELEMENT_JS_STRING_LITERAL)
+                    ),
+                    DIRECT_CHILD(JS_OBJECT_LITERAL_EXPRESSION),
+                    DIRECT_CHILD(JS_STRING_TEMPLATE_EXPRESSION)
+            )).reduce((el1, el2) -> el2);
             //end or recursion reached‚
-            if(!key.isPresent() || !value.isPresent()) {
+            if (!key.isPresent() || !value.isPresent()) {
                 return null;
             }
             //check if value is a string then return the element
             //fif not parse further down
-            if(value.get().getElement().toString().startsWith(JSON_STRING_LITERAL)) {
-                return new L18NElement(parent, key.get().getUnquotedText(), value.get().getUnquotedText());
-            } else {
-                L18NElement entry = new L18NElement(parent, key.get().getUnquotedText(), null);
-                entry.getSubElements().addAll(parseJsonLine(entry, value.get()));
-                return entry;
+            return getL18NElement(parent, key, value);
+        }).filter(el -> el != null).collect(Collectors.toList());
+        return childs;
+    }
+
+    @NotNull
+    private L18NElement getL18NElement(L18NElement parent, Optional<PsiElementContext> key, Optional<PsiElementContext> value) {
+        if (value.get().getElement().toString().startsWith(JSON_STRING_LITERAL)) {
+            return new L18NElement(parent, key.get().getUnquotedText(), value.get().getUnquotedText());
+        } else {
+            L18NElement entry = new L18NElement(parent, key.get().getUnquotedText(), null);
+            entry.getSubElements().addAll(parseJsonLine(entry, value.get()));
+            return entry;
+        }
+    }
+
+
+    /**
+     * parse a json entry like wiuth key value
+     *
+     * @param parent
+     * @param par
+     * @return
+     */
+    public List<L18NElement> parseJsonLine(L18NElement parent, PsiElementContext par) {
+        List<L18NElement> childs = par.$q(CHILD_ELEM, JSON_PROPERTY).map(foundElem -> {
+            Optional<PsiElementContext> key = foundElem.$q(CHILD_ELEM, JSON_STRING_LITERAL).findFirst();
+            Optional<PsiElementContext> value = foundElem.$q(ALL(DIRECT_CHILD(JSON_STRING_LITERAL), DIRECT_CHILD(JSON_OBJECT)))
+                    .reduce((el1, el2) -> el2);
+            //end or recursion reached‚
+            if (!key.isPresent() || !value.isPresent()) {
+                return null;
             }
+            //check if value is a string then return the element
+            //fif not parse further down
+            return getL18NElement(parent, key, value);
         }).filter(el -> el != null).collect(Collectors.toList());
         return childs;
     }
