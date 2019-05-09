@@ -647,7 +647,7 @@ public class IntellijUtils {
         if(!defaultExtension.startsWith(".")) {
             defaultExtension = "."+defaultExtension;
         }
-        return defaultExtension.equalsIgnoreCase(getTsExtension());
+        return defaultExtension.equalsIgnoreCase(getJsonExtension());
     }
 
     public static void refresh() {
@@ -841,7 +841,7 @@ public class IntellijUtils {
     }
 
     public static String getJsonExtension() {
-        String retVal = FileTypeManager.getInstance().getStdFileType("Json").getDefaultExtension();
+        String retVal = FileTypeManager.getInstance().getStdFileType("JSON").getDefaultExtension();
         if (!retVal.startsWith(".")) {
             retVal = "." + retVal;
         }

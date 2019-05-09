@@ -1,4 +1,4 @@
-package net.werpu.tools.actions_ng;
+package net.werpu.tools.actions_all;
 
 
 import com.intellij.openapi.actionSystem.AnAction;
@@ -10,7 +10,6 @@ import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
 import net.werpu.tools.supportive.refactor.DummyInsertPsiElement;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
 import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
-import net.werpu.tools.supportive.utils.IntellijRunUtils;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,8 +17,10 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.JS_VAR_STATEMENT;
-import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
-import static net.werpu.tools.supportive.utils.IntellijRunUtils.*;
+import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.DIRECT_CHILD;
+import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.PARENTS_EQ_FIRST;
+import static net.werpu.tools.supportive.utils.IntellijRunUtils.invokeLater;
+import static net.werpu.tools.supportive.utils.IntellijRunUtils.writeTransaction;
 
 /**
  * Helper action to mark a specific file as i18n file
@@ -45,16 +46,18 @@ public class MarkAsI18NTSFile extends AnAction {
         //now we need to query the structure of the file for a typescript variable
         //under root and the associcated map
 
+        assertI18nPattern(anActionEvent, ctx);
+    }
+
+    protected void assertI18nPattern(@NotNull AnActionEvent anActionEvent, IntellijFileContext ctx) {
         try {
             PsiL18nEntryContext elCtx = new PsiL18nEntryContext(new PsiElementContext(ctx.getPsiFile()));
 
             boolean correctPattern = elCtx.getRootTreeReference() != null;
             boolean noRef = !elCtx.getText().contains(I18N_MARKER);
             anActionEvent.getPresentation().setEnabledAndVisible(correctPattern && noRef);
-            return;
         } catch (Throwable t) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
-            return;
         }
     }
 
@@ -64,6 +67,10 @@ public class MarkAsI18NTSFile extends AnAction {
 
         PsiL18nEntryContext elCtx = new PsiL18nEntryContext(new PsiElementContext(ctx.getPsiFile()));
 
+        addMarker(ctx, elCtx);
+    }
+
+    protected void addMarker(TypescriptFileContext ctx, PsiL18nEntryContext elCtx) {
         Optional<PsiElementContext> foundElement = elCtx.getExportVar().$q(PARENTS_EQ_FIRST(JS_VAR_STATEMENT), DIRECT_CHILD(PsiWalkFunctions.JS_DOC_COMMENT)).findFirst();
         invokeLater(() -> writeTransaction(ctx.getProject(), () -> {
             try {
@@ -75,7 +82,7 @@ public class MarkAsI18NTSFile extends AnAction {
         }));
     }
 
-    private void updateInsertMarker(TypescriptFileContext ctx, PsiL18nEntryContext elCtx, Optional<PsiElementContext> foundElement) throws IOException {
+    protected void updateInsertMarker(TypescriptFileContext ctx, PsiL18nEntryContext elCtx, Optional<PsiElementContext> foundElement) throws IOException {
 
         if (!foundElement.isPresent()) {
             //We add a comment to the current editor before the var def

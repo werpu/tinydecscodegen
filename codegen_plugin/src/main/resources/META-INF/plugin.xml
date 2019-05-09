@@ -187,7 +187,9 @@
         <!-- editor -->
         <group>
 
-            <action id="TTNG_MarkI18NFile" class="net.werpu.tools.actions_ng.MarkAsI18NTSFile" text="Mark as I18N File"
+            <action id="TTNG_MarkI18NFileTS" class="net.werpu.tools.actions_all.MarkAsI18NTSFile" text="Mark as I18N File"
+                    description="Mark existing typescript file as i18n file" icon="/images/tt.png"></action>
+            <action id="TTNG_MarkI18NFileJson" class="net.werpu.tools.actions_all.MarkAsI18NJsonFile" text="Mark as I18N File"
                     description="Mark existing typescript file as i18n file" icon="/images/tt.png"></action>
 
             <group id="Refactorings" text="Code Transformations" description="Annotated Code Transformations" icon="/images/tt.png" popup="true">
