@@ -28,6 +28,7 @@ import static net.werpu.tools.supportive.utils.IntellijUtils.flattendArr;
  */
 public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementContext> {
 
+    public static final String JS_DOC_COMMENT = "JSDocComment";
     private static final String ERR_UNDEFINED_QUERY_MAPPING = "Undefined query mapping";
 
     /*ElementTypes*/

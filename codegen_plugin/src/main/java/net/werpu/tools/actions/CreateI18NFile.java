@@ -26,6 +26,9 @@ import java.util.stream.Collectors;
 
 import static net.werpu.tools.actions_all.shared.FormAssertions.assertNotNullOrEmpty;
 
+/**
+ * Creates an I18N File for further processing
+ */
 public class CreateI18NFile extends AnAction {
 
     private static final Dimension PREFERRED_SIZE = new Dimension(400, 300);

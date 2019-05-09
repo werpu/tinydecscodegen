@@ -141,6 +141,7 @@
                     description="add an i18n file into the current folder" icon="/images/ng.png"></action>
 
 
+
             <separator/>
 
             <action id="TD_CreateModule2" class="net.werpu.tools.actions_ng.CreateNgModule" text="Create Module"
@@ -185,6 +186,9 @@
 
         <!-- editor -->
         <group>
+
+            <action id="TTNG_MarkI18NFile" class="net.werpu.tools.actions_ng.MarkAsI18NTSFile" text="Mark as I18N File"
+                    description="Mark existing typescript file as i18n file" icon="/images/tt.png"></action>
 
             <group id="Refactorings" text="Code Transformations" description="Annotated Code Transformations" icon="/images/tt.png" popup="true">
                 <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
