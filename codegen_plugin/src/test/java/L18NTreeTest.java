@@ -47,9 +47,13 @@ public class L18NTreeTest extends LightCodeInsightFixtureTestCase {
         assertTrue(treeContext.getRootTreeReference().getKey().equals(PsiL18nEntryContext.ROOT_KEY));
         assertTrue(treeContext.getRootTreeReference().getStringValue() == null);
         assertTrue(!treeContext.getRootTreeReference().getSubElements().isEmpty());
-       // assertTrue("all keys are determineL18NTreeTestd", treeContext.getRootTreeReference().getSubElements().size() == 3);
-       // assertTrue("last element has subelements", !treeContext.getRootTreeReference().getSubElements().get(2).getSubElements().isEmpty());
-       // assertTrue("last element has subelements of subElements4", treeContext.getRootTreeReference().getSubElements().get(2).getSubElements().get(1).getSubElements().size() == 2);
+        assertTrue("all keys are determineL18NTreeTestd", treeContext.getRootTreeReference().getSubElements().size() == 4);
+        assertTrue("last element has subelements", !treeContext.getRootTreeReference().getSubElements().get(2).getSubElements().isEmpty());
+        assertTrue("last element has subelements of subElements4", treeContext.getRootTreeReference().getSubElements().get(2).getSubElements().get(1).getSubElements().size() == 2);
+
+
+        String varName = treeContext.getExportVar().getName();
+        assertTrue("Varname properly defined", varName.equals("language"));
     }
 
 }

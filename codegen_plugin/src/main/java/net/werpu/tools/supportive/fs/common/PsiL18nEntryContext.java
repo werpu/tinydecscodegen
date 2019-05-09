@@ -100,11 +100,17 @@ public class PsiL18nEntryContext extends PsiElementContext implements IAngularFi
 
     @NotNull
     private L18NElement getL18NElement(L18NElement parent, Optional<PsiElementContext> key, Optional<PsiElementContext> value) {
-        if (value.get().getElement().toString().startsWith(JSON_STRING_LITERAL)) {
+        String valueType = value.get().getElement().toString();
+        if (valueType.startsWith(JSON_STRING_LITERAL) || valueType.startsWith(PSI_ELEMENT_JS_STRING_LITERAL)  || valueType.startsWith(JS_STRING_TEMPLATE_EXPRESSION)) {
             return new L18NElement(parent, key.get().getUnquotedText(), value.get().getUnquotedText());
         } else {
             L18NElement entry = new L18NElement(parent, key.get().getUnquotedText(), null);
-            entry.getSubElements().addAll(parseJsonLine(entry, value.get()));
+            if(isTS()) {
+                entry.getSubElements().addAll(parseTypescriptLine(entry, value.get()));
+            } else {
+                entry.getSubElements().addAll(parseJsonLine(entry, value.get()));
+            }
+
             return entry;
         }
     }
