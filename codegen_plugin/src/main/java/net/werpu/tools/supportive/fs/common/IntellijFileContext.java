@@ -84,7 +84,15 @@ public class IntellijFileContext {
     String shadowText;
 
     public IntellijFileContext(AnActionEvent event) {
-        this(event.getProject(), IntellijUtils.getFolderOrFile(event));
+        this(event.getProject(), getPossibleRootFolder(event));
+    }
+
+    public static VirtualFile getPossibleRootFolder(AnActionEvent event) {
+        VirtualFile folderOrFile = IntellijUtils.getFolderOrFile(event);
+        if(folderOrFile == null) {
+            folderOrFile = event.getProject().getProjectFile();
+        }
+        return folderOrFile;
     }
 
     public IntellijFileContext(Project project) {
