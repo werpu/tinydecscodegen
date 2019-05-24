@@ -199,6 +199,7 @@ public class InternationalizeString extends AnAction {
         mainForm.addFileChangeListener(itemEvent -> {
             IntelliFileContextComboboxModelEntry selectedItem = (IntelliFileContextComboboxModelEntry) itemEvent.getItem();
             applyKey(mainForm, selectedItem, model);
+            applyFileName(mainForm, selectedItem);
         });
 
 
@@ -208,6 +209,7 @@ public class InternationalizeString extends AnAction {
         } else {
             mainForm.switchToAllFiles();
             applyKey(mainForm, possibleL18nFiles.get(0), model);
+            applyFileName(mainForm, possibleL18nFiles.get(0));
         }
 
 
@@ -270,6 +272,10 @@ public class InternationalizeString extends AnAction {
 
         }
 
+    }
+
+    private void applyFileName(SingleL18n mainForm, IntelliFileContextComboboxModelEntry selectedItem) {
+        mainForm.getLblFileName().setText(selectedItem.getValue().getModuleRelativePath());
     }
 
     private void selectOrCreateI18nFile(Project project, List<IntelliFileContextComboboxModelEntry> possibleL18nFiles, FileChooserDescriptor descriptor) {

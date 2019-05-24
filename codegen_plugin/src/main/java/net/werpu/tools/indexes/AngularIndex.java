@@ -56,9 +56,7 @@ public class AngularIndex extends ScalarIndexExtension<String> {
                 GlobalSearchScope.projectScope(project)).stream()
                 .filter(VirtualFile::isValid)
                 .map(vFile -> PsiManager.getInstance(project).findFile(vFile))
-                .filter(psiFile -> {
-                    return isAngularVersion(angularVersion, psiFile);
-                })
+                .filter(psiFile -> isAngularVersion(angularVersion, psiFile))
                 .map(psiFile -> psiFile.getParent())
                 .map(psiDirectory -> new IntellijFileContext(project, psiDirectory.getVirtualFile()))
                 .collect(Collectors.toList());
@@ -120,9 +118,7 @@ public class AngularIndex extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
             String fileName = inputData.getFile().getName();
-            if(!inputData.getFile().getName().endsWith(".json")) {
-                System.out.println("booga");
-            }
+
             if(inputData.getFile().getPath().contains("node_modules")) {
                 return Collections.emptyMap();
             }

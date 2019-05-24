@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static net.werpu.tools.actions_all.MarkAsI18NTSFile.I18N_MARKER;
 import static net.werpu.tools.indexes.IndexUtils.standardSimpleFileExclusion;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 
@@ -78,18 +79,34 @@ public class L18NIndexer extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
-            if ((!standardSimpleFileExclusion(inputData)) &&
-                    inputData.getFile().getName().endsWith(".json") &&
-                    (!inputData.getFile().getName().endsWith(NPM_ROOT)) &&
-                    (!inputData.getFile().getName().endsWith("bower.json")) &&
-                    (!inputData.getFile().getName().startsWith(".")) &&
-                    (!inputData.getFile().getName().toLowerCase().endsWith(TS_CONFIG.toLowerCase())) &&
-                    (!inputData.getFile().getName().toLowerCase().endsWith(PACKAGE_LOCK.toLowerCase()))
+            if (
+                    (!standardSimpleFileExclusion(inputData)) &&
+                            inputData.getFile().getName().endsWith(".json") &&
+                            (!inputData.getFile().getName().endsWith(NPM_ROOT)) &&
+                            (!inputData.getFile().getName().endsWith("bower.json")) &&
+                            (!inputData.getFile().getName().startsWith(".")) &&
+                            (!inputData.getFile().getName().toLowerCase().endsWith(TS_CONFIG.toLowerCase())) &&
+                            (!inputData.getFile().getName().toLowerCase().endsWith(PACKAGE_LOCK.toLowerCase())
+                                    && isMarked(inputData)
+
+                            )
             ) {
                 return Collections.singletonMap(NAME.getName(), null);
             }
 
             return Collections.emptyMap();
+        }
+    }
+
+    private static boolean isMarked(@NotNull FileContent inputData) {
+        try {
+            CharSequence contentAsText = inputData.getContentAsText();
+            final StringBuilder sb = new StringBuilder(contentAsText.length());
+            sb.append(contentAsText);
+            return sb.toString().contains(I18N_MARKER);
+
+        } catch (Throwable e) {
+            return false;
         }
     }
 }
