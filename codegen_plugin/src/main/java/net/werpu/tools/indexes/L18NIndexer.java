@@ -1,15 +1,12 @@
 package net.werpu.tools.indexes;
 
-import com.intellij.openapi.fileEditor.impl.LoadTextUtil;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
-
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +20,8 @@ import java.util.stream.Collectors;
 
 import static net.werpu.tools.actions_all.MarkAsI18NTSFile.I18N_MARKER;
 import static net.werpu.tools.indexes.IndexUtils.standardSimpleFileExclusion;
-import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.PACKAGE_LOCK;
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.TS_CONFIG;
 
 /**
  * Index for l18n files in the system
@@ -87,14 +85,15 @@ public class L18NIndexer extends ScalarIndexExtension<String> {
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
 
+            String fileName = inputData.getFile().getName().toLowerCase();
             if (
                     (!standardSimpleFileExclusion(inputData)) &&
-                            inputData.getFile().getName().endsWith(".json") &&
-                            (!inputData.getFile().getName().endsWith("bower.json")) &&
-                            (!inputData.getFile().getName().endsWith("tsconfig.json")) &&
-                            (!inputData.getFile().getName().startsWith(".")) &&
-                            (!inputData.getFile().getName().toLowerCase().endsWith(TS_CONFIG.toLowerCase())) &&
-                            (!inputData.getFile().getName().toLowerCase().endsWith(PACKAGE_LOCK.toLowerCase())
+                            fileName.endsWith(".json") &&
+                            (!fileName.endsWith("bower.json")) &&
+                            (!fileName.endsWith("tsconfig.json")) &&
+                            (!fileName.startsWith(".")) &&
+                            (!fileName.endsWith(TS_CONFIG.toLowerCase())) &&
+                            (!fileName.endsWith(PACKAGE_LOCK.toLowerCase())
                                     && isMarked(inputData)
 
                             )

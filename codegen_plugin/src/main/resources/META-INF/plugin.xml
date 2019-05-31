@@ -78,6 +78,8 @@
 
             <action id="TD_CreateI18NFile" class="net.werpu.tools.actions.CreateI18NFile" text="Create I18N File"
                     description="add an i18n file into the current folder" icon="/images/tt.png"></action>
+            <action id="TD_CreateI18NFileFromJson" class="net.werpu.tools.actions.I18NCreateTypescriptFromJSon" text="Create/Update I18N Typescript File"
+                    description="add/update an i18n typescript file in the current folder" icon="/images/tt.png"></action>
 
 
             <separator/>
@@ -140,6 +142,8 @@
             <action id="NG_CreateI18NFile" class="net.werpu.tools.actions_ng.CreateI18NFileNG" text="Create I18N File"
                     description="add an i18n file into the current folder" icon="/images/ng.png"></action>
 
+            <action id="NG_CreateI18NFileFromJson" class="net.werpu.tools.actions.I18NCreateTypescriptFromJSon" text="Create/Update I18N Typescript File"
+                    description="add/update an i18n typescript file in the current folder" icon="/images/tt.png"></action>
 
 
             <separator/>
@@ -204,6 +208,10 @@
                 <action id="RefactorIntoAnnDirective" class="net.werpu.tools.actions_all.RefactorIntoAnnotatedDirective" text="Tiny Decorations Directive"/>
 
             </group>
+
+            <action id="TTNGCreateI18NFileFromJson" class="net.werpu.tools.actions.I18NCreateTypescriptFromJSon" text="Create/Update I18N Typescript File"
+                    description="add/update an i18n typescript file in the current folder" icon="/images/tt.png"></action>
+
 
             <action id="TTNG_CreateRestEndpoint3" class="net.werpu.tools.actions_all.CreateRestEndpoint" text="Create Rest Endpoint"
                     description="Create Rest Endpoint" icon="/images/tt.png">

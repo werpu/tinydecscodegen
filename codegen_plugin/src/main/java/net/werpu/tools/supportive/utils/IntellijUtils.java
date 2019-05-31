@@ -145,6 +145,34 @@ public class IntellijUtils {
         });
     }
 
+
+    /**
+     * Generic diff create functionality (TODO replace all other diff creates with this one)
+     * @param project
+     * @param folder
+     * @param fileName
+     * @param content
+     * @param language
+     */
+    public static void diffOrWriteGenericFile(Project project, VirtualFile folder, String fileName, String content, Language language)  {
+
+        PsiFile file = createRamFileFromText(project,fileName, content, language);
+        ApplicationManager.getApplication().runWriteAction(() -> {
+
+            Optional<VirtualFile> origFile = Arrays.stream(folder.getChildren()).filter(virtualFile -> virtualFile.getName().equals(fileName)).findFirst();
+            if (origFile.isPresent()) {
+               IntellijFileContext ctx = new IntellijFileContext(project, origFile.get());
+               showDiff(project,  ctx.getPsiFile(), file, true);
+            } else {
+                try {
+                    createAndOpen(project, folder, content, fileName);
+                } catch (IOException e) {
+                    handleEx(project, e);
+                }
+            }
+        });
+    }
+
     private static void writeTarget(String className, Project project, Module module, ArtifactType artifactType, PsiFile file) {
         ApplicationManager.getApplication().invokeLater(() -> {
 
@@ -206,10 +234,11 @@ public class IntellijUtils {
             return false;
         }
 
+        PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
         SimpleDiffRequest request = new SimpleDiffRequest(
                 title,
-                new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(origFile)),
-                new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(file)),
+                new DocumentContentImpl(documentManager.getDocument(origFile)),
+                new DocumentContentImpl(documentManager.getDocument(file)),
                 //new DocumentContentImpl(PsiDocumentManager.getInstance(project).getDocument(javaFile)),
                 "Original File: " + origFile.getVirtualFile().getPath(),
                 "Newly Generated File"//,
@@ -410,6 +439,8 @@ public class IntellijUtils {
         VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
         return ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(vFile);
     }
+
+
 
     public static boolean generateService(Project project, Module module, PsiJavaFile javaFile, boolean ng) throws ClassNotFoundException {
         final AtomicBoolean retVal = new AtomicBoolean(true);
