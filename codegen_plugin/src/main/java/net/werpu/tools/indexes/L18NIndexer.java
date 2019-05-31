@@ -1,15 +1,21 @@
 package net.werpu.tools.indexes;
 
+import com.intellij.openapi.fileEditor.impl.LoadTextUtil;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
+
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -65,10 +71,12 @@ public class L18NIndexer extends ScalarIndexExtension<String> {
 
 
     public static List<IntellijFileContext> getAllAffectedFiles(Project project) {
+
         return FileBasedIndex.getInstance().getContainingFiles(NAME, NAME.getName(),
                 GlobalSearchScope.projectScope(project)).stream()
                 .filter(VirtualFile::isValid)
                 .map(virtualFile -> new IntellijFileContext(project, virtualFile))
+                .filter(ctx -> !ctx.isBuildTarget())
                 .collect(Collectors.toList());
     }
 
@@ -82,8 +90,8 @@ public class L18NIndexer extends ScalarIndexExtension<String> {
             if (
                     (!standardSimpleFileExclusion(inputData)) &&
                             inputData.getFile().getName().endsWith(".json") &&
-                            (!inputData.getFile().getName().endsWith(NPM_ROOT)) &&
                             (!inputData.getFile().getName().endsWith("bower.json")) &&
+                            (!inputData.getFile().getName().endsWith("tsconfig.json")) &&
                             (!inputData.getFile().getName().startsWith(".")) &&
                             (!inputData.getFile().getName().toLowerCase().endsWith(TS_CONFIG.toLowerCase())) &&
                             (!inputData.getFile().getName().toLowerCase().endsWith(PACKAGE_LOCK.toLowerCase())
@@ -100,12 +108,23 @@ public class L18NIndexer extends ScalarIndexExtension<String> {
 
     private static boolean isMarked(@NotNull FileContent inputData) {
         try {
+
+
             CharSequence contentAsText = inputData.getContentAsText();
             final StringBuilder sb = new StringBuilder(contentAsText.length());
             sb.append(contentAsText);
             return sb.toString().contains(I18N_MARKER);
 
         } catch (Throwable e) {
+            //fallback because the current intellij version throws an exception with getContentAs text on the indexer side
+            //might be a bug
+            try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputData.getFile().getInputStream()));) {
+                String result = bufferedReader
+                        .lines().collect(Collectors.joining("\n"));
+                return result.contains(I18N_MARKER);
+            } catch (IOException ex) {
+                //well in this case we just return false
+            }
             return false;
         }
     }

@@ -26,6 +26,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
@@ -443,6 +444,15 @@ public class IntellijFileContext {
             String folderPathModule = el2.getFolderPath();
             return folderPathFile.length() > folderPathModule.length() ? el1 : el2;
         });
+    }
+
+    public boolean isSourceFile() {
+        return ProjectFileIndex.getInstance(project).getSourceRootForFile(virtualFile) != null;
+    }
+
+    public boolean isBuildTarget() {
+        ProjectFileIndex projectFileIndex = ProjectFileIndex.getInstance(project);
+        return projectFileIndex.isExcluded(virtualFile) || projectFileIndex.isUnderIgnored(virtualFile);
     }
 
 
