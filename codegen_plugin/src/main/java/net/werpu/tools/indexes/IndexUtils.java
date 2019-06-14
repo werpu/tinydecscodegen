@@ -1,5 +1,6 @@
 package net.werpu.tools.indexes;
 
+import com.intellij.javaee.web.WebUtil;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -36,8 +37,14 @@ public class IndexUtils {
                 || !IntellijUtils.isTypescript(fileType);
     }
 
+    //https://intellij-support.jetbrains.com/hc/en-us/community/posts/360003850460-How-to-detect-whether-a-file-is-part-of-a-webapp-resource-dir
+    //we could also go for the WebHelpers solution but that way we might break
     public static boolean standardSimpleFileExclusion(@NotNull FileContent inputData) {
+        String normalizePath = normalizePath(inputData.getFile().getPath());
         return inputData.getFile().isDirectory()
-                || normalizePath(inputData.getFile().getPath()).contains("/node_modules/");
+                || normalizePath.contains("/node_modules/")
+                || normalizePath.contains("/target/")
+                || normalizePath.contains("/out/")
+                || normalizePath.contains("/build/");
     }
 }

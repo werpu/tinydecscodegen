@@ -22,6 +22,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package net.werpu.tools.supportive.fs.common;
 
 import com.google.common.base.Strings;
+import com.intellij.javaee.web.WebUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
@@ -449,6 +450,11 @@ public class IntellijFileContext {
     public boolean isSourceFile() {
         return ProjectFileIndex.getInstance(project).getSourceRootForFile(virtualFile) != null;
     }
+
+    public boolean isWebFile() {
+        return WebUtil.isInsideWebRoots(virtualFile, project);
+    }
+
 
     public boolean isBuildTarget() {
         ProjectFileIndex projectFileIndex = ProjectFileIndex.getInstance(project);

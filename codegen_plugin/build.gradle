@@ -9,7 +9,7 @@ intellij {
     //localPath = '/Applications/Intellij IDEA.app'
     version = 'IU-191.7141.44'
     type = 'IU'
-    plugins = ['JavaScriptLanguage', "AngularJS", 'CSS']
+    plugins = ['JavaScriptLanguage', "AngularJS", 'CSS', 'JavaEE']
 
 }
 
