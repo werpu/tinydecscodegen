@@ -1,6 +1,5 @@
 package net.werpu.tools.indexes;
 
-import com.intellij.javaee.web.WebUtil;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
