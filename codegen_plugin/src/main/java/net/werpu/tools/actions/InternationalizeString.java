@@ -11,7 +11,6 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Data;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
@@ -28,7 +27,7 @@ import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
 import net.werpu.tools.supportive.transformations.L18NDeclFileTransformation;
-import net.werpu.tools.supportive.transformations.L18NTransformation;
+import net.werpu.tools.supportive.transformations.L18NSourceTransformation;
 import net.werpu.tools.supportive.transformations.L18NTransformationModel;
 import net.werpu.tools.supportive.transformations.modelHelpers.ElementNotResolvableException;
 import net.werpu.tools.supportive.utils.IntellijUtils;
@@ -406,7 +405,7 @@ public class InternationalizeString extends AnAction {
 
     public void replaceTextWithKey(SingleL18n uiForm, L18NTransformationModel transformationModel, IntelliFileContextComboboxModelEntry i18nFile, String finalKey) throws IOException {
 
-        L18NTransformation transformation = new L18NTransformation(transformationModel, finalKey, uiForm.getTxtText().getText());
+        L18NSourceTransformation transformation = new L18NSourceTransformation(transformationModel, finalKey, uiForm.getTxtText().getText());
 
         transformationModel.getFileContext().refactorContent(Arrays.asList(transformation.getTnDecRefactoring()));
         transformationModel.getFileContext().commit();

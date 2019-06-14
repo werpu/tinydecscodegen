@@ -8,7 +8,7 @@ import net.werpu.tools.supportive.refactor.RefactorUnit;
 
 @Getter
 @AllArgsConstructor
-public class L18NTransformation implements IArtifactTransformation {
+public class L18NSourceTransformation implements IArtifactTransformation {
 
     private final L18NTransformationModel model;
 

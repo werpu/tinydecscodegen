@@ -1,0 +1,21 @@
+/**
+ * @def: i18nfile
+ */
+#macro( recursiveTree $element )
+#if($element.key != '@def: i18nfile') ${element.key}: ##
+#if(${element.subElements.isEmpty()}) '${element.stringValue}',
+#else ##
+    {
+    #foreach($child in $element.subElements)
+        #recursiveTree($child)
+    #end##
+},
+#end ##
+#end
+#end
+export var $EXPORT_VAR = {
+#foreach($rootChild in $ROOT_ELEMENT.subElements) ##
+    #recursiveTree($rootChild)
+#end
+
+}

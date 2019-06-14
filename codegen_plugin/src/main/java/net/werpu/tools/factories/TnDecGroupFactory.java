@@ -15,6 +15,8 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
     public static final String TPL_ANNOTATED_FILTER = "Annotated Filter";
     public static final String TPL_ANNOTATED_MODULE = "Annotated Module";
     public static final String TPL_ANNOTATED_CONFIG = "Annotated Config";
+    public static final String TPL_I18N_JSON_FILE = "JSON I18N File";
+    public static final String TPL_I18N_TS_FILE = "JSON I18N TS File";
     public static final String TPL_ANNOTATED_RUN = "Annotated Run";
     public static final String TPL_ANNOTATED_NG_MODULE = "Annotated NgModule";
     public static final String TPL_ANNOTATED_NG_COMPONENT = "Annotated NgComponent";
@@ -33,8 +35,9 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
     public static final String TPL_NG_MODULE_TRANSFORMATION = "NgModuleTransformation";
 
     public static final String TPL_EXT = "ts";
-    public static final String TPL_EXT_XML = "ts";
+    public static final String TPL_EXT_XML = "xml";
     public static final String TPL_EXT_JAVA = "java";
+    public static final String TPL_EXT_JS = "js";
 
     @Override
     public FileTemplateGroupDescriptor getFileTemplatesDescriptor() {
@@ -66,6 +69,8 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
         group.addTemplate(new FileTemplateDescriptor(TPL_NG_MODULE_TRANSFORMATION+"."+TPL_EXT));
         group.addTemplate(new FileTemplateDescriptor(TPL_TN_DEC_COMPONENT_TRANSFORMATION+"."+TPL_EXT));
         group.addTemplate(new FileTemplateDescriptor(TPL_TN_DEC_DIRECTIVE_TRANSFORMATION+"."+TPL_EXT));
+        group.addTemplate(new FileTemplateDescriptor(TPL_I18N_JSON_FILE+"."+TPL_EXT_JS));
+        group.addTemplate(new FileTemplateDescriptor(TPL_I18N_TS_FILE+"."+TPL_EXT));
 
         return group;
     }
