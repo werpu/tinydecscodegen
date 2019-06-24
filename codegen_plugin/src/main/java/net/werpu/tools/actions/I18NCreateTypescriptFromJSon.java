@@ -16,6 +16,7 @@ import net.werpu.tools.indexes.L18NIndexer;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.PsiL18nEntryContext;
+import net.werpu.tools.supportive.utils.IntellijRunUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -74,9 +75,11 @@ public class I18NCreateTypescriptFromJSon extends AnAction {
             String vslTemplateText = vslTemplate.getText();
             String mergedContent = FileTemplateUtil.mergeTemplate(attrs, vslTemplateText, false);
             PsiFile file = createRamFileFromText(ctx.getProject(),ctx.getVirtualFile().getName(), mergedContent, getLanguageDef());
-            PsiElement reformatted = CodeStyleManager.getInstance(ctx.getProject()).reformat(file.getOriginalElement().getChildren()[0]);
+            IntellijRunUtils.writeTransaction(ctx.getProject(), () -> {
+                PsiElement reformatted = CodeStyleManager.getInstance(ctx.getProject()).reformat(file.getOriginalElement().getChildren()[0]);
+                diffOrWriteGenericFile(ctx.getProject(), ctx.getVirtualFile().getParent(), newFileName, reformatted.getText(), getLanguageDef());
+            });
 
-            diffOrWriteGenericFile(ctx.getProject(), ctx.getVirtualFile().getParent(), newFileName, reformatted.getText(), getLanguageDef());
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }

@@ -1,5 +1,5 @@
 #macro( recursiveTree $element )
-    #if($element.key != '@def: i18nfile') '${element.key}'': ##
+    #if($element.key != '@def: i18nfile') '${element.key}': ##
         #if(${element.subElements.isEmpty()}) '${element.stringValue}',
         #else ##
             {

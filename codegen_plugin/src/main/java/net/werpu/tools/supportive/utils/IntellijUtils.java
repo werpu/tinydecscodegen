@@ -933,7 +933,7 @@ public class IntellijUtils {
     }
 
     public static Language getJsonLanguageDef() {
-        return LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("JSon"));
+        return LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("JSON"));
     }
 
 
