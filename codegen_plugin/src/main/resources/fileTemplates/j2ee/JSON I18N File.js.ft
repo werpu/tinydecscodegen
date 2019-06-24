@@ -1,6 +1,6 @@
 #macro( recursiveTree $element )
-    #if($element.key != '@def: i18nfile') '${element.key}': ##
-        #if(${element.subElements.isEmpty()}) '${element.stringValue}',
+    #if($element.key != '@def: i18nfile') "${element.key}": ##
+        #if(${element.subElements.isEmpty()}) "${element.stringValue}",
         #else ##
             {
                 #foreach($child in $element.subElements)
