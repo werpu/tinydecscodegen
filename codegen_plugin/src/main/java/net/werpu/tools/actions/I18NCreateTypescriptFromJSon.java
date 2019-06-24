@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotJson;
+import static net.werpu.tools.supportive.utils.IntellijRunUtils.writeTransaction;
 import static net.werpu.tools.supportive.utils.IntellijUtils.*;
 
 /**
@@ -75,7 +76,7 @@ public class I18NCreateTypescriptFromJSon extends AnAction {
             String vslTemplateText = vslTemplate.getText();
             String mergedContent = FileTemplateUtil.mergeTemplate(attrs, vslTemplateText, false);
             PsiFile file = createRamFileFromText(ctx.getProject(),ctx.getVirtualFile().getName(), mergedContent, getLanguageDef());
-            IntellijRunUtils.writeTransaction(ctx.getProject(), () -> {
+            writeTransaction(ctx.getProject(), () -> {
                 PsiElement reformatted = CodeStyleManager.getInstance(ctx.getProject()).reformat(file.getOriginalElement().getChildren()[0]);
                 diffOrWriteGenericFile(ctx.getProject(), ctx.getVirtualFile().getParent(), newFileName, reformatted.getText(), getLanguageDef());
             });
