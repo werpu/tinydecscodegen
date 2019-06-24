@@ -73,13 +73,18 @@
             <action id="TD_CreateProject" class="net.werpu.tools.actions.CreateTnDecProject" text="Create Project"
                     description="Create a an Angular Tiny Decorations Project" icon="/images/tt.png">
             </action>
+
             <action id="TD_MarkAsProject" class="net.werpu.tools.actions.MarkProjectAsTnDec" text="Mark as TN Dec Project"
                     description="Mark current folder as Tiny Decorations project"></action>
 
             <action id="TD_CreateI18NFile" class="net.werpu.tools.actions.CreateI18NFile" text="Create I18N File"
                     description="add an i18n file into the current folder" icon="/images/tt.png"></action>
+
             <action id="TD_CreateI18NFileFromJson" class="net.werpu.tools.actions.I18NCreateTypescriptFromJSon" text="Create/Update I18N Typescript File"
                     description="add/update an i18n typescript file in the current folder" icon="/images/tt.png"></action>
+
+            <action id="TD_CreateI18NFileFromTypescript" class="net.werpu.tools.actions.I18NCreateJsonFromTypescript" text="Create/Update I18N Json File"
+                    description="add/update an i18n json file in the current folder" icon="/images/tt.png"></action>
 
 
             <separator/>
@@ -144,6 +149,8 @@
 
             <action id="NG_CreateI18NFileFromJson" class="net.werpu.tools.actions.I18NCreateTypescriptFromJSon" text="Create/Update I18N Typescript File"
                     description="add/update an i18n typescript file in the current folder" icon="/images/tt.png"></action>
+            <action id="NG_CreateI18NFileFromTypescript" class="net.werpu.tools.actions.I18NCreateJsonFromTypescript" text="Create/Update I18N JSon File"
+                    description="add/update an i18n json file in the current folder" icon="/images/tt.png"></action>
 
 
             <separator/>
@@ -211,6 +218,8 @@
 
             <action id="TTNGCreateI18NFileFromJson" class="net.werpu.tools.actions.I18NCreateTypescriptFromJSon" text="Create/Update I18N Typescript File"
                     description="add/update an i18n typescript file in the current folder" icon="/images/tt.png"></action>
+            <action id="TTNG_CreateI18NFileFromTypescript" class="net.werpu.tools.actions.I18NCreateJsonFromTypescript" text="Create/Update I18N Json File"
+                    description="add/update an i18n json file in the current folder" icon="/images/tt.png"></action>
 
 
             <action id="TTNG_CreateRestEndpoint3" class="net.werpu.tools.actions_all.CreateRestEndpoint" text="Create Rest Endpoint"

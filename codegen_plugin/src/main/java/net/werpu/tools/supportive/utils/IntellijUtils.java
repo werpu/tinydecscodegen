@@ -932,6 +932,10 @@ public class IntellijUtils {
         return LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("TypeScript"));
     }
 
+    public static Language getJsonLanguageDef() {
+        return LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("JSon"));
+    }
+
 
     public static Optional<Language> getTnDecTemplateLanguageDef() {
         Language lang = getHtmlLanguage();

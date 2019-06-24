@@ -76,12 +76,15 @@ public class InternationalizeString extends AnAction {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
-        IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
-        //if typescript file the cursor at least must be in a string
-        if (!assertNotTs(ctx)) {
-            VisibleAssertions.cursorInTemplate(anActionEvent);
-        }
+
+
         try {
+            IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
+            //if typescript file the cursor at least must be in a string
+            if (!assertNotTs(ctx)) {
+                VisibleAssertions.cursorInTemplate(anActionEvent);
+            }
+
             if (anActionEvent.getPresentation().isEnabledAndVisible()) {
                 L18NTransformationModel model = new L18NTransformationModel(new IntellijFileContext(anActionEvent));
                 model.getFrom();

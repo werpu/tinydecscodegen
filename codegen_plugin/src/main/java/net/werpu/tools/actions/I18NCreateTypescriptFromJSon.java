@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
+import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.psi.PsiElement;
@@ -12,7 +13,10 @@ import com.intellij.psi.codeStyle.CodeStyleManager;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
 import net.werpu.tools.factories.TnDecGroupFactory;
 import net.werpu.tools.indexes.L18NIndexer;
-import net.werpu.tools.supportive.fs.common.*;
+import net.werpu.tools.supportive.fs.common.IntellijFileContext;
+import net.werpu.tools.supportive.fs.common.L18NFileContext;
+import net.werpu.tools.supportive.fs.common.PsiElementContext;
+import net.werpu.tools.supportive.fs.common.PsiL18nEntryContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -20,8 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotJson;
-import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.JSON_OBJECT;
-import static net.werpu.tools.supportive.utils.IntellijRunUtils.writeTransaction;
 import static net.werpu.tools.supportive.utils.IntellijUtils.*;
 
 /**
@@ -38,15 +40,11 @@ public class I18NCreateTypescriptFromJSon extends AnAction {
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
 
         if (getFolderOrFile(anActionEvent) == null ||
-                ctx.getVirtualFile().isDirectory()) {
+                ctx.getVirtualFile().isDirectory() || assertNotJson(ctx) ) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
 
-        if(assertNotJson(ctx)) {
-            anActionEvent.getPresentation().setEnabledAndVisible(false);
-            return;
-        }
 
         Optional<IntellijFileContext> found =  L18NIndexer.getAllAffectedFiles(anActionEvent.getProject())
                 .parallelStream().filter(fileContext -> fileContext.getVirtualFile().getPath().equals(ctx.getVirtualFile().getPath())).findFirst();
@@ -61,13 +59,13 @@ public class I18NCreateTypescriptFromJSon extends AnAction {
 
         IntellijFileContext ctx = new IntellijFileContext(e);
         //first calculate the new filename
-        String newFileName = ctx.getVirtualFile().getName().replaceAll("\\.json$", ".ts");
+        String newFileName = calculateFileName(ctx);
 
         //TODO add transformation hooks here
 
-        PsiL18nEntryContext entry = new PsiL18nEntryContext(new L18NFileContext(e).getResourceRoot());
+        PsiL18nEntryContext entry = getResourceRoot(e);
 
-        FileTemplate vslTemplate = FileTemplateManager.getInstance(ctx.getProject()).getJ2eeTemplate(TnDecGroupFactory.TPL_I18N_TS_FILE);
+        FileTemplate vslTemplate = FileTemplateManager.getInstance(ctx.getProject()).getJ2eeTemplate(getTemplate());
         Map<String, Object> attrs = Maps.newHashMap();
 
         attrs.put("ROOT_ELEMENT", entry.getRootTreeReference());
@@ -76,13 +74,32 @@ public class I18NCreateTypescriptFromJSon extends AnAction {
         try {
             String vslTemplateText = vslTemplate.getText();
             String mergedContent = FileTemplateUtil.mergeTemplate(attrs, vslTemplateText, false);
-            PsiFile file = createRamFileFromText(ctx.getProject(),ctx.getVirtualFile().getName(), mergedContent, getTypescriptLanguageDef());
+            PsiFile file = createRamFileFromText(ctx.getProject(),ctx.getVirtualFile().getName(), mergedContent, getLanguageDef());
             PsiElement reformatted = CodeStyleManager.getInstance(ctx.getProject()).reformat(file.getOriginalElement().getChildren()[0]);
 
-            diffOrWriteGenericFile(ctx.getProject(), ctx.getVirtualFile().getParent(), newFileName, reformatted.getText(), getTypescriptLanguageDef());
+            diffOrWriteGenericFile(ctx.getProject(), ctx.getVirtualFile().getParent(), newFileName, reformatted.getText(), getLanguageDef());
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
 
+    }
+
+    @NotNull
+    public PsiL18nEntryContext getResourceRoot(@NotNull AnActionEvent e) {
+        return new PsiL18nEntryContext(new PsiElementContext(new IntellijFileContext(e).getPsiFile()));
+    }
+
+    public Language getLanguageDef() {
+        return getTypescriptLanguageDef();
+    }
+
+    @NotNull
+    public String getTemplate() {
+        return TnDecGroupFactory.TPL_I18N_TS_FILE;
+    }
+
+    @NotNull
+    public String calculateFileName(IntellijFileContext ctx) {
+        return ctx.getVirtualFile().getName().replaceAll("\\.json$", ".ts");
     }
 }
