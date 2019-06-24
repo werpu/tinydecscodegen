@@ -14,7 +14,6 @@ import net.werpu.tools.actions_all.shared.VisibleAssertions;
 import net.werpu.tools.factories.TnDecGroupFactory;
 import net.werpu.tools.indexes.L18NIndexer;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
-import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.PsiL18nEntryContext;
 import org.jetbrains.annotations.NotNull;
