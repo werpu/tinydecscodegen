@@ -88,7 +88,8 @@ public class L18NIndexer extends ScalarIndexExtension<String> {
             String fileName = inputData.getFile().getName().toLowerCase();
             if (
                     (!standardSimpleFileExclusion(inputData)) &&
-                            fileName.endsWith(".json") &&
+                            //we index atm json ans typescript files
+                            isAllowedFileType(fileName) &&
                             (!fileName.endsWith("bower.json")) &&
                             (!fileName.endsWith("tsconfig.json")) &&
                             (!fileName.startsWith(".")) &&
@@ -103,6 +104,12 @@ public class L18NIndexer extends ScalarIndexExtension<String> {
 
             return Collections.emptyMap();
         }
+    }
+
+    //atm we only support json and ts filetypes depending on the library support
+    //we might extend this in the future
+    public static boolean isAllowedFileType(String fileName) {
+        return fileName.endsWith(".json") || fileName.endsWith(".ts");
     }
 
     private static boolean isMarked(@NotNull FileContent inputData) {

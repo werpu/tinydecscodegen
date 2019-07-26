@@ -32,6 +32,10 @@ public class SingleL18n {
     private JRadioButton rbExists;
     private JButton btnLoadCreate;
     private JLabel lblFileName;
+    private JLabel lblTargets;
+    private JRadioButton rbJSON;
+    private JRadioButton rbTS;
+    private JRadioButton rbBoth;
 
 
     private java.util.List<IntelliFileContextComboboxModelEntry> allFiles;
@@ -72,6 +76,23 @@ public class SingleL18n {
     public void setContainingFiles(List<IntelliFileContextComboboxModelEntry> containingFiles) {
         this.containingFiles = containingFiles;
         valueChanged();
+    }
+
+    /**
+     * display the multi type elements
+     * for further processing
+     *
+     * @param visible
+     */
+    public void multiType(boolean visible) {
+        this.rbJSON.setVisible(visible);
+        this.rbAll.setVisible(visible);
+        this.rbBoth.setVisible(visible);
+        this.lblTargets.setVisible(visible);
+    }
+
+    public boolean isMultiType() {
+        return rbJSON.isVisible();
     }
 
     public void addFileChangeListener(ItemListener listener) {

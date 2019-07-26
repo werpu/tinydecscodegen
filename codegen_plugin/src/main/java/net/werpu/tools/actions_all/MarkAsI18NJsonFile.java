@@ -7,7 +7,7 @@ import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiL18nEntryContext;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
-import net.werpu.tools.supportive.transformations.L18NDeclFileTransformation;
+import net.werpu.tools.supportive.transformations.I18NJsonDeclFileTransformation;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,7 +43,7 @@ public class MarkAsI18NJsonFile extends MarkAsI18NTSFile {
             try {
                 //TODO add a prepend functionality
                 L18NFileContext i18nFile = new L18NFileContext(ctx.getProject(), ctx.getPsiFile());
-                L18NDeclFileTransformation transformation = new L18NDeclFileTransformation(i18nFile, I18N_MARKER, "PLEASE DO NOT DELETE THIS VALUE, IT MARKS THE FILE  AS I18N JSON FILE");
+                I18NJsonDeclFileTransformation transformation = new I18NJsonDeclFileTransformation(i18nFile, I18N_MARKER, "PLEASE DO NOT DELETE THIS VALUE, IT MARKS THE FILE  AS I18N JSON FILE");
                 i18nFile.addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
 
                 i18nFile.commit();

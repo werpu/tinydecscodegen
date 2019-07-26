@@ -4,10 +4,9 @@ import net.werpu.tools.supportive.fs.common.ComponentFileContext;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
-import net.werpu.tools.supportive.transformations.L18NTransformationModel;
+import net.werpu.tools.supportive.transformations.I18NTransformationModel;
 import net.werpu.tools.supportive.transformations.modelHelpers.PARSING_TYPE;
 import net.werpu.tools.supportive.utils.StringUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Optional;
@@ -42,7 +41,7 @@ public class L18nEditingTest extends LightCodeInsightFixtureTestCase {
         ComponentFileContext ctx = new ComponentFileContext(new IntellijFileContext(componentFile.getProject(), componentFile));
 
         //lets try our cases on am embedded file
-        L18NTransformationModel transformationModel = new L18NTransformationModel(ctx, POS_STATIC_TEXT);
+        I18NTransformationModel transformationModel = new I18NTransformationModel(ctx, POS_STATIC_TEXT);
         assertTrue(transformationModel.getFrom() > 0);
         assertTrue(transformationModel.getTo() > 0);
 
@@ -57,7 +56,7 @@ public class L18nEditingTest extends LightCodeInsightFixtureTestCase {
         ComponentFileContext ctx = new ComponentFileContext(new IntellijFileContext(componentFile.getProject(), componentFile));
 
         //lets try our cases on am embedded file
-        L18NTransformationModel transformationModel = new L18NTransformationModel(ctx, POS_STATIC_TEXT_2);
+        I18NTransformationModel transformationModel = new I18NTransformationModel(ctx, POS_STATIC_TEXT_2);
         assertTrue(transformationModel.getFrom() > 0);
         assertTrue(transformationModel.getTo() > 0);
 
@@ -73,7 +72,7 @@ public class L18nEditingTest extends LightCodeInsightFixtureTestCase {
         ComponentFileContext ctx = new ComponentFileContext(new IntellijFileContext(componentFile.getProject(), componentFile));
 
         //lets try our cases on am embedded file
-        L18NTransformationModel transformationModel = new L18NTransformationModel(ctx, POS_TRANSLATE);
+        I18NTransformationModel transformationModel = new I18NTransformationModel(ctx, POS_TRANSLATE);
         assertTrue(transformationModel.getFrom() > 0);
         assertTrue(transformationModel.getTo() > 0);
 
@@ -88,7 +87,7 @@ public class L18nEditingTest extends LightCodeInsightFixtureTestCase {
         ComponentFileContext ctx = new ComponentFileContext(new IntellijFileContext(componentFile.getProject(), componentFile));
 
         //lets try our cases on am embedded file
-        L18NTransformationModel transformationModel = new L18NTransformationModel(ctx, POS_ATTR);
+        I18NTransformationModel transformationModel = new I18NTransformationModel(ctx, POS_ATTR);
         assertTrue(transformationModel.getFrom() > 0);
         assertTrue(transformationModel.getTo() > 0);
 
@@ -104,7 +103,7 @@ public class L18nEditingTest extends LightCodeInsightFixtureTestCase {
         ComponentFileContext ctx = new ComponentFileContext(new IntellijFileContext(componentFile.getProject(), componentFile));
 
         //lets try our cases on am embedded file
-        L18NTransformationModel transformationModel = new L18NTransformationModel(ctx, POS_EXPR);
+        I18NTransformationModel transformationModel = new I18NTransformationModel(ctx, POS_EXPR);
         assertTrue(transformationModel.getFrom() > 0);
         assertTrue(transformationModel.getTo() > 0);
 
@@ -118,7 +117,7 @@ public class L18nEditingTest extends LightCodeInsightFixtureTestCase {
         ComponentFileContext ctx = new ComponentFileContext(new IntellijFileContext(componentFile.getProject(), componentFile));
 
         //lets try our cases on am embedded file
-        L18NTransformationModel transformationModel = new L18NTransformationModel(ctx, POS_EXPR_TRANSLATE);
+        I18NTransformationModel transformationModel = new I18NTransformationModel(ctx, POS_EXPR_TRANSLATE);
         assertTrue(transformationModel.getFrom() > 0);
         assertTrue(transformationModel.getTo() > 0);
 

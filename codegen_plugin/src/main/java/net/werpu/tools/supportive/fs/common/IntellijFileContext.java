@@ -41,6 +41,7 @@ import net.werpu.tools.supportive.refactor.IRefactorUnit;
 import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import net.werpu.tools.supportive.utils.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -460,5 +461,38 @@ public class IntellijFileContext {
         return projectFileIndex.isExcluded(virtualFile) || projectFileIndex.isUnderIgnored(virtualFile);
     }
 
+    /**
+     * Base file information
+     * get the base file name aka my.foo -> returns my
+     * @return
+     */
+    public String getBaseName() {
+        String fileName = getFileName();
+        int endIndex = fileName.lastIndexOf(".");
+        if(endIndex == -1) {
+            return fileName;
+        }
+        String rawName = fileName.substring(0, endIndex);
+        return rawName;
+    }
+
+
+    /**
+     * returns the raw filename
+     * @return
+     */
+    @NotNull
+    public String getFileName() {
+        return this.getVirtualFile().getName();
+    }
+
+    /**
+     * returns only the ending
+      * @return
+     */
+    public String getFileEnding() {
+        String fileName = getFileName();
+        return fileName.substring(fileName.lastIndexOf(".") + 1);
+    }
 
 }

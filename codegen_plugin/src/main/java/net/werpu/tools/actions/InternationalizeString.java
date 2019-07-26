@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import lombok.Data;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
 import net.werpu.tools.configuration.ConfigSerializer;
@@ -26,13 +27,16 @@ import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
-import net.werpu.tools.supportive.transformations.L18NDeclFileTransformation;
-import net.werpu.tools.supportive.transformations.L18NSourceTransformation;
-import net.werpu.tools.supportive.transformations.L18NTransformationModel;
+import net.werpu.tools.supportive.transformations.I18NJsonDeclFileTransformation;
+import net.werpu.tools.supportive.transformations.I18NSourceTransformation;
+import net.werpu.tools.supportive.transformations.I18NTransformationModel;
+import net.werpu.tools.supportive.transformations.I18NTypescriptDeclFileTransformation;
 import net.werpu.tools.supportive.transformations.modelHelpers.ElementNotResolvableException;
+import net.werpu.tools.supportive.utils.FileEndings;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -58,21 +62,19 @@ class DialogHolder {
 
 /**
  * Action for single string interationalization
+ * <p>
+ * //TODO json only case
  */
 public class InternationalizeString extends AnAction {
 
     public InternationalizeString() {
     }
 
-
-    //TODO check whether the editor in template or string and template
-
-
     @Override
     public void update(AnActionEvent anActionEvent) {
         //must be either typescript or html to be processable
         VisibleAssertions.templateVisible(anActionEvent);
-        if(IntellijUtils.getFolderOrFile(anActionEvent) == null) {
+        if (IntellijUtils.getFolderOrFile(anActionEvent) == null) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
@@ -86,14 +88,13 @@ public class InternationalizeString extends AnAction {
             }
 
             if (anActionEvent.getPresentation().isEnabledAndVisible()) {
-                L18NTransformationModel model = new L18NTransformationModel(new IntellijFileContext(anActionEvent));
+                I18NTransformationModel model = new I18NTransformationModel(new IntellijFileContext(anActionEvent));
                 model.getFrom();
             }
         } catch (ElementNotResolvableException ex) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
         }
     }
-
 
     /*
      *
@@ -104,7 +105,7 @@ public class InternationalizeString extends AnAction {
      *
      * load all potential l18n json files
      *
-     *
+     *ƒ
      * check if the string exists and fetch the key if it exists
      * if not map the string to uppercase lowerdash
      *
@@ -126,7 +127,7 @@ public class InternationalizeString extends AnAction {
         //non attr {'text' | translate} -> {'key' | translate}
 
         final IntellijFileContext fileContext = new IntellijFileContext(e);
-        L18NTransformationModel model = new L18NTransformationModel(fileContext);
+        I18NTransformationModel model = new I18NTransformationModel(fileContext);
 
         SingleL18n mainForm = new SingleL18n();
         final DialogHolder oDialog = new DialogHolder();
@@ -160,7 +161,7 @@ public class InternationalizeString extends AnAction {
 
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
         final java.util.List<IntelliFileContextComboboxModelEntry> possibleL18nFiles = new ArrayList<>();
-        possibleL18nFiles.addAll(Lists.transform(L18NIndexer.getAllAffectedFiles(project), IntelliFileContextComboboxModelEntry::new)) ;
+        possibleL18nFiles.addAll(createComboboxEntries(project));
 
         mainForm.getBtnLoadCreate().addActionListener((ActionEvent event) -> {
             FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
@@ -172,9 +173,8 @@ public class InternationalizeString extends AnAction {
         });
 
 
-
         //no l18n file exists,
-        if(possibleL18nFiles.isEmpty()) {
+        if (possibleL18nFiles.isEmpty()) {
             //no i18n file found we make a dialog prompt to create one
             FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
             descriptor.setTitle("Select i18n target directory");
@@ -202,6 +202,8 @@ public class InternationalizeString extends AnAction {
             IntelliFileContextComboboxModelEntry selectedItem = (IntelliFileContextComboboxModelEntry) itemEvent.getItem();
             applyKey(mainForm, selectedItem, model);
             applyFileName(mainForm, selectedItem);
+            boolean isMultitype = selectedItem.getTsFile() != null && selectedItem.getJSONFile() != null;
+            mainForm.multiType(isMultitype);
         });
 
 
@@ -222,13 +224,13 @@ public class InternationalizeString extends AnAction {
         TinyDecsConfiguration conf = ConfigSerializer.getInstance().getState();
         String storedFileNameAll = conf.getLastSelectedL18NFileAllFiles();
         String storedFileNameExists = conf.getLastSelectedL18NFileExistsFiles();
-        if(mainForm.getRbAll().isSelected() && !Strings.isNullOrEmpty(storedFileNameAll)) {
+        if (mainForm.getRbAll().isSelected() && !Strings.isNullOrEmpty(storedFileNameAll)) {
             //select the item which matches
             readjustFileSelection(mainForm, storedFileNameAll, true);
         }
 
-        if(mainForm.getRbExists().isSelected() && !Strings.isNullOrEmpty(conf.getLastSelectedL18NFileExistsFiles())) {
-           //select the item which matches
+        if (mainForm.getRbExists().isSelected() && !Strings.isNullOrEmpty(conf.getLastSelectedL18NFileExistsFiles())) {
+            //select the item which matches
             readjustFileSelection(mainForm, storedFileNameExists, false);
         }
 
@@ -242,6 +244,8 @@ public class InternationalizeString extends AnAction {
                 //todo target file creation logic here
                 return;
             }
+
+            boolean isMultiType = mainForm.isMultiType();
 
 
             boolean noConflict = oDialog.getODialog() == null;
@@ -258,12 +262,12 @@ public class InternationalizeString extends AnAction {
                     }
 
                     VirtualFile virtualFile = targetFile.getValue().getVirtualFile();
-                    if(mainForm.getRbAll().isSelected()) {
-                        conf.setLastSelectedL18NFileAllFiles(virtualFile.getPath()+virtualFile.getName());
+                    if (mainForm.getRbAll().isSelected()) {
+                        conf.setLastSelectedL18NFileAllFiles(virtualFile.getPath() + virtualFile.getName());
                     }
 
-                    if(mainForm.getRbExists().isSelected()) {
-                        conf.setLastSelectedL18NFileExistsFiles(virtualFile.getPath()+virtualFile.getName());
+                    if (mainForm.getRbExists().isSelected()) {
+                        conf.setLastSelectedL18NFileExistsFiles(virtualFile.getPath() + virtualFile.getName());
                     }
 
                 } catch (IOException e1) {
@@ -276,20 +280,63 @@ public class InternationalizeString extends AnAction {
 
     }
 
+
+    @NotNull
+    public List<IntelliFileContextComboboxModelEntry> createComboboxEntries(Project project) {
+        List<IntellijFileContext> allAffectedFiles = L18NIndexer.getAllAffectedFiles(project);
+        //we have to group them by name and type
+        allAffectedFiles = sortByName(allAffectedFiles);
+
+        IntellijFileContext lastJSonFile = null;
+        IntellijFileContext lastTsFile = null;
+        List<IntelliFileContextComboboxModelEntry> retVal = new ArrayList<>();
+        for (IntellijFileContext affectedFile : allAffectedFiles) {
+            FileTypeGrouper applyValues = new FileTypeGrouper(lastJSonFile, lastTsFile, retVal, affectedFile).invoke();
+            if (applyValues.is()) break;
+            lastJSonFile = applyValues.getLastJSonFile();
+            lastTsFile = applyValues.getLastTsFile();
+        }
+        new FileTypeGrouper(lastJSonFile, lastTsFile, retVal, null).invoke();
+
+        return retVal;
+    }
+
+    @NotNull
+    public List<IntellijFileContext> sortByName(List<IntellijFileContext> allAffectedFiles) {
+        return allAffectedFiles.stream().sorted((item1, item2) -> {
+            if (item1 == null && item2 == null) {
+                return 0;
+            }
+            if (item1 == null) {
+                return -1;
+            }
+            if (item2 == null) {
+                return 1;
+            }
+            return (item1.getFileName()).compareTo(item2.getFileName());
+        }).collect(Collectors.toList());
+    }
+
+    public boolean isOverlapping(IntellijFileContext lastJSonFile, IntellijFileContext lastTsFile) {
+        return lastTsFile != null && lastJSonFile != null && lastTsFile.getBaseName().equals(lastJSonFile.getBaseName());
+    }
+
     private void applyFileName(SingleL18n mainForm, IntelliFileContextComboboxModelEntry selectedItem) {
         mainForm.getLblFileName().setText(selectedItem.getValue().getModuleRelativePath());
     }
 
     private void selectOrCreateI18nFile(Project project, List<IntelliFileContextComboboxModelEntry> possibleL18nFiles, FileChooserDescriptor descriptor) {
         final VirtualFile vfile1 = FileChooser.chooseFile(descriptor, project, project.getProjectFile());
-        if(vfile1 != null) {
+        if (vfile1 != null) {
             writeTransaction(project, () -> {
                 try {
-                    if(vfile1.isDirectory()) {
-                        VirtualFile i18nFile = IntellijUtils.createFileDirectly(project, vfile1, "{}", "labels_en.json");
-                        possibleL18nFiles.addAll(Lists.transform(Arrays.asList(new IntellijFileContext(project, i18nFile)), IntelliFileContextComboboxModelEntry::new));
+                    if (vfile1.isDirectory()) {
+                        VirtualFile i18nFile = IntellijUtils.createFileDirectly(project, vfile1, "{}", FileEndings.LABELS_EN_JSON);
+                        final IntellijFileContext alternative = alternativeFileExists(project, i18nFile);
+                        possibleL18nFiles.addAll(Lists.transform(Arrays.asList(new IntellijFileContext(project, i18nFile)), e -> new IntelliFileContextComboboxModelEntry(e, alternative)));
                     } else {
-                        possibleL18nFiles.addAll(Lists.transform(Arrays.asList(new IntellijFileContext(project, vfile1)), IntelliFileContextComboboxModelEntry::new));
+                        final IntellijFileContext alternative = alternativeFileExists(project, vfile1);
+                        possibleL18nFiles.addAll(Lists.transform(Arrays.asList(new IntellijFileContext(project, vfile1)), e -> new IntelliFileContextComboboxModelEntry(e, alternative)));
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -300,12 +347,30 @@ public class InternationalizeString extends AnAction {
         }
     }
 
+
+    @Nullable
+    public IntellijFileContext alternativeFileExists(Project project, VirtualFile i18nFile) {
+
+        IntellijFileContext intellijFileContext = new IntellijFileContext(project, i18nFile);
+
+        String path = i18nFile.getPath();
+        String rawName = path.substring(0, path.lastIndexOf("."));
+        String extension = i18nFile.getExtension();
+        String subExtension = extension.equals(FileEndings.TS) ? FileEndings.JSON : FileEndings.TS;
+        String alternatePath = rawName + "." + subExtension;
+        VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl("file:///" + alternatePath);
+        if (virtualFile != null) {
+            return new IntellijFileContext(project, virtualFile);
+        }
+        return null;
+    }
+
     public void readjustFileSelection(SingleL18n mainForm, String fileName, boolean allFiles) {
         int cnt = 0;
         List<IntelliFileContextComboboxModelEntry> filesModel = (allFiles) ? mainForm.getAllFiles() : mainForm.getContainingFiles();
-        for(IntelliFileContextComboboxModelEntry entry: filesModel) {
+        for (IntelliFileContextComboboxModelEntry entry : filesModel) {
             String fileName2 = entry.getValue().getVirtualFile().getPath() + entry.getValue().getVirtualFile().getName();
-            if(fileName.equals(fileName2)) {
+            if (fileName.equals(fileName2)) {
                 mainForm.getCbL18NFile().setSelectedIndex(cnt);
             }
             cnt++;
@@ -316,7 +381,7 @@ public class InternationalizeString extends AnAction {
     /**
      * case 2 overwrite the internationalization value with the new one
      */
-    public void invokeOverwriteReplacement(IntellijFileContext fileContext, L18NTransformationModel
+    public void invokeOverwriteReplacement(IntellijFileContext fileContext, I18NTransformationModel
             model, SingleL18n mainForm, Document document, IntelliFileContextComboboxModelEntry l18nFile) throws IOException {
 
         String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
@@ -331,10 +396,13 @@ public class InternationalizeString extends AnAction {
     public void updateL18nFileWithNewValue(SingleL18n mainForm, String finalKey, L18NFileContext l18nFileContext) throws IOException {
         Optional<PsiElementContext> foundValue = l18nFileContext.getValue(finalKey);
         //no key present, simply add it as last entry at the end of the L18nfile
-
-        L18NDeclFileTransformation transformation = new L18NDeclFileTransformation(l18nFileContext, finalKey, mainForm.getTxtText().getText());
-
-        l18nFileContext.addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
+        if (IntellijUtils.isJSON(l18nFileContext.getVirtualFile().getFileType())) {
+            I18NJsonDeclFileTransformation transformation = new I18NJsonDeclFileTransformation(l18nFileContext, finalKey, mainForm.getTxtText().getText());
+            l18nFileContext.addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
+        } else {
+            I18NTypescriptDeclFileTransformation transformation = new I18NTypescriptDeclFileTransformation(l18nFileContext, finalKey, mainForm.getTxtText().getText());
+            l18nFileContext.addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
+        }
         l18nFileContext.commit();
         l18nFileContext.reformat();
     }
@@ -342,7 +410,7 @@ public class InternationalizeString extends AnAction {
     /**
      * case 2 simply create a new entry
      */
-    public void invokeNewEntry(IntellijFileContext fileContext, L18NTransformationModel model, SingleL18n
+    public void invokeNewEntry(IntellijFileContext fileContext, I18NTransformationModel model, SingleL18n
             mainForm, Document document, IntelliFileContextComboboxModelEntry l18nFile) throws IOException {
 
         String key = (String) mainForm.getCbL18nKey().getSelectedItem();
@@ -356,10 +424,24 @@ public class InternationalizeString extends AnAction {
 
         replaceTextWithKey(mainForm, model, l18nFile, key);
         updateShadowEditor(model, document);
-        model = model.cloneWithNewKey(key);
+        final I18NTransformationModel finalModel = model.cloneWithNewKey(key);
 
-        addReplaceL18NConfig(model, l18nFile, Optional.empty());
+        //fetch the key if it is there and then just ignore any changes on the target file and simply insert the key
+        //in the editor
 
+        L18NFileContext tsFile = l18nFile.getTsFile().orElse(null);
+        L18NFileContext jsonFile = l18nFile.getJSONFile().orElse(null);
+        if (mainForm.getRbTS().isSelected()) {
+            updateI18nFile(finalModel, tsFile);
+        } else {
+
+            if (mainForm.getRbBoth().isSelected()) { //both
+                updateI18nFile(finalModel, tsFile);
+                updateI18nFile(finalModel, jsonFile);
+            } else {
+                updateI18nFile(finalModel, jsonFile);
+            }
+        }
     }
 
 
@@ -367,12 +449,10 @@ public class InternationalizeString extends AnAction {
      * case 1, normal replacement in text editor
      * and or
      */
-    public void invokeNormalReplacement(IntellijFileContext fileContext, L18NTransformationModel model, SingleL18n
+    public void invokeNormalReplacement(IntellijFileContext fileContext, I18NTransformationModel model, SingleL18n
             mainForm, Document document, IntelliFileContextComboboxModelEntry l18nFile) throws IOException {
 
 
-        //fetch the key if it is there and then just ignore any changes on the target file and simply insert the key
-        //in the editor
         String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
         Optional<PsiElementContext> foundItem = l18nFile.getValue().getValue(finalKey);
 
@@ -380,35 +460,66 @@ public class InternationalizeString extends AnAction {
 
         replaceTextWithKey(mainForm, model, l18nFile, finalKey);
         updateShadowEditor(model, document);
-        addReplaceL18NConfig(model.cloneWithNewKey(finalKey), l18nFile, foundItem);
+
+        //fetch the key if it is there and then just ignore any changes on the target file and simply insert the key
+        //in the editor
 
 
+        I18NTransformationModel cloned = model.cloneWithNewKey(finalKey);
+        L18NFileContext tsFile = l18nFile.getTsFile().orElse(null);
+        if (mainForm.getRbTS().isSelected()) {
+            updateI18nFile(Optional.of(finalKey), cloned, tsFile);
+        } else {
+            L18NFileContext jsonFile = l18nFile.getJSONFile().orElse(null);
+            if (mainForm.getRbBoth().isSelected()) { //both
+                if (tsFile != null) {
+                    updateI18nFile(Optional.of(finalKey), cloned, tsFile);
+                }
+                if (jsonFile != null) {
+                    updateI18nFile(Optional.of(finalKey), cloned, jsonFile);
+                }
+            } else {
+                updateI18nFile(Optional.of(finalKey), cloned, jsonFile);
+            }
+        }
     }
 
-    public void addReplaceL18NConfig(L18NTransformationModel transformationModel, IntelliFileContextComboboxModelEntry i18nFile, Optional<PsiElementContext> i18nValue) throws IOException {
+    public void updateI18nFile(Optional<String> finalKey, I18NTransformationModel modelSupplier, L18NFileContext fileProducer) throws IOException {
+        addReplaceL18NConfig(modelSupplier, fileProducer, fileProducer.getValue(finalKey.get()));
+    }
+
+    public void updateI18nFile(I18NTransformationModel modelSupplier, L18NFileContext fileProducer) throws IOException {
+        addReplaceL18NConfig(modelSupplier, fileProducer, Optional.empty());
+    }
+
+    public void addReplaceL18NConfig(I18NTransformationModel transformationModel, L18NFileContext i18nFile, Optional<PsiElementContext> i18nValue) throws IOException {
         if (!i18nValue.isPresent()) {
 
-            L18NDeclFileTransformation transformation = new L18NDeclFileTransformation(i18nFile.getValue(), transformationModel.getKey() , transformationModel.getValue());
-            i18nFile.getValue().addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
 
-            i18nFile.getValue().commit();
-            i18nFile.getValue().reformat();
+            if (IntellijUtils.isJSON(i18nFile.getVirtualFile().getFileType())) {
+                I18NJsonDeclFileTransformation transformation = new I18NJsonDeclFileTransformation(i18nFile, transformationModel.getKey(), transformationModel.getValue());
+                i18nFile.addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
+            } else {
+                I18NTypescriptDeclFileTransformation transformation = new I18NTypescriptDeclFileTransformation(i18nFile, transformationModel.getKey(), transformationModel.getValue());
+                i18nFile.addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
+            }
+
+            i18nFile.commit();
+            i18nFile.reformat();
         }
     }
 
 
-    public void updateShadowEditor(L18NTransformationModel transformationModel, Document document) {
+    public void updateShadowEditor(I18NTransformationModel transformationModel, Document document) {
         //in case of an open template we need to update the template text in the editor
         if (transformationModel.getFileContext().getPsiFile().getVirtualFile().getPath().substring(1).startsWith(TEMPLATE_OF)) {
-            //java.util.List<CaretState> caretsAndSelections = editor.getCaretModel().getCaretsAndSelections();
             document.setText(transformationModel.getFileContext().getShadowText());
-            //editor.getCaretModel().setCaretsAndSelections(caretsAndSelections);
         }
     }
 
-    public void replaceTextWithKey(SingleL18n uiForm, L18NTransformationModel transformationModel, IntelliFileContextComboboxModelEntry i18nFile, String finalKey) throws IOException {
+    public void replaceTextWithKey(SingleL18n uiForm, I18NTransformationModel transformationModel, IntelliFileContextComboboxModelEntry i18nFile, String finalKey) throws IOException {
 
-        L18NSourceTransformation transformation = new L18NSourceTransformation(transformationModel, finalKey, uiForm.getTxtText().getText());
+        I18NSourceTransformation transformation = new I18NSourceTransformation(transformationModel, finalKey, uiForm.getTxtText().getText());
 
         transformationModel.getFileContext().refactorContent(Arrays.asList(transformation.getTnDecRefactoring()));
         transformationModel.getFileContext().commit();
@@ -422,7 +533,7 @@ public class InternationalizeString extends AnAction {
      * @param selectedItem
      * @param templateModel
      */
-    public void applyKey(SingleL18n mainForm, IntelliFileContextComboboxModelEntry selectedItem, L18NTransformationModel templateModel) {
+    public void applyKey(SingleL18n mainForm, IntelliFileContextComboboxModelEntry selectedItem, I18NTransformationModel templateModel) {
         List<String> possibleKeys = selectedItem.getValue().getKey(templateModel.getValue());
         //we now transfer all possible keys in
         if (!possibleKeys.isEmpty()) {
@@ -435,4 +546,63 @@ public class InternationalizeString extends AnAction {
         }
     }
 
+    /**
+     * GroupingHelper
+     */
+    private class FileTypeGrouper {
+        private boolean myResult;
+        private IntellijFileContext lastJSonFile;
+        private IntellijFileContext lastTsFile;
+        private List<IntelliFileContextComboboxModelEntry> retVal;
+        private IntellijFileContext affectedFile;
+
+        public FileTypeGrouper(IntellijFileContext lastJSonFile, IntellijFileContext lastTsFile, List<IntelliFileContextComboboxModelEntry> retVal, IntellijFileContext affectedFile) {
+            this.lastJSonFile = lastJSonFile;
+            this.lastTsFile = lastTsFile;
+            this.retVal = retVal;
+            this.affectedFile = affectedFile;
+        }
+
+        boolean is() {
+            return myResult;
+        }
+
+        public IntellijFileContext getLastJSonFile() {
+            return lastJSonFile;
+        }
+
+        public IntellijFileContext getLastTsFile() {
+            return lastTsFile;
+        }
+
+        public FileTypeGrouper invoke() {
+
+            boolean isJson = affectedFile != null ? IntellijUtils.isJSON(affectedFile.getPsiFile().getFileType()) : true;
+            boolean isTS = affectedFile != null ? IntellijUtils.isTypescript(affectedFile.getPsiFile().getFileType()) : true;
+
+            if (isOverlapping(lastJSonFile, lastTsFile)) {
+                retVal.add(new IntelliFileContextComboboxModelEntry(lastJSonFile, lastTsFile));
+                lastJSonFile = null;
+                lastTsFile = null;
+                myResult = true;
+                return this;
+            }
+
+            if ((lastJSonFile != null && isJson)) {
+                retVal.add(new IntelliFileContextComboboxModelEntry(lastJSonFile));
+
+            } else if ((lastTsFile != null && isTS)) {
+                retVal.add(new IntelliFileContextComboboxModelEntry(lastTsFile));
+            }
+            if (affectedFile != null) {
+                if (isJson) {
+                    lastJSonFile = affectedFile;
+                } else {
+                    lastTsFile = affectedFile;
+                }
+            }
+            myResult = false;
+            return this;
+        }
+    }
 }

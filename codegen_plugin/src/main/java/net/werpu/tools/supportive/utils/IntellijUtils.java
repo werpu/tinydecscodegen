@@ -673,6 +673,8 @@ public class IntellijUtils {
         return defaultExtension.equalsIgnoreCase(getTsExtension());
     }
 
+
+
     public static boolean isJSON(FileType fileType) {
         String defaultExtension = fileType.getDefaultExtension();
         if(!defaultExtension.startsWith(".")) {

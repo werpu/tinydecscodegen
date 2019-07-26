@@ -19,10 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,6 +40,7 @@ public class L18NFileContext extends IntellijFileContext {
     @Getter
     PsiElementContext resourceRoot;
 
+    PsiL18nEntryContext entryContext;
 
     L18NEntry tree;
 
@@ -60,7 +58,14 @@ public class L18NFileContext extends IntellijFileContext {
 
     protected void postConstruct() {
         super.postConstruct();
-        resourceRoot = new PsiElementContext(getPsiFile()).$q(JSON_OBJECT).findFirst().get();
+
+        PsiElementContext psiElementContext = new PsiElementContext(getPsiFile());
+        Optional<PsiElementContext> first = psiElementContext.$q(JSON_OBJECT).findFirst();
+        if(first.isPresent()) {
+            resourceRoot = first.get();
+        } else {
+            resourceRoot = psiElementContext.$q(JS_OBJECT_LITERAL_EXPRESSION).findFirst().get();
+        }
     }
 
     public L18NFileContext(AnActionEvent event) {
@@ -92,8 +97,19 @@ public class L18NFileContext extends IntellijFileContext {
             String[] keys = key.split("\\.");
             return getValue(keys);
         }
-        return resourceRoot.$q(DIRECT_CHILD(JSON_PROPERTY), DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))).findFirst();
+
+        //TODO move this functionality into the Entry context ion the long run
+        if(isTS()) {
+            return resourceRoot.$q(DIRECT_CHILD(JS_PROPERTY), DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JS_LITERAL_EXPRESSION), NEXT_SIBLINGS(PSI_ELEMENT_JS_STRING_LITERAL))).findFirst();
+        } else {
+            return resourceRoot.$q(DIRECT_CHILD(JSON_PROPERTY), DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))).findFirst();
+        }
     }
+
+    private boolean isTS() {
+        return IntellijUtils.isTypescript(resourceRoot.getElement().getLanguage().getAssociatedFileType());
+    }
+
 
     /**
      * deep search
@@ -107,8 +123,12 @@ public class L18NFileContext extends IntellijFileContext {
         if (!searchDeep) {
             return this.getValue(key);
         }
-        //TODO bug here
-        return resourceRoot.$q(DIRECT_CHILD(JSON_PROPERTY), DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))).findFirst();
+
+        if(isTS()) {
+            return resourceRoot.$q(JS_PROPERTY, DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JS_LITERAL_EXPRESSION), NEXT_SIBLINGS(PSI_ELEMENT_JS_STRING_LITERAL))).findFirst();
+        } else {
+            return resourceRoot.$q(JSON_PROPERTY, DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))).findFirst();
+        }
     }
 
     //deeper nesting queries with exact matches
@@ -127,9 +147,17 @@ public class L18NFileContext extends IntellijFileContext {
         for (int cnt = 0; cnt < keys.length; cnt++) {
             String key = keys[cnt];
             if (cnt < keys.length - 1) {
-                query.addAll(asList(CHILD_ELEM, CHILD_ELEM, JSON_STRING_LITERAL, TEXT_EQ(key),  NEXT_SIBLINGS(JSON_OBJECT)));
+                if(isTS()) {
+                    query.addAll(asList(CHILD_ELEM, CHILD_ELEM, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ(key),  NEXT_SIBLINGS(JS_OBJECT_LITERAL_EXPRESSION)));
+                } else {
+                    query.addAll(asList(CHILD_ELEM, CHILD_ELEM, JSON_STRING_LITERAL, TEXT_EQ(key),  NEXT_SIBLINGS(JSON_OBJECT)));
+                }
             } else {
-                query.addAll(asList(CHILD_ELEM, CHILD_ELEM, JSON_STRING_LITERAL, TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))));
+                if(isTS()) {
+                    query.addAll(asList(CHILD_ELEM, CHILD_ELEM, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ(key), ANY(NEXT_SIBLINGS(JS_LITERAL_EXPRESSION), NEXT_SIBLINGS(PSI_ELEMENT_JS_STRING_LITERAL))));
+                } else {
+                    query.addAll(asList(CHILD_ELEM, CHILD_ELEM, JSON_STRING_LITERAL, TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))));
+                }
             }
         }
 
