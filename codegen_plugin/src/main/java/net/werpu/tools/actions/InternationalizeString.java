@@ -27,10 +27,7 @@ import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
-import net.werpu.tools.supportive.transformations.I18NJsonDeclFileTransformation;
-import net.werpu.tools.supportive.transformations.I18NSourceTransformation;
-import net.werpu.tools.supportive.transformations.I18NTransformationModel;
-import net.werpu.tools.supportive.transformations.I18NTypescriptDeclFileTransformation;
+import net.werpu.tools.supportive.transformations.i18n.*;
 import net.werpu.tools.supportive.transformations.modelHelpers.ElementNotResolvableException;
 import net.werpu.tools.supportive.utils.FileEndings;
 import net.werpu.tools.supportive.utils.IntellijUtils;
@@ -384,10 +381,12 @@ public class InternationalizeString extends AnAction {
             model, SingleL18n mainForm, Document document, IntelliFileContextComboboxModelEntry l18nFile) throws IOException {
 
         String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
+        String prefix = mainForm.getTxtPrefix().getText();
+        boolean typescriptReplacement = mainForm.isTypescriptReplacement();
         L18NFileContext l18nFileContext = l18nFile.getValue();
 
         updateL18nFileWithNewValue(mainForm, finalKey, l18nFileContext);
-        replaceTextWithKey(mainForm, model, l18nFile, finalKey);
+        replaceTextWithKey(mainForm, model, l18nFile, typescriptReplacement, prefix, finalKey);
         updateShadowEditor(model, document);
 
     }
@@ -413,6 +412,8 @@ public class InternationalizeString extends AnAction {
             mainForm, Document document, IntelliFileContextComboboxModelEntry l18nFile) throws IOException {
 
         String key = (String) mainForm.getCbL18nKey().getSelectedItem();
+        String prefix = (String) mainForm.getTxtPrefix().getText();
+        boolean typescriptReplacement = mainForm.isTypescriptReplacement();
         final String originalKey = key;
         Optional<PsiElementContext> foundValue = l18nFile.getValue().getValue(key);
         int cnt = 0;
@@ -421,7 +422,7 @@ public class InternationalizeString extends AnAction {
             foundValue = l18nFile.getValue().getValue(key);
         }
 
-        replaceTextWithKey(mainForm, model, l18nFile, key);
+        replaceTextWithKey(mainForm, model, l18nFile, typescriptReplacement, prefix, key);
         updateShadowEditor(model, document);
         final I18NTransformationModel finalModel = model.cloneWithNewKey(key);
 
@@ -453,11 +454,13 @@ public class InternationalizeString extends AnAction {
 
 
         String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
+        String prefix = (String) mainForm.getTxtPrefix().getText();
+        boolean typescriptReplacement = mainForm.isTypescriptReplacement();
         Optional<PsiElementContext> foundItem = l18nFile.getValue().getValue(finalKey);
 
         //no key present, simply add it as last entry at the end of the L18nfile
 
-        replaceTextWithKey(mainForm, model, l18nFile, finalKey);
+        replaceTextWithKey(mainForm, model, l18nFile, typescriptReplacement, prefix, finalKey);
         updateShadowEditor(model, document);
 
         //fetch the key if it is there and then just ignore any changes on the target file and simply insert the key
@@ -516,12 +519,18 @@ public class InternationalizeString extends AnAction {
         }
     }
 
-    public void replaceTextWithKey(SingleL18n uiForm, I18NTransformationModel transformationModel, IntelliFileContextComboboxModelEntry i18nFile, String finalKey) throws IOException {
+    public void replaceTextWithKey(SingleL18n uiForm, I18NTransformationModel transformationModel, IntelliFileContextComboboxModelEntry i18nFile, boolean typescriptReplacement, String prefix, String finalKey) throws IOException {
 
-        I18NSourceTransformation transformation = new I18NSourceTransformation(transformationModel, finalKey, uiForm.getTxtText().getText());
+        if(!typescriptReplacement) {
+            I18NAngularTranslateTransformation transformation =  new I18NAngularTranslateTransformation(transformationModel, finalKey, uiForm.getTxtText().getText());
+            transformationModel.getFileContext().refactorContent(Arrays.asList(transformation.getTnDecRefactoring()));
+            transformationModel.getFileContext().commit();
+        } else {
 
-        transformationModel.getFileContext().refactorContent(Arrays.asList(transformation.getTnDecRefactoring()));
-        transformationModel.getFileContext().commit();
+            I18NTypescriptTransformation transformation =  new I18NTypescriptTransformation(transformationModel, prefix, finalKey, uiForm.getTxtText().getText());
+            transformationModel.getFileContext().refactorContent(Arrays.asList(transformation.getTnDecRefactoring()));
+            transformationModel.getFileContext().commit();
+        }
 
     }
 

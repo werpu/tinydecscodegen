@@ -4,7 +4,7 @@ import net.werpu.tools.supportive.fs.common.ComponentFileContext;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
-import net.werpu.tools.supportive.transformations.I18NTransformationModel;
+import net.werpu.tools.supportive.transformations.i18n.I18NTransformationModel;
 import net.werpu.tools.supportive.transformations.modelHelpers.PARSING_TYPE;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.junit.Test;
@@ -92,7 +92,7 @@ public class L18nEditingTest extends LightCodeInsightFixtureTestCase {
         assertTrue(transformationModel.getTo() > 0);
 
         assertTrue(transformationModel.getKey().equals("ATTR2"));
-        assertTrue(transformationModel.getParsingType() == PARSING_TYPE.TEXT);
+        assertTrue(transformationModel.getParsingType() == PARSING_TYPE.STRING_IN_ATTRIBUTE);
 
     }
 

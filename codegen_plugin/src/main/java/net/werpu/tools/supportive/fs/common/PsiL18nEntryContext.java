@@ -1,9 +1,10 @@
 package net.werpu.tools.supportive.fs.common;
 
+import com.google.common.base.Strings;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import com.yourkit.util.Strings;
+
 import lombok.Getter;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import org.jetbrains.annotations.NotNull;

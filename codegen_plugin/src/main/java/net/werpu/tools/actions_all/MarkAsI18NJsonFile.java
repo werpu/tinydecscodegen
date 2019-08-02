@@ -7,7 +7,7 @@ import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiL18nEntryContext;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
-import net.werpu.tools.supportive.transformations.I18NJsonDeclFileTransformation;
+import net.werpu.tools.supportive.transformations.i18n.I18NJsonDeclFileTransformation;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import org.jetbrains.annotations.NotNull;
 

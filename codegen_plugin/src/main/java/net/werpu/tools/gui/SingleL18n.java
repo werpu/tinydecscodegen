@@ -194,8 +194,9 @@ public class SingleL18n {
         this.updateVisibility();
     }
 
-
-
+    public boolean isTypescriptReplacement() {
+        return visibilityRules.isTypescriptReplacement();
+    }
 }
 
 
@@ -213,6 +214,12 @@ class VisibilityRules {
     boolean isShowPrefixLine() {
         return (isShowTSInternationalisation() && dataSource.getCbTsInternat().isSelected()) ||
                 dataSource.getRbTS().isSelected();
+    }
+
+    boolean isTypescriptReplacement() {
+        boolean isTsFile = dataSource.getRbTS().isVisible() && dataSource.getRbTS().isSelected();
+        boolean isBoth = dataSource.getRbBoth().isVisible() && dataSource.getRbBoth().isSelected();
+        return isTsFile || (isBoth && dataSource.getCbTsInternat().isSelected());
     }
 
 

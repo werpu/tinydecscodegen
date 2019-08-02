@@ -101,6 +101,7 @@ import java.util.stream.Collectors;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.backgroundTask;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.runWithProcessAsnyc;
 import static net.werpu.tools.supportive.utils.StringUtils.normalizePath;
+import com.intellij.psi.PsiJavaFile;
 
 /**
  * net.werpu.tools.supportive class to simplify some of the intelli openapi apis

@@ -1,5 +1,6 @@
 package net.werpu.tools.supportive.fs.common;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -7,7 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
-import com.yourkit.util.Strings;
+
 import lombok.Getter;
 import net.werpu.tools.supportive.refactor.IRefactorUnit;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
