@@ -129,7 +129,7 @@ public class InternationalizeString extends AnAction {
         final IntellijFileContext fileContext = new IntellijFileContext(e);
         I18NTransformationModel model = new I18NTransformationModel(fileContext);
 
-        SingleL18n mainForm = new SingleL18n();
+        SingleL18n mainForm = new SingleL18n(fileContext.getProject());
         final DialogHolder oDialog = new DialogHolder();
 
         Project project = fileContext.getProject();
@@ -154,6 +154,7 @@ public class InternationalizeString extends AnAction {
                             return oDialog.getODialog().isNewEntryOutcome() || oDialog.getODialog().isOverwriteOutcome();
                         }
                     }
+                    mainForm.saveSettings();
                     return true;
 
                 })
@@ -202,8 +203,6 @@ public class InternationalizeString extends AnAction {
             IntelliFileContextComboboxModelEntry selectedItem = (IntelliFileContextComboboxModelEntry) itemEvent.getItem();
             applyKey(mainForm, selectedItem, model);
             applyFileName(mainForm, selectedItem);
-            boolean isMultitype = selectedItem.getTsFile() != null && selectedItem.getJSONFile() != null;
-            mainForm.multiType(isMultitype);
         });
 
 

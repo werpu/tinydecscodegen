@@ -1,18 +1,21 @@
 package net.werpu.tools.gui;
 
+import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.project.Project;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import net.werpu.tools.gui.support.IntelliFileContextComboboxModelEntry;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 
 import javax.swing.*;
-import java.awt.event.ItemEvent;
+import javax.swing.event.ChangeEvent;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemListener;
 import java.util.List;
 
 /**
  * Single L18n case form
- *
+ * <p>
  * The idea is to have a single i18n
  * editing for for cases where it is not really
  * clear on how to proceed forward
@@ -36,20 +39,93 @@ public class SingleL18n {
     private JRadioButton rbJSON;
     private JRadioButton rbTS;
     private JRadioButton rbBoth;
+    private JTextField txtPrefix;
+    private JCheckBox cbTsInternat;
+    private JLabel lblPrefix;
+    private JLabel lblTsInternat;
 
 
     private java.util.List<IntelliFileContextComboboxModelEntry> allFiles;
 
     private java.util.List<IntelliFileContextComboboxModelEntry> containingFiles;
 
+    VisibilityRules visibilityRules;
 
-    public SingleL18n() {
+    PropertiesComponent props;
+
+
+    private static final String KEY_PREFIX = "SINGLEL18N_";
+    private static final String KEY_TXT_PREFIX = KEY_PREFIX + "TXT_PREFIX";
+    private static final String KEY_CB_TS_INTERNAT = KEY_PREFIX + "CB_TS_INTERNAT";
+    static final String KEY_RB_ALL = KEY_PREFIX + "RB_ALL";
+    static final String KEY_RB_TS = KEY_PREFIX + "RB_TS";
+    static final String KEY_RB_JSON = KEY_PREFIX + "RB_JSON";
+    static final String KEY_SELECTED_FILE = KEY_PREFIX + "CB_SEL_FILE";
+
+
+    public SingleL18n(Project project) {
 
 
         rbAll.addActionListener(ev -> switchToAllFiles());
         rbExists.addActionListener(ev -> switchToContainingFiles());
 
+        visibilityRules = new VisibilityRules(this);
+
+        registerVisibilityEvents();
+
+        //load the defaults
+        props = PropertiesComponent.getInstance(project);
+
+
+        restoreSettings();
     }
+
+    public void restoreSettings() {
+        String rbAll = props.getValue(KEY_RB_ALL);
+        String rbTs = props.getValue(KEY_RB_TS);
+        String rbJson = props.getValue(KEY_RB_JSON);
+
+        String prefix = props.getValue(KEY_TXT_PREFIX);
+        String internat = props.getValue(KEY_CB_TS_INTERNAT);
+
+
+        if (Boolean.TRUE.toString().equals(rbAll)) {
+            this.rbBoth.setSelected(true);
+        }
+        if (Boolean.TRUE.toString().equals(rbTs)) {
+            this.rbTS.setSelected(true);
+        }
+        if (Boolean.TRUE.toString().equals(rbJson)) {
+            this.rbJSON.setSelected(true);
+        }
+        if (Boolean.TRUE.toString().equals(internat)) {
+            this.cbTsInternat.setSelected(true);
+        }
+        txtPrefix.setText(prefix != null ? prefix : "i18n");
+    }
+
+    public void saveSettings() {
+        props.setValue(KEY_RB_ALL, Boolean.toString(this.rbAll.isSelected()));
+        props.setValue(KEY_RB_TS, Boolean.toString(this.rbTS.isSelected()));
+        props.setValue(KEY_RB_JSON, Boolean.toString(this.rbJSON.isSelected()));
+        props.setValue(KEY_TXT_PREFIX, txtPrefix.getText());
+        props.setValue(KEY_CB_TS_INTERNAT, Boolean.toString(this.cbTsInternat.isSelected()));
+    }
+
+    public void registerVisibilityEvents() {
+
+        rbJSON.addActionListener(this::stateChanged);
+        rbTS.addActionListener(this::stateChanged);
+        rbBoth.addActionListener(this::stateChanged);
+        cbTsInternat.addActionListener(this::stateChanged);
+        cbL18NFile.addItemListener(itemEvent -> {
+            IntelliFileContextComboboxModelEntry selectedItem = (IntelliFileContextComboboxModelEntry) itemEvent.getItem();
+            boolean isMultitype = selectedItem.getTsFile() != null && selectedItem.getJSONFile() != null;
+            this.multiType(isMultitype);
+        });
+    }
+
+
 
     public void switchToAllFiles() {
         cbL18NFile.setModel(new ListComboBoxModel<>(allFiles));
@@ -57,7 +133,7 @@ public class SingleL18n {
     }
 
     public void switchToContainingFiles() {
-        if(containingFiles != null && !containingFiles.isEmpty()) {
+        if (containingFiles != null && !containingFiles.isEmpty()) {
             cbL18NFile.setModel(new ListComboBoxModel<>(containingFiles));
             rbExists.setSelected(true);
         }
@@ -89,7 +165,18 @@ public class SingleL18n {
         this.rbAll.setVisible(visible);
         this.rbBoth.setVisible(visible);
         this.lblTargets.setVisible(visible);
+        stateChanged((ChangeEvent) null);
+
     }
+
+
+    private void updateVisibility() {
+        lblPrefix.setVisible(visibilityRules.isShowPrefixLine());
+        txtPrefix.setVisible(visibilityRules.isShowPrefixLine());
+        lblTsInternat.setVisible(visibilityRules.isShowTSInternationalisation());
+        cbTsInternat.setVisible(visibilityRules.isShowTSInternationalisation());
+    }
+
 
     public boolean isMultiType() {
         return rbJSON.isVisible();
@@ -98,4 +185,35 @@ public class SingleL18n {
     public void addFileChangeListener(ItemListener listener) {
         cbL18NFile.addItemListener(listener);
     }
+
+    private void stateChanged(ChangeEvent event) {
+        this.updateVisibility();
+    }
+
+    private void stateChanged(ActionEvent event) {
+        this.updateVisibility();
+    }
+
+
+
+}
+
+
+//visibility rules
+@AllArgsConstructor
+class VisibilityRules {
+
+    SingleL18n dataSource;
+
+    boolean isShowTSInternationalisation() {
+        //the checkbox is only shown if the multiple radio button is checked
+        return dataSource.getRbBoth().isVisible() && dataSource.getRbBoth().isSelected();
+    }
+
+    boolean isShowPrefixLine() {
+        return (isShowTSInternationalisation() && dataSource.getCbTsInternat().isSelected()) ||
+                dataSource.getRbTS().isSelected();
+    }
+
+
 }
