@@ -1,3 +1,27 @@
+/*
+ *
+ *
+ * Copyright 2019 Werner Punz
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software
+ * is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ */
+
 package net.werpu.tools.supportive.fs.common;
 
 import com.google.common.base.Strings;
@@ -8,19 +32,20 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
-
 import lombok.Getter;
 import net.werpu.tools.supportive.refactor.IRefactorUnit;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
-import net.werpu.tools.supportive.transformations.modelHelpers.L18NEntry;
-import net.werpu.tools.supportive.utils.IntellijRunUtils;
+import net.werpu.tools.supportive.transformations.i18n.I18NEntry;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.util.*;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,7 +53,8 @@ import java.util.stream.Stream;
 import static java.util.Arrays.asList;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
-import static net.werpu.tools.supportive.utils.IntellijRunUtils.*;
+import static net.werpu.tools.supportive.utils.IntellijRunUtils.smartInvokeLater;
+import static net.werpu.tools.supportive.utils.IntellijRunUtils.writeTransaction;
 
 
 /**
@@ -36,14 +62,14 @@ import static net.werpu.tools.supportive.utils.IntellijRunUtils.*;
  * <p>
  * We need this to be able to process L18NFiles properly
  */
-public class L18NFileContext extends IntellijFileContext {
+public class I18NFileContext extends IntellijFileContext {
 
     @Getter
     PsiElementContext resourceRoot;
 
-    PsiL18nEntryContext entryContext;
+    PsiI18nEntryContext entryContext;
 
-    L18NEntry tree;
+    I18NEntry tree;
 
     @Getter
     private List<IRefactorUnit> refactorUnits = Lists.newArrayList();
@@ -52,7 +78,7 @@ public class L18NFileContext extends IntellijFileContext {
     private String refactoredText;
 
 
-    public L18NFileContext(Project project, PsiFile psiFile) {
+    public I18NFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
 
     }
@@ -69,15 +95,15 @@ public class L18NFileContext extends IntellijFileContext {
         }
     }
 
-    public L18NFileContext(AnActionEvent event) {
+    public I18NFileContext(AnActionEvent event) {
         super(event);
     }
 
-    public L18NFileContext(Project project, VirtualFile virtualFile) {
+    public I18NFileContext(Project project, VirtualFile virtualFile) {
         super(project, virtualFile);
     }
 
-    public L18NFileContext(IntellijFileContext fileContext) {
+    public I18NFileContext(IntellijFileContext fileContext) {
         super(fileContext.getProject(), fileContext.getPsiFile());
     }
 

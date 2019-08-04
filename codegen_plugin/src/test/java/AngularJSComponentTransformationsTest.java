@@ -1,15 +1,39 @@
+/*
+ *
+ *
+ * Copyright 2019 Werner Punz
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software
+ * is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ */
+
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
-import net.werpu.tools.supportive.transformations.AngularJSComponentTransformationModel;
-import net.werpu.tools.supportive.transformations.AngularJSDirectiveTransformationModel;
-import net.werpu.tools.supportive.transformations.AngularJSModuleTransformationModel;
-import net.werpu.tools.supportive.transformations.modelHelpers.ComponentBinding;
-import net.werpu.tools.supportive.transformations.modelHelpers.Injector;
+import net.werpu.tools.supportive.transformations.tinydecs.AngularJSComponentTransformationModel;
+import net.werpu.tools.supportive.transformations.tinydecs.AngularJSDirectiveTransformationModel;
+import net.werpu.tools.supportive.transformations.tinydecs.AngularJSModuleTransformationModel;
+import net.werpu.tools.supportive.transformations.shared.modelHelpers.ComponentBinding;
+import net.werpu.tools.supportive.transformations.shared.modelHelpers.Injector;
 import util.TestUtils;
 
-import static net.werpu.tools.supportive.transformations.modelHelpers.BindingType.*;
+import static net.werpu.tools.supportive.transformations.shared.modelHelpers.BindingType.*;
 
 /**
  * Testcases to test the various aspects of the

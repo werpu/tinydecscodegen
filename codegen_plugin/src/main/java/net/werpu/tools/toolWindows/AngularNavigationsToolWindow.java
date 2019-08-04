@@ -1,3 +1,27 @@
+/*
+ *
+ *
+ * Copyright 2019 Werner Punz
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software
+ * is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ */
+
 package net.werpu.tools.toolWindows;
 
 import com.google.common.base.Strings;
@@ -17,7 +41,6 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.ui.UIUtil;
-import org.jetbrains.annotations.NotNull;
 import net.werpu.tools.supportive.fs.common.*;
 import net.werpu.tools.supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import net.werpu.tools.supportive.fs.tn.TNAngularRoutesFileContext;
@@ -28,6 +51,7 @@ import net.werpu.tools.toolWindows.supportive.ContextNodeRenderer;
 import net.werpu.tools.toolWindows.supportive.MouseController;
 import net.werpu.tools.toolWindows.supportive.PopupBuilder;
 import net.werpu.tools.toolWindows.supportive.SwingRootParentNode;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -38,9 +62,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
+import static com.intellij.util.ui.tree.TreeUtil.expandAll;
 import static net.werpu.tools.actions_all.shared.Labels.*;
 import static net.werpu.tools.actions_all.shared.Messages.*;
-import static com.intellij.util.ui.tree.TreeUtil.expandAll;
 import static net.werpu.tools.supportive.fs.common.AngularVersion.TN_DEC;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.NOOP_CONSUMER;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.smartInvokeLater;

@@ -1,31 +1,42 @@
+/*
+ *
+ *
+ * Copyright 2019 Werner Punz
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software
+ * is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ */
+
 package net.werpu.tools.actions_all;
 
 import com.intellij.lang.Language;
-import com.intellij.lang.LanguageUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiFileFactory;
-import net.werpu.tools.actions_all.shared.TransformationInvoker;
-import net.werpu.tools.gui.support.InputDialogWrapperBuilder;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
-import net.werpu.tools.supportive.transformations.*;
+import net.werpu.tools.supportive.transformations.tinydecs.AngularJSModuleTransformationModel;
+import net.werpu.tools.supportive.transformations.tinydecs.ModuleTransformation;
 import net.werpu.tools.supportive.utils.IntellijUtils;
-import net.werpu.tools.supportive.utils.SwingUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.io.IOException;
 
 import static com.intellij.ide.scratch.ScratchFileCreationHelper.reformat;
-import static com.intellij.openapi.application.ApplicationManager.getApplication;
-import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
 
 /**
  * Refactor module into a new TNDecModule

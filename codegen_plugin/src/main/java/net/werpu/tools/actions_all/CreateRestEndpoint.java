@@ -1,7 +1,29 @@
+/*
+ *
+ *
+ * Copyright 2019 Werner Punz
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software
+ * is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ */
+
 package net.werpu.tools.actions_all;
 
-import net.werpu.tools.actions_all.shared.JavaFileContext;
-import net.werpu.tools.actions_all.shared.Messages;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.intellij.ide.fileTemplates.FileTemplate;
@@ -18,15 +40,16 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaFile;
+import net.werpu.tools.actions_all.shared.JavaFileContext;
+import net.werpu.tools.actions_all.shared.Messages;
 import net.werpu.tools.configuration.ConfigSerializer;
 import net.werpu.tools.configuration.TinyDecsConfiguration;
 import net.werpu.tools.factories.TnDecGroupFactory;
 import net.werpu.tools.gui.CreateRequestMapping;
+import net.werpu.tools.supportive.fs.common.IntellijFileContext;
+import net.werpu.tools.supportive.utils.IntellijUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import net.werpu.tools.supportive.fs.common.IntellijFileContext;
-import net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions;
-import net.werpu.tools.supportive.utils.IntellijUtils;
 
 import javax.swing.*;
 import java.io.IOException;

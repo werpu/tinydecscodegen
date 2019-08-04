@@ -1,3 +1,27 @@
+/*
+ *
+ *
+ * Copyright 2019 Werner Punz
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software
+ * is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ */
+
 package net.werpu.tools.actions;
 
 import com.google.common.base.Strings;
@@ -23,12 +47,12 @@ import net.werpu.tools.gui.SingleL18n;
 import net.werpu.tools.gui.support.InputDialogWrapperBuilder;
 import net.werpu.tools.gui.support.IntelliFileContextComboboxModelEntry;
 import net.werpu.tools.indexes.L18NIndexer;
+import net.werpu.tools.supportive.fs.common.I18NFileContext;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
-import net.werpu.tools.supportive.fs.common.L18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
 import net.werpu.tools.supportive.transformations.i18n.*;
-import net.werpu.tools.supportive.transformations.modelHelpers.ElementNotResolvableException;
+import net.werpu.tools.supportive.transformations.shared.modelHelpers.ElementNotResolvableException;
 import net.werpu.tools.supportive.utils.FileEndings;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
@@ -60,7 +84,7 @@ class DialogHolder {
 /**
  * Action for single string interationalization
  * <p>
- * //TODO json only case
+/TODO json only case
  */
 public class InternationalizeString extends AnAction {
 
@@ -383,26 +407,26 @@ public class InternationalizeString extends AnAction {
         String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
         String prefix = mainForm.getTxtPrefix().getText();
         boolean typescriptReplacement = mainForm.isTypescriptReplacement();
-        L18NFileContext l18nFileContext = l18nFile.getValue();
+        I18NFileContext i18NFileContext = l18nFile.getValue();
 
-        updateL18nFileWithNewValue(mainForm, finalKey, l18nFileContext);
+        updateL18nFileWithNewValue(mainForm, finalKey, i18NFileContext);
         replaceTextWithKey(mainForm, model, l18nFile, typescriptReplacement, prefix, finalKey);
         updateShadowEditor(model, document);
 
     }
 
-    public void updateL18nFileWithNewValue(SingleL18n mainForm, String finalKey, L18NFileContext l18nFileContext) throws IOException {
-        Optional<PsiElementContext> foundValue = l18nFileContext.getValue(finalKey);
+    public void updateL18nFileWithNewValue(SingleL18n mainForm, String finalKey, I18NFileContext i18NFileContext) throws IOException {
+        Optional<PsiElementContext> foundValue = i18NFileContext.getValue(finalKey);
         //no key present, simply add it as last entry at the end of the L18nfile
-        if (IntellijUtils.isJSON(l18nFileContext.getVirtualFile().getFileType())) {
-            I18NJsonDeclFileTransformation transformation = new I18NJsonDeclFileTransformation(l18nFileContext, finalKey, mainForm.getTxtText().getText());
-            l18nFileContext.addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
+        if (IntellijUtils.isJSON(i18NFileContext.getVirtualFile().getFileType())) {
+            I18NJsonDeclFileTransformation transformation = new I18NJsonDeclFileTransformation(i18NFileContext, finalKey, mainForm.getTxtText().getText());
+            i18NFileContext.addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
         } else {
-            I18NTypescriptDeclFileTransformation transformation = new I18NTypescriptDeclFileTransformation(l18nFileContext, finalKey, mainForm.getTxtText().getText());
-            l18nFileContext.addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
+            I18NTypescriptDeclFileTransformation transformation = new I18NTypescriptDeclFileTransformation(i18NFileContext, finalKey, mainForm.getTxtText().getText());
+            i18NFileContext.addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
         }
-        l18nFileContext.commit();
-        l18nFileContext.reformat();
+        i18NFileContext.commit();
+        i18NFileContext.reformat();
     }
 
     /**
@@ -429,8 +453,8 @@ public class InternationalizeString extends AnAction {
         //fetch the key if it is there and then just ignore any changes on the target file and simply insert the key
         //in the editor
 
-        L18NFileContext tsFile = l18nFile.getTsFile().orElse(null);
-        L18NFileContext jsonFile = l18nFile.getJSONFile().orElse(null);
+        I18NFileContext tsFile = l18nFile.getTsFile().orElse(null);
+        I18NFileContext jsonFile = l18nFile.getJSONFile().orElse(null);
         if (mainForm.getRbTS().isSelected()) {
             updateI18nFile(finalModel, tsFile);
         } else {
@@ -468,11 +492,11 @@ public class InternationalizeString extends AnAction {
 
 
         I18NTransformationModel cloned = model.cloneWithNewKey(finalKey);
-        L18NFileContext tsFile = l18nFile.getTsFile().orElse(null);
+        I18NFileContext tsFile = l18nFile.getTsFile().orElse(null);
         if (mainForm.getRbTS().isSelected()) {
             updateI18nFile(Optional.of(finalKey), cloned, tsFile);
         } else {
-            L18NFileContext jsonFile = l18nFile.getJSONFile().orElse(null);
+            I18NFileContext jsonFile = l18nFile.getJSONFile().orElse(null);
             if (mainForm.getRbBoth().isSelected()) { //both
                 if (tsFile != null) {
                     updateI18nFile(Optional.of(finalKey), cloned, tsFile);
@@ -486,15 +510,15 @@ public class InternationalizeString extends AnAction {
         }
     }
 
-    public void updateI18nFile(Optional<String> finalKey, I18NTransformationModel modelSupplier, L18NFileContext fileProducer) throws IOException {
+    public void updateI18nFile(Optional<String> finalKey, I18NTransformationModel modelSupplier, I18NFileContext fileProducer) throws IOException {
         addReplaceL18NConfig(modelSupplier, fileProducer, fileProducer.getValue(finalKey.get()));
     }
 
-    public void updateI18nFile(I18NTransformationModel modelSupplier, L18NFileContext fileProducer) throws IOException {
+    public void updateI18nFile(I18NTransformationModel modelSupplier, I18NFileContext fileProducer) throws IOException {
         addReplaceL18NConfig(modelSupplier, fileProducer, Optional.empty());
     }
 
-    public void addReplaceL18NConfig(I18NTransformationModel transformationModel, L18NFileContext i18nFile, Optional<PsiElementContext> i18nValue) throws IOException {
+    public void addReplaceL18NConfig(I18NTransformationModel transformationModel, I18NFileContext i18nFile, Optional<PsiElementContext> i18nValue) throws IOException {
         if (!i18nValue.isPresent()) {
 
 

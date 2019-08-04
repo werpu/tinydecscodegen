@@ -1,3 +1,27 @@
+/*
+ *
+ *
+ * Copyright 2019 Werner Punz
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software
+ * is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ */
+
 package net.werpu.tools.actions_all;
 
 
@@ -5,7 +29,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
-import net.werpu.tools.supportive.fs.common.PsiL18nEntryContext;
+import net.werpu.tools.supportive.fs.common.PsiI18nEntryContext;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
 import net.werpu.tools.supportive.refactor.DummyInsertPsiElement;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
@@ -51,7 +75,7 @@ public class MarkAsI18NTSFile extends AnAction {
 
     protected void assertI18nPattern(@NotNull AnActionEvent anActionEvent, IntellijFileContext ctx) {
         try {
-            PsiL18nEntryContext elCtx = new PsiL18nEntryContext(new PsiElementContext(ctx.getPsiFile()));
+            PsiI18nEntryContext elCtx = new PsiI18nEntryContext(new PsiElementContext(ctx.getPsiFile()));
 
             boolean correctPattern = elCtx.getRootTreeReference() != null;
             boolean noRef = !elCtx.getText().contains(I18N_MARKER);
@@ -65,12 +89,12 @@ public class MarkAsI18NTSFile extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent e) {
         TypescriptFileContext ctx = new TypescriptFileContext(e);
 
-        PsiL18nEntryContext elCtx = new PsiL18nEntryContext(new PsiElementContext(ctx.getPsiFile()));
+        PsiI18nEntryContext elCtx = new PsiI18nEntryContext(new PsiElementContext(ctx.getPsiFile()));
 
         addMarker(ctx, elCtx);
     }
 
-    protected void addMarker(TypescriptFileContext ctx, PsiL18nEntryContext elCtx) {
+    protected void addMarker(TypescriptFileContext ctx, PsiI18nEntryContext elCtx) {
         Optional<PsiElementContext> foundElement = elCtx.getExportVar().$q(PARENTS_EQ_FIRST(JS_VAR_STATEMENT), DIRECT_CHILD(PsiWalkFunctions.JS_DOC_COMMENT)).findFirst();
         invokeLater(() -> writeTransaction(ctx.getProject(), () -> {
             try {
@@ -82,7 +106,7 @@ public class MarkAsI18NTSFile extends AnAction {
         }));
     }
 
-    protected void updateInsertMarker(TypescriptFileContext ctx, PsiL18nEntryContext elCtx, Optional<PsiElementContext> foundElement) throws IOException {
+    protected void updateInsertMarker(TypescriptFileContext ctx, PsiI18nEntryContext elCtx, Optional<PsiElementContext> foundElement) throws IOException {
 
         if (!foundElement.isPresent()) {
             //We add a comment to the current editor before the var def
