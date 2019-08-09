@@ -40,7 +40,7 @@ import static util.TestUtils.JS_TEST_PROBES_PATH;
 /**
  * Unit tests for the L18n subsystem,
  */
-public class L18nEditingTest extends LightCodeInsightFixtureTestCase {
+public class I18nEditingTest extends LightCodeInsightFixtureTestCase {
 
     private static final int POS_STATIC_TEXT = 194;
     private static final int POS_STATIC_TEXT_2 = 252;

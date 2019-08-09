@@ -33,7 +33,7 @@ import static util.TestUtils.JS_TEST_PROBES_PATH;
 /**
  * Test for the json/typescript -> L18NTree parsing and vice versa
  */
-public class L18NTreeTest extends LightCodeInsightFixtureTestCase {
+public class I18NTreeTest extends LightCodeInsightFixtureTestCase {
 
 
     @Override
