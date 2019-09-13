@@ -36,6 +36,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
+import lombok.CustomLog;
 import lombok.Getter;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import org.jetbrains.annotations.NotNull;
@@ -56,10 +57,11 @@ import java.util.regex.Pattern;
  * If the data needed is found it is handed over
  * to the processing engine.
  */
+
+@CustomLog
 public class JavaFileContext {
 
     public static final String REF_DATA = "@ref:\\s([^\n\\s]+).*\n";
-    private static final Logger log = Logger.getInstance(JavaFileContext.class);
 
     @Getter
     private boolean error;

@@ -44,6 +44,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.ui.tabs.JBTabs;
 import com.intellij.ui.tabs.TabInfo;
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import lombok.Getter;
 import net.werpu.tools.actions_all.shared.EditorCallback;
 import net.werpu.tools.actions_all.shared.Messages;
@@ -64,10 +65,10 @@ import static net.werpu.tools.supportive.utils.IntellijUtils.createRamFileFromTe
 import static net.werpu.tools.supportive.utils.SwingUtils.createHtmlEditor;
 
 
+@CustomLog
 public class EditTemplate extends AnAction implements EditorCallback {
 
     public static final String TEMPLATE_OF = "Template of: ";
-    private static final Logger log = Logger.getInstance(EditTemplate.class);
 
     public void update(AnActionEvent anActionEvent) {
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);

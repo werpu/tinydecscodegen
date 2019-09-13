@@ -41,6 +41,7 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.ui.UIUtil;
+import lombok.CustomLog;
 import net.werpu.tools.supportive.fs.common.*;
 import net.werpu.tools.supportive.fs.ng.NG_UIRoutesRoutesFileContext;
 import net.werpu.tools.supportive.fs.tn.TNAngularRoutesFileContext;
@@ -75,10 +76,8 @@ import static net.werpu.tools.supportive.utils.SwingUtils.copyToClipboard;
 import static net.werpu.tools.supportive.utils.SwingUtils.openEditor;
 import static net.werpu.tools.toolWindows.supportive.SwingRouteTreeFactory.createRouteTrees;
 
-
+@CustomLog
 public class AngularNavigationsToolWindow implements ToolWindowFactory {
-
-    private static final Logger log = Logger.getInstance(AngularNavigationsToolWindow.class);
 
 
     private SearchableTree<PsiRouteContext> routes = new SearchableTree();

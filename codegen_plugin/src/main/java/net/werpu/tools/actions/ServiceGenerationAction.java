@@ -52,6 +52,7 @@ import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
+import lombok.CustomLog;
 import net.werpu.tools.actions_all.shared.JavaFileContext;
 import net.werpu.tools.actions_all.shared.SimpleFileNameTransformer;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
@@ -68,9 +69,9 @@ import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotJava
  * out of the currently open editors content, if
  * the service is a spring rest service at all
  */
+@CustomLog
 public class ServiceGenerationAction extends AnAction {
 
-    private static final Logger log = Logger.getInstance(ServiceGenerationAction.class);
 
     @Override
     public void update(AnActionEvent anActionEvent) {

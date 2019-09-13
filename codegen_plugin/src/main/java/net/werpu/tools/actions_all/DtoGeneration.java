@@ -32,15 +32,15 @@ import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
+import lombok.CustomLog;
 import net.werpu.tools.actions_all.shared.JavaFileContext;
 import net.werpu.tools.actions_all.shared.SimpleFileNameTransformer;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 
 import java.io.IOException;
 
+@CustomLog
 public class DtoGeneration extends AnAction {
-
-    private static final Logger log = Logger.getInstance(DtoGeneration.class);
 
     @Override
     public void actionPerformed(AnActionEvent event) {

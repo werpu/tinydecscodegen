@@ -25,6 +25,7 @@
 package net.werpu.tools.supportive.utils;
 
 import com.intellij.openapi.diagnostic.Logger;
+import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.*;
@@ -36,9 +37,8 @@ import java.util.function.Consumer;
  * nothing has happened
  */
 @RequiredArgsConstructor
+@CustomLog
 public class TimeoutWorker {
-
-    private static final Logger log = Logger.getInstance(TimeoutWorker.class);
 
     private static final long TIME_PERIOD = 10l * 1000l;
     final private Consumer<TimeoutWorker> runner;

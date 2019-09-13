@@ -31,6 +31,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import lombok.CustomLog;
 import net.werpu.tools.indexes.ModuleIndex;
 import net.werpu.tools.supportive.fs.common.*;
 import net.werpu.tools.supportive.refactor.DummyInsertPsiElement;
@@ -50,9 +51,9 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.utils.StringUtils.elVis;
 import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
 
+@CustomLog
 public class TNUIRoutesFileContext extends TNRoutesFileContext {
 
-    private static final Logger log = Logger.getInstance(TNUIRoutesFileContext.class);
     public static final Object[] STATE_PROVIDER_VAR = {JS_EXPRESSION_STATEMENT, JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.NAME_EQ("$stateProvider")};
 
     public TNUIRoutesFileContext(Project project, PsiFile psiFile) {

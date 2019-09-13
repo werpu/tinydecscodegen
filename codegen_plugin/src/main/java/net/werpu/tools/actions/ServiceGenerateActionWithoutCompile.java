@@ -26,17 +26,16 @@ package net.werpu.tools.actions;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
+import lombok.CustomLog;
 import net.werpu.tools.actions_all.shared.JavaFileContext;
 import net.werpu.tools.actions_all.shared.SimpleFileNameTransformer;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 
 import java.io.IOException;
 
+@CustomLog
 public class ServiceGenerateActionWithoutCompile extends AnAction {
-
-    private static final Logger log = Logger.getInstance(ServiceGenerationAction.class);
 
     @Override
     public void actionPerformed(AnActionEvent event) {

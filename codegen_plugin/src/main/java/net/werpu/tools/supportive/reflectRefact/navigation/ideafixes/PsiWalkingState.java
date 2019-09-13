@@ -30,6 +30,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiInvalidElementAccessException;
 import com.intellij.psi.util.PsiUtilCore;
 import com.intellij.util.WalkingState;
+import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -40,8 +41,8 @@ import org.jetbrains.annotations.NotNull;
  * from the idea guys who blocked an api
  * without documenting any replacment
  */
+@CustomLog()
 public abstract class PsiWalkingState extends WalkingState<PsiElement> {
-  private static final Logger LOG = Logger.getInstance("#com.intellij.psi.PsiWalkingState");
   private final PsiElementVisitor myVisitor;
 
   private static class PsiTreeGuide implements TreeGuide<PsiElement> {

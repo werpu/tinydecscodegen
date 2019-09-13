@@ -68,6 +68,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiSearchHelper;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.containers.Convertor;
+import lombok.CustomLog;
 import net.werpu.tools.actions_all.shared.FileNameTransformer;
 import net.werpu.tools.actions_all.shared.SimpleFileNameTransformer;
 import net.werpu.tools.configuration.ConfigSerializer;
@@ -108,9 +109,9 @@ import static net.werpu.tools.supportive.utils.StringUtils.normalizePath;
 /**
  * net.werpu.tools.supportive class to simplify some of the intelli openapi apis
  */
+@CustomLog
 public class IntellijUtils {
 
-    private static final Logger log = Logger.getInstance(IntellijUtils.class);
     public static final String NPM_INSTALL_CONSOLE = "NPM Install Console";
 
     public static FileNameTransformer fileNameTransformer = new SimpleFileNameTransformer();

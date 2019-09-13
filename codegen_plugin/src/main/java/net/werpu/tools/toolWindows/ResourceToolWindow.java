@@ -49,6 +49,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.JBUI;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
 import net.werpu.tools.supportive.fs.common.*;
@@ -109,9 +110,8 @@ class ResourcePanels {
 
 }
 
+@CustomLog
 public class ResourceToolWindow implements ToolWindowFactory, Disposable {
-
-    private static final Logger log = Logger.getInstance(AngularNavigationsToolWindow.class);
 
     private static final int ACTION_PADDING = 3;
     private SearchableTree<NgModuleFileContext> modules = new SearchableTree<>();

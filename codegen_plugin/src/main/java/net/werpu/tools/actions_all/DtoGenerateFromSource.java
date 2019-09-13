@@ -35,6 +35,7 @@ import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiJavaFile;
+import lombok.CustomLog;
 import net.werpu.tools.actions.ServiceGenerationAction;
 import net.werpu.tools.actions_all.shared.JavaFileContext;
 import net.werpu.tools.actions_all.shared.SimpleFileNameTransformer;
@@ -45,11 +46,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.*;
-
+@CustomLog
 public class DtoGenerateFromSource extends AnAction {
-
-    private static final Logger log = Logger.getInstance(ServiceGenerationAction.class);
-
 
     public void update(AnActionEvent anActionEvent) {
         final Project project = anActionEvent.getData(CommonDataKeys.PROJECT);

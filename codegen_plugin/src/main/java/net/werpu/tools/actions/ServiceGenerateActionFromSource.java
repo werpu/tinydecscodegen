@@ -30,6 +30,7 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiJavaFile;
+import lombok.CustomLog;
 import net.werpu.tools.actions_all.shared.JavaFileContext;
 import net.werpu.tools.actions_all.shared.SimpleFileNameTransformer;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
@@ -39,9 +40,8 @@ import net.werpu.tools.supportive.utils.IntellijUtils;
 
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.*;
 
+@CustomLog
 public class ServiceGenerateActionFromSource extends AnAction {
-
-    private static final Logger log = Logger.getInstance(ServiceGenerationAction.class);
 
     @Override
     public void update(AnActionEvent anActionEvent) {
