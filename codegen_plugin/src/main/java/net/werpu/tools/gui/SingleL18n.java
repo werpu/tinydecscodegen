@@ -102,6 +102,7 @@ public class SingleL18n {
 
 
         restoreSettings();
+        updateVisibility();
     }
 
     public void restoreSettings() {
@@ -126,6 +127,7 @@ public class SingleL18n {
             this.cbTsInternat.setSelected(true);
         }
         txtPrefix.setText(prefix != null ? prefix : "i18n");
+
     }
 
     public void saveSettings() {
