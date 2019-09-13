@@ -46,7 +46,7 @@ import net.werpu.tools.gui.OverwriteNewDialogWrapper;
 import net.werpu.tools.gui.SingleL18n;
 import net.werpu.tools.gui.support.InputDialogWrapperBuilder;
 import net.werpu.tools.gui.support.IntelliFileContextComboboxModelEntry;
-import net.werpu.tools.indexes.L18NIndexer;
+import net.werpu.tools.indexes.I18NIndexer;
 import net.werpu.tools.supportive.fs.common.I18NFileContext;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
@@ -303,7 +303,7 @@ public class InternationalizeString extends AnAction {
 
     @NotNull
     public List<IntelliFileContextComboboxModelEntry> createComboboxEntries(Project project) {
-        List<IntellijFileContext> allAffectedFiles = L18NIndexer.getAllAffectedFiles(project);
+        List<IntellijFileContext> allAffectedFiles = I18NIndexer.getAllAffectedFiles(project);
         //we have to group them by name and type
         allAffectedFiles = sortByName(allAffectedFiles);
 

@@ -28,7 +28,7 @@ import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
 import net.werpu.tools.factories.TnDecGroupFactory;
-import net.werpu.tools.indexes.L18NIndexer;
+import net.werpu.tools.indexes.I18NIndexer;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,7 +52,7 @@ public class I18NCreateJsonFromTypescript  extends I18NCreateTypescriptFromJSon 
             return;
         }
 
-        Optional<IntellijFileContext> found =  L18NIndexer.getAllAffectedFiles(anActionEvent.getProject())
+        Optional<IntellijFileContext> found =  I18NIndexer.getAllAffectedFiles(anActionEvent.getProject())
                 .stream().filter(fileContext -> normalize(fileContext).equals(normalize(ctx))).findFirst();
         anActionEvent.getPresentation().setEnabledAndVisible(found.isPresent());
     }

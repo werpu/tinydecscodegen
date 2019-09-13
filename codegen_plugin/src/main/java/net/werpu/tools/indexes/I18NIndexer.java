@@ -50,7 +50,7 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.TS_CONFI
 /**
  * Index for l18n files in the system
  */
-public class L18NIndexer extends ScalarIndexExtension<String> {
+public class I18NIndexer extends ScalarIndexExtension<String> {
 
     public static final ID<String, Void> NAME = ID.create("L18NIndexer");
 

@@ -42,10 +42,10 @@ import java.util.List;
 @Getter
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class L18NElement {
+public class I18NElement {
 
     @EqualsAndHashCode.Exclude
-    private final L18NElement parent;
+    private final I18NElement parent;
 
     private final String key;
 
@@ -53,10 +53,6 @@ public class L18NElement {
     private final String stringValue;
 
     @EqualsAndHashCode.Exclude
-    List<L18NElement> subElements = new ArrayList<>();
-
-
-
-
+    List<I18NElement> subElements = new ArrayList<>();
 
 }

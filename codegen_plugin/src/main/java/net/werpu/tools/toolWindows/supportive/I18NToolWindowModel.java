@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 import net.werpu.tools.supportive.fs.common.I18NFileContext;
-import net.werpu.tools.supportive.fs.common.L18NElement;
+import net.werpu.tools.supportive.fs.common.I18NElement;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.PsiI18nEntryContext;
 
@@ -31,7 +31,7 @@ public class I18NToolWindowModel {
     /**
      * merged tree from all entry contexts
      */
-    List<L18NElement> mergedTree;
+    List<I18NElement> mergedTree;
 
     private Project project;
 
@@ -63,11 +63,11 @@ public class I18NToolWindowModel {
 
 
     private void updateKeyIndex(String treePrefix, PsiI18nEntryContext element) {
-        L18NElement elementReference = element.getRootTreeReference();
+        I18NElement elementReference = element.getRootTreeReference();
         updateFileIndex(treePrefix, new I18NFileContext(project, element.getPsiFile()), elementReference);
     }
 
-    private void updateFileIndex(String treePrefix, I18NFileContext i18nFileRef, L18NElement elementReference) {
+    private void updateFileIndex(String treePrefix, I18NFileContext i18nFileRef, I18NElement elementReference) {
         final String finalKey = treePrefix + elementReference.getKey();
 
 
@@ -87,23 +87,23 @@ public class I18NToolWindowModel {
      * @param list1
      * @return
              */
-    private List<L18NElement> mergeLists(List<L18NElement> list1, List<L18NElement> list2) {
-        final Map<String, L18NElement> list1Idx = new HashMap<>();
-        final Map<String, L18NElement> list12dx = new HashMap<>();
+    private List<I18NElement> mergeLists(List<I18NElement> list1, List<I18NElement> list2) {
+        final Map<String, I18NElement> list1Idx = new HashMap<>();
+        final Map<String, I18NElement> list12dx = new HashMap<>();
         list1.stream().forEach(el -> list1Idx.put(el.getKey(), el));
         list2.stream().forEach(el -> list12dx.put(el.getKey(), el));
 
-        List<L18NElement[]> groupsList = Stream.concat(
+        List<I18NElement[]> groupsList = Stream.concat(
                 list1.stream().map(el -> {
                     if (!list12dx.containsKey(el.getKey())) {
-                        return new L18NElement[]{el, null};
+                        return new I18NElement[]{el, null};
                     } else {
-                        return new L18NElement[]{el, list12dx.get(el.getKey())};
+                        return new I18NElement[]{el, list12dx.get(el.getKey())};
                     }
                 }),
                 list2.stream().map(el -> {
                     if (!list1Idx.containsKey(el.getKey())) {
-                        return new L18NElement[]{null, el};
+                        return new I18NElement[]{null, el};
                     }
                     return null;
                 }).filter(el -> el != null)
@@ -116,8 +116,8 @@ public class I18NToolWindowModel {
             if (el[1] == null) {
                 return el[0];
             } else {
-                List<L18NElement> mergedList = mergeLists(el[0].getSubElements(), el[1].getSubElements());
-                L18NElement retVal = new L18NElement(el[1].getParent(), el[1].getKey(), el[1].getStringValue());
+                List<I18NElement> mergedList = mergeLists(el[0].getSubElements(), el[1].getSubElements());
+                I18NElement retVal = new I18NElement(el[1].getParent(), el[1].getKey(), el[1].getStringValue());
                 retVal.getSubElements().addAll(mergedList);
                 return retVal;
             }

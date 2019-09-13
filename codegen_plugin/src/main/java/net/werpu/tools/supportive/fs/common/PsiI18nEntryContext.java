@@ -61,7 +61,7 @@ public class PsiI18nEntryContext extends PsiElementContext implements IAngularFi
     /**
      * tree reference for display and transformation
      */
-    L18NElement rootTreeReference;
+    I18NElement rootTreeReference;
 
     PsiElementContext exportVar; //only for ts maps
 
@@ -86,7 +86,7 @@ public class PsiI18nEntryContext extends PsiElementContext implements IAngularFi
      */
     private void parse() {
         //step 1 typescript or json parse
-        rootTreeReference = new L18NElement(null, ROOT_KEY, null);
+        rootTreeReference = new I18NElement(null, ROOT_KEY, null);
         if (isTS()) {
             rootTreeReference.getSubElements().addAll(parseTypescriptLine(rootTreeReference, rootPsiReference));
         } else { //json‚
@@ -98,8 +98,8 @@ public class PsiI18nEntryContext extends PsiElementContext implements IAngularFi
         return IntellijUtils.isTypescript(getElement().getLanguage().getAssociatedFileType());
     }
 
-    public List<L18NElement> parseTypescriptLine(L18NElement parent, PsiElementContext par) {
-        List<L18NElement> childs = par.$q(CHILD_ELEM, JS_PROPERTY).map(foundElem -> {
+    public List<I18NElement> parseTypescriptLine(I18NElement parent, PsiElementContext par) {
+        List<I18NElement> childs = par.$q(CHILD_ELEM, JS_PROPERTY).map(foundElem -> {
             Optional<PsiElementContext> key = foundElem.$q(PSI_ELEMENT_JS_IDENTIFIER).findFirst();
             Optional<PsiElementContext> value = foundElem.$q(ALL(
                     BL(
@@ -120,12 +120,12 @@ public class PsiI18nEntryContext extends PsiElementContext implements IAngularFi
     }
 
     @NotNull
-    private L18NElement getL18NElement(L18NElement parent, Optional<PsiElementContext> key, Optional<PsiElementContext> value) {
+    private I18NElement getL18NElement(I18NElement parent, Optional<PsiElementContext> key, Optional<PsiElementContext> value) {
         String valueType = value.get().getElement().toString();
         if (valueType.startsWith(JSON_STRING_LITERAL) || valueType.startsWith(PSI_ELEMENT_JS_STRING_LITERAL)  || valueType.startsWith(JS_STRING_TEMPLATE_EXPRESSION)) {
-            return new L18NElement(parent, key.get().getUnquotedText(), value.get().getUnquotedText());
+            return new I18NElement(parent, key.get().getUnquotedText(), value.get().getUnquotedText());
         } else {
-            L18NElement entry = new L18NElement(parent, key.get().getUnquotedText(), null);
+            I18NElement entry = new I18NElement(parent, key.get().getUnquotedText(), null);
             if(isTS()) {
                 entry.getSubElements().addAll(parseTypescriptLine(entry, value.get()));
             } else {
@@ -144,8 +144,8 @@ public class PsiI18nEntryContext extends PsiElementContext implements IAngularFi
      * @param par
      * @return
      */
-    public List<L18NElement> parseJsonLine(L18NElement parent, PsiElementContext par) {
-        List<L18NElement> childs = par.$q(CHILD_ELEM, JSON_PROPERTY).map(foundElem -> {
+    public List<I18NElement> parseJsonLine(I18NElement parent, PsiElementContext par) {
+        List<I18NElement> childs = par.$q(CHILD_ELEM, JSON_PROPERTY).map(foundElem -> {
             Optional<PsiElementContext> key = foundElem.$q(CHILD_ELEM, JSON_STRING_LITERAL).findFirst();
             Optional<PsiElementContext> value = foundElem.$q(ALL(DIRECT_CHILD(JSON_STRING_LITERAL), DIRECT_CHILD(JSON_OBJECT)))
                     .reduce((el1, el2) -> el2);

@@ -36,7 +36,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
 import net.werpu.tools.factories.TnDecGroupFactory;
-import net.werpu.tools.indexes.L18NIndexer;
+import net.werpu.tools.indexes.I18NIndexer;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.PsiI18nEntryContext;
@@ -70,7 +70,7 @@ public class I18NCreateTypescriptFromJSon extends AnAction {
         }
 
 
-        Optional<IntellijFileContext> found =  L18NIndexer.getAllAffectedFiles(anActionEvent.getProject())
+        Optional<IntellijFileContext> found =  I18NIndexer.getAllAffectedFiles(anActionEvent.getProject())
                 .parallelStream().filter(fileContext -> fileContext.getVirtualFile().getPath().equals(ctx.getVirtualFile().getPath())).findFirst();
         anActionEvent.getPresentation().setEnabledAndVisible(found.isPresent());
     }
