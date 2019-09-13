@@ -53,6 +53,7 @@ public class I18NAngularTranslateTransformation implements IArtifactTransformati
     public String getTnDecTransformation() {
         switch(model.getParsingType()) {
             case TEXT:
+            case STRING_IN_ATTRIBUTE:
                 return "{{'"+finalKey+"' | translate}}";
             case STRING:
                 return "'"+finalKey+"' | translate";
