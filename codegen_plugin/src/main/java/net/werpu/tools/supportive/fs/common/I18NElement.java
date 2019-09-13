@@ -25,12 +25,17 @@
 package net.werpu.tools.supportive.fs.common;
 
 
+import com.google.common.base.Strings;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Stack;
+import java.util.stream.Collectors;
 
 
 /**
@@ -53,6 +58,23 @@ public class I18NElement {
     private final String stringValue;
 
     @EqualsAndHashCode.Exclude
+    @NotNull
     List<I18NElement> subElements = new ArrayList<>();
+
+    public String getFullKey() {
+        List<String> keys = new ArrayList<>();
+        keys.add(key);
+        I18NElement par = parent;
+        while(par != null) {
+            String parKey = Strings.nullToEmpty(par.getKey());
+            if(parKey != null && !parKey.equals("_root_")) { //root element no key there
+                keys.add(parKey);
+            }
+            par = par.getParent();
+        }
+        return keys.stream()
+                .sorted(Comparator.reverseOrder())
+                .collect( Collectors.joining( "." ));
+    }
 
 }

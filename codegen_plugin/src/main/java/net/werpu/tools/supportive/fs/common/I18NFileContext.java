@@ -69,6 +69,7 @@ public class I18NFileContext extends IntellijFileContext {
 
     PsiI18nEntryContext entryContext;
 
+    @Getter
     I18NEntry tree;
 
     @Getter
@@ -127,7 +128,7 @@ public class I18NFileContext extends IntellijFileContext {
 
         //TODO move this functionality into the Entry context ion the long run
         if(isTS()) {
-            return resourceRoot.$q(DIRECT_CHILD(JS_PROPERTY), DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JS_LITERAL_EXPRESSION), NEXT_SIBLINGS(PSI_ELEMENT_JS_STRING_LITERAL))).findFirst();
+            return resourceRoot.$q(DIRECT_CHILD(JS_PROPERTY), NAME_EQ(key), ANY(DIRECT_CHILD(JS_LITERAL_EXPRESSION), DIRECT_CHILD(PSI_ELEMENT_JS_STRING_LITERAL))).findFirst();
         } else {
             return resourceRoot.$q(DIRECT_CHILD(JSON_PROPERTY), DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))).findFirst();
         }
@@ -151,8 +152,9 @@ public class I18NFileContext extends IntellijFileContext {
             return this.getValue(key);
         }
 
+
         if(isTS()) {
-            return resourceRoot.$q(JS_PROPERTY, DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JS_LITERAL_EXPRESSION), NEXT_SIBLINGS(PSI_ELEMENT_JS_STRING_LITERAL))).findFirst();
+            return resourceRoot.$q(JS_PROPERTY, NAME_EQ(key), ANY(DIRECT_CHILD(JS_LITERAL_EXPRESSION), DIRECT_CHILD(PSI_ELEMENT_JS_STRING_LITERAL))).findFirst();
         } else {
             return resourceRoot.$q(JSON_PROPERTY, DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))).findFirst();
         }
@@ -175,13 +177,15 @@ public class I18NFileContext extends IntellijFileContext {
             String key = keys[cnt];
             if (cnt < keys.length - 1) {
                 if(isTS()) {
-                    query.addAll(asList(CHILD_ELEM, CHILD_ELEM, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ(key),  NEXT_SIBLINGS(JS_OBJECT_LITERAL_EXPRESSION)));
+                    query.addAll(asList(JS_PROPERTY, NAME_EQ(key), DIRECT_CHILD(JS_OBJECT_LITERAL_EXPRESSION)));
                 } else {
                     query.addAll(asList(CHILD_ELEM, CHILD_ELEM, JSON_STRING_LITERAL, TEXT_EQ(key),  NEXT_SIBLINGS(JSON_OBJECT)));
                 }
             } else {
                 if(isTS()) {
-                    query.addAll(asList(CHILD_ELEM, CHILD_ELEM, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ(key), ANY(NEXT_SIBLINGS(JS_LITERAL_EXPRESSION), NEXT_SIBLINGS(PSI_ELEMENT_JS_STRING_LITERAL))));
+                    query.addAll(asList(JS_PROPERTY, NAME_EQ(key), DIRECT_CHILD(JS_OBJECT_LITERAL_EXPRESSION)));
+
+                    query.addAll(asList(CHILD_ELEM, JS_PROPERTY, NAME_EQ(key), ANY(DIRECT_CHILD(JS_LITERAL_EXPRESSION), DIRECT_CHILD(PSI_ELEMENT_JS_STRING_LITERAL))));
                 } else {
                     query.addAll(asList(CHILD_ELEM, CHILD_ELEM, JSON_STRING_LITERAL, TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))));
                 }

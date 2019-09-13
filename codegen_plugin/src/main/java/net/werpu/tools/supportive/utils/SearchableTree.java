@@ -324,6 +324,39 @@ public class SearchableTree<V> {
     }
 
     /**
+     * registers the default behavior for click and double click
+     *
+     * @param singleClickAction the click action to be performed
+     * @param doubleClickAction the double click action to be performed
+     * @param <T>               must be of instance IAngularFileContext
+     */
+    public <T extends DefaultMutableTreeNode> void createDefaultNodeClickHandlers(Consumer<T> singleClickAction, Consumer<T> doubleClickAction) {
+        MouseListener ml = new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                int selRow = tree.getRowForLocation(e.getX(), e.getY());
+                if (selRow != -1) {
+                    TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath.getLastPathComponent();
+
+                    if (!e.isConsumed()) {
+                        e.consume();
+
+
+
+                        if (e.getClickCount() < 2) {
+                            singleClickAction.accept((T) node);
+                            return;
+                        }
+
+                        doubleClickAction.accept((T) node);
+                    }
+                }
+            }
+        };
+        tree.addMouseListener(ml);
+    }
+
+    /**
      * @param enter    enter key pressed handler
      * @param altEnter alt enter key pressed handler
      * @param copy

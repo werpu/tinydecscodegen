@@ -27,7 +27,6 @@ package net.werpu.tools.toolWindows;
 import com.google.common.base.Strings;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;

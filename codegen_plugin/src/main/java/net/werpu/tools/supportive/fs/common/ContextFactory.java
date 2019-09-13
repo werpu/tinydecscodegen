@@ -37,6 +37,7 @@ import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -258,6 +259,15 @@ public class ContextFactory {
                 .filter(e -> e != null)
 
                 .collect(Collectors.toList());
+    }
+
+
+    @NotNull
+    public List<I18NFileContext> getI18NFiles(IntellijFileContext projectRoot) {
+         return I18NIndexer.getAllAffectedFiles(projectRoot.getProject()).stream()
+                 .sorted(Comparator.comparing(el -> el.getVirtualFile().getName()))
+                 .map(fileContent -> new I18NFileContext(fileContent))
+                 .collect(Collectors.toList());
     }
 
     public ResourceFilesContext getProjectResourcesCached(IntellijFileContext projectRoot, AngularVersion angularVersion) {
