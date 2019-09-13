@@ -6,8 +6,8 @@ target
 *.iml
 
 /codegen/velocity.log
-/build/
-
+**/*/build/
+build/
 codegen/out/
 codegen_plugin/build/classes/
 codegen_plugin/build/reports/
