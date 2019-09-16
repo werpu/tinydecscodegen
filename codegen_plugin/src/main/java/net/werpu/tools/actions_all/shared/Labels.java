@@ -27,6 +27,7 @@ package net.werpu.tools.actions_all.shared;
 public class Labels {
     public static final String LBL_ARTIFACTS = "Artifacts";
     public static final String LBL_ROUTES = "Routes";
+    public static final String LBL_I18N = "I18N";
     public static final String LBL_MODULES = "Modules";
     public static final String LBL_COMPONENTS = "Components";
     public static final String LBL_FILTERS = "Filters";

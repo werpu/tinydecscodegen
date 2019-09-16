@@ -33,6 +33,7 @@ import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ex.ToolWindowEx;
@@ -271,11 +272,11 @@ public class I18NToolWindow implements ToolWindowFactory {
 
                 List<I18NFileContext> i18nFiles = ContextFactory.getInstance(projectRoot).getI18NFiles(projectRoot);
                 if (i18nFiles.isEmpty()) {
-                    files.getTree().setModel(new DefaultTreeModel(new DefaultMutableTreeNode(MSG_NO_ROUTE_FOUND)));
+                    files.getTree().setModel(new DefaultTreeModel(new DefaultMutableTreeNode(MSG_NO_I18N_FOUND)));
                     return;
                 }
 
-                SwingRootParentNode routesHolder = new SwingRootParentNode(LBL_ROUTES);
+                SwingRootParentNode routesHolder = new SwingRootParentNode(LBL_I18N);
 
                 DefaultTreeModel newModel = new DefaultTreeModel(routesHolder);
                 buildI18NTree(routesHolder);
@@ -307,8 +308,14 @@ public class I18NToolWindow implements ToolWindowFactory {
 
     private void buildI18NTree(SwingRootParentNode routesHolder) {
         List<I18NFileContext> routeFiles = ContextFactory.getInstance(projectRoot).getI18NFiles(projectRoot);
-        routeFiles.forEach(ctx -> {
-            DefaultMutableTreeNode routes = SwingI18NTreeFactory.createRouteTrees(ctx, ctx.getBaseName());
+        routeFiles.stream().sorted((e1, e2) -> {
+            VirtualFile virtualFile1 = e1.getVirtualFile();
+            VirtualFile virtualFile2 = e2.getVirtualFile();
+            return  virtualFile1.getFileType().getName().compareTo(virtualFile2.getFileType().getName()) * 100 +
+                    virtualFile1.getName().compareTo(virtualFile2.getName());
+
+        }).forEach(ctx -> {
+            DefaultMutableTreeNode routes = SwingI18NTreeFactory.createRouteTrees(ctx, ctx.getFileName());
             routesHolder.add(routes);
         });
     }
