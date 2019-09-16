@@ -60,7 +60,7 @@ public class SwingI18NTreeFactory {
     public static void applyBranch(I18NFileContext ctx, DefaultMutableTreeNode parNode, List<I18NElement> elementList) {
         for(I18NElement element: elementList) {
 
-            boolean isBranch = element.getSubElements().isEmpty();
+            boolean isBranch = !element.getSubElements().isEmpty();
             SwingI18NTreeNode treeNode = new SwingI18NTreeNode(element, ctx);
             parNode.add(treeNode);
             if(isBranch) {

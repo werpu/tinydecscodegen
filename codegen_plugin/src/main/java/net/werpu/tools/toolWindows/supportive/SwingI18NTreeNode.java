@@ -41,6 +41,8 @@ public class SwingI18NTreeNode extends DefaultMutableTreeNode {
         this.i18NFileContext = fileContext;
     }
 
+
+
     @Override
     public String toString() {
         I18NElement userObject = getI18NElement();

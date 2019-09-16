@@ -183,8 +183,6 @@ public class I18NFileContext extends IntellijFileContext {
                 }
             } else {
                 if(isTS()) {
-                    query.addAll(asList(JS_PROPERTY, NAME_EQ(key), DIRECT_CHILD(JS_OBJECT_LITERAL_EXPRESSION)));
-
                     query.addAll(asList(CHILD_ELEM, JS_PROPERTY, NAME_EQ(key), ANY(DIRECT_CHILD(JS_LITERAL_EXPRESSION), DIRECT_CHILD(PSI_ELEMENT_JS_STRING_LITERAL))));
                 } else {
                     query.addAll(asList(CHILD_ELEM, CHILD_ELEM, JSON_STRING_LITERAL, TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))));
