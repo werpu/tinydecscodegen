@@ -53,10 +53,13 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.event.MouseEvent;
-import java.util.*;
-import java.util.function.Function;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import static com.intellij.util.ui.tree.TreeUtil.expandAll;
+import static java.util.stream.Collectors.toList;
 import static net.werpu.tools.actions_all.shared.Labels.*;
 import static net.werpu.tools.actions_all.shared.Messages.*;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.NOOP_CONSUMER;
@@ -77,18 +80,17 @@ public class I18NToolWindow implements ToolWindowFactory {
     private IntellijFileContext projectRoot = null;
     private TreeSpeedSearch searchPath = null;
 
+    @SuppressWarnings("unchecked")
     public I18NToolWindow() {
 
         files.getTree().setCellRenderer(new I18NFileContextNodeRenderer());
         files.getTree().setModel(new DefaultTreeModel(new DefaultMutableTreeNode(MSG_PLEASE_WAIT)));
 
-        files.createDefaultNodeClickHandlers(NOOP_CONSUMER, this::gotToDeclaration);
-
-        //files.createDefaultKeyController(this::goToComponent, this::goToRouteDcl, this::copyRouteLink);
+        files.createDefaultNodeClickHandlers((Consumer<SwingI18NTreeNode>) NOOP_CONSUMER, this::gotToDeclaration);
     }
 
 
-    public void gotToDeclaration(SwingI18NTreeNode node) {
+    private void gotToDeclaration(SwingI18NTreeNode node) {
         I18NFileContext parFile = node.getI18NFileContext();
         String key = node.getI18NElement().getFullKey();
         Optional<PsiElementContext> value = parFile.getValue(key, false);
@@ -101,35 +103,31 @@ public class I18NToolWindow implements ToolWindowFactory {
     }
 
 
-    public void gotToDeclaration2(I18NElement node) {
+    private void gotToDeclaration2(I18NElement node) {
 
-        Optional<SwingI18NTreeNode> foundElementInTree = findTreeNode(node);
+        Optional<DefaultMutableTreeNode> foundElementInTree = findTreeNode(node);
         if(!foundElementInTree.isPresent()) {
             return;
         }
-        gotToDeclaration(foundElementInTree.get());
+        gotToDeclaration((SwingI18NTreeNode) foundElementInTree.get());
     }
 
-    Optional<SwingI18NTreeNode> findTreeNode(I18NElement
-                                           element) {
-        DefaultMutableTreeNode tree = (DefaultMutableTreeNode) files.getTree().getModel();
-        getFlatten();
-
-       Optional<SwingI18NTreeNode> foundElement =  Collections.list(tree.children()).stream().flatMap(getFlatten())
-                .filter(node -> ((SwingI18NTreeNode)node).getUserObject() == element)
-                .findFirst();
-
-       return foundElement;
+    private Optional<DefaultMutableTreeNode> findTreeNode(I18NElement
+                                                                  element) {
+        DefaultMutableTreeNode tree = (DefaultMutableTreeNode) files.getTree().getModel().getRoot();
+        return flatten(tree).stream().filter(node -> node.getUserObject() == element).findFirst();
     }
 
-    private Function<DefaultMutableTreeNode, Collection<DefaultMutableTreeNode>> getFlatten() {
-        final Function<DefaultMutableTreeNode, Collection<DefaultMutableTreeNode>> flatten = defaultMutableTreeNode -> {
-            if(defaultMutableTreeNode.isLeaf()) {
-                return Arrays.asList(defaultMutableTreeNode);
-            }
-            return Collections.list(defaultMutableTreeNode.children());
-        };
-        return flatten;
+    @SuppressWarnings("unchecked")
+    private List<DefaultMutableTreeNode> flatten(DefaultMutableTreeNode root) {
+
+        if(root.isLeaf()) {
+            return Collections.singletonList(root);
+        }
+
+        return (List<DefaultMutableTreeNode>) Collections.list(root.children()).stream()
+                .flatMap(element -> this.flatten((DefaultMutableTreeNode) element).stream())
+                .collect(toList());
     }
 
     @Override
@@ -168,6 +166,8 @@ public class I18NToolWindow implements ToolWindowFactory {
                 .withMenuItem(LBL_GO_TO_I18N_DCL, actionEvent -> gotToDeclaration2(foundElement))
                 .withSeparator()
                 .withMenuItem(LBL_COPY_I18N_KEY, actionEvent -> copyKey(foundElement))
+                .withMenuItem(LBL_COPY_I18N_NAME, actionEvent -> copyName(foundElement))
+                .withSeparator()
                 .withMenuItem(LBL_COPY_I18N_TRANSLATE, actionEvent -> copyTranslate(foundElement))
                 .withMenuItem(LBL_COPY_I18N_TRANSLATE__TS, actionEvent -> copyTranslateTS(foundElement))
 .       show(files.getTree(), ev.getX(), ev.getY());
@@ -203,12 +203,12 @@ public class I18NToolWindow implements ToolWindowFactory {
     /**
      * copies the route name into the clipboard
      */
-    private void copyName(PsiRouteContext foundContext) {
-        Route route = foundContext.getRoute();
-        if (route == null) {
+    private void copyName(I18NElement foundContext) {
+        String key = foundContext.getKey();
+        if (key == null) {
             return;
         }
-        copyToClipboard(route.getRouteKey());
+        copyToClipboard(key);
     }
 
     private void refreshContent(@NotNull Project project) {
@@ -254,8 +254,8 @@ public class I18NToolWindow implements ToolWindowFactory {
         });
     }
 
-    public void registerPopup() {
-        MouseController<I18NElement> contextMenuListener = new MouseController<I18NElement>(files.getTree(), this::showPopup);
+    private void registerPopup() {
+        MouseController<I18NElement> contextMenuListener = new MouseController<>(files.getTree(), this::showPopup);
         files.getTree().addMouseListener(contextMenuListener);
     }
 
