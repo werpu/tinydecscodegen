@@ -29,7 +29,6 @@ import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.NodeRenderer;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.project.FileContentQueue;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -44,29 +43,27 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.ui.UIUtil;
 import lombok.CustomLog;
 import net.werpu.tools.supportive.fs.common.*;
-import net.werpu.tools.supportive.transformations.i18n.I18NEntry;
 import net.werpu.tools.supportive.utils.IntellijRunUtils;
 import net.werpu.tools.supportive.utils.SearchableTree;
-import net.werpu.tools.toolWindows.supportive.MouseController;
-import net.werpu.tools.toolWindows.supportive.SwingI18NTreeFactory;
-import net.werpu.tools.toolWindows.supportive.SwingI18NTreeNode;
-import net.werpu.tools.toolWindows.supportive.SwingRootParentNode;
+import net.werpu.tools.toolWindows.supportive.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import java.util.List;
-import java.util.Optional;
+import java.awt.event.MouseEvent;
+import java.util.*;
+import java.util.function.Function;
 
 import static com.intellij.util.ui.tree.TreeUtil.expandAll;
-import static net.werpu.tools.actions_all.shared.Labels.LBL_ROUTES;
+import static net.werpu.tools.actions_all.shared.Labels.*;
 import static net.werpu.tools.actions_all.shared.Messages.*;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.NOOP_CONSUMER;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.smartInvokeLater;
 import static net.werpu.tools.supportive.utils.IntellijUtils.convertToSearchableString;
 import static net.werpu.tools.supportive.utils.StringUtils.normalizePath;
+import static net.werpu.tools.supportive.utils.SwingUtils.copyToClipboard;
 import static net.werpu.tools.supportive.utils.SwingUtils.openEditor;
 
 /**
@@ -86,10 +83,8 @@ public class I18NToolWindow implements ToolWindowFactory {
         files.getTree().setModel(new DefaultTreeModel(new DefaultMutableTreeNode(MSG_PLEASE_WAIT)));
 
         files.createDefaultNodeClickHandlers(NOOP_CONSUMER, this::gotToDeclaration);
+
         //files.createDefaultKeyController(this::goToComponent, this::goToRouteDcl, this::copyRouteLink);
-
-
-
     }
 
 
@@ -103,6 +98,38 @@ public class I18NToolWindow implements ToolWindowFactory {
 
         openEditor(value.get());
 
+    }
+
+
+    public void gotToDeclaration2(I18NElement node) {
+
+        Optional<SwingI18NTreeNode> foundElementInTree = findTreeNode(node);
+        if(!foundElementInTree.isPresent()) {
+            return;
+        }
+        gotToDeclaration(foundElementInTree.get());
+    }
+
+    Optional<SwingI18NTreeNode> findTreeNode(I18NElement
+                                           element) {
+        DefaultMutableTreeNode tree = (DefaultMutableTreeNode) files.getTree().getModel();
+        getFlatten();
+
+       Optional<SwingI18NTreeNode> foundElement =  Collections.list(tree.children()).stream().flatMap(getFlatten())
+                .filter(node -> ((SwingI18NTreeNode)node).getUserObject() == element)
+                .findFirst();
+
+       return foundElement;
+    }
+
+    private Function<DefaultMutableTreeNode, Collection<DefaultMutableTreeNode>> getFlatten() {
+        final Function<DefaultMutableTreeNode, Collection<DefaultMutableTreeNode>> flatten = defaultMutableTreeNode -> {
+            if(defaultMutableTreeNode.isLeaf()) {
+                return Arrays.asList(defaultMutableTreeNode);
+            }
+            return Collections.list(defaultMutableTreeNode.children());
+        };
+        return flatten;
     }
 
     @Override
@@ -133,6 +160,57 @@ public class I18NToolWindow implements ToolWindowFactory {
         }
     }
 
+
+    private void showPopup(I18NElement foundElement, MouseEvent ev) {
+
+        PopupBuilder builder = new PopupBuilder();
+        builder
+                .withMenuItem(LBL_GO_TO_I18N_DCL, actionEvent -> gotToDeclaration2(foundElement))
+                .withSeparator()
+                .withMenuItem(LBL_COPY_I18N_KEY, actionEvent -> copyKey(foundElement))
+                .withMenuItem(LBL_COPY_I18N_TRANSLATE, actionEvent -> copyTranslate(foundElement))
+                .withMenuItem(LBL_COPY_I18N_TRANSLATE__TS, actionEvent -> copyTranslateTS(foundElement))
+.       show(files.getTree(), ev.getX(), ev.getY());
+    }
+
+    /**
+     * copies the route name into the clipboard
+     */
+    private void copyKey(I18NElement foundContext) {
+        String fullKey = foundContext.getFullKey();
+        if (fullKey == null) {
+            return;
+        }
+        copyToClipboard(fullKey);
+    }
+
+    private void copyTranslate(I18NElement foundContext) {
+        String fullKey = foundContext.getFullKey();
+        if (fullKey == null) {
+            return;
+        }
+        copyToClipboard("{{'"+fullKey+"' | translate}}");
+    }
+
+    private void copyTranslateTS(I18NElement foundContext) {
+        String fullKey = foundContext.getFullKey();
+        if (fullKey == null) {
+            return;
+        }
+        copyToClipboard("this.$translate.instant(\""+fullKey+"\")");
+    }
+
+    /**
+     * copies the route name into the clipboard
+     */
+    private void copyName(PsiRouteContext foundContext) {
+        Route route = foundContext.getRoute();
+        if (route == null) {
+            return;
+        }
+        copyToClipboard(route.getRouteKey());
+    }
+
     private void refreshContent(@NotNull Project project) {
         smartInvokeLater(project, () -> {
             try {
@@ -159,17 +237,11 @@ public class I18NToolWindow implements ToolWindowFactory {
                 files.getTree().setRootVisible(false);
                 files.getTree().setModel(newModel);
 
-                //now we restore the expansion state
-
-
-
                 /*found this usefule helper in the jetbrains intellij sources*/
                 if (searchPath == null) {
 
 
-                    //MouseController<PsiRouteContext> contextMenuListener = new MouseController<>(files.getTree(), this::showPopup);
-                    //files.getTree().addMouseListener(contextMenuListener);
-
+                    registerPopup();
 
                     searchPath = new TreeSpeedSearch(files.getTree(), convertToSearchableString(files.getTree()));
                 }
@@ -180,6 +252,11 @@ public class I18NToolWindow implements ToolWindowFactory {
                 refreshContent(project);
             }
         });
+    }
+
+    public void registerPopup() {
+        MouseController<I18NElement> contextMenuListener = new MouseController<I18NElement>(files.getTree(), this::showPopup);
+        files.getTree().addMouseListener(contextMenuListener);
     }
 
     private void buildI18NTree(SwingRootParentNode routesHolder) {

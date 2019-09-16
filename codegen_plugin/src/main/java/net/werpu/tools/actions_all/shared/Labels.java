@@ -56,4 +56,12 @@ public class Labels {
     public static final String LBL_GO_TO_COMPONENT = "Go to Component";
     public static final String LBL_COPY_ROUTE_LINK = "Copy Route Link";
     public static final String LBL_COPY_ROUTE_KEY = "Copy Route Key";
+    public static final String LBL_COPY_I18N_KEY = "Copy I18N Key";
+    public static final String LBL_COPY_I18N_NAME = "Copy I18N Name";
+    public static final String LBL_COPY_I18N_VALUE = "Copy I18N Value";
+    public static final String LBL_COPY_I18N_TRANSLATE = "Copy I18N Translate";
+    public static final String LBL_COPY_I18N_TRANSLATE__TS = "Copy I18N Translate (TS/JS)";
+    public static final String LBL_GO_TO_I18N_DCL = "Go To I18N Declaration";
+
+
 }
