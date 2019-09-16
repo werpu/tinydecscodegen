@@ -44,6 +44,7 @@ import com.intellij.util.ui.UIUtil;
 import lombok.CustomLog;
 import net.werpu.tools.supportive.fs.common.*;
 import net.werpu.tools.supportive.utils.IntellijRunUtils;
+import net.werpu.tools.supportive.utils.IntellijUtils;
 import net.werpu.tools.supportive.utils.SearchableTree;
 import net.werpu.tools.toolWindows.supportive.*;
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +72,6 @@ import static net.werpu.tools.supportive.utils.SwingUtils.openEditor;
 
 /**
  * A tool window providing a tree view on the 18n, including content change facilities
- *
  */
 @CustomLog
 public class I18NToolWindow implements ToolWindowFactory {
@@ -94,7 +94,7 @@ public class I18NToolWindow implements ToolWindowFactory {
         I18NFileContext parFile = node.getI18NFileContext();
         String key = node.getI18NElement().getFullKey();
         Optional<PsiElementContext> value = parFile.getValue(key, false);
-        if(!value.isPresent()) {
+        if (!value.isPresent()) {
             return;
         }
 
@@ -106,7 +106,7 @@ public class I18NToolWindow implements ToolWindowFactory {
     private void gotToDeclaration2(I18NElement node) {
 
         Optional<DefaultMutableTreeNode> foundElementInTree = findTreeNode(node);
-        if(!foundElementInTree.isPresent()) {
+        if (!foundElementInTree.isPresent()) {
             return;
         }
         gotToDeclaration((SwingI18NTreeNode) foundElementInTree.get());
@@ -121,7 +121,7 @@ public class I18NToolWindow implements ToolWindowFactory {
     @SuppressWarnings("unchecked")
     private List<DefaultMutableTreeNode> flatten(DefaultMutableTreeNode root) {
 
-        if(root.isLeaf()) {
+        if (root.isLeaf()) {
             return Collections.singletonList(root);
         }
 
@@ -161,16 +161,38 @@ public class I18NToolWindow implements ToolWindowFactory {
 
     private void showPopup(I18NElement foundElement, MouseEvent ev) {
 
+        Optional<DefaultMutableTreeNode> node = findTreeNode(foundElement);
+        if (!node.isPresent()) {
+            return;
+        }
+
+        SwingI18NTreeNode i18nNode = (SwingI18NTreeNode) node.get();
+        I18NFileContext is18nFileContext = i18nNode.getI18NFileContext();
+        boolean ts = IntellijUtils.isTypescript(is18nFileContext.getPsiFile().getFileType());
+
         PopupBuilder builder = new PopupBuilder();
         builder
                 .withMenuItem(LBL_GO_TO_I18N_DCL, actionEvent -> gotToDeclaration2(foundElement))
-                .withSeparator()
-                .withMenuItem(LBL_COPY_I18N_KEY, actionEvent -> copyKey(foundElement))
-                .withMenuItem(LBL_COPY_I18N_NAME, actionEvent -> copyName(foundElement))
-                .withSeparator()
-                .withMenuItem(LBL_COPY_I18N_TRANSLATE, actionEvent -> copyTranslate(foundElement))
-                .withMenuItem(LBL_COPY_I18N_TRANSLATE__TS, actionEvent -> copyTranslateTS(foundElement))
-.       show(files.getTree(), ev.getX(), ev.getY());
+                .withSeparator();
+        builder.withMenuItem(LBL_COPY_I18N_KEY, actionEvent -> copyKey(foundElement));
+        boolean isTnDec = !is18nFileContext.isAngularChild(AngularVersion.NG);
+        if (ts && isTnDec) {
+            builder.withMenuItem(LBL_COPY_I18N_KEY_PREFIX, actionEvent -> copyKeyTS_TN(foundElement));
+        }
+        builder.withMenuItem(LBL_COPY_I18N_NAME, actionEvent -> copyName(foundElement))
+                .withSeparator();
+        if (!ts) {
+            builder.withMenuItem(LBL_COPY_I18N_TRANSLATE, actionEvent -> copyTranslate(foundElement));
+        } else {
+            if (isTnDec) {
+                builder.withMenuItem(LBL_COPY_I18N_TRANSLATE, actionEvent -> copyTranslateTS_TN(foundElement));
+            } else {
+                builder.withMenuItem(LBL_COPY_I18N_TRANSLATE, actionEvent -> copyTranslateTS_NG(foundElement));
+            }
+        }
+        builder.withSeparator();
+        builder.withMenuItem(LBL_COPY_I18N_TRANSLATE__TS, actionEvent -> copyTranslateTS(foundElement));
+        builder.show(files.getTree(), ev.getX(), ev.getY());
     }
 
     /**
@@ -189,7 +211,31 @@ public class I18NToolWindow implements ToolWindowFactory {
         if (fullKey == null) {
             return;
         }
-        copyToClipboard("{{'"+fullKey+"' | translate}}");
+        copyToClipboard("{{'" + fullKey + "' | translate}}");
+    }
+
+    private void copyTranslateTS_TN(I18NElement foundContext) {
+        String fullKey = foundContext.getFullKey();
+        if (fullKey == null) {
+            return;
+        }
+        copyToClipboard("{{ctrl." + fullKey + "}}");
+    }
+
+    private void copyTranslateTS_NG(I18NElement foundContext) {
+        String fullKey = foundContext.getFullKey();
+        if (fullKey == null) {
+            return;
+        }
+        copyToClipboard("{{" + fullKey + "}}");
+    }
+
+    private void copyKeyTS_TN(I18NElement foundContext) {
+        String fullKey = foundContext.getFullKey();
+        if (fullKey == null) {
+            return;
+        }
+        copyToClipboard("ctrl." + fullKey);
     }
 
     private void copyTranslateTS(I18NElement foundContext) {
@@ -197,7 +243,7 @@ public class I18NToolWindow implements ToolWindowFactory {
         if (fullKey == null) {
             return;
         }
-        copyToClipboard("this.$translate.instant(\""+fullKey+"\")");
+        copyToClipboard("this.$translate.instant(\"" + fullKey + "\")");
     }
 
     /**
@@ -277,7 +323,7 @@ public class I18NToolWindow implements ToolWindowFactory {
             ItemPresentation retVal = super.getPresentation(node);
             Icon icon = ng;
 
-            if(node instanceof I18NFileContext) {
+            if (node instanceof I18NFileContext) {
                 I18NFileContext data = (I18NFileContext) node;
                 icon = ((I18NFileContext) node).getIcon();
                 String fileName = normalizePath(data.getVirtualFile().getName());

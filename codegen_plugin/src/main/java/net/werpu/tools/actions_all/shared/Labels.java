@@ -57,6 +57,7 @@ public class Labels {
     public static final String LBL_COPY_ROUTE_LINK = "Copy Route Link";
     public static final String LBL_COPY_ROUTE_KEY = "Copy Route Key";
     public static final String LBL_COPY_I18N_KEY = "Copy I18N Key";
+    public static final String LBL_COPY_I18N_KEY_PREFIX = "Copy Referenced I18N Key";
     public static final String LBL_COPY_I18N_NAME = "Copy I18N Name";
     public static final String LBL_COPY_I18N_VALUE = "Copy I18N Value";
     public static final String LBL_COPY_I18N_TRANSLATE = "Copy I18N Translate";
