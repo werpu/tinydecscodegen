@@ -41,7 +41,6 @@ import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.UIUtil;
 import lombok.CustomLog;
 import net.werpu.tools.supportive.fs.common.*;
@@ -58,7 +57,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.event.MouseEvent;
 import java.util.Collections;
-import java.util.EventListener;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -108,6 +106,22 @@ public class I18NToolWindow implements ToolWindowFactory {
 
     }
 
+    private Optional<SwingI18NTreeNode> findDeclaration(String key) {
+        List<DefaultMutableTreeNode> treeNodes = flatten((DefaultMutableTreeNode) files.getTree().getModel().getRoot());
+        List<SwingI18NTreeNode> results = treeNodes.stream()
+                .filter(node -> node instanceof SwingI18NTreeNode)
+                .map(node -> (SwingI18NTreeNode) node)
+                .filter(node -> node.getI18NElement().getFullKey().equals(key) || node.getI18NElement().getKey().equals(key))
+                .collect(toList());
+        if(results.isEmpty()) {
+            return Optional.empty();
+        }
+        Optional<SwingI18NTreeNode> preciseMatch = results.stream().filter(node -> node.getI18NElement().getFullKey().equals(key)).findFirst();
+        if(preciseMatch.isPresent()) {
+            return preciseMatch;
+        }
+        return Optional.of(results.get(0));
+    }
 
     private void gotToDeclaration2(I18NElement node) {
 
@@ -142,7 +156,7 @@ public class I18NToolWindow implements ToolWindowFactory {
         this.projectRoot = new IntellijFileContext(project);
 
         project.getMessageBus().connect().subscribe(I18NToolWindowListener.GO_TO_DECLRATION, (VirtualFile vFile, I18NKeyModel keyModel) -> {
-            System.out.println("TODO Go To Declaration");
+            this.evtGoToDeclaration(vFile,keyModel);
         });
 
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
@@ -168,6 +182,18 @@ public class I18NToolWindow implements ToolWindowFactory {
         }
     }
 
+    private void evtGoToDeclaration(VirtualFile virtualFile, I18NKeyModel model) {
+        String key = model.getKey();
+        Optional<SwingI18NTreeNode> inTree = findDeclaration(key);
+        if(!inTree.isPresent()) {
+            IntellijUtils.showInfoMessage("Key: "+key +" was not found", "I18N Key not Found");
+            return;
+        }
+
+        //TODO click so that the tree node is selected
+        gotToDeclaration(inTree.get());
+
+    }
 
     private void showPopup(I18NElement foundElement, MouseEvent ev) {
 

@@ -33,6 +33,7 @@ import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.transformations.shared.modelHelpers.ElementNotResolvableException;
 import net.werpu.tools.supportive.utils.IntellijUtils;
+import net.werpu.tools.supportive.utils.SwingUtils;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -51,6 +52,7 @@ public class I18NKeyModel {
 
     public I18NKeyModel(IntellijFileContext fileContext) {
         this.fileContext = fileContext;
+        parse(SwingUtils.getCurrentCursorPos(fileContext));
     }
 
     private void parse(int cursorPos) {

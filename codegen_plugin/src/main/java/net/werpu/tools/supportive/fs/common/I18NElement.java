@@ -26,15 +26,13 @@ package net.werpu.tools.supportive.fs.common;
 
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -72,8 +70,8 @@ public class I18NElement {
             }
             par = par.getParent();
         }
+        keys = Lists.reverse(keys);
         return keys.stream()
-                .sorted(Comparator.reverseOrder())
                 .collect( Collectors.joining( "." ));
     }
 
