@@ -233,6 +233,9 @@
                 <action id="TD_L18N_Single" class="net.werpu.tools.actions.InternationalizeString" text="Internationalize">
                     <keyboard-shortcut first-keystroke="control alt T" second-keystroke="I" keymap="$default"/>
                 </action>
+                <action id="TD_GO_I18N" class="net.werpu.tools.actions.GoToI18NDeclarationFromSource" text="Go To I18N Declaration">
+                    <keyboard-shortcut first-keystroke="control alt T" second-keystroke="D" keymap="$default"/>
+                </action>
                 <separator />
                 <action id="RefactorIntoAnnModule" class="net.werpu.tools.actions_all.RefactorIntoTnDecModule" text="Tiny Decorations Module"/>
                 <action id="RefactorIntoAngularModule" class="net.werpu.tools.actions_all.RefactorIntoAngularModule" text="Angular Module"/>

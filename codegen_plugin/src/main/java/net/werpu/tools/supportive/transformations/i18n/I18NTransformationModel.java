@@ -43,6 +43,7 @@ import net.werpu.tools.supportive.utils.SwingUtils;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import static net.werpu.tools.supportive.reflectRefact.PsiAnnotationUtils.getPositionFilter;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.PARENTS_EQ;
 
@@ -106,11 +107,7 @@ public class I18NTransformationModel implements ITransformationModel {
         //to html
 
         //in case of a simple html file we simply can proceed from there
-        Predicate<PsiElementContext> positionFilter = el -> {
-            int offSet = el.getTextRangeOffset();
-            int offSetEnd = offSet + el.getText().length();
-            return cursorPos >= offSet && cursorPos <= offSetEnd;
-        };
+        Predicate<PsiElementContext> positionFilter = getPositionFilter(cursorPos);
 
         //search for an embedded string template in case of an embedded template
         Optional<PsiElementContext> oCtx = fileContext.$q(STRING_TEMPLATE_EXPR)

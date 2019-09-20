@@ -41,9 +41,11 @@ import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.UIUtil;
 import lombok.CustomLog;
 import net.werpu.tools.supportive.fs.common.*;
+import net.werpu.tools.supportive.transformations.i18n.I18NKeyModel;
 import net.werpu.tools.supportive.utils.IntellijRunUtils;
 import net.werpu.tools.supportive.utils.IntellijUtils;
 import net.werpu.tools.supportive.utils.SearchableTree;
@@ -56,6 +58,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.event.MouseEvent;
 import java.util.Collections;
+import java.util.EventListener;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -80,6 +83,8 @@ public class I18NToolWindow implements ToolWindowFactory {
     private SearchableTree<I18NFileContext> files = new SearchableTree<>();
     private IntellijFileContext projectRoot = null;
     private TreeSpeedSearch searchPath = null;
+
+
 
     @SuppressWarnings("unchecked")
     public I18NToolWindow() {
@@ -135,6 +140,10 @@ public class I18NToolWindow implements ToolWindowFactory {
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         IntellijRunUtils.onFileChange(project, (vFile) -> refreshContent(project));
         this.projectRoot = new IntellijFileContext(project);
+
+        project.getMessageBus().connect().subscribe(I18NToolWindowListener.GO_TO_DECLRATION, (VirtualFile vFile, I18NKeyModel keyModel) -> {
+            System.out.println("TODO Go To Declaration");
+        });
 
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
 
