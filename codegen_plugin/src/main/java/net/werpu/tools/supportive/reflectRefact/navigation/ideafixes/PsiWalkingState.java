@@ -44,7 +44,6 @@ import org.jetbrains.annotations.NotNull;
 public abstract class PsiWalkingState extends WalkingState<PsiElement> {
     private final PsiElementVisitor myVisitor;
 
-
     protected PsiWalkingState(@NotNull PsiElementVisitor delegate) {
         this(delegate, PsiTreeGuide.instance);
     }
@@ -64,7 +63,6 @@ public abstract class PsiWalkingState extends WalkingState<PsiElement> {
 
         super.elementStarted(element);
     }
-
 
     private static class PsiTreeGuide implements TreeGuide<PsiElement> {
         private static final PsiTreeGuide instance = new PsiTreeGuide();

@@ -70,6 +70,7 @@ public class AngularJSDirectiveTransformationModel extends AngularJSComponentTra
     public AngularJSDirectiveTransformationModel(Project project, VirtualFile virtualFile, PsiElementContext rootBlock) {
         super(project, virtualFile, rootBlock);
     }
+
     public AngularJSDirectiveTransformationModel(IntellijFileContext fileContext) {
         super(fileContext);
     }

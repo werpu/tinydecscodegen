@@ -927,7 +927,6 @@ public class IntellijUtils {
         return languageVariant;
     }
 
-
     static class ClassHolder {
         public Class hierarchyEndpoint = null;
     }

@@ -126,7 +126,6 @@ public class I18NIndexer extends ScalarIndexExtension<String> {
         return false;
     }
 
-
     private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
         @Override
         @NotNull
