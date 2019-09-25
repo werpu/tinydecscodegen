@@ -59,7 +59,7 @@ public class I18NTypescriptDeclFileTransformation implements IArtifactTransforma
     public I18NTypescriptDeclFileTransformation(I18NFileContext target, String neyKey, String newValue) {
         this.target = target;
         this.neyKey = neyKey;
-        this.newValue = newValue;
+        this.newValue = Strings.nullToEmpty(newValue).replaceAll("\\n", "<br />");
     }
 
     /*

@@ -59,7 +59,7 @@ public class I18NJsonDeclFileTransformation implements IArtifactTransformation {
     public I18NJsonDeclFileTransformation(I18NFileContext target, String neyKey, String newValue) {
         this.target = target;
         this.neyKey = neyKey;
-        this.newValue = newValue;
+        this.newValue = Strings.nullToEmpty(newValue).replaceAll("\\n", "<br />");
     }
 
     /*
