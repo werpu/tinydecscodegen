@@ -55,6 +55,7 @@ public class SwingI18NTreeNode extends DefaultMutableTreeNode {
     }
 
 
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof I18NEntry) {

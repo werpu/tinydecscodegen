@@ -24,7 +24,9 @@
 
 package net.werpu.tools.supportive.utils;
 
+import net.werpu.tools.supportive.fs.common.I18NElement;
 import net.werpu.tools.supportive.fs.common.IAngularFileContext;
+import net.werpu.tools.toolWindows.supportive.SwingI18NTreeNode;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -58,6 +60,8 @@ public class ExpansionMonitor {
                         expanded.add((String)userObject);
                     } else if(userObject instanceof IAngularFileContext) {
                         expanded.add(((IAngularFileContext)userObject).getVirtualFile().getPath());
+                    } else if(userObject instanceof I18NElement) {
+                        expanded.add(((I18NElement)userObject).getFullKey());
                     }
                 }
             }
@@ -76,6 +80,8 @@ public class ExpansionMonitor {
                     } else if(userObject instanceof IAngularFileContext) {
                         String key = ((IAngularFileContext) userObject).getVirtualFile().getPath();
                         expanded.remove(key);
+                    } else if(userObject instanceof I18NElement) {
+                        expanded.remove(((I18NElement)userObject).getFullKey());
                     }
                 }
             }
@@ -95,6 +101,8 @@ public class ExpansionMonitor {
                     key = (String) userObject;
                 } else if(userObject instanceof IAngularFileContext) {
                     key = ((IAngularFileContext)userObject).getVirtualFile().getPath();
+                } else if(userObject instanceof I18NElement) {
+                   key = ((I18NElement)userObject).getFullKey();
                 }
                 if(key != null && expanded.contains(key)) {
                     try {

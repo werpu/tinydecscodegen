@@ -84,7 +84,7 @@ public class AngularNavigationsToolWindow implements ToolWindowFactory {
 
     private IntellijFileContext projectRoot = null;
     private TreeSpeedSearch searchPath = null;
-
+    private SimpleToolWindowPanel toolWindowPanel = null;
 
     public AngularNavigationsToolWindow() {
 
@@ -112,7 +112,7 @@ public class AngularNavigationsToolWindow implements ToolWindowFactory {
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         IntellijRunUtils.onFileChange(project, (vFile) -> refreshContent(project, vFile));
 
-        SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
+        toolWindowPanel = new SimpleToolWindowPanel(true, true);
 
         refreshContent(project);
         JBScrollPane mainPanel = new JBScrollPane();

@@ -71,7 +71,7 @@ public class SearchableTree<V> {
     int[] selectionRows;
 
     public SearchableTree() {
-        new ExpansionMonitor(tree);
+        expansionMonitor = new ExpansionMonitor(tree);
 
         tree.addTreeExpansionListener(new TreeExpansionListener() {
             @Override

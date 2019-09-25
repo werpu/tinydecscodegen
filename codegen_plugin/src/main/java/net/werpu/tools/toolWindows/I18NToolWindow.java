@@ -24,17 +24,17 @@
 
 package net.werpu.tools.toolWindows;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.NodeRenderer;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManagerListener;
-import com.intellij.openapi.project.impl.ProjectManagerImpl;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -47,9 +47,8 @@ import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.util.messages.MessageBusFactory;
-import com.intellij.util.messages.impl.MessageBusImpl;
 import com.intellij.util.ui.UIUtil;
+import com.intellij.util.ui.tree.TreeUtil;
 import lombok.CustomLog;
 import net.werpu.tools.supportive.fs.common.*;
 import net.werpu.tools.supportive.transformations.i18n.I18NKeyModel;
@@ -75,7 +74,6 @@ import static java.util.stream.Collectors.toList;
 import static net.werpu.tools.actions_all.shared.Labels.*;
 import static net.werpu.tools.actions_all.shared.Messages.*;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.*;
-import static net.werpu.tools.supportive.utils.IntellijRunUtils.backgroundTask;
 import static net.werpu.tools.supportive.utils.IntellijUtils.convertToSearchableString;
 import static net.werpu.tools.supportive.utils.StringUtils.normalizePath;
 import static net.werpu.tools.supportive.utils.SwingUtils.copyToClipboard;
@@ -91,8 +89,8 @@ public class I18NToolWindow implements ToolWindowFactory {
     private IntellijFileContext projectRoot = null;
     private TreeSpeedSearch searchPath = null;
     private ToolWindow toolWindow;
+    private SimpleToolWindowPanel toolWindowPanel;
     boolean initialized = false;
-
 
 
     @SuppressWarnings("unchecked")
@@ -103,16 +101,15 @@ public class I18NToolWindow implements ToolWindowFactory {
 
         files.createDefaultNodeClickHandlers((Consumer<SwingI18NTreeNode>) NOOP_CONSUMER, this::gotToDeclaration);
         ApplicationManager.getApplication().getMessageBus().connect().subscribe(I18NToolWindowListener.GO_TO_DECLRATION, (VirtualFile vFile, I18NKeyModel keyModel) -> {
-            this.evtGoToDeclaration(vFile,keyModel);
+            this.evtGoToDeclaration(vFile, keyModel);
             initFileListener(keyModel.getFileContext().getProject());
         });
-
 
 
     }
 
     public void initFileListener(Project project) {
-        if(toolWindow == null || initialized == false) {
+        if (toolWindow == null || initialized == false) {
             VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileContentsChangedAdapter() {
                 @Override
                 protected void onFileChange(@NotNull VirtualFile file) {
@@ -158,11 +155,11 @@ public class I18NToolWindow implements ToolWindowFactory {
                 .map(node -> (SwingI18NTreeNode) node)
                 .filter(node -> node.getI18NElement().getFullKey().equals(key) || node.getI18NElement().getKey().equals(key))
                 .collect(toList());
-        if(results.isEmpty()) {
+        if (results.isEmpty()) {
             return Optional.empty();
         }
         Optional<SwingI18NTreeNode> preciseMatch = results.stream().filter(node -> node.getI18NElement().getFullKey().equals(key)).findFirst();
-        if(preciseMatch.isPresent()) {
+        if (preciseMatch.isPresent()) {
             return preciseMatch;
         }
         return Optional.of(results.get(0));
@@ -209,7 +206,7 @@ public class I18NToolWindow implements ToolWindowFactory {
         initFileListener(project);
 
 
-        SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
+        toolWindowPanel = new SimpleToolWindowPanel(true, true);
 
         refreshContent();
         JBScrollPane mainPanel = new JBScrollPane();
@@ -237,8 +234,8 @@ public class I18NToolWindow implements ToolWindowFactory {
         Runnable localGo = () -> {
             String key = model.getKey();
             Optional<SwingI18NTreeNode> inTree = findDeclaration(key);
-            if(!inTree.isPresent()) {
-                IntellijUtils.showInfoMessage("Key: "+key +" was not found", "I18N Key not Found");
+            if (!inTree.isPresent()) {
+                IntellijUtils.showInfoMessage("Key: " + key + " was not found", "I18N Key not Found");
                 return;
             }
 
@@ -246,12 +243,13 @@ public class I18NToolWindow implements ToolWindowFactory {
             gotToDeclaration(inTree.get());
         };
 
-        if(this.projectRoot == null) {
+        if (this.projectRoot == null) {
             this.projectRoot = new IntellijFileContext(model.getFileContext().getProject());
             fullRefresh(projectRoot.getProject(), localGo);
             return;
         }
-        localGo.run();;
+        localGo.run();
+        ;
 
     }
 
@@ -356,7 +354,7 @@ public class I18NToolWindow implements ToolWindowFactory {
     private AtomicBoolean refreshing = new AtomicBoolean(Boolean.FALSE);
 
     private void fullRefresh(@NotNull Project project, Runnable runAfter) {
-        if(refreshing.get()) {
+        if (refreshing.get()) {
             return;
         }
         smartInvokeLater(project, () -> {
@@ -384,6 +382,7 @@ public class I18NToolWindow implements ToolWindowFactory {
 
                 files.getTree().setRootVisible(false);
                 files.getTree().setModel(newModel);
+                setupActionBar(toolWindow, toolWindowPanel);
 
                 /*found this usefule helper in the jetbrains intellij sources*/
                 if (searchPath == null) {
@@ -394,8 +393,10 @@ public class I18NToolWindow implements ToolWindowFactory {
                     searchPath = new TreeSpeedSearch(files.getTree(), convertToSearchableString(files.getTree()));
                 }
 
-                expandAll(files.getTree());
-                if(runAfter != null) {
+                files.restoreExpansion();
+                TreeUtil.expand(files.getTree(), 5);
+
+                if (runAfter != null) {
                     runAfter.run();
                 }
 
@@ -407,6 +408,22 @@ public class I18NToolWindow implements ToolWindowFactory {
         });
     }
 
+    private void setupActionBar(@NotNull ToolWindow toolWindow, SimpleToolWindowPanel panel) {
+        if (toolWindow instanceof ToolWindowEx) {
+            final CommonActionsManager actionsManager = CommonActionsManager.getInstance();
+            AnAction[] titleActions = IntellijRunUtils.actions(
+                    new AnAction("Reload All", "Reload All Views", AllIcons.Actions.Refresh) {
+                        @Override
+                        public void actionPerformed(AnActionEvent e) {
+
+                            refreshContent();
+                        }
+                    }, CommonActionsManager.getInstance().createExpandAllHeaderAction(files.getTree()),
+                    CommonActionsManager.getInstance().createCollapseAllHeaderAction(files.getTree()));
+
+            ((ToolWindowEx) toolWindow).setTitleActions(titleActions);
+        }
+    }
 
     private void refreshContent() {
         //if (toolWindow == null || !toolWindow.isVisible()) {
@@ -427,7 +444,7 @@ public class I18NToolWindow implements ToolWindowFactory {
         routeFiles.stream().sorted((e1, e2) -> {
             VirtualFile virtualFile1 = e1.getVirtualFile();
             VirtualFile virtualFile2 = e2.getVirtualFile();
-            return  virtualFile1.getFileType().getName().compareTo(virtualFile2.getFileType().getName()) * 100 +
+            return virtualFile1.getFileType().getName().compareTo(virtualFile2.getFileType().getName()) * 100 +
                     virtualFile1.getName().compareTo(virtualFile2.getName());
 
         }).forEach(ctx -> {
