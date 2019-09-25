@@ -48,7 +48,6 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.ui.UIUtil;
-import com.intellij.util.ui.tree.TreeUtil;
 import lombok.CustomLog;
 import net.werpu.tools.supportive.fs.common.*;
 import net.werpu.tools.supportive.transformations.i18n.I18NKeyModel;
@@ -69,7 +68,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-import static com.intellij.util.ui.tree.TreeUtil.expandAll;
 import static java.util.stream.Collectors.toList;
 import static net.werpu.tools.actions_all.shared.Labels.*;
 import static net.werpu.tools.actions_all.shared.Messages.*;

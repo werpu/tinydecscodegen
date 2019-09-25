@@ -24,6 +24,7 @@
 
 package net.werpu.tools.supportive.utils;
 
+import com.intellij.util.ui.tree.TreeUtil;
 import net.werpu.tools.supportive.fs.common.I18NElement;
 import net.werpu.tools.supportive.fs.common.IAngularFileContext;
 import net.werpu.tools.toolWindows.supportive.SwingI18NTreeNode;
@@ -89,9 +90,12 @@ public class ExpansionMonitor {
     }
 
     public void restore() {
-        Enumeration en = ((DefaultMutableTreeNode)tree.getModel().getRoot()).breadthFirstEnumeration();
+
 
         locked.set(true);
+        TreeUtil.collapseAll(tree, 100);
+        Enumeration en = ((DefaultMutableTreeNode)tree.getModel().getRoot()).breadthFirstEnumeration();
+
         try {
             Collections.list(en).stream().forEach(node -> {
                 DefaultMutableTreeNode nodeCast = (DefaultMutableTreeNode) node;
