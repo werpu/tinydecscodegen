@@ -570,6 +570,10 @@ public class IntellijUtils {
         return file;
     }
 
+    public static PsiElement getPsiElement(AnActionEvent event) {
+        return event.getDataContext().getData(CommonDataKeys.PSI_ELEMENT);
+    }
+
     public static void handleEx(Project prj, IOException e) {
         net.werpu.tools.supportive.utils.IntellijUtils.showErrorDialog(prj, "Error", e.getMessage());
         e.printStackTrace();

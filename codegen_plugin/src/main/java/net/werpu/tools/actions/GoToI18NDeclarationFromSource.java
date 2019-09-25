@@ -26,16 +26,23 @@ package net.werpu.tools.actions;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
+import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.transformations.i18n.I18NKeyModel;
-import net.werpu.tools.supportive.transformations.i18n.I18NTransformationModel;
 import net.werpu.tools.supportive.transformations.shared.modelHelpers.ElementNotResolvableException;
 import net.werpu.tools.supportive.utils.IntellijUtils;
+import net.werpu.tools.supportive.utils.SwingUtils;
 import net.werpu.tools.toolWindows.I18NToolWindowListener;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+import java.util.function.Predicate;
+
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotTs;
+import static net.werpu.tools.supportive.reflectRefact.PsiAnnotationUtils.getPositionFilter;
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.STRING_TEMPLATE_EXPR;
 
 public class GoToI18NDeclarationFromSource extends AnAction {
 
@@ -60,13 +67,28 @@ public class GoToI18NDeclarationFromSource extends AnAction {
                 //TODO cursor in substring literal and no blanks???
             }
 
-            if (anActionEvent.getPresentation().isEnabledAndVisible()) {
+            if (anActionEvent.getPresentation().isEnabledAndVisible() &&
+                    isStringTemplate(ctx)) {
                 new I18NKeyModel(new IntellijFileContext(anActionEvent));
                 //in case of a non determinable key an ElementNotResolvableException is thrown
+            } else {
+                anActionEvent.getPresentation().setEnabledAndVisible(false);
             }
         } catch (ElementNotResolvableException ex) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
         }
+    }
+
+    private boolean isStringTemplate(IntellijFileContext ctx) {
+        int cursorPos = SwingUtils.getCurrentCursorPos(ctx);
+        Predicate<PsiElementContext> positionFilter = getPositionFilter(cursorPos);
+
+        //search for an embedded string template in case of an embedded template
+        //we can recycle a lot from the parsing of the i18n transformation model
+        Optional<PsiElementContext> oCtx = ctx.$q(STRING_TEMPLATE_EXPR)
+                .filter(positionFilter)
+                .reduce((el1, el2) -> el2);
+        return oCtx.isPresent();
     }
 
     @Override
@@ -77,6 +99,6 @@ public class GoToI18NDeclarationFromSource extends AnAction {
         //The idea is to send a message to the tool window
         //and let the tool window handle the rest, because
         //it has everything implemented anyway and needs to adjust
-        fileContext.getProject().getMessageBus().syncPublisher(I18NToolWindowListener.GO_TO_DECLRATION).goToDeclaration(fileContext.getVirtualFile(), model);
+        ApplicationManager.getApplication().getMessageBus().syncPublisher(I18NToolWindowListener.GO_TO_DECLRATION).goToDeclaration(fileContext.getVirtualFile(), model);
     }
 }

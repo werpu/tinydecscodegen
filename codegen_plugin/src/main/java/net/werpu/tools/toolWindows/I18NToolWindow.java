@@ -29,11 +29,17 @@ import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.NodeRenderer;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManagerListener;
+import com.intellij.openapi.project.impl.ProjectManagerImpl;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileContentsChangedAdapter;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ex.ToolWindowEx;
@@ -41,6 +47,8 @@ import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.util.messages.MessageBusFactory;
+import com.intellij.util.messages.impl.MessageBusImpl;
 import com.intellij.util.ui.UIUtil;
 import lombok.CustomLog;
 import net.werpu.tools.supportive.fs.common.*;
@@ -59,14 +67,15 @@ import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static com.intellij.util.ui.tree.TreeUtil.expandAll;
 import static java.util.stream.Collectors.toList;
 import static net.werpu.tools.actions_all.shared.Labels.*;
 import static net.werpu.tools.actions_all.shared.Messages.*;
-import static net.werpu.tools.supportive.utils.IntellijRunUtils.NOOP_CONSUMER;
-import static net.werpu.tools.supportive.utils.IntellijRunUtils.smartInvokeLater;
+import static net.werpu.tools.supportive.utils.IntellijRunUtils.*;
+import static net.werpu.tools.supportive.utils.IntellijRunUtils.backgroundTask;
 import static net.werpu.tools.supportive.utils.IntellijUtils.convertToSearchableString;
 import static net.werpu.tools.supportive.utils.StringUtils.normalizePath;
 import static net.werpu.tools.supportive.utils.SwingUtils.copyToClipboard;
@@ -81,7 +90,8 @@ public class I18NToolWindow implements ToolWindowFactory {
     private SearchableTree<I18NFileContext> files = new SearchableTree<>();
     private IntellijFileContext projectRoot = null;
     private TreeSpeedSearch searchPath = null;
-
+    private ToolWindow toolWindow;
+    boolean initialized = false;
 
 
     @SuppressWarnings("unchecked")
@@ -91,6 +101,40 @@ public class I18NToolWindow implements ToolWindowFactory {
         files.getTree().setModel(new DefaultTreeModel(new DefaultMutableTreeNode(MSG_PLEASE_WAIT)));
 
         files.createDefaultNodeClickHandlers((Consumer<SwingI18NTreeNode>) NOOP_CONSUMER, this::gotToDeclaration);
+        ApplicationManager.getApplication().getMessageBus().connect().subscribe(I18NToolWindowListener.GO_TO_DECLRATION, (VirtualFile vFile, I18NKeyModel keyModel) -> {
+            this.evtGoToDeclaration(vFile,keyModel);
+            initFileListener(keyModel.getFileContext().getProject());
+        });
+
+
+
+    }
+
+    public void initFileListener(Project project) {
+        if(toolWindow == null || initialized == false) {
+            VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileContentsChangedAdapter() {
+                @Override
+                protected void onFileChange(@NotNull VirtualFile file) {
+                    try {
+                        //TODO angular version dynamic depending on the project type
+                        I18NFileContext ctx = new I18NFileContext(project, file);
+                        //document listener which refreshes every time a route file changes
+                        getChangeListener().smartInvokeLater(() -> refreshContent());
+                    } catch (RuntimeException ex) {
+                    }
+                }
+
+                private DumbService getChangeListener() {
+                    return DumbService.getInstance(project);
+                }
+
+                @Override
+                protected void onBeforeFileChange(@NotNull VirtualFile file) {
+                }
+            });
+
+            initialized = true;
+        }
     }
 
 
@@ -151,17 +195,22 @@ public class I18NToolWindow implements ToolWindowFactory {
     }
 
     @Override
-    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        IntellijRunUtils.onFileChange(project, (vFile) -> refreshContent(project));
-        this.projectRoot = new IntellijFileContext(project);
+    public boolean isDoNotActivateOnStart() {
+        return false;
+    }
 
-        project.getMessageBus().connect().subscribe(I18NToolWindowListener.GO_TO_DECLRATION, (VirtualFile vFile, I18NKeyModel keyModel) -> {
-            this.evtGoToDeclaration(vFile,keyModel);
-        });
+    @Override
+    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+
+
+        this.projectRoot = new IntellijFileContext(project);
+        this.toolWindow = toolWindow;
+        initFileListener(project);
+
 
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
 
-        refreshContent(project);
+        refreshContent();
         JBScrollPane mainPanel = new JBScrollPane();
         toolWindowPanel.setContent(mainPanel);
         toolWindowPanel.setBackground(UIUtil.getFieldForegroundColor());
@@ -183,15 +232,25 @@ public class I18NToolWindow implements ToolWindowFactory {
     }
 
     private void evtGoToDeclaration(VirtualFile virtualFile, I18NKeyModel model) {
-        String key = model.getKey();
-        Optional<SwingI18NTreeNode> inTree = findDeclaration(key);
-        if(!inTree.isPresent()) {
-            IntellijUtils.showInfoMessage("Key: "+key +" was not found", "I18N Key not Found");
+
+        Runnable localGo = () -> {
+            String key = model.getKey();
+            Optional<SwingI18NTreeNode> inTree = findDeclaration(key);
+            if(!inTree.isPresent()) {
+                IntellijUtils.showInfoMessage("Key: "+key +" was not found", "I18N Key not Found");
+                return;
+            }
+
+            //TODO click so that the tree node is selected
+            gotToDeclaration(inTree.get());
+        };
+
+        if(this.projectRoot == null) {
+            this.projectRoot = new IntellijFileContext(model.getFileContext().getProject());
+            fullRefresh(projectRoot.getProject(), localGo);
             return;
         }
-
-        //TODO click so that the tree node is selected
-        gotToDeclaration(inTree.get());
+        localGo.run();;
 
     }
 
@@ -293,8 +352,14 @@ public class I18NToolWindow implements ToolWindowFactory {
         copyToClipboard(key);
     }
 
-    private void refreshContent(@NotNull Project project) {
+    private AtomicBoolean refreshing = new AtomicBoolean(Boolean.FALSE);
+
+    private void fullRefresh(@NotNull Project project, Runnable runAfter) {
+        if(refreshing.get()) {
+            return;
+        }
         smartInvokeLater(project, () -> {
+            refreshing = new AtomicBoolean(Boolean.TRUE);
             try {
                 try {
                     projectRoot = new IntellijFileContext(project);
@@ -329,12 +394,27 @@ public class I18NToolWindow implements ToolWindowFactory {
                 }
 
                 expandAll(files.getTree());
+                if(runAfter != null) {
+                    runAfter.run();
+                }
 
             } catch (IndexNotReadyException exception) {
-                refreshContent(project);
+                refreshContent();
+            } finally {
+                refreshing = new AtomicBoolean(Boolean.FALSE);
             }
         });
     }
+
+
+    private void refreshContent() {
+        //if (toolWindow == null || !toolWindow.isVisible()) {
+        //    return;
+        //}
+        final Project project = projectRoot.getProject();
+        runAsync(backgroundTask(project, "Reloading Resource View", progress -> fullRefresh(project, null)));
+    }
+
 
     private void registerPopup() {
         MouseController<I18NElement> contextMenuListener = new MouseController<>(files.getTree(), this::showPopup);
