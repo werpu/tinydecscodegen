@@ -54,6 +54,7 @@ public class SwingI18NTreeFactory {
 
         List<I18NElement> elementList = entryContext.getRootTreeReference().getSubElements();
         applyBranch(ctx, parNode, elementList);
+
         return rootParentNode;
     }
 

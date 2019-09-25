@@ -394,7 +394,7 @@ public class I18NToolWindow implements ToolWindowFactory {
                 }
 
                 files.restoreExpansion();
-                TreeUtil.expand(files.getTree(), 5);
+
 
                 if (runAfter != null) {
                     runAfter.run();

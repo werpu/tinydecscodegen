@@ -31,7 +31,7 @@ import net.werpu.tools.supportive.transformations.i18n.I18NEntry;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-public class SwingI18NTreeNode extends DefaultMutableTreeNode {
+public class SwingI18NTreeNode extends SwingRootParentNode {
 
     @Getter
     I18NFileContext i18NFileContext;
@@ -47,7 +47,7 @@ public class SwingI18NTreeNode extends DefaultMutableTreeNode {
     public String toString() {
         I18NElement userObject = getI18NElement();
 
-        return userObject.getKey();
+        return userObject.getFullKey();
     }
 
     public I18NElement getI18NElement() {
@@ -58,10 +58,16 @@ public class SwingI18NTreeNode extends DefaultMutableTreeNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof I18NEntry) {
-            return ((I18NElement) obj).getKey().equals(getI18NElement().getKey());
+        if (obj instanceof SwingI18NTreeNode) {
+            return ((SwingI18NTreeNode) obj).getI18NElement().getFullKey().equals(getI18NElement().getFullKey());
         } else {
             return false;
         }
     }
+
+    @Override
+    public int hashCode() {
+        return ((I18NElement) getUserObject()).getFullKey().hashCode();
+    }
+
 }
