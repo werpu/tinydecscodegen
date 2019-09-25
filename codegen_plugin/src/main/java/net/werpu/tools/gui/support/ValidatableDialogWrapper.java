@@ -34,7 +34,6 @@ import java.awt.*;
 import java.util.List;
 
 abstract public class ValidatableDialogWrapper extends DialogWrapper {
-
     protected ValidatableDialogWrapper(@Nullable Project project, boolean canBeParent) {
         super(project, canBeParent);
     }
@@ -71,13 +70,11 @@ abstract public class ValidatableDialogWrapper extends DialogWrapper {
         super(parent, canBeParent);
     }
 
-
     @Nullable
     @NotNull
     public List<ValidationInfo> doValidateAll() {
         return super.doValidateAll();
     }
-
 
     @Nullable
     @Override

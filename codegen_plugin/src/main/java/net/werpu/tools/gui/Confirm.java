@@ -41,13 +41,9 @@ public class Confirm extends JDialog {
     private JButton buttonOK;
     private JButton buttonCancel;
     private JComboBox comboBox1;
-
     private Function<String, Boolean> performOk;
-
     private Runnable performCancel;
-
     private List<String> comboBoxElements;
-
     private String selectedClass;
 
     public Confirm(Function<String, Boolean> performOk, Runnable performCancel, List<String> comboBoxElements) {
@@ -64,7 +60,6 @@ public class Confirm extends JDialog {
         comboBox1.setModel(new DefaultComboBoxModel<String>(comboBoxElements.toArray(new String[comboBoxElements.size()])));
     }
 
-
     public Confirm() {
         setContentPane(contentPane);
         setModal(true);
@@ -73,7 +68,6 @@ public class Confirm extends JDialog {
         buttonOK.addActionListener(e -> onOK());
 
         buttonCancel.addActionListener(e -> onCancel());
-
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -94,7 +88,6 @@ public class Confirm extends JDialog {
         });
     }
 
-
     private void onOK() {
         // add your code here
         dispose();
@@ -112,6 +105,5 @@ public class Confirm extends JDialog {
         }
 
     }
-
 
 }

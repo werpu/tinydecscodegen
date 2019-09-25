@@ -56,44 +56,25 @@ import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngin
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.smartInvokeLater;
 import static net.werpu.tools.supportive.utils.IntellijRunUtils.writeTransaction;
 
-
 /**
  * Parsing context for L18NFiles
  * <p>
  * We need this to be able to process L18NFiles properly
  */
 public class I18NFileContext extends IntellijFileContext {
-
     @Getter
     PsiElementContext resourceRoot;
-
     PsiI18nEntryContext entryContext;
-
     @Getter
     I18NEntry tree;
-
     @Getter
     private List<IRefactorUnit> refactorUnits = Lists.newArrayList();
-
     @Getter
     private String refactoredText;
-
 
     public I18NFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
 
-    }
-
-    protected void postConstruct() {
-        super.postConstruct();
-
-        PsiElementContext psiElementContext = new PsiElementContext(getPsiFile());
-        Optional<PsiElementContext> first = psiElementContext.$q(JSON_OBJECT).findFirst();
-        if(first.isPresent()) {
-            resourceRoot = first.get();
-        } else {
-            resourceRoot = psiElementContext.$q(JS_OBJECT_LITERAL_EXPRESSION).findFirst().get();
-        }
     }
 
     public I18NFileContext(AnActionEvent event) {
@@ -108,6 +89,17 @@ public class I18NFileContext extends IntellijFileContext {
         super(fileContext.getProject(), fileContext.getPsiFile());
     }
 
+    protected void postConstruct() {
+        super.postConstruct();
+
+        PsiElementContext psiElementContext = new PsiElementContext(getPsiFile());
+        Optional<PsiElementContext> first = psiElementContext.$q(JSON_OBJECT).findFirst();
+        if (first.isPresent()) {
+            resourceRoot = first.get();
+        } else {
+            resourceRoot = psiElementContext.$q(JS_OBJECT_LITERAL_EXPRESSION).findFirst().get();
+        }
+    }
 
     public Icon getIcon() {
         return AllIcons.Nodes.Artifact;
@@ -127,7 +119,7 @@ public class I18NFileContext extends IntellijFileContext {
         }
 
         //TODO move this functionality into the Entry context ion the long run
-        if(isTS()) {
+        if (isTS()) {
             return resourceRoot.$q(DIRECT_CHILD(JS_PROPERTY), NAME_EQ(key), ANY(DIRECT_CHILD(JS_LITERAL_EXPRESSION), DIRECT_CHILD(PSI_ELEMENT_JS_STRING_LITERAL))).findFirst();
         } else {
             return resourceRoot.$q(DIRECT_CHILD(JSON_PROPERTY), DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))).findFirst();
@@ -137,7 +129,6 @@ public class I18NFileContext extends IntellijFileContext {
     private boolean isTS() {
         return IntellijUtils.isTypescript(resourceRoot.getElement().getLanguage().getAssociatedFileType());
     }
-
 
     /**
      * deep search
@@ -152,8 +143,7 @@ public class I18NFileContext extends IntellijFileContext {
             return this.getValue(key);
         }
 
-
-        if(isTS()) {
+        if (isTS()) {
             return resourceRoot.$q(JS_PROPERTY, NAME_EQ(key), ANY(DIRECT_CHILD(JS_LITERAL_EXPRESSION), DIRECT_CHILD(PSI_ELEMENT_JS_STRING_LITERAL))).findFirst();
         } else {
             return resourceRoot.$q(JSON_PROPERTY, DIRECT_CHILD(JSON_STRING_LITERAL), TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))).findFirst();
@@ -176,20 +166,19 @@ public class I18NFileContext extends IntellijFileContext {
         for (int cnt = 0; cnt < keys.length; cnt++) {
             String key = keys[cnt];
             if (cnt < keys.length - 1) {
-                if(isTS()) {
+                if (isTS()) {
                     query.addAll(asList(JS_PROPERTY, NAME_EQ(key), DIRECT_CHILD(JS_OBJECT_LITERAL_EXPRESSION)));
                 } else {
-                    query.addAll(asList(CHILD_ELEM, CHILD_ELEM, JSON_STRING_LITERAL, TEXT_EQ(key),  NEXT_SIBLINGS(JSON_OBJECT)));
+                    query.addAll(asList(CHILD_ELEM, CHILD_ELEM, JSON_STRING_LITERAL, TEXT_EQ(key), NEXT_SIBLINGS(JSON_OBJECT)));
                 }
             } else {
-                if(isTS()) {
+                if (isTS()) {
                     query.addAll(asList(CHILD_ELEM, JS_PROPERTY, NAME_EQ(key), ANY(DIRECT_CHILD(JS_LITERAL_EXPRESSION), DIRECT_CHILD(PSI_ELEMENT_JS_STRING_LITERAL))));
                 } else {
                     query.addAll(asList(CHILD_ELEM, CHILD_ELEM, JSON_STRING_LITERAL, TEXT_EQ(key), ANY(NEXT_SIBLINGS(JSON_OBJECT), NEXT_SIBLINGS(JSON_STRING_LITERAL))));
                 }
             }
         }
-
 
         return resourceRoot.$q(query.stream().toArray(Object[]::new)).findFirst();
     }
@@ -239,7 +228,6 @@ public class I18NFileContext extends IntellijFileContext {
                     return el2 + "." + el1;
                 });
 
-
     }
 
     /**
@@ -265,10 +253,7 @@ public class I18NFileContext extends IntellijFileContext {
 
     private boolean isProperty(PsiElementContext parent) {
         String simpleName = parent.getElement().getClass().getSimpleName();
-        if (simpleName.startsWith(JSON_PROPERTY)) {
-            return true;
-        }
-        return false;
+        return simpleName.startsWith(JSON_PROPERTY);
     }
 
     public void setText(String text) throws IOException {
@@ -305,7 +290,6 @@ public class I18NFileContext extends IntellijFileContext {
                 CodeStyleManager.getInstance(project).reformat(psiFile);
             });
         });
-
 
     }
 

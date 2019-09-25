@@ -45,39 +45,33 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.TYPE_SCR
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExternalVariable implements Cloneable {
-
     /**
      * a boolean flag which marks the var
      */
     @Setter
     boolean externalizable;
-
     /**
      * the variable definition part,
      * which might not be changed but might be used
      * to get further info in its name and type
-     *
+     * <p>
      * aka var/let &lt;variableName&gt;[:&lt;type;&gt;] = ....
      */
     @NotNull
     PsiElementContext variableDef;
-
     @NotNull
     String variableName;
-
     /**
      * variable type if possible
      */
     @NotNull
     String variableType;
-
     /**
      * the psi elements defining the variable usages in its
      * respective usage context
      */
     @NotNull
     List<PsiElementContext> variableUsages;
-
 
     public ExternalVariable(@NotNull PsiElementContext variableDef) {
         this.variableDef = variableDef;

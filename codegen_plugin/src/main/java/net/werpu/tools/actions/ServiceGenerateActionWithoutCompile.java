@@ -36,7 +36,6 @@ import java.io.IOException;
 
 @CustomLog
 public class ServiceGenerateActionWithoutCompile extends AnAction {
-
     @Override
     public void actionPerformed(AnActionEvent event) {
 

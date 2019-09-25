@@ -82,7 +82,6 @@ import static net.werpu.tools.supportive.utils.StringUtils.literalStartsWith;
  */
 @AllArgsConstructor
 public class TreeQueryEngine<T> {
-
     /*unary core commands*/
     public static final UnaryCommand CHILD_ELEM = UnaryCommand.CHILD_ELEM;
     public static final UnaryCommand PARENTS = UnaryCommand.PARENTS;
@@ -90,11 +89,8 @@ public class TreeQueryEngine<T> {
     public static final UnaryCommand LAST = UnaryCommand.LAST;
     public static final UnaryCommand FIRST = UnaryCommand.FIRST;
     private static final String ERR_UNDEFINED_QUERY_MAPPING = "Undefined query mapping";
-
-
     @Getter
     TreeQueryAdapter<T> navigationAdapter;
-
 
     public static <T> QueryExtension<T> NEXT_SIBLINGS(String val) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
@@ -139,7 +135,7 @@ public class TreeQueryEngine<T> {
                 .filter(el -> el != null);
     }
 
-    private static <T> Stream<T> any(Stream<T> ...str) {
+    private static <T> Stream<T> any(Stream<T>... str) {
         return Arrays.stream(str)
                 .map(item -> item.collect(Collectors.toList()))
                 .filter(list -> !list.isEmpty()).findFirst()
@@ -166,7 +162,6 @@ public class TreeQueryEngine<T> {
         };
     }*/
 
-
     /*public static <T> QueryExtension<T> ANY(Object[] str1, Object[] str2) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
             List<T> itemlist = stream.collect(Collectors.toList());
@@ -176,7 +171,7 @@ public class TreeQueryEngine<T> {
 
         };
     }*/
-    public static <T> QueryExtension<T> ANY(Object[] ... str) {
+    public static <T> QueryExtension<T> ANY(Object[]... str) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
             List<T> itemlist = stream.collect(Collectors.toList());
             return any(
@@ -185,7 +180,7 @@ public class TreeQueryEngine<T> {
         };
     }
 
-    public static <T> QueryExtension<T> ANY(Object ... str) {
+    public static <T> QueryExtension<T> ANY(Object... str) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
             List<T> itemlist = stream.collect(Collectors.toList());
             return any(
@@ -194,12 +189,11 @@ public class TreeQueryEngine<T> {
         };
     }
 
-
-    private static <T> Stream<T> all(Stream<T> ... streams) {
+    private static <T> Stream<T> all(Stream<T>... streams) {
         return Arrays.stream(streams).reduce(Stream::concat).get();
     }
 
-    public static <T> QueryExtension<T> ALL(Object[] ... str) {
+    public static <T> QueryExtension<T> ALL(Object[]... str) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
             List<T> itemlist = stream.collect(Collectors.toList());
             return all(
@@ -208,7 +202,7 @@ public class TreeQueryEngine<T> {
         };
     }
 
-    public static <T> QueryExtension<T> ALL(Object ... str) {
+    public static <T> QueryExtension<T> ALL(Object... str) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> {
             List<T> itemlist = stream.collect(Collectors.toList());
             return all(
@@ -229,7 +223,6 @@ public class TreeQueryEngine<T> {
                         .orElse(null))
                 .filter(el -> el != null);
     }
-
 
     public static <T> QueryExtension<T> TEXT_EQ(String val) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream
@@ -280,7 +273,6 @@ public class TreeQueryEngine<T> {
         return (TreeQueryEngine<T> engine, Stream<T> items) -> engine.exec(items.flatMap(item -> engine.getNavigationAdapter().walkParents(item, el -> Boolean.TRUE).stream()), cmdOrFunction, false);
     }
 
-
     public static Object[] DIRECT_CHILD(String val) {
         return new Object[]{CHILD_ELEM, val};
     }
@@ -297,6 +289,14 @@ public class TreeQueryEngine<T> {
      */
     public static Object[] INVERSE(Object... cmdOrFunction) {
         return Lists.reverse(Arrays.asList(cmdOrFunction)).toArray();
+    }
+
+    private static boolean NAME_MATCH(Object item) {
+        return item instanceof String;
+    }
+
+    private static <T> Stream<T> emptyStream() {
+        return Collections.<T>emptyList().stream();
     }
 
     /**
@@ -334,7 +334,7 @@ public class TreeQueryEngine<T> {
                 //in case of an up we walk up the tree one dimensionally with a match in the row up
                 List helpList = subItem.collect(Collectors.toList());
                 subItem = helpList.stream();
-                if(!childsOnly) {
+                if (!childsOnly) {
                     subItem = (directionDown) ? NAME_MATCH(subItem, (String) command) : NAME_UP_MATCH(subItem, (String) command);
                 } else {
                     childsOnly = false;
@@ -391,9 +391,6 @@ public class TreeQueryEngine<T> {
         subItem = elementTypeMatch(subItem, strCommand);
         return subItem;
     }
-
-
-
 
     @NotNull
     public Stream<T> NAME_UP_MATCH(Stream<T> subItem, String command) {
@@ -478,17 +475,9 @@ public class TreeQueryEngine<T> {
         return subItem;
     }
 
-
-    private static boolean NAME_MATCH(Object item) {
-        return item instanceof String;
-    }
-
-
     private String toString(T psiElementContext) {
         return navigationAdapter.toString(psiElementContext);
     }
-
-
 
     @NotNull
     private Stream<T> handleNextSiblings(T item) {
@@ -522,7 +511,6 @@ public class TreeQueryEngine<T> {
         return subItem;
     }
 
-
     @NotNull
     private Stream<T> parentsOf(Stream<T> subItem) {
         return subItem.flatMap(theItem -> parents(theItem).stream());
@@ -542,14 +530,9 @@ public class TreeQueryEngine<T> {
         return navigationAdapter.walkParents(theItem, el -> Boolean.TRUE);
     }
 
-
     @NotNull
     private Stream<T> parentOf(Stream<T> subItem) {
         return subItem.flatMap(item -> parents(item, 1).stream());
-    }
-
-    private static <T> Stream<T> emptyStream() {
-        return Collections.<T>emptyList().stream();
     }
 
     private List<T> parents(T item, int depth) {

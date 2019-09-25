@@ -45,13 +45,12 @@ import static net.werpu.tools.supportive.reflectRefact.PsiAnnotationUtils.getPos
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.STRING_TEMPLATE_EXPR;
 
 public class GoToI18NDeclarationFromSource extends AnAction {
-
     public GoToI18NDeclarationFromSource() {
     }
 
     @Override
     public void update(AnActionEvent anActionEvent) {
-        if(true) {
+        if (true) {
             return;
         }
         //must be either typescript or html to be processable
@@ -60,7 +59,6 @@ public class GoToI18NDeclarationFromSource extends AnAction {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
-
 
         try {
             IntellijFileContext ctx = new IntellijFileContext(anActionEvent);

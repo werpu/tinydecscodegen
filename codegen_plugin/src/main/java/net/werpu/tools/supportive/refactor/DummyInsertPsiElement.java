@@ -29,7 +29,6 @@ package net.werpu.tools.supportive.refactor;
  * a position in the document
  */
 public class DummyInsertPsiElement extends DummyReplacePsiElement {
-
     public DummyInsertPsiElement(int pos) {
         super(pos, 0);
     }

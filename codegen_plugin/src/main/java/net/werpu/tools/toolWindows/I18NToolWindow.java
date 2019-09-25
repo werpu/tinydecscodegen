@@ -82,14 +82,13 @@ import static net.werpu.tools.supportive.utils.SwingUtils.openEditor;
  */
 @CustomLog
 public class I18NToolWindow implements ToolWindowFactory {
-
+    boolean initialized = false;
     private SearchableTree<I18NFileContext> files = new SearchableTree<>();
     private IntellijFileContext projectRoot = null;
     private TreeSpeedSearch searchPath = null;
     private ToolWindow toolWindow;
     private SimpleToolWindowPanel toolWindowPanel;
-    boolean initialized = false;
-
+    private AtomicBoolean refreshing = new AtomicBoolean(Boolean.FALSE);
 
     @SuppressWarnings("unchecked")
     public I18NToolWindow() {
@@ -102,7 +101,6 @@ public class I18NToolWindow implements ToolWindowFactory {
             this.evtGoToDeclaration(vFile, keyModel);
             initFileListener(keyModel.getFileContext().getProject());
         });
-
 
     }
 
@@ -132,7 +130,6 @@ public class I18NToolWindow implements ToolWindowFactory {
             initialized = true;
         }
     }
-
 
     private void gotToDeclaration(SwingI18NTreeNode node) {
         I18NFileContext parFile = node.getI18NFileContext();
@@ -198,11 +195,9 @@ public class I18NToolWindow implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 
-
         this.projectRoot = new IntellijFileContext(project);
         this.toolWindow = toolWindow;
         initFileListener(project);
-
 
         toolWindowPanel = new SimpleToolWindowPanel(true, true);
 
@@ -216,7 +211,6 @@ public class I18NToolWindow implements ToolWindowFactory {
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(toolWindowPanel, "", false);
         toolWindow.getContentManager().addContent(content);
-
 
         if (toolWindow instanceof ToolWindowEx) {
             AnAction[] titleActions = new AnAction[]{
@@ -247,7 +241,6 @@ public class I18NToolWindow implements ToolWindowFactory {
             return;
         }
         localGo.run();
-        ;
 
     }
 
@@ -349,8 +342,6 @@ public class I18NToolWindow implements ToolWindowFactory {
         copyToClipboard(key);
     }
 
-    private AtomicBoolean refreshing = new AtomicBoolean(Boolean.FALSE);
-
     private void fullRefresh(@NotNull Project project, Runnable runAfter) {
         if (refreshing.get()) {
             return;
@@ -365,7 +356,6 @@ public class I18NToolWindow implements ToolWindowFactory {
                     files.getTree().setModel(new DefaultTreeModel(new DefaultMutableTreeNode(NO_PROJ_LATER)));
                     return;
                 }
-
 
                 List<I18NFileContext> i18nFiles = ContextFactory.getInstance(projectRoot).getI18NFiles(projectRoot);
                 if (i18nFiles.isEmpty()) {
@@ -385,14 +375,12 @@ public class I18NToolWindow implements ToolWindowFactory {
                 /*found this usefule helper in the jetbrains intellij sources*/
                 if (searchPath == null) {
 
-
                     registerPopup();
 
                     searchPath = new TreeSpeedSearch(files.getTree(), convertToSearchableString(files.getTree()));
                 }
 
                 files.restoreExpansion();
-
 
                 if (runAfter != null) {
                     runAfter.run();
@@ -430,7 +418,6 @@ public class I18NToolWindow implements ToolWindowFactory {
         final Project project = projectRoot.getProject();
         runAsync(backgroundTask(project, "Reloading Resource View", progress -> fullRefresh(project, null)));
     }
-
 
     private void registerPopup() {
         MouseController<I18NElement> contextMenuListener = new MouseController<>(files.getTree(), this::showPopup);

@@ -45,7 +45,6 @@ import static net.werpu.tools.indexes.IndexUtils.standardExclusions;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.FILTER_ANN;
 
 public class FilterIndex extends ScalarIndexExtension<String> {
-
     public static final ID<String, Void> NAME = ID.create("TN_NG_FilterIndex");
     public static final String ANN_MARKER = "@Filter";
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
@@ -109,7 +108,6 @@ public class FilterIndex extends ScalarIndexExtension<String> {
                 return Collections.singletonMap(ANN_MARKER, null);
             }
             return Collections.emptyMap();
-
 
         }
     }

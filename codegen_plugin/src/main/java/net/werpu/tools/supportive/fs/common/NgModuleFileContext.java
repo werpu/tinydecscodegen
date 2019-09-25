@@ -40,7 +40,6 @@ import java.util.Optional;
 import static net.werpu.tools.supportive.reflectRefact.IntellijRefactor.NG_MODULE;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.MODULE_CLASS;
 
-
 /**
  * placeholder for a module file context
  * <p>
@@ -49,14 +48,11 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.MODULE_C
  * also the includes statement and omitting double insers
  */
 public class NgModuleFileContext extends AngularResourceContext {
-
     AssociativeArraySection paramSection;
 
     public NgModuleFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
     }
-
-
 
     public NgModuleFileContext(AnActionEvent event) {
         super(event);
@@ -80,7 +76,7 @@ public class NgModuleFileContext extends AngularResourceContext {
         AngularArtifactGist fileData = NgModuleFileGist.getFileData(psiFile);
 
         clazzName = fileData.getClassName();
-        artifactName =  fileData.getArtifactName();
+        artifactName = fileData.getArtifactName();
         paramSection = resolveParameters();
 
         findParentModule();
@@ -91,35 +87,29 @@ public class NgModuleFileContext extends AngularResourceContext {
         return NgModuleFileGist.resolveParameters(psiFile);
     }
 
-
     @NotNull
     public PsiElementContext resolveClass(PsiFile psiFile) {
         Optional<PsiElementContext> clazz = new PsiElementContext(psiFile).$q(MODULE_CLASS).findFirst();
-        if(!clazz.isPresent()) {
+        if (!clazz.isPresent()) {
             throw new RuntimeException("Module class not found");
         }
         return clazz.get();
     }
 
-
-
-
     protected void init() {
 
     }
 
-
     public String getModuleName() {
         AngularArtifactGist fileData = NgModuleFileGist.getFileData(psiFile);
-        if(fileData == null) {
+        if (fileData == null) {
             return "";
         }
-        return  fileData.getArtifactName();
+        return fileData.getArtifactName();
     }
 
-
     public Optional<String> findClassName() {
-        return  Optional.ofNullable(NgModuleFileGist.getFileData(psiFile).getClassName());
+        return Optional.ofNullable(NgModuleFileGist.getFileData(psiFile).getClassName());
     }
 
     public void appendDeclaration(String variableName) throws IOException {
@@ -135,13 +125,12 @@ public class NgModuleFileContext extends AngularResourceContext {
     }
 
     public void appendExports(String variableName) throws IOException {
-        paramSection. insertUpdateDefSection("exports", variableName);
+        paramSection.insertUpdateDefSection("exports", variableName);
     }
 
     public void appendProviders(String variableName) throws IOException {
         paramSection.insertUpdateDefSection("providers", variableName);
     }
-
 
     protected void findParentModule() {
         try {

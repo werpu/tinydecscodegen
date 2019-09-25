@@ -36,20 +36,17 @@ import java.util.function.Consumer;
 
 @Getter
 public class OverwriteNewDialog extends JDialog {
+    Consumer<ActionEvent> overwriteHandler;
+    Consumer<ActionEvent> newEntryHandler;
+    boolean isOverwriteOutcome;
+    boolean isNewEntryOutcome;
+    DialogBuilder builder;
     private JPanel contentPanel;
     private JButton btnOverwrite;
     private JButton btnCancel;
     private JButton btnNewEntry;
     private JPanel mainForm;
     private JPanel btnPanel;
-
-    Consumer<ActionEvent> overwriteHandler;
-    Consumer<ActionEvent> newEntryHandler;
-
-
-    boolean isOverwriteOutcome;
-    boolean isNewEntryOutcome;
-    DialogBuilder builder;
 
     public OverwriteNewDialog() {
         setContentPane(contentPanel);
@@ -77,6 +74,13 @@ public class OverwriteNewDialog extends JDialog {
         });
     }
 
+    public static void main(String[] args) {
+        OverwriteNewDialog dialog = new OverwriteNewDialog();
+        dialog.pack();
+        dialog.setVisible(true);
+        System.exit(0);
+    }
+
     public void handleNew(ActionEvent e) {
         if (newEntryHandler != null) {
             newEntryHandler.accept(e);
@@ -97,10 +101,9 @@ public class OverwriteNewDialog extends JDialog {
         this.isOverwriteOutcome = true;
     }
 
-
     @Override
     public void dispose() {
-        if(builder != null) {
+        if (builder != null) {
             builder.dispose();
         } else {
             super.dispose();
@@ -111,12 +114,5 @@ public class OverwriteNewDialog extends JDialog {
     private void onCancel(ActionEvent e) {
         // add your code here if necessary
         dispose();
-    }
-
-    public static void main(String[] args) {
-        OverwriteNewDialog dialog = new OverwriteNewDialog();
-        dialog.pack();
-        dialog.setVisible(true);
-        System.exit(0);
     }
 }

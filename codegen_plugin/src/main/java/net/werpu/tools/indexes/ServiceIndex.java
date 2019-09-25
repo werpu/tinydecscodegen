@@ -41,7 +41,6 @@ import static net.werpu.tools.indexes.IndexUtils.standardExclusions;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.SERVICE_ANN;
 
 public class ServiceIndex extends ScalarIndexExtension<String> {
-
     public static final ID<String, Void> NAME = ID.create("TN_NG_ServiceIndex");
     public static final String ANNOTATION_MARKER = "@Injectable";
     private final ServiceIndex.MyDataIndexer myDataIndexer = new ServiceIndex.MyDataIndexer();
@@ -98,7 +97,6 @@ public class ServiceIndex extends ScalarIndexExtension<String> {
                 return Collections.singletonMap(ANNOTATION_MARKER, null);
             }
             return Collections.emptyMap();
-
 
         }
     }

@@ -48,10 +48,8 @@ import static net.werpu.tools.supportive.utils.StringUtils.elVis;
 
 @AllArgsConstructor
 public class PsiElementContext {
-
     @Getter
     PsiElement element;
-
 
     public String getName() {
         return (String) elVis(element, "name").orElse("");
@@ -67,7 +65,7 @@ public class PsiElementContext {
         String text = element.getText();
         text = text.replaceAll("^[\\\"\\'\\`](.*)[\\\"\\'\\`]$", "$1");
         text = text.trim(); //template quote strip fails, bug in the re engine probably
-        if(text.length() > 1 && text.startsWith("`") && text.endsWith("`")) {
+        if (text.length() > 1 && text.startsWith("`") && text.endsWith("`")) {
             text = text.substring(1, text.length() - 1);
         }
         return text;
@@ -81,7 +79,6 @@ public class PsiElementContext {
     }
 
     /**
-     *
      * @return the logical offset for editing of an element beginning from the start of the file
      */
     @Contract(
@@ -117,7 +114,6 @@ public class PsiElementContext {
         return findPsiElements(psiElementVisitor, false);
     }
 
-
     public Optional<PsiElementContext> findPsiElement(Function<PsiElement, Boolean> psiElementVisitor) {
         List<PsiElementContext> found = findPsiElements(psiElementVisitor, true);
         if (found.isEmpty()) {
@@ -152,8 +148,8 @@ public class PsiElementContext {
         PsiElement[] children = element.getChildren();
         //seems like a bug in the api, getChildren returns an empty array
         //first child works however
-        if(children.length == 0 && element.getFirstChild() != null)  {
-            children = new PsiElement[] {element.getFirstChild()};
+        if (children.length == 0 && element.getFirstChild() != null) {
+            children = new PsiElement[]{element.getFirstChild()};
         }
         return Arrays.stream(children)
                 .map(PsiElementContext::new)
@@ -163,6 +159,7 @@ public class PsiElementContext {
 
     /**
      * all parents
+     *
      * @return all parents of the current element
      */
     public List<PsiElementContext> parents() {
@@ -171,13 +168,13 @@ public class PsiElementContext {
 
     /**
      * single parent
+     *
      * @return a single parent as list or empty if none is found
      */
     public List<PsiElementContext> parent() {
         return this.walkParent(el -> true)
                 .map(Arrays::asList).orElse(emptyList());
     }
-
 
     /**
      * n parents
@@ -187,15 +184,14 @@ public class PsiElementContext {
         return allParents.subList(0, Math.min(n, allParents.size()));
     }
 
-
     public List<PsiElementContext> walkParents(Function<PsiElementContext, Boolean> psiElementVisitor) {
         return PsiWalkFunctions.walkParents(this, psiElementVisitor);
     }
 
-
     public List<PsiElementContext> walkNextSiblings(Function<PsiElementContext, Boolean> psiElementVisitor) {
         return PsiWalkFunctions.walkNextSiblings(this, psiElementVisitor);
     }
+
     public List<PsiElementContext> walkPrevSiblings(Function<PsiElementContext, Boolean> psiElementVisitor) {
         return PsiWalkFunctions.walkPrevSibling(this, psiElementVisitor);
     }
@@ -236,9 +232,8 @@ public class PsiElementContext {
         return PsiWalkFunctions.queryContent(this.getElement(), items);
     }
 
-
     public List<PsiElementContext> getImportIdentifiers(String varToCheck) {
-        return this.queryContent(ANY_TS_IMPORT, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.TEXT_EQ( varToCheck )).collect(Collectors.toList());
+        return this.queryContent(ANY_TS_IMPORT, JS_ES_6_IMPORT_SPECIFIER, PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.TEXT_EQ(varToCheck)).collect(Collectors.toList());
     }
 
     public String calculateRefactoring(List<IRefactorUnit> refactorings) {
@@ -249,7 +244,6 @@ public class PsiElementContext {
         String toSplit = this.element.getText();
         return StringUtils.refactor(refactorings, toSplit);
     }
-
 
     @Override
     public boolean equals(Object o) {

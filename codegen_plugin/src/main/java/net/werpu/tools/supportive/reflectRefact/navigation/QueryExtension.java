@@ -26,6 +26,6 @@ package net.werpu.tools.supportive.reflectRefact.navigation;
 
 import java.util.stream.Stream;
 
-public interface QueryExtension<T>  {
+public interface QueryExtension<T> {
     Stream<T> apply(TreeQueryEngine<T> engine, Stream<T> value);
 }

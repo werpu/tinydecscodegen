@@ -35,12 +35,9 @@ import java.util.TreeMap;
 /**
  * A simplified view on our json L18n entries
  * with included psi information for easy refactoring
- *
  */
 @Data
 public class I18NEntry {
-
-
     I18NFileContext rootFile;
     /**
      * key, also reflected in the parents map as key
@@ -55,20 +52,17 @@ public class I18NEntry {
      * in case of a tree like structure we also have subValues
      */
     Optional<Map<String, I18NEntry>> subValues;
-
     /**
      * the original element hosting the entry
      * (including the quotes etc...)
      */
     PsiElementContext psiElementContext;
 
-
-
     /*
      * simplified accessors into the subtree
      */
     public void addSubValue(I18NEntry entry) {
-        if(!subValues.isPresent()) {
+        if (!subValues.isPresent()) {
             subValues = Optional.ofNullable(new TreeMap<>());
         }
 
@@ -76,10 +70,10 @@ public class I18NEntry {
     }
 
     public Optional<I18NEntry> getSubValue(String key) {
-        if(!subValues.isPresent()) {
+        if (!subValues.isPresent()) {
             return Optional.empty();
         }
-        if(!subValues.get().containsKey(key)) {
+        if (!subValues.get().containsKey(key)) {
             return Optional.empty();
         }
         return Optional.of(subValues.get().get(key));

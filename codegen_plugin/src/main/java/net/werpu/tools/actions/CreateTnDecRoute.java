@@ -64,7 +64,6 @@ import static java.util.Optional.ofNullable;
 import static net.werpu.tools.actions_all.shared.FormAssertions.*;
 
 public class CreateTnDecRoute extends AnAction {
-
     //TODO element nearest
     public static List<ComponentFileContext> getControllers(IntellijFileContext ctx) {
         return ComponentFileContext.getControllerInstances(ctx);
@@ -90,7 +89,6 @@ public class CreateTnDecRoute extends AnAction {
                     Route route = getRoute(mainForm);
                     return getRoutesFiles(fileContext).flatMap(el -> CreateTnDecRoute.this.validate(route, el, mainForm).stream()).collect(Collectors.toList());
                 }).create();
-
 
         ComponentFileContext[] components = findAllPageComponents(fileContext);
         if (components.length == 0) {
@@ -121,11 +119,9 @@ public class CreateTnDecRoute extends AnAction {
 
         dialogWrapper.show();
 
-
         if (dialogWrapper.isOK()) {
             Route route = getRoute(mainForm);
             ComponentFileContext compContext = components[mainForm.getCbComponent().getSelectedIndex()];
-
 
             WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
                 try {
@@ -133,11 +129,10 @@ public class CreateTnDecRoute extends AnAction {
                             .forEach(rContext -> {
                                 //calculate the component include relative from the file
                                 try {
-                                    Route myRoute = (Route) route.clone();
+                                    Route myRoute = route.clone();
                                     myRoute.setComponentPath(compContext.calculateRelPathTo(rContext));
                                     myRoute.setComponent(myRoute.getComponent().replaceAll("\\[[^\\]]+\\]", ""));
                                     rContext.addRoute(myRoute);
-
 
                                     rContext.commit();
                                     rContext.reformat();

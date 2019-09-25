@@ -67,7 +67,6 @@ import java.util.stream.Collectors;
 import static net.werpu.tools.actions_all.shared.FormAssertions.assertNotNullOrEmpty;
 
 public class CreateTnDecProject extends AnAction {
-
     private static final String TN_PROJECT_LAYOUT = "/resources/projectLayout/tnDec";
     private static final Dimension PREFERRED_SIZE = new Dimension(400, 300);
     private static final String RE_DEPLOYMENT_ROOT = "\\$\\{deployment_root_rel}";
@@ -107,7 +106,6 @@ public class CreateTnDecProject extends AnAction {
 
         createDialog(project, path, output.toFile().getPath());
 
-
     }
 
     /**
@@ -127,13 +125,11 @@ public class CreateTnDecProject extends AnAction {
                 .withOkHandler(() -> okPressed(project, mainForm))
                 .create();
 
-
         mainForm.setProject(project);
         mainForm.getLblTitle().setText(getTitle());
 
         mainForm.projectDir.setText(projectFolder);
         mainForm.targetDir.setText(targetFolder);
-
 
         dialogWrapper.show();
     }
@@ -158,7 +154,6 @@ public class CreateTnDecProject extends AnAction {
             projectDir = projectDir + projectName;
         }
 
-
         try {
             Path pProjectDir = Paths.get(projectDir);
             boolean targetPresent = Files.exists(pProjectDir) && Files.list(pProjectDir).findAny().isPresent();
@@ -176,7 +171,6 @@ public class CreateTnDecProject extends AnAction {
 
         final String fProjectDir = projectDir;
 
-
         UIActionSequence sequence = new UIActionSequence(project, "Running npm install")
                 .withSequence(progressIndicator -> {
                     progressIndicator.setIndeterminate(true);
@@ -192,7 +186,6 @@ public class CreateTnDecProject extends AnAction {
 
         sequence.run();
 
-
         return true;
     }
 
@@ -202,14 +195,11 @@ public class CreateTnDecProject extends AnAction {
             ProjectManagerEx.getInstanceEx().blockReloadingProjectOnExternalChanges();
             IntellijResourceDir resources = new IntellijResourceDir(getResourcePath(), getSubPath());
 
-
             resources.copyTo(new File(fProjectDir), (out, data) -> {
-
 
                 String relPath = Paths.get(out).relativize(Paths.get(mainForm.targetDir.getText().replaceAll(RE_BACKSLASH, SLASH))).toString();
                 relPath = relPath.replaceAll(RE_BACKSLASH, SLASH);
                 String projRelPath = Paths.get(out).relativize(Paths.get(fProjectDir.replaceAll(RE_BACKSLASH, SLASH))).toString();
-
 
                 data = data.replaceAll(RE_DEPLOYMENT_ROOT, relPath);
                 //windows fix, in windows the template resolution maps the backslashes away
@@ -243,7 +233,6 @@ public class CreateTnDecProject extends AnAction {
         }
     }
 
-
     @NotNull
     private ValidationInfo[] validateInput(CreateTnProject mainForm) {
         return new ValidationInfo[]{assertNotNullOrEmpty(mainForm.getTxtProjectName().getText(), net.werpu.tools.actions_all.shared.Messages.ERR_PROJECT_NO_NAME, mainForm.getTxtProjectName()),
@@ -255,7 +244,6 @@ public class CreateTnDecProject extends AnAction {
     protected String getTitle() {
         return "Create Tiny Decorations Project";
     }
-
 
     /**
      * create a new run configuratin

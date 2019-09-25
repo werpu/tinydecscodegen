@@ -69,9 +69,7 @@ import static reflector.TransclusionReflector.getPossibleTransclusionSlots;
 import static reflector.TransclusionReflector.hasTransclude;
 
 public class CreateTnDecDirective extends AnAction {
-
     public static final String EXPORT = "___export___";
-
 
     public CreateTnDecDirective() {
         super();
@@ -89,8 +87,8 @@ public class CreateTnDecDirective extends AnAction {
 
         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
 
-            PsiFile workFile = createRamFileFromText(fileContext.getProject(),"create.html",
-                     "", HTMLLanguage.INSTANCE);
+            PsiFile workFile = createRamFileFromText(fileContext.getProject(), "create.html",
+                    "", HTMLLanguage.INSTANCE);
 
             Document document = workFile.getViewProvider().getDocument();
             Editor editor = SwingUtils.createHtmlEditor(fileContext.getProject(), document);
@@ -100,7 +98,6 @@ public class CreateTnDecDirective extends AnAction {
                 createDialog(fileContext.getProject(), fileContext.getVirtualFile(), document);
             });
         });
-
 
     }
 
@@ -116,12 +113,10 @@ public class CreateTnDecDirective extends AnAction {
 
         mainForm.getCbExport().setSelected(ConfigSerializer.getInstance().getState().isDirectiveExport());
 
-
         DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(project, mainForm.rootPanel)
                 .withDimensionKey("AnnDirective").withValidator(() -> Arrays.asList(
                         validateInput(mainForm)
                 ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
-
 
         if (!isAngular1()) {
             mainForm.getElementCheckBox().setVisible(false);
@@ -137,7 +132,7 @@ public class CreateTnDecDirective extends AnAction {
         if (dialogWrapper.isOK()) {
             ApplicationManager.getApplication().invokeLater(() -> {
 
-                String templateText = new String(editor.getDocument().getText().getBytes(), EncodingRegistry.getInstance().getDefaultCharset()).toString();
+                String templateText = new String(editor.getDocument().getText().getBytes(), EncodingRegistry.getInstance().getDefaultCharset());
                 DirectiveJson model = new DirectiveJson(mainForm.getName(),
                         templateText,
                         mainForm.getControllerAs(), buildTypes(mainForm),
@@ -159,7 +154,6 @@ public class CreateTnDecDirective extends AnAction {
                 assertPattern(mainForm.getName(), FormAssertions.TAG_SELECTOR_PATTERN, Messages.ERR_TAG_SELECTOR_PATTERN, mainForm.getTxtName()),
                 assertypes(mainForm)};
     }
-
 
     ValidationInfo assertypes(net.werpu.tools.gui.CreateTnDecDirective mainForm) {
         if (!(mainForm.getCommentCheckBox().isSelected() || mainForm.getClassCheckBox().isSelected() ||
@@ -188,7 +182,6 @@ public class CreateTnDecDirective extends AnAction {
 
         return types.toString();
     }
-
 
     private void deleteWorkFile(Project project, VirtualFile vfile) {
         WriteCommandAction.runWriteCommandAction(project, () -> {
@@ -227,9 +220,7 @@ public class CreateTnDecDirective extends AnAction {
             net.werpu.tools.supportive.utils.IntellijUtils.showInfoMessage("The Directive has been generated", "Info");
         });
 
-
     }
-
 
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
         List<ModuleElementScope> scope = Lists.newArrayList();

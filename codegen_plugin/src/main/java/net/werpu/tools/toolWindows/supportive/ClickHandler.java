@@ -28,7 +28,6 @@ import java.util.Objects;
 
 @FunctionalInterface
 public interface ClickHandler<T, V> {
-
     /**
      * Performs this operation on the given argument.
      *

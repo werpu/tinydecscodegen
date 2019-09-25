@@ -52,7 +52,6 @@ import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
  * in a single file using the tiny decorations
  */
 public class TNAngularRoutesFileContext extends TNRoutesFileContext {
-
     public TNAngularRoutesFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
         init();
@@ -73,33 +72,25 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
         init();
     }
 
-
     protected void init() {
 
-        constructors = this.queryContent( TYPE_SCRIPT_FUNC, p_isConstructor(), p_isRouteProviderPresent()
+        constructors = this.queryContent(TYPE_SCRIPT_FUNC, p_isConstructor(), p_isRouteProviderPresent()
         ).collect(Collectors.toList());
 
-
-
-
     }
-
-
 
     @Override
     public void addRoute(Route routeData) {
         //find route provider inject
 
-        writeTransaction(getProject(),() -> {
+        writeTransaction(getProject(), () -> {
             routeData.setComponent(super.appendImport(routeData.getComponent().replaceAll("\\[.*\\]+", ""), routeData.getComponentPath()));
 
             for (PsiElementContext constructor : constructors) {
                 String routeProviderName = getStateOrRouteProviderName(constructor);
 
-
                 Optional<PsiElementContext> body = constructor.$q(JS_BLOCK_STATEMENT).findFirst();
                 int insertPos = calculateRouteInsertPos(routeProviderName, constructor, body);
-
 
                 addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(insertPos), toRoute(routeProviderName, routeData)));
             }
@@ -107,26 +98,23 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
 
     }
 
-
     public int calculateRouteInsertPos(String routeProviderName, PsiElementContext constructor, Optional<PsiElementContext> body) {
         //now append the route to the contsructor after the last routprovider declaration or to the bottom
         List<PsiElementContext> whenCallArgs = getRouteParams(constructor, routeProviderName);
         int insertPos = 0;
         if (whenCallArgs.size() > 0) {
             PsiElementContext elementContext = whenCallArgs.get(whenCallArgs.size() - 1);
-            insertPos = elementContext.getElement().getTextOffset()+elementContext.getTextLength()+1;
+            insertPos = elementContext.getElement().getTextOffset() + elementContext.getTextLength() + 1;
         } else {
             insertPos = body.get().getTextRangeOffset() + 1;
         }
         return insertPos;
     }
 
-
-
     List<PsiElementContext> getRouteParams(PsiElementContext constructor, String routeProviderName) {
 
         return constructor
-                .queryContent(PSI_ELEMENT_JS_IDENTIFIER,  TreeQueryEngine.TEXT_EQ("'when'"))
+                .queryContent(PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.TEXT_EQ("'when'"))
                 .map(item -> item.walkParent(el -> {
                     return literalEquals(el.toString(), JS_EXPRESSION_STATEMENT);
                 }))
@@ -142,6 +130,7 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
 
     /**
      * central method which fetches the routes
+     *
      * @return
      */
     @Override
@@ -166,6 +155,5 @@ public class TNAngularRoutesFileContext extends TNRoutesFileContext {
                 .map(item -> item.get())
                 .collect(Collectors.toList());
     }
-
 
 }

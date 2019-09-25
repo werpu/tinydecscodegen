@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.function.Function;
 
 public interface TreeQueryAdapter<T> {
-
     /**
      * search only the next child elements
      */
@@ -40,12 +39,8 @@ public interface TreeQueryAdapter<T> {
      * find elements, find all elements, which match the visitor function
      * (aka search recursively from the current element downwards into the deepest
      * levels of the tree
-     *
      */
     List<T> findElements(T ctx, Function<T, Boolean> visitor);
-
-
-
 
     List<T> findNextSiblings(T cty, Function<T, Boolean> visitor);
 
@@ -53,7 +48,7 @@ public interface TreeQueryAdapter<T> {
 
     /**
      * parents walker
-     *
+     * <p>
      * find all parents which match the visitor function
      */
     List<T> walkParents(T ctx, Function<T, Boolean> visitor);

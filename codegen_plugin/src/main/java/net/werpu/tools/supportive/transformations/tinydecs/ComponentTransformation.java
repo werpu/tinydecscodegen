@@ -64,7 +64,6 @@ public class ComponentTransformation implements IArtifactTransformation {
         return "TODO";
     }
 
-
     protected FileTemplate getTnTemplate() {
         return FileTemplateManager.getInstance(transformationModel.getProject()).getJ2eeTemplate(TPL_TN_DEC_COMPONENT_TRANSFORMATION);
     }

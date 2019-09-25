@@ -67,12 +67,10 @@ class Wrapper<T> {
     T value;
 }
 
+
 public class SearchForResource extends AnAction {
-
-
     @Override
     public void update(AnActionEvent e) {
-
 
         super.update(e);
         if (!e.getPresentation().isEnabledAndVisible()) {
@@ -89,15 +87,12 @@ public class SearchForResource extends AnAction {
     public void actionPerformed(AnActionEvent e) {
         IntellijFileContext fileContext = new IntellijFileContext(e);
 
-
         IntellijFileContext project = new IntellijFileContext(fileContext.getProject());
         ResourceSearch resourceSearchPanel = new ResourceSearch();
-
 
         JComponent parentWindow = WindowManager.getInstance().getIdeFrame(e.getProject()).getComponent();
         JPanel mainPanel = resourceSearchPanel.getMainPanel();
         final ComponentPopupBuilder builder = JBPopupFactory.getInstance().createComponentPopupBuilder(mainPanel, parentWindow);
-
 
         JBPopup popup = builder.setProject(e.getProject())
                 .setMovable(true)
@@ -121,7 +116,6 @@ public class SearchForResource extends AnAction {
                     return true;
                 }).createPopup();
 
-
         //mainFraime.add(resourceSearchPanel.getRootPanel(), BorderLayout.CENTER);
         //JDialog dialog = mainFraime.createDialog(WindowManager.getInstance().getFrame(project.getProject()).getRootPane(), "Find Resource");
         resourceSearchPanel.setupTable();
@@ -131,7 +125,6 @@ public class SearchForResource extends AnAction {
         mainPanel.addMouseListener(windowListener);
         mainPanel.addMouseMotionListener(windowListener);
         mainPanel.setPreferredSize(new Dimension(900, 600));
-
 
         resourceSearchPanel.getRbInProject().addActionListener((ev) -> searchRefresh(resourceSearchPanel, project, fileContext));
         resourceSearchPanel.getRbInModule().addActionListener((ev) -> searchRefresh(resourceSearchPanel, project, fileContext));
@@ -145,7 +138,6 @@ public class SearchForResource extends AnAction {
         resourceSearchPanel.getTxtSearch().getTextArea().addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
-
 
             }
 
@@ -193,7 +185,6 @@ public class SearchForResource extends AnAction {
             }
         });
 
-
         tblResults.addMouseListener(addMouseClickedHandler((ev) -> {
         }, (ev) -> {
             ev.consume();
@@ -203,7 +194,6 @@ public class SearchForResource extends AnAction {
         searchRefresh(resourceSearchPanel, project, fileContext);
 
         // dialog.setResizable(true);
-
 
         invokeLater(() -> {
             resourceSearchPanel.getTxtSearch().getTextArea().setFocusable(true);
@@ -255,7 +245,6 @@ public class SearchForResource extends AnAction {
         ));
 
         popup.showCenteredInCurrentWindow(e.getProject());
-
 
     }
 
@@ -321,7 +310,6 @@ public class SearchForResource extends AnAction {
             results.addAll(tnResources.getFiltersPipes());
             results.addAll(ngResources.getFiltersPipes());
         }
-
 
         final Wrapper<java.util.List<IAngularFileContext>> wrapper = new Wrapper<>(results);
 

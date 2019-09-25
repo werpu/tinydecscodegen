@@ -30,7 +30,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
 import lombok.CustomLog;
 import net.werpu.tools.actions_all.shared.JavaFileContext;
@@ -41,12 +40,10 @@ import java.io.IOException;
 
 @CustomLog
 public class DtoGeneration extends AnAction {
-
     @Override
     public void actionPerformed(AnActionEvent event) {
         final JavaFileContext javaData = new JavaFileContext(event);
         if (javaData.isError()) return;
-
 
         CompilerManager.getInstance(javaData.getProject()).compile(javaData.getModule(), new CompileStatusNotification() {
             @Override
@@ -67,6 +64,5 @@ public class DtoGeneration extends AnAction {
         });
 
     }
-
 
 }

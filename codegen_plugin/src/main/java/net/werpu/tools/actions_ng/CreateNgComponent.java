@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 
 public class CreateNgComponent extends CreateTnDecComponent {
-
     @Override
     public void update(AnActionEvent anActionEvent) {
         VisibleAssertions.ngVisible(anActionEvent);

@@ -72,15 +72,12 @@ import static net.werpu.tools.supportive.utils.IntellijUtils.createRamFileFromTe
  * The idea is that every created artifact should auto register if possible
  */
 public class CreateTnDecComponent extends AnAction {
-
-
     public static final String EXPORT = "___export___";
     public static final String DECLARATIONS = "___declarations___";
 
     public CreateTnDecComponent() {
         super();
     }
-
 
     @Override
     public void update(AnActionEvent anActionEvent) {
@@ -94,7 +91,7 @@ public class CreateTnDecComponent extends AnAction {
 
         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
 
-            PsiFile workFile = createRamFileFromText(fileContext.getProject(),"create.html",
+            PsiFile workFile = createRamFileFromText(fileContext.getProject(), "create.html",
                     "", HTMLLanguage.INSTANCE);
 
             Document document = workFile.getViewProvider().getDocument();
@@ -106,7 +103,6 @@ public class CreateTnDecComponent extends AnAction {
             });
         });
 
-
     }
 
     private void createDialog(Project project, VirtualFile folder, Document document) {
@@ -117,7 +113,6 @@ public class CreateTnDecComponent extends AnAction {
             mainForm.getTxtControllerAs().setVisible(false);
         }
 
-
         mainForm.getTxtTemplate().setVisible(false);
         mainForm.getCbExport().setSelected(ConfigSerializer.getInstance().getState().isComponentExport());
         Editor editor = SwingUtils.createHtmlEditor(project, document);
@@ -127,7 +122,6 @@ public class CreateTnDecComponent extends AnAction {
         mainForm.getPnEditorHolder().getViewport().setView(editor.getComponent());
 
         DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
-
             @Nullable
             @Override
             protected JComponent createCenterPanel() {
@@ -140,7 +134,6 @@ public class CreateTnDecComponent extends AnAction {
                 return "AnnComponent";
             }
 
-
             @Nullable
             @NotNull
             protected List<ValidationInfo> doValidateAll() {
@@ -150,7 +143,6 @@ public class CreateTnDecComponent extends AnAction {
                         assertPattern(mainForm.getName(), FormAssertions.TAG_SELECTOR_PATTERN, Messages.ERR_TAG_SELECTOR_PATTERN, mainForm.getTxtName())
                 ).stream().filter(s -> s != null).collect(Collectors.toList());
             }
-
 
             @Override
             public void init() {
@@ -190,7 +182,6 @@ public class CreateTnDecComponent extends AnAction {
     protected List<ComponentAttribute> getCompAttrs(Editor editor, net.werpu.tools.gui.CreateTnDecComponent mainForm) {
         return ComponentAttributesReflector.reflect(editor.getDocument().getText(), mainForm.getControllerAs());
     }
-
 
     private void deleteWorkFile(Project project, VirtualFile vfile) {
         WriteCommandAction.runWriteCommandAction(project, () -> {
@@ -235,7 +226,6 @@ public class CreateTnDecComponent extends AnAction {
             net.werpu.tools.supportive.utils.IntellijUtils.showInfoMessage("The Component has been generated", "Info");
         });
 
-
     }
 
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
@@ -250,7 +240,6 @@ public class CreateTnDecComponent extends AnAction {
         ModuleElementScope[] scope1 = scope.stream().toArray(size -> new ModuleElementScope[size]);
         new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new SimpleFileNameTransformer(), scope.toArray(new ModuleElementScope[scope.size()])).run();
     }
-
 
     protected List<String> getPossibleTransclusionSlots(String templateText) {
         return TransclusionReflector.getPossibleTransclusionSlots(templateText);

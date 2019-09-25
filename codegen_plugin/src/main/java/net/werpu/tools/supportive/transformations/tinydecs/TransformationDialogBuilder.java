@@ -57,24 +57,20 @@ public class TransformationDialogBuilder {
     private final IntellijFileContext fileContext;
     private final String titleKey;
     private final String title;
-    private boolean isModule = true;
-
-
-    TransformationInvoker invokeTnTransformation = (fileContext, editor, model) -> () -> {
-    };
-    TransformationInvoker invokeNgTnTransformation = (fileContext, editor, model) -> () -> {
-    };
-    Function<ActionEvent, Boolean> okPressed = (ActionEvent ev) -> Boolean.TRUE;
-    Function<ActionEvent, Boolean> cancelPressed = (ActionEvent ev) -> Boolean.TRUE;
-
-    Dimension defaultDimnension = new Dimension(800, 600);
-
     public ITransformationCreator modelTransformer = (fileContext1, mainForm) -> {
         AngularJSModuleTransformationModel transformationModel = new AngularJSModuleTransformationModel(fileContext1);
         transformationModel.setApplicationBootstrap(mainForm.getCbBootstrap().isSelected());
         ModuleTransformation moduleTransformation = new ModuleTransformation(transformationModel);
         return moduleTransformation;
     };
+    TransformationInvoker invokeTnTransformation = (fileContext, editor, model) -> () -> {
+    };
+    TransformationInvoker invokeNgTnTransformation = (fileContext, editor, model) -> () -> {
+    };
+    Function<ActionEvent, Boolean> okPressed = (ActionEvent ev) -> Boolean.TRUE;
+    Function<ActionEvent, Boolean> cancelPressed = (ActionEvent ev) -> Boolean.TRUE;
+    Dimension defaultDimnension = new Dimension(800, 600);
+    private boolean isModule = true;
 
     public TransformationDialogBuilder withNgTransformation(TransformationInvoker invoker) {
         invokeNgTnTransformation = invoker;
@@ -116,7 +112,7 @@ public class TransformationDialogBuilder {
         runWriteCommandAction(fileContext.getProject(), () -> {
 
             Language typeScript = LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("TypeScript"));
-            PsiFile workFile = createRamFileFromText(fileContext.getProject(), "newModule.ts","", typeScript);
+            PsiFile workFile = createRamFileFromText(fileContext.getProject(), "newModule.ts", "", typeScript);
 
             Document document = workFile.getViewProvider().getDocument();
             final Editor editor = SwingUtils.createTypescriptEdfitor(fileContext.getProject(), document);
@@ -130,9 +126,7 @@ public class TransformationDialogBuilder {
                         .withOkHandler(() -> true)
                         .create();
 
-
                 IArtifactTransformation moduleTransformation = modelTransformer.apply(fileContext, mainForm);
-
 
                 mainForm.getEditorScroll().getViewport().setView(editor.getComponent());
 
@@ -158,6 +152,5 @@ public class TransformationDialogBuilder {
             });
         });
     }
-
 
 }

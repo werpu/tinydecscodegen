@@ -53,14 +53,13 @@ public class DtoContext extends AngularResourceContext {
         super(fileContext, element);
     }
 
-
     @Override
     protected void postConstruct() {
         super.postConstruct();
 
         resourceRoot = resolveClass();
         clazzName = resolveClass().getName();
-        artifactName =  clazzName;
+        artifactName = clazzName;
 
         findParentModule();
     }
@@ -82,6 +81,5 @@ public class DtoContext extends AngularResourceContext {
     public Icon getIcon() {
         return AllIcons.Nodes.Jsf.ManagedBean;
     }
-
 
 }

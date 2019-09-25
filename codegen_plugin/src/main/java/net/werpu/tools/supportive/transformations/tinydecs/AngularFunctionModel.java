@@ -35,7 +35,6 @@ public class AngularFunctionModel {
     private final PsiElementContext element;
     private final PsiElementContext parentFunc;
     String name;
-
     List<String> parameterDeclarations;
     PsiElementContext functionBlock;
 

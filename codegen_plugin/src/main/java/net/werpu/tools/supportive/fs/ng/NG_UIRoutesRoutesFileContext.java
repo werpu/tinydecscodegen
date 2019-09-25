@@ -53,10 +53,7 @@ import static net.werpu.tools.supportive.utils.StringUtils.*;
  * in a single file
  */
 public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implements IUIRoutesRoutesFileContext {
-
-
     PsiElementContext routesArr;
-
 
     public NG_UIRoutesRoutesFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
@@ -65,7 +62,6 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
     public NG_UIRoutesRoutesFileContext(IntellijFileContext fileContext) {
         super(fileContext);
     }
-
 
     /**
      * adds a new route to the existing file
@@ -76,9 +72,7 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
     @Override
     public void addRoute(Route routeData) {
 
-
         routeData.setComponent(appendImport(routeData.getComponent(), routeData.getComponentPath()));
-
 
         int cnt = 1;
         String origUrl = routeData.getUrl();
@@ -87,7 +81,6 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
             routeData.setUrl(origUrl + "_" + cnt);
             cnt++;
         }
-
 
         addRefactoring(new RefactorUnit(super.getPsiFile(), new DummyInsertPsiElement(getRoutesDeclaration().get().getRootElement().getElement().getTextOffset()), routeData.toStringNg2UIRoutes()));
         addNavVar(routeData.getRouteVarName());
@@ -95,9 +88,7 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
 
     public void addRoute(Route routeData, NgModuleFileContext module) {
 
-
         routeData.setComponent(appendImport(routeData.getComponent(), routeData.getComponentPath()));
-
 
         int cnt = 1;
         String origUrl = routeData.getUrl();
@@ -106,7 +97,6 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
             routeData.setUrl(origUrl + "_" + cnt);
             cnt++;
         }
-
 
         addRefactoring(new RefactorUnit(super.getPsiFile(), new DummyInsertPsiElement(getRoutesDeclaration().get().getRootElement().getElement().getTextOffset()), routeData.toStringNg2UIRoutes()));
         addRefactoring(new RefactorUnit(super.getPsiFile(), new DummyInsertPsiElement(getRoutesDeclaration().get().getRootElement().getElement().getTextOffset()), routeData.toLocalRoutes()));
@@ -116,7 +106,7 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
             Path routeFilePath = Paths.get(this.getVirtualFile().getPath());
             Path moduleFilePath = Paths.get(module.getFolderPath());
             String rel = normalizePath(moduleFilePath.relativize(routeFilePath).toString());
-            if(rel.endsWith(getTsExtension())) {
+            if (rel.endsWith(getTsExtension())) {
                 rel = rel.substring(0, rel.length() - getTsExtension().length());
             }
 
@@ -145,7 +135,6 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
         return getPsiFile().getText().contains("name: '" + routeData.getRouteKey() + "'");
     }
 
-
     public boolean urlCheck(Route routeData, String fullText) {
         return literalContains(fullText, routeData.getUrl());
     }
@@ -156,7 +145,6 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
         List<PsiElement> els = findPsiElements(PsiWalkFunctions::isRootNav);
         return els.stream().map(el -> new PsiElementContext(el)).findFirst();
     }
-
 
     @NotNull
     public Optional<PsiElementContext> getNavigationalArray() {
@@ -184,7 +172,6 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
                 .reduce((first, second) -> second).orElse(null));
     }
 
-
     /**
      * gets the flat list of routes in this context
      *
@@ -196,17 +183,15 @@ public class NG_UIRoutesRoutesFileContext extends TypescriptFileContext implemen
         //nav array not proper iot cannot handle subroutes
         List<PsiElementContext> foundIdentifiers =
                 concat(this.$q(TYPE_SCRIPT_VARIABLE, JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, TreeQueryEngine.NAME_EQ("views"), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_VARIABLE)),
-                        this.$q(TYPE_SCRIPT_VARIABLE,JS_OBJECT_LITERAL_EXPRESSION,  JS_PROPERTY, TreeQueryEngine.NAME_EQ("component"), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_VARIABLE)))
-                .distinct()
-               .collect(Collectors.toList());
+                        this.$q(TYPE_SCRIPT_VARIABLE, JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, TreeQueryEngine.NAME_EQ("component"), TreeQueryEngine.PARENTS_EQ(TYPE_SCRIPT_VARIABLE)))
+                        .distinct()
+                        .collect(Collectors.toList());
 
-
-       // List<PsiElementContext> foundIdentifiers = getNavigationalArray().get().queryContent(JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER).collect(Collectors.toList());
+        // List<PsiElementContext> foundIdentifiers = getNavigationalArray().get().queryContent(JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER).collect(Collectors.toList());
         //List<PsiElementContext> foundParseableBlocks = getNavigationalArray().get().queryContent(JS_OBJECT_LITERAL_EXPRESSION).collect(Collectors.toList());
 
         //part a we try to resolve the variables locally
         List<PsiRouteContext> retVal = Lists.newArrayList();
-
 
         retVal.addAll(foundIdentifiers.stream()
                 .map(psiElementContext -> ContextFactory.createRouteContext(this, psiElementContext, this.getClass())).filter(found -> found != null)

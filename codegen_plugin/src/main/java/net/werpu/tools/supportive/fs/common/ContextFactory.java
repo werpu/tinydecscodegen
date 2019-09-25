@@ -51,12 +51,9 @@ import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngin
  * factory for our various system contexts
  */
 public class ContextFactory {
-
-    IntellijFileContext project;
-
     private static Cache<String, ResourceFilesContext> volatileData = CacheBuilder.newBuilder()
             .build();
-
+    IntellijFileContext project;
 
     protected ContextFactory(IntellijFileContext project) {
         this.project = project;
@@ -65,7 +62,7 @@ public class ContextFactory {
     @Nullable
     public static PsiRouteContext createRouteContext(TypescriptFileContext routesFile, PsiElementContext psiElementContext, Class origin) {
         Optional<PsiElementContext> name = psiElementContext.queryContent(JS_PROPERTY, TreeQueryEngine.NAME_EQ("name"), PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
-        Optional<PsiElementContext> url = psiElementContext.queryContent(JS_PROPERTY,  TreeQueryEngine.NAME_EQ("url"), PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
+        Optional<PsiElementContext> url = psiElementContext.queryContent(JS_PROPERTY, TreeQueryEngine.NAME_EQ("url"), PSI_ELEMENT_JS_STRING_LITERAL).reduce((el1, el2) -> el2);
         Optional<PsiElementContext> component = psiElementContext.queryContent(PSI_ELEMENT_JS_IDENTIFIER, TreeQueryEngine.TEXT_EQ("component"), TreeQueryEngine.PARENTS_EQ(JS_PROPERTY), JS_REFERENCE_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER).findFirst();
         String sName = "";
         String sUrl = "";
@@ -81,16 +78,13 @@ public class ContextFactory {
             found = true;
         }
 
-
         String sImport = "";
         if (component.isPresent()) {
             sComponent = component.get().getUnquotedText();
             //now we try to find the include
 
-
             List<String> imports = routesFile.getImportIdentifiers(sComponent).stream().
                     flatMap(item -> item.queryContent(PARENT_SEARCH(ANY_TS_IMPORT), JS_ES_6_FROM_CLAUSE, PSI_ELEMENT_JS_STRING_LITERAL).map(fromImport -> fromImport.getText())).collect(Collectors.toList());
-
 
             sImport = imports.isEmpty() ? "" : imports.get(0);
             found = true;
@@ -101,7 +95,7 @@ public class ContextFactory {
         final String modulePath = StringUtils.normalizePath(routesFile.getFolderPath());
 
         if (found) {
-            return new PsiRouteContext(psiElementContext.getElement(), new Route(sName, sUrl, sComponent, psiElementContext.getName(), modulePath+"/"+sImport, origin));
+            return new PsiRouteContext(psiElementContext.getElement(), new Route(sName, sUrl, sComponent, psiElementContext.getName(), modulePath + "/" + sImport, origin));
         }
         return null;
     }
@@ -113,7 +107,6 @@ public class ContextFactory {
     public List<IntellijFileContext> getProjects(AngularVersion angularVersion) {
         return AngularIndex.getAllAffectedRoots(project.getProject(), angularVersion);
     }
-
 
     public List<IUIRoutesRoutesFileContext> getRouteFiles(IntellijFileContext projectRoot, AngularVersion angularVersion) {
         List<IUIRoutesRoutesFileContext> routeFiles = Lists.newLinkedList();
@@ -166,7 +159,6 @@ public class ContextFactory {
                 .collect(Collectors.toList());
     }
 
-
     @NotNull
     public List<NgModuleFileContext> getModulesFor(IntellijFileContext projectRoot, AngularVersion angularVersion, String filterPath) {
         List<IntellijFileContext> angularRoots = AngularIndex.getAllAffectedRoots(projectRoot.getProject(), angularVersion);
@@ -190,7 +182,6 @@ public class ContextFactory {
                 })
                 .collect(Collectors.toList());
     }
-
 
     @NotNull
     public List<ComponentFileContext> getComponents(IntellijFileContext projectRoot, AngularVersion angularVersion) {
@@ -261,19 +252,18 @@ public class ContextFactory {
                 .collect(Collectors.toList());
     }
 
-
     @NotNull
     public List<I18NFileContext> getI18NFiles(IntellijFileContext projectRoot) {
-         return I18NIndexer.getAllAffectedFiles(projectRoot.getProject()).stream()
-                 .sorted(Comparator.comparing(el -> el.getVirtualFile().getName()))
-                 .map(fileContent -> new I18NFileContext(fileContent))
-                 .collect(Collectors.toList());
+        return I18NIndexer.getAllAffectedFiles(projectRoot.getProject()).stream()
+                .sorted(Comparator.comparing(el -> el.getVirtualFile().getName()))
+                .map(fileContent -> new I18NFileContext(fileContent))
+                .collect(Collectors.toList());
     }
 
     public ResourceFilesContext getProjectResourcesCached(IntellijFileContext projectRoot, AngularVersion angularVersion) {
         ResourceFilesContext retVal = volatileData.getIfPresent(angularVersion.name());
-        if(retVal != null) {
-            return  retVal;
+        if (retVal != null) {
+            return retVal;
         }
         return getProjectResources(projectRoot, angularVersion);
 
@@ -282,10 +272,7 @@ public class ContextFactory {
     public ResourceFilesContext getProjectResources(IntellijFileContext projectRoot, AngularVersion angularVersion) {
         ResourceFilesContext resourceFilesContext = new ResourceFilesContext(projectRoot.getProject());
 
-
         resourceFilesContext.getRoutes().addAll(getRouteFiles(projectRoot, angularVersion));
-
-
 
         List<NgModuleFileContext> modulesTn = getModules(projectRoot, angularVersion);
         List<ComponentFileContext> componentsTn = getComponents(projectRoot, angularVersion);
@@ -293,18 +280,15 @@ public class ContextFactory {
         List<ServiceContext> service = getServices(projectRoot, angularVersion);
         List<FilterPipeContext> filters = getFilters(projectRoot, angularVersion);
 
-
         resourceFilesContext.getModules().addAll(modulesTn);
         resourceFilesContext.getComponents().addAll(componentsTn);
         resourceFilesContext.getServices().addAll(service);
         resourceFilesContext.getControllers().addAll(controllersTn);
         resourceFilesContext.getFiltersPipes().addAll(filters);
 
-
         volatileData.put(angularVersion.name(), resourceFilesContext);
 
         return resourceFilesContext;
     }
-
 
 }

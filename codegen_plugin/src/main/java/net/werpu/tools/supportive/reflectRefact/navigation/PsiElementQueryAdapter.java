@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.function.Function;
 
 public class PsiElementQueryAdapter implements TreeQueryAdapter<PsiElementContext> {
-
-
     /**
      * find an element among the direct children
      */
@@ -55,7 +53,7 @@ public class PsiElementQueryAdapter implements TreeQueryAdapter<PsiElementContex
 
     @Override
     public List<PsiElementContext> findPrevSiblings(PsiElementContext cty, Function<PsiElementContext, Boolean> visitor) {
-       return cty.walkPrevSiblings(visitor);
+        return cty.walkPrevSiblings(visitor);
     }
 
     /**
@@ -85,6 +83,5 @@ public class PsiElementQueryAdapter implements TreeQueryAdapter<PsiElementContex
     public String toString(PsiElementContext ctx) {
         return ctx.getElement().toString();
     }
-
 
 }

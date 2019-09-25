@@ -60,12 +60,10 @@ public class VisibleAssertions {
                         !ctx.getPsiFile().getVirtualFile().getPath().endsWith(".class"));
     }
 
-
     public static boolean assertNotRef(IntellijFileContext ctx) {
         return ctx.getPsiFile() == null ||
                 !ctx.getPsiFile().getText().contains("@ref:");
     }
-
 
     public static boolean assertNotTs(IntellijFileContext ctx) {
         return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getPath().endsWith(getTsExtension());
@@ -75,7 +73,6 @@ public class VisibleAssertions {
         return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getPath().endsWith(getJsonExtension());
     }
 
-
     public static boolean assertTs(IntellijFileContext ctx) {
         return !assertNotTs(ctx);
     }
@@ -83,7 +80,6 @@ public class VisibleAssertions {
     public static boolean assertJson(IntellijFileContext ctx) {
         return !assertNotJson(ctx);
     }
-
 
     public static boolean assertNotHtml(IntellijFileContext ctx) {
         return ctx.getPsiFile() == null || !ctx.getPsiFile().getVirtualFile().getFileType().getDefaultExtension().toLowerCase().equals("html");
@@ -101,13 +97,11 @@ public class VisibleAssertions {
 
     }
 
-
     public static void anyAngularVisible(AnActionEvent anActionEvent) {
         if (IntellijUtils.getFolderOrFile(anActionEvent) == null) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
-
 
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         if (!ctx.isAngularChild(AngularVersion.TN_DEC) && !ctx.isAngularChild(AngularVersion.NG)) {
@@ -118,14 +112,11 @@ public class VisibleAssertions {
         anActionEvent.getPresentation().setEnabledAndVisible(true);
     }
 
-
-
     public static void tnVisible(AnActionEvent anActionEvent) {
         if (IntellijUtils.getFolderOrFile(anActionEvent) == null) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
-
 
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         if (!ctx.isAngularChild(AngularVersion.TN_DEC)) {
@@ -136,7 +127,6 @@ public class VisibleAssertions {
         anActionEvent.getPresentation().setEnabledAndVisible(true);
     }
 
-
     public static void templateVisible(AnActionEvent anActionEvent) {
         if (IntellijUtils.getFolderOrFile(anActionEvent) == null) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
@@ -145,18 +135,17 @@ public class VisibleAssertions {
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         anActionEvent.getPresentation().setEnabledAndVisible(!(assertNotTs(ctx) && assertNotHtml(ctx)));
 
-
-
     }
 
     /**
      * Check for the current cursor being in a string
+     *
      * @param anActionEvent
      */
     public static void cursorInTemplate(AnActionEvent anActionEvent) {
         //if one of its parents is a string template
 
-        if(!assertNotHtml(new IntellijFileContext(anActionEvent))) {
+        if (!assertNotHtml(new IntellijFileContext(anActionEvent))) {
             anActionEvent.getPresentation().setEnabledAndVisible(true);
             return;
         }
@@ -170,7 +159,7 @@ public class VisibleAssertions {
             return cursorPos >= offSet && cursorPos <= offSetEnd;
         };
         Optional<PsiElementContext> foundElement = editorFile.$q(ALL(SUB_QUERY(STRING_TEMPLATE_EXPR), SUB_QUERY(PSI_ELEMENT_JS_STRING_LITERAL))).filter(positionFilter).findFirst();
-        if(!foundElement.isPresent()) {
+        if (!foundElement.isPresent()) {
             foundElement = editorFile.$q(SUB_QUERY(PSI_ELEMENT_JS_STRING_TEMPLATE_PART)).filter(positionFilter).findFirst();
         }
 
@@ -197,7 +186,6 @@ public class VisibleAssertions {
             return;
         }
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
-        ;
         if (ctx.isAngularChild()) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
@@ -221,7 +209,6 @@ public class VisibleAssertions {
 
         anActionEvent.getPresentation().setEnabledAndVisible(true);
     }
-
 
     public static boolean refOnlyVisible(AnActionEvent anActionEvent) {
         if (assertNotRef(new IntellijFileContext(anActionEvent))) {

@@ -49,7 +49,6 @@ public class CreateRoute {
     private JRadioButton rbRootNavigation;
     private JRadioButton rbModuleNavigation;
 
-
     public CreateRoute() {
 
         txtRouteName.getDocument().addDocumentListener(new DocumentListener() {

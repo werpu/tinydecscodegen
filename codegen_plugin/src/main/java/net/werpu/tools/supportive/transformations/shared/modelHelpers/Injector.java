@@ -36,11 +36,9 @@ public class Injector {
     @EqualsAndHashCode.Exclude
     String tsNameType;
 
-
     @Override
     public String toString() {
-        return "@Inject('"+name+"') private "+tsNameType;
+        return "@Inject('" + name + "') private " + tsNameType;
     }
-
 
 }

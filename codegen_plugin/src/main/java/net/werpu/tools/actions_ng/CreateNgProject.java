@@ -33,7 +33,6 @@ import org.jetbrains.annotations.NotNull;
  * Create an Angular 2 project
  */
 public class CreateNgProject extends CreateTnDecProject {
-
     public static final String NG_PROJECT_LAYOUT = "/resources/projectLayout/ngPro";
 
     @Override

@@ -59,10 +59,9 @@ public class FilterPipeContext extends AngularResourceContext {
         super.postConstruct();
         Optional<PsiElementContext> clazz = concat($q(FILTER_CLASS), $q(PIPE_CLASS))
                 .findFirst();
-        if(!clazz.isPresent()) {
+        if (!clazz.isPresent()) {
             throw new RuntimeException("Filter class not found");
         }
-
 
         Optional<PsiElementContext> thePsiArtifactName = clazz.get().$q(SERVICE_ANN, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
 
@@ -71,7 +70,6 @@ public class FilterPipeContext extends AngularResourceContext {
 
         findParentModule();
     }
-
 
     public String getDisplayName() {
         return "TODO";

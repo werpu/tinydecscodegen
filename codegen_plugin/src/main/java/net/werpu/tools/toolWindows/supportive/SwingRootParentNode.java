@@ -27,7 +27,6 @@ package net.werpu.tools.toolWindows.supportive;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 public class SwingRootParentNode extends DefaultMutableTreeNode {
-
     public SwingRootParentNode() {
         super();
     }

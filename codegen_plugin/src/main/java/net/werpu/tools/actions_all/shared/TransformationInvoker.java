@@ -29,5 +29,5 @@ import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.transformations.shared.IArtifactTransformation;
 
 public interface TransformationInvoker {
-    public Runnable createAction(IntellijFileContext fileContext, Editor editor, IArtifactTransformation model);
+    Runnable createAction(IntellijFileContext fileContext, Editor editor, IArtifactTransformation model);
 }

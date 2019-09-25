@@ -73,8 +73,6 @@ import static net.werpu.tools.supportive.utils.StringUtils.stripQuotes;
  * often it is overly convoluted to juggle both levels
  * Hence we are going to introduce a context wich does most of the juggling
  */
-
-
 @Getter
 public class IntellijFileContext {
     Project project;
@@ -82,7 +80,6 @@ public class IntellijFileContext {
     Module module;
     Document document;
     VirtualFile virtualFile;
-
     //workaround for shadow files and refactoring
     //TODO find out why refactoring does not work on virtual shadow files
     String shadowText;
@@ -91,24 +88,8 @@ public class IntellijFileContext {
         this(event.getProject(), getPossibleRootFolder(event));
     }
 
-    public static VirtualFile getPossibleRootFolder(AnActionEvent event) {
-        VirtualFile folderOrFile = IntellijUtils.getFolderOrFile(event);
-        if(folderOrFile == null) {
-            folderOrFile = event.getProject().getProjectFile();
-        }
-        return folderOrFile;
-    }
-
     public IntellijFileContext(Project project) {
         this(project, getProjectFile(project));
-    }
-
-    public static VirtualFile getProjectFile(Project project) {
-        VirtualFile projectFile = project.getProjectFile();
-        if (projectFile == null) {
-            projectFile = project.getBaseDir();
-        }
-        return projectFile;
     }
 
     //todo inherently problematic because sometimes the psi file does not exist
@@ -134,6 +115,22 @@ public class IntellijFileContext {
         postConstruct();
     }
 
+    public static VirtualFile getPossibleRootFolder(AnActionEvent event) {
+        VirtualFile folderOrFile = IntellijUtils.getFolderOrFile(event);
+        if (folderOrFile == null) {
+            folderOrFile = event.getProject().getProjectFile();
+        }
+        return folderOrFile;
+    }
+
+    public static VirtualFile getProjectFile(Project project) {
+        VirtualFile projectFile = project.getProjectFile();
+        if (projectFile == null) {
+            projectFile = project.getBaseDir();
+        }
+        return projectFile;
+    }
+
     protected void postConstruct() {
 
     }
@@ -143,7 +140,7 @@ public class IntellijFileContext {
             if (virtualFile.isDirectory()) {
                 return "";
             }
-            if(psiFile != null && !Strings.isNullOrEmpty(psiFile.getText()))  {
+            if (psiFile != null && !Strings.isNullOrEmpty(psiFile.getText())) {
                 return psiFile.getText();
             }
             return new String(virtualFile.contentsToByteArray(), virtualFile.getCharset());
@@ -153,6 +150,10 @@ public class IntellijFileContext {
         }
     }
 
+    public void setText(String text) throws IOException {
+        this.shadowText = text;
+        virtualFile.setBinaryContent(text.getBytes(virtualFile.getCharset()));
+    }
 
     public String getModuleRelativePath() {
         return virtualFile.getPath().replaceAll(module.getModuleFile().getParent().getPath(), ".");
@@ -174,11 +175,9 @@ public class IntellijFileContext {
         return new IntellijFileContext(getProject(), getProject().getBaseDir());
     }
 
-
     public List<PsiElement> findPsiElements(Function<PsiElement, Boolean> psiElementVisitor) {
         return findPsiElements(psiElementVisitor, false);
     }
-
 
     public Optional<PsiElement> findPsiElement(Function<PsiElement, Boolean> psiElementVisitor) {
         List<PsiElement> found = findPsiElements(psiElementVisitor, true);
@@ -187,11 +186,6 @@ public class IntellijFileContext {
         } else {
             return Optional.ofNullable(found.get(0));
         }
-    }
-
-    public void setText(String text) throws IOException {
-        this.shadowText = text;
-        virtualFile.setBinaryContent(text.getBytes(virtualFile.getCharset()));
     }
 
     public void commit() throws IOException {
@@ -204,7 +198,6 @@ public class IntellijFileContext {
                 .map(vFile -> new IntellijFileContext(project, vFile))
                 .collect(Collectors.toList());
     }
-
 
     public void reformat() {
         CodeStyleManager.getInstance(project).reformat(psiFile);
@@ -234,7 +227,6 @@ public class IntellijFileContext {
         return child.getFolderPath().startsWith(this.getFolderPath());
     }
 
-
     public List<IntellijFileContext> findFirstUpwards(Function<PsiFile, Boolean> psiElementVisitor) {
 
         if (psiFile != null && psiElementVisitor.apply(this.psiFile)) {
@@ -263,7 +255,6 @@ public class IntellijFileContext {
         });
     }
 
-
     /**
      * goes an element tree upwards and finds all files/dirs triggered
      * by the visitor
@@ -288,7 +279,6 @@ public class IntellijFileContext {
 
     }
 
-
     public void refactorContent(List<IRefactorUnit> refactorings) throws IOException {
         if (refactorings.isEmpty()) {
             return;
@@ -296,7 +286,7 @@ public class IntellijFileContext {
         this.setText(calculateRefactoring(refactorings));
     }
 
-    public String calculateRefactoring(List<IRefactorUnit> refactorings)  {
+    public String calculateRefactoring(List<IRefactorUnit> refactorings) {
         if (refactorings.isEmpty()) {
             return refactorings.get(0).getFile().getText();
         }
@@ -306,8 +296,7 @@ public class IntellijFileContext {
         return StringUtils.refactor(refactorings, toSplit);
     }
 
-
-    public String calculateRefactoring(List<IRefactorUnit> refactorings, PsiElementContext rootElement)  {
+    public String calculateRefactoring(List<IRefactorUnit> refactorings, PsiElementContext rootElement) {
         if (refactorings.isEmpty()) {
             return rootElement.getText();
         }
@@ -317,17 +306,13 @@ public class IntellijFileContext {
 
     protected List<PsiElement> findPsiElements(Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly) {
 
-
         if (psiFile == null) {//not parseable
             return Collections.emptyList();
         }
 
-
         return walkPsiTree(psiFile, psiElementVisitor, firstOnly);
 
-
     }
-
 
     public boolean isPsiFile() {
         return psiFile != null;
@@ -339,7 +324,6 @@ public class IntellijFileContext {
         }
         return virtualFile.isDirectory() ? virtualFile.getPath() : virtualFile.getParent().getPath();
     }
-
 
     public IRefactorUnit refactorIn(Function<PsiFile, IRefactorUnit> refactorHandler) {
         return refactorHandler.apply(this.psiFile);
@@ -390,11 +374,8 @@ public class IntellijFileContext {
         Optional<IntellijFileContext> fileContext2 = findFirstUpwards(psiFile -> psiFile.getVirtualFile().getName().equals(NG_PRJ_MARKER)).stream().findFirst();
         Optional<IntellijFileContext> fileContext3 = findFirstUpwards(psiFile -> psiFile.getVirtualFile().getName().equals(TN_DEC_PRJ_MARKER)).stream().findFirst();
 
-
-
-        return Optional.ofNullable(fileContext.orElse(fileContext2.orElse(fileContext3.orElse(null)))) ;
+        return Optional.ofNullable(fileContext.orElse(fileContext2.orElse(fileContext3.orElse(null))));
     }
-
 
     public boolean isChildOf(IntellijFileContext ctx) {
         Path child = Paths.get(getVirtualFile().isDirectory() ? this.getVirtualFile().getPath() : this.getVirtualFile().getParent().getPath());
@@ -402,7 +383,6 @@ public class IntellijFileContext {
 
         return child.startsWith(parent);
     }
-
 
     public Stream<PsiElementContext> queryContent(Object... items) {
         return PsiWalkFunctions.queryContent(this.getPsiFile(), items);
@@ -412,7 +392,6 @@ public class IntellijFileContext {
         return PsiWalkFunctions.queryContent(this.getPsiFile(), items);
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -420,7 +399,6 @@ public class IntellijFileContext {
         IntellijFileContext that = (IntellijFileContext) o;
         Path pThis = Paths.get(this.getVirtualFile().getPath());
         Path pOther = Paths.get(that.getVirtualFile().getPath());
-
 
         try {
             return pThis.relativize(pOther).toString().isEmpty();
@@ -457,7 +435,6 @@ public class IntellijFileContext {
         return WebUtil.isInsideWebRoots(virtualFile, project);
     }*/
 
-
     public boolean isBuildTarget() {
         ProjectFileIndex projectFileIndex = ProjectFileIndex.getInstance(project);
         return projectFileIndex.isExcluded(virtualFile) || projectFileIndex.isUnderIgnored(virtualFile);
@@ -466,21 +443,22 @@ public class IntellijFileContext {
     /**
      * Base file information
      * get the base file name aka my.foo -> returns my
+     *
      * @return
      */
     public String getBaseName() {
         String fileName = getFileName();
         int endIndex = fileName.lastIndexOf(".");
-        if(endIndex == -1) {
+        if (endIndex == -1) {
             return fileName;
         }
         String rawName = fileName.substring(0, endIndex);
         return rawName;
     }
 
-
     /**
      * returns the raw filename
+     *
      * @return
      */
     @NotNull
@@ -490,7 +468,8 @@ public class IntellijFileContext {
 
     /**
      * returns only the ending
-      * @return
+     *
+     * @return
      */
     public String getFileEnding() {
         String fileName = getFileName();

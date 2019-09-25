@@ -33,21 +33,16 @@ import java.io.IOException;
 import java.util.List;
 
 public class IntellijRefactor {
-
     public static final String NG_MODULE = "@NgModule";
-
 
     public static void appendDeclarationToModule(IntellijFileContext fileContext, ModuleElementScope scope, String className, String fileName) throws IOException {
 
-
         List<IntellijFileContext> annotatedModules = fileContext.findFirstUpwards(psiFile -> psiFile.getContainingFile().getText()
                 .contains(NG_MODULE) && !psiFile.getVirtualFile().getPath()
-                .replaceAll("\\\\","/").equals(fileContext.getVirtualFile().getPath()));
+                .replaceAll("\\\\", "/").equals(fileContext.getVirtualFile().getPath()));
 
         for (IntellijFileContext angularModule : annotatedModules) {
             NgModuleFileContext moduleFileContext = new NgModuleFileContext(angularModule);
-
-
 
             String relativePath = (fileContext.calculateRelPathTo(moduleFileContext))
                     .replaceAll("\\.ts$", "")

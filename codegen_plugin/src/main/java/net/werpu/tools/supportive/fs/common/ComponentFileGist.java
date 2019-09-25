@@ -71,7 +71,6 @@ public class ComponentFileGist {
     //gist cache for the components to speed things up
     private static PsiFileGist<AngularArtifactGist> psiFileGist = null;
     private static AtomicBoolean initialized = new AtomicBoolean(false);
-
     /**
      * secondary ram only cache
      */
@@ -85,7 +84,6 @@ public class ComponentFileGist {
             return;
         }
         synchronized (ComponentFileGist.class) {
-
 
             psiFileGist = GistManagerImpl.getInstance().newPsiFileGist("$$TTCOMPComp", 1, new DataExternalizer<AngularArtifactGist>() {
                 @Override
@@ -132,11 +130,9 @@ public class ComponentFileGist {
 
     }
 
-
     public static PsiFileGist<AngularArtifactGist> getPsiFileGist() {
         return psiFileGist;
     }
-
 
     /**
      * static helpers for the gist data
@@ -165,7 +161,6 @@ public class ComponentFileGist {
         return _findComponentClassName(in).get();
     }
 
-
     private static String _getTagName(PsiFile file) {
 
         Optional<PsiElementContext> selector = null;
@@ -188,7 +183,6 @@ public class ComponentFileGist {
         return getProp(file, componentAnn, data, JS_PROP_TEMPLATE);
 
     }
-
 
     public static Optional<PsiElement> getTemplateURL(PsiFile file, PsiElement componentAnn) {
         int hash = file.getVirtualFile().getPath().hashCode();
@@ -230,7 +224,7 @@ public class ComponentFileGist {
 
     }
 
-     static boolean inTemplateHolder(PsiElementContext element) {
+    static boolean inTemplateHolder(PsiElementContext element) {
         PsiElement element1 = element.getElement();
 
         return inTemplateHolder(element1);

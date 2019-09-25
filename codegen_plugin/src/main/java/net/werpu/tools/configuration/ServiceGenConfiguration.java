@@ -33,7 +33,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 public class ServiceGenConfiguration implements Configurable {
-
     private ConfigServiceGen configPanel;
     private TinyDecsConfiguration originalConfig;
 

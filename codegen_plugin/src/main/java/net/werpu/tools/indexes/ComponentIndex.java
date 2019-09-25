@@ -42,7 +42,6 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.COMPONEN
 import static net.werpu.tools.supportive.utils.StringUtils.normalizePath;
 
 public class ComponentIndex extends ScalarIndexExtension<String> {
-
     public static final ID<String, Void> NAME = ID.create("TN_NG_ComponentIndex");
     public static final String ANN_MARKER = "@Component";
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
@@ -54,7 +53,6 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
     public static List<PsiFile> getAllAffectedFiles(Project project, IntellijFileContext angularRoot) {
 
         return IndexUtils.resolve(project, angularRoot, NAME, ANN_MARKER);
-
 
     }
 
@@ -104,7 +102,6 @@ public class ComponentIndex extends ScalarIndexExtension<String> {
                 return Collections.singletonMap(ANN_MARKER, null);
             }
             return Collections.emptyMap();
-
 
         }
     }

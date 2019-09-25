@@ -47,13 +47,10 @@ import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngin
  */
 @AllArgsConstructor
 public class I18NTypescriptDeclFileTransformation implements IArtifactTransformation {
-
     public static final String QUOT = "\"";
     I18NFileContext target;
     I18NTransformationModel transformationModel;
-
     String neyKey;
-
     String newValue;
 
     public I18NTypescriptDeclFileTransformation(I18NFileContext target, String neyKey, String newValue) {
@@ -69,8 +66,8 @@ public class I18NTypescriptDeclFileTransformation implements IArtifactTransforma
 
         //we are going to resolve the keys as is
 
-        String [] subKeys =  neyKey.split("\\.");
-        if(subKeys.length == 0) {
+        String[] subKeys = neyKey.split("\\.");
+        if (subKeys.length == 0) {
             throw new IllegalStateException("Keys must be defined");
         }
 
@@ -79,10 +76,10 @@ public class I18NTypescriptDeclFileTransformation implements IArtifactTransforma
 
         PsiElementContext lastFound = null;
         int pos = 0;
-        for(String key: subKeys) {
+        for (String key : subKeys) {
             processed.add(key);
-            if(!target.getValue(processed.stream().toArray(String[]::new)).isPresent()) {
-                if(pos > 0) {
+            if (!target.getValue(processed.stream().toArray(String[]::new)).isPresent()) {
+                if (pos > 0) {
                     lastFound = target.getValue(processed.subList(0, pos).stream().toArray(String[]::new)).get();
                 }
                 break;
@@ -90,34 +87,33 @@ public class I18NTypescriptDeclFileTransformation implements IArtifactTransforma
             pos++;
         }
 
-        if(pos < subKeys.length) {
+        if (pos < subKeys.length) {
             unprocessed.addAll(Arrays.asList(subKeys).subList(pos, subKeys.length));
         }
         String finalString = "";
-        if(!unprocessed.isEmpty()) {
+        if (!unprocessed.isEmpty()) {
             String unprocessedKey = unprocessed.stream()
-                    .reduce((item1, item2) -> item1 +  " :{" + item2).get();
+                    .reduce((item1, item2) -> item1 + " :{" + item2).get();
 
+            finalString = unprocessedKey + ": \"" + newValue + QUOT;
 
-            finalString = unprocessedKey+": \""+newValue+ QUOT;
-
-            for(int cnt = 0; cnt < unprocessed.size() -1; cnt++) {
-                finalString = finalString+"}";
+            for (int cnt = 0; cnt < unprocessed.size() - 1; cnt++) {
+                finalString = finalString + "}";
             }
 
         }
 
         //TODO something does not work out here yet with nested keys
         //now we need to determine whether we are the only entry
-        if(lastFound == null) {
+        if (lastFound == null) {
             lastFound = target.getResourceRoot();
         } else {
             lastFound = lastFound.$q(PARENTS_EQ(JS_PROPERTY)).findFirst().orElse(target.getResourceRoot());
         }
 
         boolean isOnlyEntry = !lastFound.$q(JS_PROPERTY).findFirst().isPresent();
-        if(!isOnlyEntry && !Strings.isNullOrEmpty(finalString)) {
-            finalString = ","+finalString;
+        if (!isOnlyEntry && !Strings.isNullOrEmpty(finalString)) {
+            finalString = "," + finalString;
         }
 
         //now we have everything in place the element to insert our text as child
@@ -126,18 +122,17 @@ public class I18NTypescriptDeclFileTransformation implements IArtifactTransforma
         //now two special cases if unprocessed.length > 0 then we insert
         //if we have all keys in place we just replace
 
-        if(!unprocessed.isEmpty()) {
+        if (!unprocessed.isEmpty()) {
             return new RefactorUnit(target.getPsiFile(), new DummyInsertPsiElement(lastFound.getTextRangeOffset() + lastFound.getText().length() - 1), finalString);
         } else {
             PsiElementContext toReplace = target.getValue(processed.stream().toArray(String[]::new)).get();
-            return new RefactorUnit(target.getPsiFile(), new DummyReplacePsiElement(toReplace.getTextRangeOffset(), toReplace.getTextLength()), QUOT +newValue+ QUOT);
+            return new RefactorUnit(target.getPsiFile(), new DummyReplacePsiElement(toReplace.getTextRangeOffset(), toReplace.getTextLength()), QUOT + newValue + QUOT);
         }
     }
 
     public IRefactorUnit getNgRefactoring() {
         return getTnDecRefactoring();
     }
-
 
     @Override
     public String getTnDecTransformation() throws IOException {

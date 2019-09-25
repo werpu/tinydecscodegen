@@ -58,7 +58,7 @@ import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngin
  * later key reassignments check if the key exist already
  * are not part of this functionality
  * they must be handled from the outside
- *
+ * <p>
  * Note, we do not use a specific psi element here
  * because the text might not even be a single psi element
  * it can be anything
@@ -67,14 +67,11 @@ import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngin
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class I18NTransformationModel implements ITransformationModel {
-
     IntellijFileContext fileContext;
     int from;
     int to;
     String key;
     String value;
-
-
     PARSING_TYPE parsingType;
 
     /**
@@ -115,7 +112,6 @@ public class I18NTransformationModel implements ITransformationModel {
                 .reduce((el1, el2) -> el2);
         PsiElementContext rootElementContext = oCtx.isPresent() ? oCtx.get() : new PsiElementContext(fileContext.getPsiFile()).$q("PsiElement(HTML_DOCUMENT)").findFirst().get();
 
-
         String templateText = (oCtx.isPresent()) ? oCtx.get().getText().substring(1, Math.max(0, oCtx.get().getTextLength() - 1)) : fileContext.getText();
         int newOffset = oCtx.isPresent() ? oCtx.get().getTextRangeOffset() + 1 : rootElementContext.getTextRangeOffset();
         Predicate<PsiElementContext> positionFilterEmbedded = el -> {
@@ -124,12 +120,11 @@ public class I18NTransformationModel implements ITransformationModel {
             return cursorPos >= (offSet + newOffset) && cursorPos <= (offSetEnd + newOffset);
         };
 
-
         Language language = IntellijUtils.getTnDecTemplateLanguageDef().orElse(IntellijUtils.getNgTemplateLanguageDef().orElse(IntellijUtils.getHtmlLanguage()));
         PsiFile ramFile = IntellijUtils.createRamFileFromText(fileContext.getProject(),
                 "template.html",
                 templateText,
-               //TODO make a distinction between tndec and and ng via our internal detector engine
+                //TODO make a distinction between tndec and and ng via our internal detector engine
                 language.getDialects().size() > 0 ? language.getDialects().get(0) : language);
         //determine which case of embedding we have here
         IntellijFileContext parsingRoot = new IntellijFileContext(fileContext.getProject(), ramFile);
@@ -141,14 +136,13 @@ public class I18NTransformationModel implements ITransformationModel {
             Optional<PsiElementContext> parPipe = foundElement.$q(PARENTS_EQ(ANGULAR_PIPE)).findFirst();
 
             //angularjs fallback
-            if(!parPipe.isPresent()) {
+            if (!parPipe.isPresent()) {
                 parPipe = foundElement.$q(PARENTS_EQ(JS_EXPRESSION_STATEMENT), ANGULAR_FILTER).findFirst();
             }
             parsingType = parPipe.isPresent() ? PARSING_TYPE.STRING_WITH_TRANSLATE : PARSING_TYPE.STRING;
             applyStandardParsingValues(newOffset, foundElement);
             return;
         }
-
 
         //case xml attribute and xml attribute value
         toReplace = parsingRoot.$q(PSI_XML_ATTRIBUTE_VALUE).filter(positionFilterEmbedded)
@@ -162,7 +156,7 @@ public class I18NTransformationModel implements ITransformationModel {
             //sidenote interpolations for this case are already handled by the first part
             boolean translate = name.equals("translate");
             parsingType = translate ? PARSING_TYPE.STRING_WITH_TRANSLATE : PARSING_TYPE.TEXT;
-            if(!Strings.isNullOrEmpty(name) && !translate) {
+            if (!Strings.isNullOrEmpty(name) && !translate) {
                 parsingType = PARSING_TYPE.STRING_IN_ATTRIBUTE;
             }
             applyStandardParsingValues(newOffset, foundElement.$q(XML_ATTRIBUTE_VALUE).findFirst().orElseThrow(ElementNotResolvableException::new));
@@ -172,7 +166,6 @@ public class I18NTransformationModel implements ITransformationModel {
         //most generic case, tag content
         toReplace = parsingRoot.$q(XML_TEXT).filter(positionFilterEmbedded)
                 .reduce((el1, el2) -> el2);
-
 
         if (toReplace.isPresent()) {
             PsiElementContext foundElement = toReplace.get();
@@ -186,9 +179,9 @@ public class I18NTransformationModel implements ITransformationModel {
     }
 
     private void applyStandardParsingValues(int offset, PsiElementContext foundElement) {
-        from = offset+foundElement.getTextRangeOffset();
+        from = offset + foundElement.getTextRangeOffset();
         to = from + foundElement.getTextLength();
-        value  = foundElement.getUnquotedText();
+        value = foundElement.getUnquotedText();
         key = StringUtils.toLowerDash(value).replaceAll("[\\s+\\.]", "_").toUpperCase();
 
     }
@@ -201,6 +194,5 @@ public class I18NTransformationModel implements ITransformationModel {
     public I18NTransformationModel cloneWithNewKey(String newKey) {
         return new I18NTransformationModel(fileContext, from, to, newKey, value, parsingType);
     }
-
 
 }

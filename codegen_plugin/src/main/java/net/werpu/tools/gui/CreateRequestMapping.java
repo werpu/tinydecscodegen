@@ -32,16 +32,13 @@ import javax.swing.event.DocumentListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
 public class CreateRequestMapping {
-
     private JTextField txtRestPath;
     private JRadioButton rbGet;
     private JRadioButton rbPost;
     private JRadioButton rbPut;
     private JRadioButton rbDelete;
     private JCheckBox cbTypeScript;
-
     private JCheckBox cbList;
     private JTextField txtMethodName;
     private JCheckBox cbCalcRest;
@@ -66,7 +63,6 @@ public class CreateRequestMapping {
             public void changedUpdate(DocumentEvent e) {
                 update();
             }
-
 
         });
         cbCalcRest.addActionListener(new ActionListener() {
@@ -103,7 +99,6 @@ public class CreateRequestMapping {
     public JCheckBox getCbTypeScript() {
         return cbTypeScript;
     }
-
 
     public JCheckBox getCbList() {
         return cbList;

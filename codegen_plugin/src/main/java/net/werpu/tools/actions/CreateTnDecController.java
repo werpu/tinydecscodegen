@@ -67,8 +67,6 @@ import static net.werpu.tools.supportive.utils.IntellijUtils.createRamFileFromTe
  * The idea is that every created artifact should auto register if possible
  */
 public class CreateTnDecController extends AnAction {
-
-
     public CreateTnDecController() {
         //super("TDecs Angular ComponentJson", "Creates a Tiny Decorations Angular ComponentJson", null);
         super();
@@ -83,16 +81,14 @@ public class CreateTnDecController extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         //final Project project = IntellijUtils.getProject(event);
 
-
         final IntellijFileContext fileContext = new IntellijFileContext(event);
 
         WriteCommandAction.runWriteCommandAction(fileContext.getProject(), () -> {
 
-            PsiFile workFile = createRamFileFromText(fileContext.getProject(), "create.html","",
+            PsiFile workFile = createRamFileFromText(fileContext.getProject(), "create.html", "",
                     HTMLLanguage.INSTANCE);
 
             Document document = workFile.getViewProvider().getDocument();
-
 
             ApplicationManager.getApplication().invokeLater(() -> {
                 createDialog(fileContext.getProject(), fileContext.getVirtualFile(), document);
@@ -109,7 +105,6 @@ public class CreateTnDecController extends AnAction {
         Editor editor = SwingUtils.createHtmlEditor(project, document);
         WriteCommandAction.runWriteCommandAction(project, () -> editor.getDocument().setText(""));
 
-
         mainForm.getPnEditorHolder().getViewport().setView(editor.getComponent());
 
         DialogWrapper dialogWrapper = new InputDialogWrapperBuilder(project, mainForm.rootPanel)
@@ -117,10 +112,8 @@ public class CreateTnDecController extends AnAction {
                         validateInput(mainForm)
                 ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
 
-
         dialogWrapper.setTitle("Create Controller");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
-
 
         //mainForm.initDefault(dialogWrapper.getWindow());
         dialogWrapper.show();
@@ -138,7 +131,6 @@ public class CreateTnDecController extends AnAction {
                 assertNotNullOrEmpty(mainForm.getControllerAs(), Messages.ERR_CTRL_AS_VALUE, mainForm.getTxtControllerAs()),
                 assertPattern(mainForm.getName(), VALID_NAME, Messages.ERR_CONTROLLER_PATTERN, mainForm.getTxtName())};
     }
-
 
     void buildFile(Project project, ControllerJson model, VirtualFile folder) {
 

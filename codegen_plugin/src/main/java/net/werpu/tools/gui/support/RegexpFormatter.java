@@ -23,7 +23,6 @@
  */
 package net.werpu.tools.gui.support;
 
-
 import javax.swing.text.DefaultFormatter;
 import java.text.ParseException;
 
@@ -31,7 +30,6 @@ import java.text.ParseException;
  * A regexp formatter since swing does not have one
  */
 public class RegexpFormatter extends DefaultFormatter {
-
     String pattern;
 
     public RegexpFormatter() {

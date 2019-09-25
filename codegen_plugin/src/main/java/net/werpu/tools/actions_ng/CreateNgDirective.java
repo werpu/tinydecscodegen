@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 
 public class CreateNgDirective extends CreateTnDecDirective {
-
     @Override
     public void update(AnActionEvent anActionEvent) {
         VisibleAssertions.ngVisible(anActionEvent);

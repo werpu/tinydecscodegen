@@ -59,8 +59,6 @@ import static net.werpu.tools.actions_all.shared.FormAssertions.*;
  * The idea is that every created artifact should auto register if possible
  */
 public class CreateTnDecService extends AnAction {
-
-
     public CreateTnDecService() {
         //super("TDecs Angular ComponentJson", "Creates a Tiny Decorations Angular ComponentJson", null);
         super();
@@ -75,9 +73,7 @@ public class CreateTnDecService extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         final Project project = IntellijUtils.getProject(event);
 
-
         VirtualFile folder = IntellijUtils.getFolderOrFile(event);
-
 
         final net.werpu.tools.gui.CreateService mainForm = new net.werpu.tools.gui.CreateService();
 
@@ -85,7 +81,6 @@ public class CreateTnDecService extends AnAction {
                 .withDimensionKey("AnnService").withValidator(() -> Arrays.asList(
                         validateInput(mainForm)
                 ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
-
 
         dialogWrapper.setTitle("Create Service");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 150));

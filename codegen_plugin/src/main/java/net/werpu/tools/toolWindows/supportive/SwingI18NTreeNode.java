@@ -27,12 +27,8 @@ package net.werpu.tools.toolWindows.supportive;
 import lombok.Getter;
 import net.werpu.tools.supportive.fs.common.I18NElement;
 import net.werpu.tools.supportive.fs.common.I18NFileContext;
-import net.werpu.tools.supportive.transformations.i18n.I18NEntry;
-
-import javax.swing.tree.DefaultMutableTreeNode;
 
 public class SwingI18NTreeNode extends SwingRootParentNode {
-
     @Getter
     I18NFileContext i18NFileContext;
 
@@ -40,8 +36,6 @@ public class SwingI18NTreeNode extends SwingRootParentNode {
         super(userObject, !userObject.getSubElements().isEmpty());
         this.i18NFileContext = fileContext;
     }
-
-
 
     @Override
     public String toString() {
@@ -53,8 +47,6 @@ public class SwingI18NTreeNode extends SwingRootParentNode {
     public I18NElement getI18NElement() {
         return (I18NElement) getUserObject();
     }
-
-
 
     @Override
     public boolean equals(Object obj) {

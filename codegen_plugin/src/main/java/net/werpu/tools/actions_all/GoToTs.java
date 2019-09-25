@@ -38,7 +38,6 @@ import java.util.Collection;
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotJava;
 
 public class GoToTs extends AnAction {
-
     public void update(AnActionEvent anActionEvent) {
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         if (assertNotJava(ctx)) {
@@ -53,7 +52,6 @@ public class GoToTs extends AnAction {
             return;
         }
 
-
         anActionEvent.getPresentation().setEnabledAndVisible(true);
     }
 
@@ -61,7 +59,6 @@ public class GoToTs extends AnAction {
     public void actionPerformed(AnActionEvent anActionEvent) {
         JavaFileContext javaFileContext = new JavaFileContext(anActionEvent);
         Collection<PsiFile> refs = IntellijUtils.searchRefs(javaFileContext.getProject(), javaFileContext.getClassName(), "ts");
-
 
         //final FileEditorManagerEx edManager = (FileEditorManagerEx) FileEditorManagerEx.getInstance(javaFileContext.getProject());
 

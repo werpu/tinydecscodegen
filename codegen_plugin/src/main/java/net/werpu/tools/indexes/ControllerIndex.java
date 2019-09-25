@@ -43,7 +43,6 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.CONTROLL
 import static net.werpu.tools.supportive.utils.StringUtils.normalizePath;
 
 public class ControllerIndex extends ScalarIndexExtension<String> {
-
     public static final ID<String, Void> NAME = ID.create("TN_NG_ControllerIndex");
     public static final String COMPONENT = "@Component";
     public static final String CONTROLLER = "@Controller";
@@ -108,7 +107,6 @@ public class ControllerIndex extends ScalarIndexExtension<String> {
                 return Collections.singletonMap(CONTROLLER, null);
             }
             return Collections.emptyMap();
-
 
         }
     }

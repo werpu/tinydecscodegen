@@ -43,7 +43,6 @@ import java.io.InputStreamReader;
  * is an extension point in the xml (wtf??)
  */
 public class Application implements ApplicationComponent {
-
     public static final String TEMPLATE_PATH = "/fileTemplates/Tiny Decorations/";
 
     public Application() {

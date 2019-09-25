@@ -40,7 +40,6 @@ import static net.werpu.tools.supportive.utils.IntellijUtils.*;
  * action endpoint for the component refactoring dialog
  */
 public class RefactorIntoAnnotatedDirective extends AnAction {
-
     @Override
     public void update(AnActionEvent e) {
         super.update(e);
@@ -61,7 +60,6 @@ public class RefactorIntoAnnotatedDirective extends AnAction {
         //
         final IntellijFileContext fileContext = new IntellijFileContext(event);
 
-
         AngularJSDirectiveTransformationModel transformationModel = new AngularJSDirectiveTransformationModel(fileContext);
         DirectiveTransformation transformation = new DirectiveTransformation(transformationModel);
 
@@ -77,12 +75,9 @@ public class RefactorIntoAnnotatedDirective extends AnAction {
         }
     }
 
-
-
     @Override
     public boolean isDumbAware() {
         return true;
     }
-
 
 }

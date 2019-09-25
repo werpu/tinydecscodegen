@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
 
-
 /**
  * context for holding a L18n entry for the tree
  * <p>
@@ -51,18 +50,15 @@ import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngin
  */
 @Getter
 public class PsiI18nEntryContext extends PsiElementContext implements IAngularFileContext {
-
     public static final String ROOT_KEY = "_root_";
     /**
      * psi reference to the file
      */
     PsiElementContext rootPsiReference;
-
     /**
      * tree reference for display and transformation
      */
     I18NElement rootTreeReference;
-
     PsiElementContext exportVar; //only for ts maps
 
     public PsiI18nEntryContext(PsiElementContext rootPsiReference) {
@@ -79,7 +75,6 @@ public class PsiI18nEntryContext extends PsiElementContext implements IAngularFi
             this.rootPsiReference = rootPsiReference.$q(ANY(JSON_OBJECT, JS_OBJECT_LITERAL_EXPRESSION)).findFirst().get();
         }
     }
-
 
     /**
      * parses the incoming element into the tree we all know
@@ -122,11 +117,11 @@ public class PsiI18nEntryContext extends PsiElementContext implements IAngularFi
     @NotNull
     private I18NElement getL18NElement(I18NElement parent, Optional<PsiElementContext> key, Optional<PsiElementContext> value) {
         String valueType = value.get().getElement().toString();
-        if (valueType.startsWith(JSON_STRING_LITERAL) || valueType.startsWith(PSI_ELEMENT_JS_STRING_LITERAL)  || valueType.startsWith(JS_STRING_TEMPLATE_EXPRESSION)) {
+        if (valueType.startsWith(JSON_STRING_LITERAL) || valueType.startsWith(PSI_ELEMENT_JS_STRING_LITERAL) || valueType.startsWith(JS_STRING_TEMPLATE_EXPRESSION)) {
             return new I18NElement(parent, key.get().getUnquotedText(), value.get().getUnquotedText());
         } else {
             I18NElement entry = new I18NElement(parent, key.get().getUnquotedText(), null);
-            if(isTS()) {
+            if (isTS()) {
                 entry.getSubElements().addAll(parseTypescriptLine(entry, value.get()));
             } else {
                 entry.getSubElements().addAll(parseJsonLine(entry, value.get()));
@@ -135,7 +130,6 @@ public class PsiI18nEntryContext extends PsiElementContext implements IAngularFi
             return entry;
         }
     }
-
 
     /**
      * parse a json entry like wiuth key value

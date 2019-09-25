@@ -54,7 +54,6 @@ public class CreateNgRouteFromEdit extends CreateNgRoute {
 
     }
 
-
     @NotNull
     public Optional<ComponentFileContext> getDefaultComponentData(IntellijFileContext fileContext) {
         ComponentFileContext compCtx = new ComponentFileContext(fileContext);

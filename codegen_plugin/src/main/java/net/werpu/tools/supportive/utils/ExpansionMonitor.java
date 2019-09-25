@@ -39,7 +39,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ExpansionMonitor {
-
     JTree tree;
     AtomicBoolean locked = new AtomicBoolean(false);
     Set<String> expanded = ConcurrentHashMap.newKeySet();

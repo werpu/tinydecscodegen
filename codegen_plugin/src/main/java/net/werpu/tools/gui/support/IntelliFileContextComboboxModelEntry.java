@@ -39,12 +39,8 @@ public class IntelliFileContextComboboxModelEntry {
     @EqualsAndHashCode.Exclude
     I18NFileContext value; //json or typescript
     I18NFileContext alternative;
-
-
     @EqualsAndHashCode.Exclude
     String label;
-
-
     String popup;
 
     public IntelliFileContextComboboxModelEntry(@NonNull IntellijFileContext value) {
@@ -56,19 +52,17 @@ public class IntelliFileContextComboboxModelEntry {
         this.value = new I18NFileContext(value);
         this.alternative = (alternative != null) ? new I18NFileContext(alternative) : null;
 
-
         String rawName = value.getBaseName();
         String fileEnding = value.getFileEnding();
-        this.label = rawName + " ( "+ fileEnding;
-        if(alternative != null) {
+        this.label = rawName + " ( " + fileEnding;
+        if (alternative != null) {
             fileEnding = alternative.getFileEnding();
-            this.label +=  " / "+fileEnding;
+            this.label += " / " + fileEnding;
         }
         this.label += " ) ";
 
-        this.popup = value.getVirtualFile().getPath()+this.label;
+        this.popup = value.getVirtualFile().getPath() + this.label;
     }
-
 
     @Override
     public String toString() {
@@ -76,20 +70,20 @@ public class IntelliFileContextComboboxModelEntry {
     }
 
     public Optional<I18NFileContext> getJSONFile() {
-       if(value != null && value.getFileEnding().equals(FileEndings.JSON)) {
-           return Optional.ofNullable(value);
-       }
-        if(alternative != null && alternative.getFileEnding().equals(FileEndings.JSON)) {
+        if (value != null && value.getFileEnding().equals(FileEndings.JSON)) {
+            return Optional.ofNullable(value);
+        }
+        if (alternative != null && alternative.getFileEnding().equals(FileEndings.JSON)) {
             return Optional.ofNullable(alternative);
         }
         return Optional.empty();
     }
 
     public Optional<I18NFileContext> getTsFile() {
-        if(alternative != null && alternative.getFileEnding().equals(FileEndings.TS)) {
+        if (alternative != null && alternative.getFileEnding().equals(FileEndings.TS)) {
             return Optional.ofNullable(alternative);
         }
-        if(value != null && value.getFileEnding().equals(FileEndings.TS)) {
+        if (value != null && value.getFileEnding().equals(FileEndings.TS)) {
             return Optional.ofNullable(value);
         }
         return Optional.empty();

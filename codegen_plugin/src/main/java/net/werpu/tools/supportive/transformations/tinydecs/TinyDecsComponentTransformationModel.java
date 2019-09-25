@@ -49,5 +49,4 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
         super(fileContext);
     }
 
-
 }

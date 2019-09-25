@@ -27,5 +27,5 @@ package net.werpu.tools.supportive.transformations.shared;
 import com.intellij.openapi.project.Project;
 
 public interface ITransformationModel {
-    public Project getProject();
+    Project getProject();
 }

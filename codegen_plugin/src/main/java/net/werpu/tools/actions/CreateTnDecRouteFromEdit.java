@@ -35,7 +35,6 @@ import java.util.Optional;
 import static java.util.Optional.ofNullable;
 
 public class CreateTnDecRouteFromEdit extends CreateTnDecRoute {
-
     @Override
     public void update(AnActionEvent anActionEvent) {
         super.update(anActionEvent);
@@ -44,7 +43,6 @@ public class CreateTnDecRouteFromEdit extends CreateTnDecRoute {
         }
 
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
-
 
         if (VisibleAssertions.assertNotTs(ctx) ||
                 !VisibleAssertions.assertController(ctx)) {
@@ -55,7 +53,6 @@ public class CreateTnDecRouteFromEdit extends CreateTnDecRoute {
         anActionEvent.getPresentation().setEnabledAndVisible(true);
 
     }
-
 
     @NotNull
     public Optional<ComponentFileContext> getDefaultComponentData(IntellijFileContext fileContext) {

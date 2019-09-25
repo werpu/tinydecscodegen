@@ -61,8 +61,6 @@ import static net.werpu.tools.actions_all.shared.FormAssertions.*;
  * The idea is that every created artifact should auto register if possible
  */
 public class CreateTnDecConfig extends AnAction {
-
-
     public CreateTnDecConfig() {
         //super("TDecs Angular ComponentJson", "Creates a Tiny Decorations Angular ComponentJson", null);
         super();
@@ -77,9 +75,7 @@ public class CreateTnDecConfig extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         final Project project = IntellijUtils.getProject(event);
 
-
         VirtualFile folder = IntellijUtils.getFolderOrFile(event);
-
 
         final net.werpu.tools.gui.CreateTnDecComponent mainForm = new net.werpu.tools.gui.CreateTnDecComponent();
         mainForm.getLblSelector().setText("Config class name *");
@@ -91,7 +87,6 @@ public class CreateTnDecConfig extends AnAction {
         mainForm.getTxtControllerAs().setVisible(false);
 
         DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
-
             @Nullable
             @Override
             protected JComponent createCenterPanel() {
@@ -113,7 +108,6 @@ public class CreateTnDecConfig extends AnAction {
                 ).stream().filter(s -> s != null).collect(Collectors.toList());
             }
 
-
             @Override
             public void init() {
                 super.init();
@@ -131,7 +125,6 @@ public class CreateTnDecConfig extends AnAction {
         dialogWrapper.setTitle("Create Service");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
-
         //mainForm.initDefault(dialogWrapper.getWindow());
         dialogWrapper.show();
         if (dialogWrapper.isOK()) {
@@ -146,7 +139,6 @@ public class CreateTnDecConfig extends AnAction {
         WriteCommandAction.runWriteCommandAction(project, () -> {
             String name = model.getName();
             String className = StringUtils.toCamelCase(name);
-
 
             FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_CONFIG);
 

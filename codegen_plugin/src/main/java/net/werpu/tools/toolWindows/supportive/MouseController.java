@@ -35,7 +35,6 @@ import java.awt.event.MouseListener;
 
 @AllArgsConstructor
 public class MouseController<T> implements MouseListener {
-
     Tree tree;
     ClickHandler<T, MouseEvent> rightMouseButton;
 
@@ -53,11 +52,9 @@ public class MouseController<T> implements MouseListener {
             return;
         }
 
-
         if (SwingUtilities.isRightMouseButton(ev)) {
             rightMouseButton.accept((T) selectedNode, ev);
         }
-
 
     }
 

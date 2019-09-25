@@ -38,7 +38,7 @@ public class AngularResourceModuleTableCellRenderer extends DefaultTableCellRend
         if (value instanceof IAngularFileContext) {
             IAngularFileContext mappedValue = (IAngularFileContext) value;
 
-            String displayName = Strings.nullToEmpty(mappedValue.getDisplayName()) ;
+            String displayName = Strings.nullToEmpty(mappedValue.getDisplayName());
             String name = (displayName.contains("[") && displayName.contains("]")) ? displayName.substring(displayName.indexOf("[") + 1, displayName.indexOf("]")) : "";
             super.setValue(name);
             super.setToolTipText(name);

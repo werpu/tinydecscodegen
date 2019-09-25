@@ -29,7 +29,6 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class PopupBuilder {
-
     JPopupMenu popupMenu = new JPopupMenu();
 
     public PopupBuilder withMenuItem(String title, ActionListener l) {

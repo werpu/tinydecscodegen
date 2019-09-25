@@ -43,38 +43,31 @@ import static com.intellij.openapi.ui.DialogWrapper.IdeModalityType.PROJECT;
  * Builder for our standardized input dialog wrapper
  */
 public class InputDialogWrapperBuilder {
-
     Project project;
     JPanel mainPanel;
     String dimensionKey = Math.random() + "";
     String dlgTitle;
-
     Dimension dlgPreferredSize;
-
     DialogWrapper.IdeModalityType modalityType = PROJECT;
     boolean canBeParent = true;
     boolean dlgModal = true;
-
     /**
      * we also drag the ok and cancel into our builder
      */
     BooleanSupplier okHandler = () -> true;
     BooleanSupplier cancelHandler = () -> true;
-
     Supplier<List<ValidationInfo>> validator = new Supplier() {
         @Override
         public Object get() {
             return Collections.emptyList();
         }
     };
-
     Supplier<List<ValidationInfo>> keystrokeValidator = new Supplier() {
         @Override
         public Object get() {
             return Collections.emptyList();
         }
     };
-
 
     public InputDialogWrapperBuilder(Project project, JPanel mainPanel) {
         this.project = project;
@@ -105,7 +98,6 @@ public class InputDialogWrapperBuilder {
         this.canBeParent = canBeParent;
         return this;
     }
-
 
     public InputDialogWrapperBuilder withValidator(Supplier<List<ValidationInfo>> validator) {
         this.validator = validator;
@@ -146,10 +138,8 @@ public class InputDialogWrapperBuilder {
         return wrap(project, mainPanel, dimensionKey, validator, modalityType, canBeParent);
     }
 
-
     DialogWrapper wrap(Project project, JPanel mainPanel, String dimensionKey, Supplier<List<ValidationInfo>> validator, DialogWrapper.IdeModalityType modalityType, boolean canBeParent) {
         return new ValidatableDialogWrapper(project, canBeParent, modalityType) {
-
             @Nullable
             @Override
             protected JComponent createCenterPanel() {
@@ -162,13 +152,11 @@ public class InputDialogWrapperBuilder {
                 return dimensionKey;
             }
 
-
             @Nullable
             @NotNull
             public List<ValidationInfo> doValidateAll() {
                 return validator.get();
             }
-
 
             @Nullable
             @Override
@@ -184,7 +172,6 @@ public class InputDialogWrapperBuilder {
                     super.doOKAction();
                 }
             }
-
 
             @Override
             public void doCancelAction() {

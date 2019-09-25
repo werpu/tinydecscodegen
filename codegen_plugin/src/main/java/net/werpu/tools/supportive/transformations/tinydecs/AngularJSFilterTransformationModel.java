@@ -44,7 +44,7 @@ import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngin
 /**
  * A transformation context
  * for simple Angular JS Modules
- *
+ * <p>
  * The idea is
  * to get the neutral information which does not change
  * then the module declaration part with the name and the requires
@@ -55,36 +55,26 @@ import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngin
  */
 @Getter
 public class AngularJSFilterTransformationModel extends TypescriptFileContext implements ITransformationModel {
-
-
     public static final Object[] ANGULAR_MOD_DEF = {PARENTS_EQ_FIRST(TYPE_SCRIPT_VARIABLE), JS_CALL_EXPRESSION};
     public static final Object[] CONSTRUCTOR_ROOT = {TYPE_SCRIPT_FUNC, NAME_EQ("constructor")};
-
-
     /**
      * the filter name
      */
     String filterName;
-
     /**
      * the position of the last import
      */
     Optional<PsiElementContext> lastImport;
-
     /**
      * export class XXXFilter {
      */
     Optional<PsiElementContext> filterDefStart;
-
     /**
      * function (enumValue:string,
      */
     Optional<PsiElementContext> filterFunction;
-
-
     @Setter
     boolean applicationBootstrap;
-
 
     public AngularJSFilterTransformationModel(Project project, PsiFile psiFile) {
         super(project, psiFile);
@@ -102,10 +92,9 @@ public class AngularJSFilterTransformationModel extends TypescriptFileContext im
         super(fileContext);
     }
 
-
-
     /**
      * helper to determine the AngularJS artifact part
+     *
      * @param psiFile
      * @return
      */
@@ -115,22 +104,24 @@ public class AngularJSFilterTransformationModel extends TypescriptFileContext im
 
     /**
      * gets the text part which defines the begining of the file to the end of the imports
+     *
      * @return the imports text
      */
     public String getImportText() {
         PsiElementContext lastImport = this.getLastImport().get();
-        return this.getText().substring(0, lastImport.getTextRangeOffset()+lastImport.getTextLength()+1);
+        return this.getText().substring(0, lastImport.getTextRangeOffset() + lastImport.getTextLength() + 1);
     }
 
     /**
      * gets the text part from the imports to the beginning of the module declaration
      * including the var name =
+     *
      * @return
      */
     public String getTextFromImportsToFilterDcl() {
         int importEnd = getImportEnd();
         Optional<PsiElementContext> varDcl = filterDefStart.get().$q(PARENTS_EQ_FIRST(JS_VAR_STATEMENT)).findFirst();
-        if(varDcl.isPresent()) {
+        if (varDcl.isPresent()) {
             return this.getText().substring(importEnd, varDcl.get().getTextRangeOffset());
         }
         return this.getText().substring(importEnd, filterDefStart.get().getTextRangeOffset());
@@ -140,9 +131,6 @@ public class AngularJSFilterTransformationModel extends TypescriptFileContext im
         return StringUtils.toCamelCase(getFilterName());
     }
 
-
-
-
     /**
      * parsing part, parse the various contextual parts of the module file
      * into separate entities, which we can process later
@@ -150,7 +138,6 @@ public class AngularJSFilterTransformationModel extends TypescriptFileContext im
     @Override
     protected void postConstruct() {
         super.postConstruct();
-
 
         filterDefStart = this.$q(CONSTRUCTOR_ROOT, PARENTS_EQ_FIRST(TYPE_SCRIPT_CLASS)).findFirst();
         filterName = filterDefStart.get().getName();
@@ -166,10 +153,5 @@ public class AngularJSFilterTransformationModel extends TypescriptFileContext im
         PsiElementContext lastImport = this.getLastImport().get();
         return lastImport.getTextRangeOffset() + lastImport.getTextLength() + 1;
     }
-
-
-
-
-
 
 }

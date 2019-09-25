@@ -46,7 +46,6 @@ import static net.werpu.tools.indexes.IndexUtils.standardExclusions;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.JS_UIROUTER_MODULE_FOR_ROOT;
 
 public class NG_UIRoutesIndex extends ScalarIndexExtension<String> {
-
     public static final ID<String, Void> NAME = ID.create("TN_NG_MainRoutesIndex");
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 

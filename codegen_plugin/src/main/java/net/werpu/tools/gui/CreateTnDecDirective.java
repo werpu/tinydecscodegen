@@ -82,7 +82,6 @@ public class CreateTnDecDirective {
         }
     }
 
-
     /**
      * We have some special behavior like required fields and formatted inputs
      */
@@ -100,7 +99,6 @@ public class CreateTnDecDirective {
         txtControllerAs.setText("ctrl");
     }
 
-
     public String getName() {
         return txtName.getText();
     }
@@ -112,6 +110,5 @@ public class CreateTnDecDirective {
     public String getControllerAs() {
         return txtControllerAs.getText();
     }
-
 
 }

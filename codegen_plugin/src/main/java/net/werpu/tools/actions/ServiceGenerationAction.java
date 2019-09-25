@@ -50,7 +50,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
 import lombok.CustomLog;
 import net.werpu.tools.actions_all.shared.JavaFileContext;
@@ -63,7 +62,6 @@ import java.io.IOException;
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotJava;
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotJavaRest;
 
-
 /**
  * An intellij action to generate a typescript service
  * out of the currently open editors content, if
@@ -71,8 +69,6 @@ import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotJava
  */
 @CustomLog
 public class ServiceGenerationAction extends AnAction {
-
-
     @Override
     public void update(AnActionEvent anActionEvent) {
 
@@ -90,7 +86,6 @@ public class ServiceGenerationAction extends AnAction {
 
         final JavaFileContext javaData = new JavaFileContext(event);
         if (javaData.isError()) return;
-
 
         CompilerManager.getInstance(javaData.getProject()).compile(javaData.getModule(), new CompileStatusNotification() {
             @Override

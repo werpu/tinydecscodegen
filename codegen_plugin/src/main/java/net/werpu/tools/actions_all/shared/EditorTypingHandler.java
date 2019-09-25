@@ -40,7 +40,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * we need this to close subwindows if someone types in the main window
  */
 public class EditorTypingHandler implements TypedActionHandler {
-
     CopyOnWriteArrayList<EditorCallback> callbackList = new CopyOnWriteArrayList<>();
 
     public void addCallback(EditorCallback callback) {
@@ -50,11 +49,8 @@ public class EditorTypingHandler implements TypedActionHandler {
     }
 
     public void removeCallback(EditorCallback callback) {
-        if (callbackList.contains(callback)) {
-            callbackList.remove(callback);
-        }
+        callbackList.remove(callback);
     }
-
 
     @Override
     public void execute(@NotNull Editor editor, char c, @NotNull DataContext dataContext) {
@@ -75,7 +71,6 @@ public class EditorTypingHandler implements TypedActionHandler {
             document.insertString(caretModel.getOffset(), String.valueOf(c));
             caretModel.moveToOffset(caretModel.getOffset() + 1);
         }
-
 
     }
 }

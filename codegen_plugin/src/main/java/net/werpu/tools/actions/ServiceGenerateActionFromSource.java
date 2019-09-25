@@ -27,7 +27,6 @@ package net.werpu.tools.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiJavaFile;
 import lombok.CustomLog;
@@ -42,7 +41,6 @@ import static net.werpu.tools.actions_all.shared.VisibleAssertions.*;
 
 @CustomLog
 public class ServiceGenerateActionFromSource extends AnAction {
-
     @Override
     public void update(AnActionEvent anActionEvent) {
 

@@ -33,7 +33,6 @@ import org.jetbrains.annotations.Nullable;
 
 @State(name = "TinyDecsConfig", storages = @Storage("TinyDecsConfig.xml"))
 public class ConfigSerializer implements PersistentStateComponent<TinyDecsConfiguration> {
-
     TinyDecsConfiguration state;
 
     @NotNull

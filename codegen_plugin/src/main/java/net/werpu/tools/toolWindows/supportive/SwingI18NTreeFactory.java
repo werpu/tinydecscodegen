@@ -28,13 +28,12 @@ import net.werpu.tools.supportive.fs.common.I18NElement;
 import net.werpu.tools.supportive.fs.common.I18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.PsiI18nEntryContext;
-import net.werpu.tools.supportive.transformations.i18n.I18NEntry;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.Arrays.stream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Tree factory to build the i18n tree model
@@ -50,7 +49,7 @@ public class SwingI18NTreeFactory {
         DefaultMutableTreeNode rootParentNode = new SwingRootParentNode(label);
         DefaultMutableTreeNode parNode = rootParentNode;
 
-        _routeIdx.put("",parNode);
+        _routeIdx.put("", parNode);
 
         List<I18NElement> elementList = entryContext.getRootTreeReference().getSubElements();
         applyBranch(ctx, parNode, elementList);
@@ -59,12 +58,12 @@ public class SwingI18NTreeFactory {
     }
 
     public static void applyBranch(I18NFileContext ctx, DefaultMutableTreeNode parNode, List<I18NElement> elementList) {
-        for(I18NElement element: elementList) {
+        for (I18NElement element : elementList) {
 
             boolean isBranch = !element.getSubElements().isEmpty();
             SwingI18NTreeNode treeNode = new SwingI18NTreeNode(element, ctx);
             parNode.add(treeNode);
-            if(isBranch) {
+            if (isBranch) {
                 SwingI18NTreeFactory.applyBranch(ctx, treeNode, element.getSubElements());
             }
         }

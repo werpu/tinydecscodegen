@@ -35,28 +35,25 @@ import net.werpu.tools.supportive.transformations.shared.ITransformationModel;
 /**
  * Transformation class
  * for a simple angular translate transformation
- *
+ * <p>
  * usually we have three patterns |translate as piped in two subpatterns
  * and a translate=".." with the key only
  */
 @Getter
 @AllArgsConstructor
 public class I18NAngularTranslateTransformation implements IArtifactTransformation {
-
     private final I18NTransformationModel model;
-
     private final String finalKey;
     private final String finalText;
 
-
     @Override
     public String getTnDecTransformation() {
-        switch(model.getParsingType()) {
+        switch (model.getParsingType()) {
             case TEXT:
             case STRING_IN_ATTRIBUTE:
-                return "{{'"+finalKey+"' | translate}}";
+                return "{{'" + finalKey + "' | translate}}";
             case STRING:
-                return "'"+finalKey+"' | translate";
+                return "'" + finalKey + "' | translate";
             default:
                 return finalKey;
 
@@ -64,11 +61,11 @@ public class I18NAngularTranslateTransformation implements IArtifactTransformati
     }
 
     public IRefactorUnit getTnDecRefactoring() {
-        return new RefactorUnit(model.getFileContext().getPsiFile(), new DummyReplacePsiElement(model.getFrom(), model.getTo()-model.getFrom()), getTnDecTransformation());
+        return new RefactorUnit(model.getFileContext().getPsiFile(), new DummyReplacePsiElement(model.getFrom(), model.getTo() - model.getFrom()), getTnDecTransformation());
     }
 
     public IRefactorUnit getNgRefactoring() {
-        return new RefactorUnit(model.getFileContext().getPsiFile(), new DummyReplacePsiElement(model.getFrom(), model.getTo()-model.getFrom()), getNgTransformation());
+        return new RefactorUnit(model.getFileContext().getPsiFile(), new DummyReplacePsiElement(model.getFrom(), model.getTo() - model.getFrom()), getNgTransformation());
     }
 
     @Override

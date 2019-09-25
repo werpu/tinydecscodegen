@@ -32,7 +32,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class BorderlessFrame extends JDialog {
-
     public BorderlessFrame() {
         postInit();
     }
@@ -115,7 +114,6 @@ public class BorderlessFrame extends JDialog {
     private void postInit() {
         setUndecorated(true);
         this.addMouseListener(new MouseAdapter() {
-
             int posX;
             int posY;
             boolean mouseDown = false;

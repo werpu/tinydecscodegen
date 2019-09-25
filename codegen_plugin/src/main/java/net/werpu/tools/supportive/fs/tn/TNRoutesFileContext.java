@@ -50,10 +50,9 @@ import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngin
 import static net.werpu.tools.supportive.utils.IntellijUtils.getTsExtension;
 import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
 
-public abstract class  TNRoutesFileContext extends TypescriptFileContext implements IUIRoutesRoutesFileContext {
+public abstract class TNRoutesFileContext extends TypescriptFileContext implements IUIRoutesRoutesFileContext {
     @Getter
     List<PsiElementContext> constructors = Collections.emptyList();
-
     String routeProviderName;
 
     public TNRoutesFileContext(Project project, PsiFile psiFile) {
@@ -72,6 +71,16 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
         super(fileContext);
     }
 
+    public static boolean isInject(PsiElement element) {
+        return element != null &&
+                element.toString().startsWith(JS_ES_6_DECORATOR) &&
+                element.getText().startsWith(NG_INJECT);
+    }
+
+    public static boolean isStringLiteral(PsiElement element) {
+        return element != null && element.toString().startsWith(PSI_ELEMENT_JS_STRING_LITERAL);
+    }
+
     @NotNull
     protected Predicate<PsiElementContext> p_isRouteProviderPresent() {
         return el -> getRouteProviderDef(el).isPresent();
@@ -86,7 +95,6 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         Optional<PsiElementContext> retVal = constructor.queryContent(p_isInject(), p_isProvider()).findFirst();
 
-
         if (!retVal.isPresent()) {
             retVal = constructor.queryContent(PSI_ELEMENT_JS_IDENTIFIER,
                     (Predicate<PsiElementContext>) ident -> isRouteProvider(ident.getUnquotedText()) || isStateProvider(ident.getUnquotedText())).findFirst();
@@ -98,7 +106,6 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
     /**
      * returns all route param arrays in the context
      *
-     *
      * @return
      */
     public List<PsiElementContext> getRouteParams() {
@@ -109,6 +116,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
     /**
      * searches for an @Inject("$stateProvider")
+     *
      * @param constructor
      * @return
      */
@@ -116,29 +124,25 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         Optional<PsiElementContext> retVal = constructor.queryContent(p_isInject(), p_isProvider()).findFirst();
 
-
         if (!retVal.isPresent()) {
             retVal = constructor.queryContent(PSI_ELEMENT_JS_IDENTIFIER,
-                    (Predicate<PsiElementContext>)  ident -> isStateProvider(ident.getUnquotedText())).findFirst();
+                    (Predicate<PsiElementContext>) ident -> isStateProvider(ident.getUnquotedText())).findFirst();
         }
 
         return retVal;
     }
-
 
     public Optional<PsiElementContext> getRouteProviderDef(PsiElementContext constructor) {
 
         Optional<PsiElementContext> retVal = constructor.queryContent(p_isInject(), p_isProvider()).findFirst();
 
-
         if (!retVal.isPresent()) {
             retVal = constructor.queryContent(PSI_ELEMENT_JS_IDENTIFIER,
-                    (Predicate<PsiElementContext>)  ident -> isRouteProvider(ident.getUnquotedText())).findFirst();
+                    (Predicate<PsiElementContext>) ident -> isRouteProvider(ident.getUnquotedText())).findFirst();
         }
 
         return retVal;
     }
-
 
     @NotNull
     public Predicate<PsiElementContext> p_isProvider() {
@@ -150,13 +154,6 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
         return el -> isInject(el.getElement());
     }
 
-    public static boolean isInject(PsiElement element) {
-        return element != null &&
-                element.toString().startsWith(JS_ES_6_DECORATOR) &&
-                element.getText().startsWith(NG_INJECT);
-    }
-
-
     public boolean isProvider(PsiElement psiElement) {
         return isStringLiteral(psiElement) &&
                 (psiElement.getText().equals("\"$routeProvider\"") ||
@@ -164,10 +161,6 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
                         psiElement.getText().equals("\"$stateProvider\"") ||
                         psiElement.getText().equals("'$stateProvider'")
                 );
-    }
-
-    public static boolean isStringLiteral(PsiElement element) {
-        return element != null && element.toString().startsWith(PSI_ELEMENT_JS_STRING_LITERAL);
     }
 
     @NotNull
@@ -188,7 +181,6 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
         if (isStateProvider(provider)) {
             String tpl = (url.isEmpty()) ? "\n$stateProvider.state('%s','%s', MetaData.routeData(%s));" :
                     "\n$stateProvider.state('%s','%s', MetaData.routeData(%s), {url: '" + url + "'});";
-
 
             return String.format(tpl, url, data.getRouteKey(), data.getRawComponentName());
         } else {
@@ -249,7 +241,6 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         //now we have resolved the name, we have enough data to build our routes object
 
-
         String url = (oUrl.isPresent()) ? oUrl.get().getUnquotedText() : "";
         String component = classIdentifier.orElse("No Class");
         Route route = new Route(name, url, component, "", pageController.getVirtualFile().getPath(), this.getClass());
@@ -259,6 +250,7 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
     /**
      * resolves the incoming arguments list accordingly
+     *
      * @return
      */
     @NotNull
@@ -269,12 +261,10 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
         };
     }
 
-
-
     @NotNull
     public Boolean urlMatch(Route routeData, PsiElementContext constructor, String routeProviderName) {
         //TODO also url match against the linked components, but for now this suffices
-        return constructor.queryContent(JS_ARGUMENTS_LIST, PARENTS, JS_EXPRESSION_STATEMENT, TreeQueryEngine.TEXT_STARTS_WITH( routeProviderName ), PSI_ELEMENT_JS_STRING_LITERAL, TreeQueryEngine.TEXT_EQ("'" + routeData.getUrl() + "'")).findFirst().isPresent();
+        return constructor.queryContent(JS_ARGUMENTS_LIST, PARENTS, JS_EXPRESSION_STATEMENT, TreeQueryEngine.TEXT_STARTS_WITH(routeProviderName), PSI_ELEMENT_JS_STRING_LITERAL, TreeQueryEngine.TEXT_EQ("'" + routeData.getUrl() + "'")).findFirst().isPresent();
     }
 
     public String getStateOrRouteProviderName(PsiElementContext constructor) {
@@ -288,13 +278,12 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
 
         for (PsiElementContext constructor : constructors) {
 
-
             Optional<PsiElementContext> routeProviderDef = getSateOrRouteProviderDef(constructor);
             String routeProviderName = getStateOrRouteProviderName(constructor);
 
-           // if (!isRouteProvider(routeProviderName)) {//no url support in case of stateproviders
-           //     return false;
-           // }
+            // if (!isRouteProvider(routeProviderName)) {//no url support in case of stateproviders
+            //     return false;
+            // }
 
             if (urlMatch(routeData, constructor, routeProviderName)) {
                 return true;
@@ -323,7 +312,6 @@ public abstract class  TNRoutesFileContext extends TypescriptFileContext impleme
         }
         return false;
     }
-
 
     public abstract List<PsiRouteContext> getRoutes();
 

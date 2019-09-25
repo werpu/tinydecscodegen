@@ -3,17 +3,20 @@ package net.werpu.tools.toolWindows.supportive;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
-import net.werpu.tools.supportive.fs.common.I18NFileContext;
 import net.werpu.tools.supportive.fs.common.I18NElement;
+import net.werpu.tools.supportive.fs.common.I18NFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.PsiI18nEntryContext;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Arrays.*;
-import static java.util.Collections.*;
+import static java.util.Arrays.stream;
+import static java.util.Collections.singletonList;
 
 /**
  * Node for the i18n toolwindow, so that we easily can change
@@ -22,17 +25,13 @@ import static java.util.Collections.*;
 @Setter
 @Getter
 public class I18NToolWindowModel {
-
     List<PsiI18nEntryContext> entryContext;
-
     //context root tree context pointing to the root element
     Map<String, List<I18NFileContext>> fileIdx = new HashMap<>();
-
     /**
      * merged tree from all entry contexts
      */
     List<I18NElement> mergedTree;
-
     private Project project;
 
     public I18NToolWindowModel(I18NFileContext... i18nFiles) {
@@ -46,7 +45,7 @@ public class I18NToolWindowModel {
         //We now merge both trees on order, last one overwrites preexisting ones for the time being
         //just as angular does
         mergedTree = entryContext.stream().map(el -> el.getRootTreeReference()).collect(Collectors.toList());
-        if(mergedTree.size() > 1) {
+        if (mergedTree.size() > 1) {
             mergedTree = mergedTree.stream().map(el -> singletonList(el)).reduce(new ArrayList<>(), (el1, el2) -> mergeLists(el1, el2));
         }
 
@@ -61,7 +60,6 @@ public class I18NToolWindowModel {
         entryContext.stream().forEach(psiI18nEntryContext -> updateKeyIndex("", psiI18nEntryContext));
     }
 
-
     private void updateKeyIndex(String treePrefix, PsiI18nEntryContext element) {
         I18NElement elementReference = element.getRootTreeReference();
         updateFileIndex(treePrefix, new I18NFileContext(project, element.getPsiFile()), elementReference);
@@ -70,8 +68,7 @@ public class I18NToolWindowModel {
     private void updateFileIndex(String treePrefix, I18NFileContext i18nFileRef, I18NElement elementReference) {
         final String finalKey = treePrefix + elementReference.getKey();
 
-
-        if(!fileIdx.containsKey(finalKey)) {
+        if (!fileIdx.containsKey(finalKey)) {
             fileIdx.put(finalKey, new ArrayList<>());
         }
 
@@ -86,7 +83,7 @@ public class I18NToolWindowModel {
      * @param list1
      * @param list1
      * @return
-             */
+     */
     private List<I18NElement> mergeLists(List<I18NElement> list1, List<I18NElement> list2) {
         final Map<String, I18NElement> list1Idx = new HashMap<>();
         final Map<String, I18NElement> list12dx = new HashMap<>();

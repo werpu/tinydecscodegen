@@ -30,7 +30,6 @@ import net.werpu.tools.supportive.fs.common.PsiRouteContext;
 import org.jetbrains.annotations.Nullable;
 
 public class RouteNodeDescriptor extends NodeDescriptor<PsiRouteContext> {
-
     PsiRouteContext element;
 
     public RouteNodeDescriptor(@Nullable Project project, PsiRouteContext element) {

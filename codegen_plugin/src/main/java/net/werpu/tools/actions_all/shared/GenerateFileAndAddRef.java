@@ -42,14 +42,12 @@ import static net.werpu.tools.supportive.reflectRefact.IntellijRefactor.appendDe
  * and adds the references in the parents module
  */
 public class GenerateFileAndAddRef implements Runnable {
-
     Project project;
     VirtualFile folder;
     String className;
     FileTemplate vslTemplate;
     Map<String, Object> attrs;
     ModuleElementScope[] scope;
-
     FileNameTransformer fileNameTransformer;
 
     protected GenerateFileAndAddRef(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs, FileNameTransformer fileNameTransformer) {
@@ -64,7 +62,6 @@ public class GenerateFileAndAddRef implements Runnable {
         this.fileNameTransformer = fileNameTransformer;
     }
 
-
     public GenerateFileAndAddRef(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs, FileNameTransformer fileNameTransformer, ModuleElementScope... scope) {
         this(project, folder, className, vslTemplate, attrs, fileNameTransformer);
         this.scope = scope;
@@ -77,13 +74,11 @@ public class GenerateFileAndAddRef implements Runnable {
             String str = FileTemplateUtil.mergeTemplate(attrs, vslTemplate.getText(), false);
             String fileName = getFileName();
 
-
             IntellijFileContext ctx = IntellijUtils.createAndOpen(project, folder, str, fileName);
 
             for (ModuleElementScope singleScope : scope) {
                 appendDeclarationToModule(ctx, singleScope, className, getFileName());
             }
-
 
         } catch (IOException e) {
             throw new RuntimeException(e);

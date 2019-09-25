@@ -71,7 +71,6 @@ enum SupportedRestMethod {
 
 
 public class CreateRestEndpoint extends AnAction {
-
     //visibility
     @Override
     public void update(AnActionEvent anActionEvent) {
@@ -95,13 +94,11 @@ public class CreateRestEndpoint extends AnAction {
         JavaFileContext javaData = new JavaFileContext(event);
         if (javaData.isError()) return;
 
-
         final net.werpu.tools.gui.CreateRequestMapping mainForm = new net.werpu.tools.gui.CreateRequestMapping();
 
         restore(mainForm);
 
         DialogWrapper dialogWrapper = new DialogWrapper(event.getProject(), true, DialogWrapper.IdeModalityType.PROJECT) {
-
             @Nullable
             @Override
             protected JComponent createCenterPanel() {
@@ -114,7 +111,6 @@ public class CreateRestEndpoint extends AnAction {
                 return "AnnComponent";
             }
 
-
             @Nullable
             @NotNull
             protected List<ValidationInfo> doValidateAll() {
@@ -122,7 +118,6 @@ public class CreateRestEndpoint extends AnAction {
                         assertNotNullOrEmpty(mainForm.getTxtMethodName().getText(), Messages.ERR_NAME_VALUE, mainForm.getTxtMethodName())
                 ).stream().filter(s -> s != null).collect(Collectors.toList());
             }
-
 
             @Override
             public void init() {
@@ -155,19 +150,15 @@ public class CreateRestEndpoint extends AnAction {
             }
             boolean createMapping = mainForm.getCbTypeScript().isSelected();
 
-
             //Lets generate the needed text from the template
             //with the given meta data params
 
-
             Map<String, String> params = Maps.newHashMap();
-
 
             params.put("REQUEST_METHOD", method.name());
             params.put("METHOD_NAME", javaMethodName);
             params.put("RETURN_TYPE", returnType);
             params.put("REST_PATH", restPath);
-
 
             FileTemplate vslTemplate = FileTemplateManager.getInstance(event.getProject()).getJ2eeTemplate(TnDecGroupFactory.TPL_SPRING_REST_METHOD);
             try {
@@ -250,7 +241,6 @@ public class CreateRestEndpoint extends AnAction {
 
         PsiElement beforeElement = (before.size() > 0) ? before.get(before.size() - 1) : null;
 
-
         WriteCommandAction.runWriteCommandAction(editorFile.getProject(), () -> {
 
             if (after.isPresent() && beforeElement != null &&
@@ -268,7 +258,6 @@ public class CreateRestEndpoint extends AnAction {
 
                 List<PsiElement> classes = editorFile.$q(PSI_CLASS).map(el -> el.getElement()).collect(Collectors.toList());
                 PsiElement insertClass = findNearest(cursorPos, classes);
-
 
                 if (insertClass != null) {
                     PsiElement element = insertClass;

@@ -29,7 +29,6 @@ import net.werpu.tools.supportive.fs.common.PsiRouteContext;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 public class SwingRouteTreeNode extends DefaultMutableTreeNode {
-
     public SwingRouteTreeNode(PsiRouteContext userObject) {
         super(userObject);
 
@@ -44,7 +43,6 @@ public class SwingRouteTreeNode extends DefaultMutableTreeNode {
         PsiRouteContext userObject = (PsiRouteContext) getUserObject();
         return userObject.getRoute().getRouteKey();
     }
-
 
     @Override
     public boolean equals(Object obj) {

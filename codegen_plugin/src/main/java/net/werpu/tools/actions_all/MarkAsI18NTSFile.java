@@ -24,7 +24,6 @@
 
 package net.werpu.tools.actions_all;
 
-
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
@@ -52,7 +51,6 @@ import static net.werpu.tools.supportive.utils.IntellijRunUtils.writeTransaction
  * to mark a file which has the correct patterns as i18n file
  */
 public class MarkAsI18NTSFile extends AnAction {
-
     public static final String I18N_MARKER = "@def: i18nfile";
 
     public MarkAsI18NTSFile() {

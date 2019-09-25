@@ -31,7 +31,6 @@ import net.werpu.tools.actions_all.shared.JavaFileContext;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
 
 public class GoToJava extends AnAction {
-
     public void update(AnActionEvent anActionEvent) {
         if (VisibleAssertions.refOnlyVisible(anActionEvent)) return;
         VisibleAssertions.tsOnlyVisible(anActionEvent);

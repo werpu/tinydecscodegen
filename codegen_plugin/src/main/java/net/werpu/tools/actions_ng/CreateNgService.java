@@ -42,7 +42,6 @@ import java.util.Map;
  * Service generation for Angular2
  */
 public class CreateNgService extends CreateTnDecService {
-
     @Override
     public void update(AnActionEvent anActionEvent) {
         VisibleAssertions.ngVisible(anActionEvent);

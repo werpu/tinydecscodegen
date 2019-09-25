@@ -54,11 +54,9 @@ import static net.werpu.tools.actions_all.shared.FormAssertions.assertNotNullOrE
  * Creates an I18N File for further processing
  */
 public class CreateI18NFile extends AnAction {
-
     private static final Dimension PREFERRED_SIZE = new Dimension(400, 300);
     private static final String DEFAULT_TS_CONTENT = "/** \n* @def: i18nfile \n*/ \nexport const language = {\n};";
     private static final String DEFAULT_JSON_CONTENT = "{\n}";
-
 
     @Override
     public void update(@NotNull AnActionEvent anActionEvent) {
@@ -94,34 +92,33 @@ public class CreateI18NFile extends AnAction {
             }
         });
 
-
-
         dialogWrapper.show();
 
         if (dialogWrapper.isOK()) {
             String[] fileEndings = getEndings(mainForm);
             String fileName = mainForm.getTxtFilename().getText();
             IntellijRunUtils.invokeLater(() -> IntellijRunUtils.writeTransaction(ctx.getProject(), () -> {
-                    boolean success = Arrays.stream(fileEndings)
-                            .map(ending -> {
-                                try {
-                                    createI18NFile(ctx, fileName, ending);
-                                } catch (IOException ex) {
-                                    IntellijUtils.handleEx(ctx.getProject(), ex);
-                                    return false;
-                                }
-                                return true;
+                boolean success = Arrays.stream(fileEndings)
+                        .map(ending -> {
+                            try {
+                                createI18NFile(ctx, fileName, ending);
+                            } catch (IOException ex) {
+                                IntellijUtils.handleEx(ctx.getProject(), ex);
+                                return false;
+                            }
+                            return true;
 
-                            }).reduce( (result1, result2) -> result1 && result2).orElse(false);
-                    if(success) {
-                        IntellijUtils.showInfoMessage("I18N Files have been generated", "Success");
-                    }
+                        }).reduce((result1, result2) -> result1 && result2).orElse(false);
+                if (success) {
+                    IntellijUtils.showInfoMessage("I18N Files have been generated", "Success");
+                }
             }));
         }
     }
 
     /**
      * central i18n file creation method, which has all the rules necessary to create a file
+     *
      * @throws IOException in case of a file ops failure
      */
     private void createI18NFile(IntellijFileContext ctx, String fileName, String ending) throws IOException {
@@ -131,7 +128,6 @@ public class CreateI18NFile extends AnAction {
             IntellijUtils.create(ctx.getProject(), ctx.getVirtualFile(), DEFAULT_JSON_CONTENT, fileName + ending);
         }
     }
-
 
     @NotNull
     private Supplier<List<ValidationInfo>> validationCallback(IntellijFileContext ctx, net.werpu.tools.gui.CreateI18NFile mainForm) {

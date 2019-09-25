@@ -46,10 +46,8 @@ import javax.swing.*;
  */
 @AllArgsConstructor
 public class DummyReplacePsiElement implements PsiElement {
-
     int pos = 0;
     int len = 0;
-
 
     @NotNull
     @Override
@@ -106,7 +104,7 @@ public class DummyReplacePsiElement implements PsiElement {
 
     @Override
     public TextRange getTextRange() {
-        return new TextRange(pos,pos + len);
+        return new TextRange(pos, pos + len);
     }
 
     @Override

@@ -31,14 +31,9 @@ import net.werpu.tools.supportive.fs.common.PsiElementContext;
 @AllArgsConstructor
 @Getter
 public class ClassAttribute {
-
-
     PsiElementContext element;
-
     String name;
     String type;
-
-
 
     public ClassAttribute(PsiElementContext element) {
         this.element = element;
@@ -47,6 +42,6 @@ public class ClassAttribute {
     }
 
     public String getText() {
-        return getName()+": "+getType();
+        return getName() + ": " + getType();
     }
 }

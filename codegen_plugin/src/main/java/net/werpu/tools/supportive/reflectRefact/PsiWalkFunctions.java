@@ -44,7 +44,6 @@ import static java.util.Arrays.asList;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
 import static net.werpu.tools.supportive.utils.IntellijUtils.flattendArr;
 
-
 /**
  * this is the central hub for all code analysis
  * and refactoring
@@ -53,10 +52,7 @@ import static net.werpu.tools.supportive.utils.IntellijUtils.flattendArr;
  * It sits on top of Intellijs Psi functionality
  */
 public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementContext> {
-
     public static final String JS_DOC_COMMENT = "JSDocComment";
-    private static final String ERR_UNDEFINED_QUERY_MAPPING = "Undefined query mapping";
-
     /*ElementTypes*/
     public static final String JS_PROP_TEMPLATE = "template";
     public static final String JS_PROP_TEMPLATE_URL = "templateUrl";
@@ -91,7 +87,6 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final QueryExtension<Object> ANY_TS_IMPORT = ALL(SUB_QUERY(JS_ES_6_IMPORT_DECLARATION), SUB_QUERY(TYPESCRIPT_IMPORT_STATEMENT));
     public static final String JS_ES_6_IMPORT_SPECIFIER = "ES6ImportSpecifier";
     public static final String JS_ES_6_FIELD_STATEMENT = "ES6FieldStatement";
-
     public static final String JS_CALL_EXPRESSION = "JSCallExpression";
     public static final String JS_UIROUTER_MODULE_FOR_ROOT = "UIRouterModule.forRoot";
     public static final String JS_ROUTER_MODULE_FOR_ROOT = "$routeProvider.when";
@@ -119,103 +114,80 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final Object[] TN_COMP_BINDINGS = {TYPE_SCRIPT_FIELD, NAME_EQ("bindings"), JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY};
     public static final Object[] TN_DIRECTIVE_BINDINGS = {JS_PROPERTY, NAME_EQ("scope"), FIRST, CHILD_ELEM, JS_OBJECT_LITERAL_EXPRESSION, CHILD_ELEM, JS_PROPERTY};
     public static final String JS_ARRAY_LITERAL_EXPRESSION = "JSArrayLiteralExpression";
-    public static final Object[] TN_COMP_CONTROLLER_ARR = {TYPE_SCRIPT_FIELD, NAME_EQ("controller"), JS_ARRAY_LITERAL_EXPRESSION , FIRST};
-    public static final Object[] TN_COMP_CONTROLLER_FUNC_ARR = {JS_PROPERTY, NAME_EQ("controller"), JS_ARRAY_LITERAL_EXPRESSION , FIRST};
+    public static final Object[] TN_COMP_CONTROLLER_ARR = {TYPE_SCRIPT_FIELD, NAME_EQ("controller"), JS_ARRAY_LITERAL_EXPRESSION, FIRST};
+    public static final Object[] TN_COMP_CONTROLLER_FUNC_ARR = {JS_PROPERTY, NAME_EQ("controller"), JS_ARRAY_LITERAL_EXPRESSION, FIRST};
     public static final String JS_ARGUMENTS_LIST = "JSArgumentList";
     public static final String JS_PARAMETER_BLOCK = "JSParameterBlock";
-
     public static final String JS_VAR_STATEMENT = "JSVarStatement";
-
     public static final String PSI_CLASS = "PsiClass:";
     public static final String STRING_TEMPLATE_EXPR = "JSStringTemplateExpression";
-
     public static final String XML_TEXT = "XmlText";
-
     public static final String XML_ATTRIBUTE_VALUE = "XmlToken:XML_ATTRIBUTE_VALUE_TOKEN";
     public static final String XML_ATTRIBUTE_NAME = "XmlToken:XML_NAME";
     public static final String PSI_XML_ATTRIBUTE = "PsiElement(XML_ATTRIBUTE)";
     public static final String PSI_XML_ATTRIBUTE_VALUE = "PsiElement(XML_ATTRIBUTE_VALUE)";
-
     //JSON
     public static final String JSON_PROPERTY = "JsonProperty";
     public static final String JSON_STRING_LITERAL = "JsonStringLiteral";
     public static final String JSON_OBJECT = "JsonObject";
-
-
     //ANGULAR specific types (new stuff), we reuse some angular2 stuff for angular 1 as well
     //this hackis but it works sufficiently
     public static final String ANGULAR_INTERPOLATION = "Angular2Interpolation";
     public static final String ANGULAR_PIPE = "Angular2PipeExpression";
     public static final String ANGULAR_FILTER = "AngularJSFilterExpression";
-
-
     /*ElementTypes end*/
-
     public static final String NG_MODULE = "@NgModule";
     /*prdefined queries*/
     public static final Object[] MODULE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_MODULE), PARENTS_EQ(JS_ES_6_DECORATOR)};
     public static final Object[] MODULE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_MODULE), JS_ARGUMENTS_LIST};
     public static final Object[] MODULE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_MODULE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
-
     public static final Object[] COMPONENT_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_COMPONENT), PARENTS_EQ(JS_ES_6_DECORATOR)};
     public static final Object[] COMPONENT_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_COMPONENT), JS_ARGUMENTS_LIST};
     public static final Object[] COMPONENT_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_COMPONENT), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
-
     public static final String NG_DIRECTIVE = "@Directive";
     public static final Object[] DIRECTIVE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DIRECTIVE), PARENTS_EQ(JS_ES_6_DECORATOR)};
     public static final Object[] DIRECTIVE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DIRECTIVE), JS_ARGUMENTS_LIST};
     public static final Object[] DIRECTIVE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DIRECTIVE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
-
-
     public static final Object[] CONFIG_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONFIG), PARENTS_EQ(JS_ES_6_DECORATOR)};
     public static final Object[] CONFIG_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONFIG), JS_ARGUMENTS_LIST};
     public static final Object[] CONFIG_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONFIG), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
-
-
     public static final String NG_FILTER = "@Filter";
     public static final Object[] FILTER_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_FILTER), PARENTS_EQ(JS_ES_6_DECORATOR)};
     public static final Object[] FILTER_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_FILTER), JS_ARGUMENTS_LIST};
     public static final Object[] FILTER_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_FILTER), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
-
     public static final String NG_PIPE = "@Pipe";
     public static final Object[] PIPE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_PIPE), PARENTS_EQ(JS_ES_6_DECORATOR)};
     public static final Object[] PIPE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_PIPE), JS_ARGUMENTS_LIST};
     public static final Object[] PIPE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_PIPE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
-
-
     public static final String NG_INJECTABLE = "@Injectable";
     public static final Object[] SERVICE_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_INJECTABLE), PARENTS_EQ(JS_ES_6_DECORATOR)};
     public static final Object[] SERVICE_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_INJECTABLE), JS_ARGUMENTS_LIST};
     public static final Object[] SERVICE_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_INJECTABLE), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
-
-
     public static final Object[] CONTROLLER_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONTROLLER), PARENTS_EQ(JS_ES_6_DECORATOR)};
     public static final Object[] CONTROLLER_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONTROLLER), JS_ARGUMENTS_LIST};
     public static final Object[] CONTROLLER_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_CONTROLLER), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
-
     public static final String NG_DTO = "@Dto";
     public static final Object[] DTO_ANN = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DTO), PARENTS_EQ(JS_ES_6_DECORATOR)};
     public static final Object[] DTO_ARGS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DTO), JS_ARGUMENTS_LIST};
     public static final Object[] DTO_CLASS = {JS_ES_6_DECORATOR, TEXT_STARTS_WITH(NG_DTO), PARENTS_EQ(TYPE_SCRIPT_CLASS)};
-
-
     public static final Object[] TN_COMP_CONTROLLER_FUNC = {CHILD_ELEM, TYPESCRIPT_FUNCTION_EXPRESSION};
     public static final Object[] TN_COMP_PARAM_LISTS = {ANY(TN_COMP_CONTROLLER_ARR, TN_COMP_CONTROLLER_FUNC_ARR), TN_COMP_CONTROLLER_FUNC, CHILD_ELEM, TYPE_SCRIPT_PARAMETER_LIST, TYPE_SCRIPT_PARAM};
     public static final Object[] TN_COMP_STR_INJECTS = {CHILD_ELEM, JS_LITERAL_EXPRESSION, CHILD_ELEM, PSI_ELEMENT_JS_STRING_LITERAL};
-    /*prdefined queries end*/
-
-
     /*Specific queries used by the transformations*/
-
     //TODO possible problem with multiple modules per file here
     public static final Object[] ANG1_MODULE_DCL = {JS_CALL_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("module"), PARENTS, JS_CALL_EXPRESSION};
+    /*prdefined queries end*/
     //module name starting from DCL
     public static final Object[] ANG1_MODULE_NAME = {JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     //requires starting from DCL
     public static final Object[] ANG1_MODULE_REQUIRES = {JS_ARRAY_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL};
     public static final String TYPE_SCRIPT_SINGLE_TYPE = "TypeScriptSingleType";
     public static final String JS_STRING_TEMPLATE_EXPRESSION = "JSStringTemplateExpression";
+    private static final String ERR_UNDEFINED_QUERY_MAPPING = "Undefined query mapping";
 
+    static {
+        queryEngine = new TreeQueryEngine<PsiElementContext>(new PsiElementQueryAdapter());
+    }
 
     public static Object[] DEF_CALL(String callType) {
         return new Object[]{JS_CALL_EXPRESSION, DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), TEXT_EQ(callType)};
@@ -225,8 +197,6 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static Object[] TN_DEC_COMPONENT_NAME(String className) {
         return new Object[]{TYPE_SCRIPT_NEW_EXPRESSION, PSI_ELEMENT_JS_IDENTIFIER, NAME_EQ(className), PARENTS, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL};
     }
-
-
 
     /*helpers end*/
     public static Stream<PsiElementContext> queryContent(PsiFile file, Object... items) {
@@ -270,8 +240,6 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
         return Optional.empty();
     }
 
-
-
     public static List<PsiElementContext> walkParents(PsiElementContext element, Function<PsiElementContext, Boolean> psiElementVisitor) {
         PsiElementContext walkElem = element;
         List<PsiElementContext> retVal = new LinkedList<>();
@@ -290,12 +258,13 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
         List<PsiElementContext> retVal = new LinkedList<>();
         PsiElement sibling = element.getElement().getNextSibling();
 
-        while(sibling != null) {
+        while (sibling != null) {
             if (psiElementVisitor.apply(new PsiElementContext(sibling))) {
                 retVal.add(new PsiElementContext(sibling));
             }
             sibling = sibling.getNextSibling();
-        } while (sibling != null);
+        }
+        while (sibling != null) ;
 
         return retVal;
     }
@@ -305,16 +274,16 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
         List<PsiElementContext> retVal = new LinkedList<>();
         PsiElement sibling = element.getElement().getPrevSibling();
 
-        while(sibling != null) {
+        while (sibling != null) {
             if (psiElementVisitor.apply(new PsiElementContext(sibling))) {
                 retVal.add(new PsiElementContext(sibling));
             }
             sibling = sibling.getPrevSibling();
-        } while (sibling != null);
+        }
+        while (sibling != null) ;
 
         return retVal;
     }
-
 
     /**
      * standardized walk the tree function which takes
@@ -346,7 +315,6 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     @NotNull
     public static PsiRecursiveElementWalkingVisitor createPsiVisitor(Function<PsiElement, Boolean> psiElementVisitor, boolean firstOnly, List<PsiElement> retVal) {
         return new PsiRecursiveElementWalkingVisitor() {
-
             public void visitElement(PsiElement element) {
                 if (psiElementVisitor.apply(element)) {
                     retVal.add(element);
@@ -363,13 +331,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
         return (el.toString().equals(JS_CALL_EXPRESSION)) && el.getText().startsWith(JS_UIROUTER_MODULE_FOR_ROOT);
     }
 
-
-    static {
-        queryEngine = new TreeQueryEngine<PsiElementContext>(new PsiElementQueryAdapter());
-    }
-
-
-    public static Object[] SUB_QUERY(Object ... str1) {
+    public static Object[] SUB_QUERY(Object... str1) {
         return str1;
     }
 }

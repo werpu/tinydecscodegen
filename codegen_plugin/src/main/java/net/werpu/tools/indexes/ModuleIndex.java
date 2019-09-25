@@ -41,7 +41,6 @@ import static net.werpu.tools.indexes.IndexUtils.standardExclusions;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.MODULE_ANN;
 
 public class ModuleIndex extends ScalarIndexExtension<String> {
-
     public static final ID<String, Void> NAME = ID.create("TN_ModuleIndex");
     public static final String ANN_MARKER = "@NgModule";
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
@@ -108,6 +107,5 @@ public class ModuleIndex extends ScalarIndexExtension<String> {
             return Collections.emptyMap();
         }
     }
-
 
 }

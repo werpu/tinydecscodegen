@@ -38,6 +38,5 @@ public interface IUIRoutesRoutesFileContext {
 
     boolean isRouteNameUsed(Route routeData);
 
-
     List<PsiRouteContext> getRoutes();
 }

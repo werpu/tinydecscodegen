@@ -38,7 +38,6 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.NG_PRJ_M
 import static net.werpu.tools.supportive.utils.IntellijUtils.*;
 
 public class MarkProjectAsNg extends AnAction {
-
     @Override
     public void update(AnActionEvent anActionEvent) {
         try {
@@ -58,7 +57,6 @@ public class MarkProjectAsNg extends AnAction {
         }
 
     }
-
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
@@ -80,6 +78,5 @@ public class MarkProjectAsNg extends AnAction {
         });
 
     }
-
 
 }

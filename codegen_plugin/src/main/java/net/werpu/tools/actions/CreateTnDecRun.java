@@ -60,8 +60,6 @@ import static net.werpu.tools.actions_all.shared.FormAssertions.*;
  * The idea is that every created artifact should auto register if possible
  */
 public class CreateTnDecRun extends AnAction {
-
-
     public CreateTnDecRun() {
         //super("TDecs Angular ComponentJson", "Creates a Tiny Decorations Angular ComponentJson", null);
         super();
@@ -76,9 +74,7 @@ public class CreateTnDecRun extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         final Project project = IntellijUtils.getProject(event);
 
-
         VirtualFile folder = IntellijUtils.getFolderOrFile(event);
-
 
         final net.werpu.tools.gui.CreateTnDecComponent mainForm = new net.werpu.tools.gui.CreateTnDecComponent();
         mainForm.getLblSelector().setText("Run class name *");
@@ -94,10 +90,8 @@ public class CreateTnDecRun extends AnAction {
                         validateInput(mainForm)
                 ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
 
-
         dialogWrapper.setTitle("Create Run Service");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
-
 
         //mainForm.initDefault(dialogWrapper.getWindow());
         dialogWrapper.show();
@@ -119,7 +113,6 @@ public class CreateTnDecRun extends AnAction {
         WriteCommandAction.runWriteCommandAction(project, () -> {
             String name = model.getName();
             String className = StringUtils.toCamelCase(name);
-
 
             FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_ANNOTATED_RUN);
 

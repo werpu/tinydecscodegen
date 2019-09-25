@@ -38,7 +38,6 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.TN_DEC_P
 import static net.werpu.tools.supportive.utils.IntellijUtils.*;
 
 public class MarkProjectAsTnDec extends AnAction {
-
     @Override
     public void update(AnActionEvent anActionEvent) {
         try {
@@ -79,6 +78,5 @@ public class MarkProjectAsTnDec extends AnAction {
         });
 
     }
-
 
 }

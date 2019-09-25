@@ -42,13 +42,10 @@ import java.util.stream.Collectors;
  * the navigational structure tree
  */
 public class NavTreeStructureProvider implements TreeStructureProvider {
-
     @Getter
     NG_UIRoutesRoutesFileContext ctx = null;
-
     @Getter
     List<RouteTreeNode> treeNodes = new LinkedList<>();
-
 
     public NavTreeStructureProvider(NG_UIRoutesRoutesFileContext ctx) {
         this.ctx = ctx;
@@ -60,7 +57,7 @@ public class NavTreeStructureProvider implements TreeStructureProvider {
         Map<String, RouteTreeNode> _routeIdx = new HashMap<>();
 
         //lets make the tree Nodes
-        List<PsiRouteContext> sortedRoutes = (List<PsiRouteContext>) ctx.getRoutes().stream()
+        List<PsiRouteContext> sortedRoutes = ctx.getRoutes().stream()
                 .sorted(Comparator.comparing(PsiRouteContext::getRoute))
                 .collect(Collectors.toList());
 
@@ -86,7 +83,6 @@ public class NavTreeStructureProvider implements TreeStructureProvider {
 
         }
     }
-
 
     @NotNull
     @Override

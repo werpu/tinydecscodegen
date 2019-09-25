@@ -47,14 +47,12 @@ import java.util.function.Consumer;
 import static net.werpu.tools.supportive.utils.StringUtils.elVis;
 
 public class SwingUtils {
-
-
     public static void centerOnParent(final Window child, final boolean absolute) {
         child.pack();
         boolean useChildsOwner = child.getOwner() != null && ((child.getOwner() instanceof JFrame) || (child.getOwner() instanceof JDialog));
         final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        final Dimension parentSize = useChildsOwner ? child.getOwner().getSize() : screenSize ;
-        final Point parentLocationOnScreen = useChildsOwner ? child.getOwner().getLocationOnScreen() : new Point(0,0) ;
+        final Dimension parentSize = useChildsOwner ? child.getOwner().getSize() : screenSize;
+        final Point parentLocationOnScreen = useChildsOwner ? child.getOwner().getLocationOnScreen() : new Point(0, 0);
         final Dimension childSize = child.getSize();
         childSize.width = Math.min(childSize.width, screenSize.width);
         childSize.height = Math.min(childSize.height, screenSize.height);
@@ -96,7 +94,6 @@ public class SwingUtils {
         return editor;
     }
 
-
     @NotNull
     public static Editor createTypescriptEdfitor(Project project, Document document) {
         EditorFactory editorFactory = EditorFactory.getInstance();
@@ -126,7 +123,6 @@ public class SwingUtils {
         target.setText("/" + name);
     }
 
-
     public static void copyToClipboard(String str) {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(new StringSelection(str), null);
@@ -150,7 +146,6 @@ public class SwingUtils {
             editor.moveCaretRelatively(0, 0, false, false, true);
         }
     }
-
 
     public static ComponentListener addComponentShownHandler(Consumer<ComponentEvent> c) {
         return new ComponentListener() {
@@ -176,15 +171,14 @@ public class SwingUtils {
         };
     }
 
-
     public static MouseListener addMouseClickedHandler(Consumer<MouseEvent> singleClick, Consumer<MouseEvent> doubleClick) {
         return new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(e.isConsumed()) {
+                if (e.isConsumed()) {
                     return;
                 }
-                if(!e.isConsumed() && e.getClickCount() > 1) {
+                if (!e.isConsumed() && e.getClickCount() > 1) {
                     doubleClick.accept(e);
                 }
                 singleClick.accept(e);
@@ -233,7 +227,6 @@ public class SwingUtils {
         Editor textEditor = FileEditorManager.getInstance(ctx.getProject()).getSelectedTextEditor();
         return textEditor.getSelectionModel().getSelectionStart();
     }
-
 
     /**
      * fetches the end of the selection

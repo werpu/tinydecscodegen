@@ -54,17 +54,17 @@ public class StringUtils {
                     ? Character.toUpperCase(c)
                     : c;
             sb.append(c);
-            capNext = (ACTIONABLE_DELIMITERS.indexOf((int) c) >= 0); // explicit cast not needed
+            capNext = (ACTIONABLE_DELIMITERS.indexOf(c) >= 0); // explicit cast not needed
         }
         return sb.toString().replaceAll("[-/\\.]", "");
     }
 
     public static String makeVarName(String in) {
-        return in.substring(0, 1).toLowerCase()+in.substring(1);
+        return in.substring(0, 1).toLowerCase() + in.substring(1);
     }
 
     public static String makeGet(String in) {
-        return "get"+in.substring(0, 1).toUpperCase()+in.substring(1);
+        return "get" + in.substring(0, 1).toUpperCase() + in.substring(1);
     }
 
     public static String pointToLowerDash(String s) {
@@ -74,6 +74,7 @@ public class StringUtils {
     public static String toLowerDash(String s) {
         return toAnyDash(s, "_");
     }
+
     public static String toDash(String s) {
         return toAnyDash(s, "-");
     }
@@ -89,9 +90,9 @@ public class StringUtils {
         for (char c : s.toCharArray()) {
             String cStr = String.valueOf(c);
 
-            capNext = regexIndexOf(lowerCase, String.valueOf(lastChar)) >= 0 &&  (regexIndexOf(camelCase,  String.valueOf(c)) >= 0); // explicit cast not needed
+            capNext = regexIndexOf(lowerCase, String.valueOf(lastChar)) >= 0 && (regexIndexOf(camelCase, String.valueOf(c)) >= 0); // explicit cast not needed
             cStr = (capNext)
-                    ? divider+cStr
+                    ? divider + cStr
                     : cStr;
             sb.append(cStr.toLowerCase());
 
@@ -104,7 +105,7 @@ public class StringUtils {
 
         Pattern pattern = Pattern.compile(regexp);
         Matcher matcher = pattern.matcher(str);
-        if(matcher.find()) {
+        if (matcher.find()) {
             return matcher.start();
         }
         return -1;
@@ -113,7 +114,7 @@ public class StringUtils {
     public static <T> Optional<T> elVis(Object root, String... accessors) {
         for (String accessor : accessors) {
             try {
-                Method m = root.getClass().getMethod(makeGet(accessor), new Class[0]);
+                Method m = root.getClass().getMethod(makeGet(accessor));
                 root = m.invoke(root);
                 if (root == null) {
                     return Optional.empty();
@@ -147,21 +148,20 @@ public class StringUtils {
         return literal.replaceAll("^[\\\"\\'](.*)[\\\"\\']$", "$1");
     }
 
-    public static boolean findWithSpaces(String probe, String ...params) {
+    public static boolean findWithSpaces(String probe, String... params) {
 
-        String rexp = Arrays.asList(params).stream().map(s -> s.replaceAll("([^A-Za-z0-9])+", "\\\\$1")).reduce((s1, s2) -> s1+"\\s*"+s2).get();
+        String rexp = Arrays.asList(params).stream().map(s -> s.replaceAll("([^A-Za-z0-9])+", "\\\\$1")).reduce((s1, s2) -> s1 + "\\s*" + s2).get();
 
         Matcher m = Pattern.compile(rexp).matcher(probe);
         return m.find();
     }
 
     public static String normalizePath(String in) {
-        if(in == null) {
+        if (in == null) {
             return in;
         }
         return in.replaceAll("\\\\", "/");
     }
-
 
     @NotNull
     public static String refactor(List<IRefactorUnit> refactorings, String toSplit) {
@@ -181,19 +181,18 @@ public class StringUtils {
         if (end < toSplit.length()) {
             retVal.add(toSplit.substring(end));
         }
-        return  Joiner.on("").join(retVal);
+        return Joiner.on("").join(retVal);
     }
-
 
     /**
      * Generic refactoring function
-     *
+     * <p>
      * Which allows to calculate a refactoring relative from a root
      * element without writing the data back
+     *
      * @param refactorings a list of generic refactorings which might be part of the given
      *                     element or not
-     * @param rootElement the psi element identifiyng the refactoring root
-     *
+     * @param rootElement  the psi element identifiyng the refactoring root
      * @return a string with the refactored content of the root element
      */
     @NotNull
@@ -209,11 +208,10 @@ public class StringUtils {
 
         String toSplit = rootElement.getText();
 
-
         for (IRefactorUnit refactoring : refactorings) {
             int refactorUnitRelOffset = calcOffsetDiff(rootElementOffset, refactoring.getStartOffset());
             if ((refactorUnitRelOffset) >= 0 && end < refactorUnitRelOffset
-             && refactoring.getEndOffset() < elementEndOffset) {
+                    && refactoring.getEndOffset() < elementEndOffset) {
                 retVal.add(toSplit.substring(start, refactorUnitRelOffset));
                 start = calcOffsetDiff(rootElementOffset, refactoring.getEndOffset());
             }
@@ -223,7 +221,7 @@ public class StringUtils {
         if (end < toSplit.length()) {
             retVal.add(toSplit.substring(end));
         }
-        return  Joiner.on("").join(retVal);
+        return Joiner.on("").join(retVal);
     }
 
     private static int calcOffsetDiff(int rootElementOffset, int startOffset) {

@@ -24,7 +24,6 @@
 
 package net.werpu.tools.supportive.transformations.tinydecs;
 
-
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
@@ -64,7 +63,6 @@ public class DirectiveTransformation implements IArtifactTransformation {
     public String getNgTransformation() throws IOException {
         return "TODO";
     }
-
 
     protected FileTemplate getTnTemplate() {
         return FileTemplateManager.getInstance(transformationModel.getProject()).getJ2eeTemplate(TPL_TN_DEC_DIRECTIVE_TRANSFORMATION);

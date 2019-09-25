@@ -46,7 +46,7 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 /**
  * A transformation context
  * for simple Angular JS Modules
- *
+ * <p>
  * The idea is
  * to get the neutral information which does not change
  * then the module declaration part with the name and the requires
@@ -57,16 +57,14 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
  */
 @Getter
 public class AngularJSModuleTransformationModel extends TypescriptFileContext implements ITransformationModel {
-
-
     public static final Object[] ANGULAR_MOD_DEF = {TreeQueryEngine.PARENTS_EQ_FIRST(TYPE_SCRIPT_VARIABLE), JS_CALL_EXPRESSION};
-
     /**
      * psi element covering the entire angular module defintion
      * aka angular.module('app.entry', ["bla","bla1"])
-     *     .component("remappedOverviews", new ApplicationsTable())
-     *     .component("remappedsChart", new ApplicationChart())
-     *     .component...
+     * .component("remappedOverviews", new ApplicationsTable())
+     * .component("remappedsChart", new ApplicationChart())
+     * .component...
+     *
      * @return
      */
     Optional<PsiElementContext> moduleDefStart;
@@ -75,26 +73,20 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
      * aka angular.module('app.entry', ["bla","bla1"]);
      */
     Optional<PsiElementContext> moduleDeclStart;
-
     /**
      * the module name
      */
     String moduleName;
-
     /**
      * the position of the last import
      */
     Optional<PsiElementContext> lastImport;
-
     /**
      * the list of requires defined in the module
      */
     List<String> requires;
-
-
     @Setter
     boolean applicationBootstrap;
-
 
     public AngularJSModuleTransformationModel(Project project, PsiFile psiFile) {
         super(project, psiFile);
@@ -112,10 +104,9 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
         super(fileContext);
     }
 
-
-
     /**
      * helper to determine the AngularJS artifact part
+     *
      * @param psiFile
      * @return
      */
@@ -125,22 +116,24 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
 
     /**
      * gets the text part which defines the begining of the file to the end of the imports
+     *
      * @return the imports text
      */
     public String getImportText() {
         PsiElementContext lastImport = this.getLastImport().get();
-        return this.getText().substring(0, lastImport.getTextRangeOffset()+lastImport.getTextLength()+1);
+        return this.getText().substring(0, lastImport.getTextRangeOffset() + lastImport.getTextLength() + 1);
     }
 
     /**
      * gets the text part from the imports to the beginning of the module declaration
      * including the var name =
+     *
      * @return
      */
     public String getTextFromImportsToModuleDcl() {
         int importEnd = getImportEnd();
         Optional<PsiElementContext> varDcl = moduleDefStart.get().$q(TreeQueryEngine.PARENTS, JS_VAR_STATEMENT).findFirst();
-        if(varDcl.isPresent()) {
+        if (varDcl.isPresent()) {
             return this.getText().substring(importEnd, varDcl.get().getTextRangeOffset());
         }
         return this.getText().substring(importEnd, moduleDeclStart.get().getTextRangeOffset());
@@ -151,8 +144,8 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
     }
 
     public String getDeclarationsPart() {
-        if(moduleDefStart.isPresent()) {
-            return this.getPsiFile().getText().substring(moduleDeclStart.get().getTextRangeOffset()+moduleDeclStart.get().getTextLength()).trim();
+        if (moduleDefStart.isPresent()) {
+            return this.getPsiFile().getText().substring(moduleDeclStart.get().getTextRangeOffset() + moduleDeclStart.get().getTextLength()).trim();
         }
         return "";
     }
@@ -164,10 +157,10 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
     }
 
     public String getLegacyName() {
-        if(moduleDefStart.isPresent()) {
+        if (moduleDefStart.isPresent()) {
             return moduleDefStart.get().$q(TreeQueryEngine.PARENTS_EQ_FIRST(TYPE_SCRIPT_VARIABLE)).findFirst().get().getName();
         }
-        return "legacy_"+this.moduleName;
+        return "legacy_" + this.moduleName;
     }
 
     /**
@@ -177,7 +170,6 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
     @Override
     protected void postConstruct() {
         super.postConstruct();
-
 
         moduleDeclStart = this.$q(ANG1_MODULE_DCL).findFirst();
         moduleDeclStart.ifPresent(psiElementContext -> {
@@ -193,10 +185,5 @@ public class AngularJSModuleTransformationModel extends TypescriptFileContext im
         PsiElementContext lastImport = this.getLastImport().get();
         return lastImport.getTextRangeOffset() + lastImport.getTextLength() + 1;
     }
-
-
-
-
-
 
 }

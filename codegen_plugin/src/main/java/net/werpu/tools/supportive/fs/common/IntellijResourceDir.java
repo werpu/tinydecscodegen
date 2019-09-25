@@ -46,13 +46,9 @@ import static net.werpu.tools.supportive.utils.StringUtils.normalizePath;
  * needs. We cannot use the standard intellij template mechanism here
  */
 public class IntellijResourceDir {
-
     File resource;
-
     ZipFile jar;
-
     String relativePath;
-
     String subPath;
 
     public IntellijResourceDir(String relativePath, String subPath) {
@@ -66,13 +62,11 @@ public class IntellijResourceDir {
         }
         resource = new File(resourcePath + relativePath);
 
-
         try {
 
             jar = new ZipFile(resourcePath.substring(5, resourcePath.indexOf(".jar!") + 4));
 
         } catch (IOException e) {
-
 
             throw new RuntimeException(e);
         }
@@ -84,7 +78,6 @@ public class IntellijResourceDir {
         String relPath = normalizePath(relativePath);
         String rel = relPath.substring(relPath.indexOf("resources/") + "resources/".length());
 
-
         return Collections.list(jar.entries()).stream()
                 .filter(entry -> entry.getName().indexOf(rel) >= 0)
                 .filter(entry -> !entry.isDirectory()).collect(Collectors.toList());
@@ -92,7 +85,7 @@ public class IntellijResourceDir {
 
     public void copyTo(File targetDir, TextTransformer transformer) {
 
-        if(!targetDir.exists()) {
+        if (!targetDir.exists()) {
             targetDir.mkdirs();
         }
 

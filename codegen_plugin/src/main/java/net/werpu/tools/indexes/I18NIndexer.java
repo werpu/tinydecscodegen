@@ -51,11 +51,46 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.TS_CONFI
  * Index for l18n files in the system
  */
 public class I18NIndexer extends ScalarIndexExtension<String> {
-
     public static final ID<String, Void> NAME = ID.create("L18NIndexer");
-
-
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
+
+    public static List<IntellijFileContext> getAllAffectedFiles(Project project) {
+
+        return FileBasedIndex.getInstance().getContainingFiles(NAME, NAME.getName(),
+                GlobalSearchScope.projectScope(project)).stream()
+                .filter(VirtualFile::isValid)
+                .map(virtualFile -> new IntellijFileContext(project, virtualFile))
+                .filter(ctx -> !ctx.isBuildTarget())
+                .collect(Collectors.toList());
+    }
+
+    //atm we only support json and ts filetypes depending on the library support
+    //we might extend this in the future
+    public static boolean isAllowedFileType(String fileName) {
+        return fileName.endsWith(".json") || fileName.endsWith(".ts");
+    }
+
+    private static boolean isMarked(@NotNull FileContent inputData) {
+        try {
+
+            CharSequence contentAsText = inputData.getContentAsText();
+            final StringBuilder sb = new StringBuilder(contentAsText.length());
+            sb.append(contentAsText);
+            return sb.toString().contains(I18N_MARKER);
+
+        } catch (Throwable e) {
+            //fallback because the current intellij version throws an exception with getContentAs text on the indexer side
+            //might be a bug
+            try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputData.getFile().getInputStream()))) {
+                String result = bufferedReader
+                        .lines().collect(Collectors.joining("\n"));
+                return result.contains(I18N_MARKER);
+            } catch (IOException ex) {
+                //well in this case we just return false
+            }
+            return false;
+        }
+    }
 
     @NotNull
     @Override
@@ -92,19 +127,7 @@ public class I18NIndexer extends ScalarIndexExtension<String> {
     }
 
 
-    public static List<IntellijFileContext> getAllAffectedFiles(Project project) {
-
-        return FileBasedIndex.getInstance().getContainingFiles(NAME, NAME.getName(),
-                GlobalSearchScope.projectScope(project)).stream()
-                .filter(VirtualFile::isValid)
-                .map(virtualFile -> new IntellijFileContext(project, virtualFile))
-                .filter(ctx -> !ctx.isBuildTarget())
-                .collect(Collectors.toList());
-    }
-
     private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
-
-
         @Override
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
@@ -127,35 +150,6 @@ public class I18NIndexer extends ScalarIndexExtension<String> {
             }
 
             return Collections.emptyMap();
-        }
-    }
-
-    //atm we only support json and ts filetypes depending on the library support
-    //we might extend this in the future
-    public static boolean isAllowedFileType(String fileName) {
-        return fileName.endsWith(".json") || fileName.endsWith(".ts");
-    }
-
-    private static boolean isMarked(@NotNull FileContent inputData) {
-        try {
-
-
-            CharSequence contentAsText = inputData.getContentAsText();
-            final StringBuilder sb = new StringBuilder(contentAsText.length());
-            sb.append(contentAsText);
-            return sb.toString().contains(I18N_MARKER);
-
-        } catch (Throwable e) {
-            //fallback because the current intellij version throws an exception with getContentAs text on the indexer side
-            //might be a bug
-            try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputData.getFile().getInputStream()));) {
-                String result = bufferedReader
-                        .lines().collect(Collectors.joining("\n"));
-                return result.contains(I18N_MARKER);
-            } catch (IOException ex) {
-                //well in this case we just return false
-            }
-            return false;
         }
     }
 }

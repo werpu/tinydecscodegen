@@ -77,11 +77,7 @@ import static net.werpu.tools.toolWindows.supportive.SwingRouteTreeFactory.creat
 
 @CustomLog
 public class AngularNavigationsToolWindow implements ToolWindowFactory {
-
-
     private SearchableTree<PsiRouteContext> routes = new SearchableTree();
-
-
     private IntellijFileContext projectRoot = null;
     private TreeSpeedSearch searchPath = null;
     private SimpleToolWindowPanel toolWindowPanel = null;
@@ -95,7 +91,6 @@ public class AngularNavigationsToolWindow implements ToolWindowFactory {
         routes.createDefaultKeyController(this::goToComponent, this::goToRouteDcl, this::copyRouteLink);
 
     }
-
 
     private void showPopup(PsiRouteContext foundContext, MouseEvent ev) {
 
@@ -125,7 +120,6 @@ public class AngularNavigationsToolWindow implements ToolWindowFactory {
         Content content = contentFactory.createContent(toolWindowPanel, "", false);
         toolWindow.getContentManager().addContent(content);
 
-
         if (toolWindow instanceof ToolWindowEx) {
             AnAction[] titleActions = new AnAction[]{
                     CommonActionsManager.getInstance().createExpandAllHeaderAction(routes.getTree()),
@@ -140,7 +134,6 @@ public class AngularNavigationsToolWindow implements ToolWindowFactory {
 
         boolean routeFileAffected = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot).stream()
                 .anyMatch(routeFile -> routeFile.equals(vFileContext));
-
 
         ContextFactory.getInstance(projectRoot).getProjectResources(projectRoot, TN_DEC);
 
@@ -170,7 +163,6 @@ public class AngularNavigationsToolWindow implements ToolWindowFactory {
                     return;
                 }
 
-
                 List<IUIRoutesRoutesFileContext> routeFiles = ContextFactory.getInstance(projectRoot).getRouteFiles(projectRoot);
                 if (routeFiles == null || routeFiles.isEmpty()) {
                     routes.getTree().setModel(new DefaultTreeModel(new DefaultMutableTreeNode(MSG_NO_ROUTE_FOUND)));
@@ -192,10 +184,8 @@ public class AngularNavigationsToolWindow implements ToolWindowFactory {
                 /*found this usefule helper in the jetbrains intellij sources*/
                 if (searchPath == null) {
 
-
                     MouseController<PsiRouteContext> contextMenuListener = new MouseController<>(routes.getTree(), this::showPopup);
                     routes.getTree().addMouseListener(contextMenuListener);
-
 
                     searchPath = new TreeSpeedSearch(routes.getTree(), convertToSearchableString(routes.getTree()));
                 }
@@ -222,11 +212,9 @@ public class AngularNavigationsToolWindow implements ToolWindowFactory {
         });
     }
 
-
     private void goToRouteDcl(PsiRouteContext foundContext) {
         openEditor(foundContext);
     }
-
 
     private void goToComponent(PsiRouteContext foundContext) {
         Route route = foundContext.getRoute();
@@ -242,7 +230,6 @@ public class AngularNavigationsToolWindow implements ToolWindowFactory {
         if (virtualFile != null) {
             openEditor(new IntellijFileContext(foundContext.getElement().getProject(), virtualFile));
         }
-
 
     }
 
@@ -280,9 +267,7 @@ public class AngularNavigationsToolWindow implements ToolWindowFactory {
             routeLink = String.format(sRef, route.getRouteKey(), route.getRouteVarName());
         }
 
-
         copyToClipboard(routeLink);
     }
-
 
 }

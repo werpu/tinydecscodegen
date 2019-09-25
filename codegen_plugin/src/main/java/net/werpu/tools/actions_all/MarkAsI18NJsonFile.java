@@ -24,7 +24,6 @@
 
 package net.werpu.tools.actions_all;
 
-
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import net.werpu.tools.supportive.fs.common.I18NFileContext;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
@@ -43,7 +42,6 @@ import static net.werpu.tools.supportive.utils.IntellijRunUtils.writeTransaction
 /**
  * similar marker on the json side compared to the
  * Typescript side
- *
  */
 public class MarkAsI18NJsonFile extends MarkAsI18NTSFile {
     //we inherit a lot of functionality only the visibility scope and the refactoring is different
@@ -60,8 +58,7 @@ public class MarkAsI18NJsonFile extends MarkAsI18NTSFile {
         assertI18nPattern(anActionEvent, ctx);
     }
 
-
-    protected void addMarker(TypescriptFileContext ctx,final PsiI18nEntryContext elCtx) {
+    protected void addMarker(TypescriptFileContext ctx, final PsiI18nEntryContext elCtx) {
 
         invokeLater(() -> writeTransaction(ctx.getProject(), () -> {
             try {
@@ -78,6 +75,5 @@ public class MarkAsI18NJsonFile extends MarkAsI18NTSFile {
             }
         }));
     }
-
 
 }

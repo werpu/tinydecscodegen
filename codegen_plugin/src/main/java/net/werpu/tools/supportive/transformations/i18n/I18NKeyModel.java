@@ -163,7 +163,6 @@ public class I18NKeyModel {
                     .reduce((el1, el2) -> el2);
             PsiElementContext rootElementContext = oCtx.isPresent() ? oCtx.get() : new PsiElementContext(fileContext.getPsiFile()).$q("PsiElement(HTML_DOCUMENT)").findFirst().get();
 
-
             String templateText = (oCtx.isPresent()) ? oCtx.get().getText().substring(1, Math.max(0, oCtx.get().getTextLength() - 1)) : fileContext.getText();
             int newOffset = oCtx.isPresent() ? oCtx.get().getTextRangeOffset() + 1 : rootElementContext.getTextRangeOffset();
             positionFilterEmbedded = el -> {
@@ -171,7 +170,6 @@ public class I18NKeyModel {
                 int offSetEnd = offSet + el.getText().length();
                 return cursorPos >= (offSet + newOffset) && cursorPos <= (offSetEnd + newOffset);
             };
-
 
             language = IntellijUtils.getTnDecTemplateLanguageDef().orElse(IntellijUtils.getNgTemplateLanguageDef().orElse(IntellijUtils.getHtmlLanguage()));
             PsiFile ramFile = IntellijUtils.createRamFileFromText(fileContext.getProject(),

@@ -38,8 +38,6 @@ import java.util.Optional;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 
 public class ServiceContext extends AngularResourceContext {
-
-
     public ServiceContext(Project project, PsiFile psiFile, PsiElement element) {
         super(project, psiFile, element);
     }
@@ -74,12 +72,11 @@ public class ServiceContext extends AngularResourceContext {
     @NotNull
     private Optional<PsiElementContext> resolveClass() {
         Optional<PsiElementContext> serviceClass = $q(SERVICE_CLASS).findFirst();
-        if(!serviceClass.isPresent()) {
+        if (!serviceClass.isPresent()) {
             throw new RuntimeException("Service class not found");
         }
         return serviceClass;
     }
-
 
     @Override
     public String getResourceName() {

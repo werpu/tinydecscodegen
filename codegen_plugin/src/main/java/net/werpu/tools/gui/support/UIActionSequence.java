@@ -45,16 +45,13 @@ import java.util.function.Consumer;
  */
 @RequiredArgsConstructor
 public class UIActionSequence {
-
     @NonNull
     private final Project project;
     @NonNull
     private final String indicatorLabel;
-
     List<Consumer<ProgressIndicator>> sequences = new ArrayList<>();
     Consumer<ProgressIndicator> onFinishedOk = (indicator) -> {
     };
-
 
     public UIActionSequence withSequence(Consumer<ProgressIndicator> sequence) {
         sequences.add(sequence);
@@ -65,7 +62,6 @@ public class UIActionSequence {
         sequences.add(sequence);
         return this;
     }
-
 
     public UIActionSequence withFinishedOk(Consumer<ProgressIndicator> sequence) {
         this.onFinishedOk = sequence;
@@ -79,13 +75,11 @@ public class UIActionSequence {
 
                 progressIndicator.setIndeterminate(true);
 
-
                 sequences.stream().forEach((seq) -> {
                     WriteCommandAction.runWriteCommandAction(project, () -> {
                         seq.accept(progressIndicator);
                     });
                 });
-
 
                 ApplicationManager.getApplication().invokeLater(() -> {
                     WriteCommandAction.runWriteCommandAction(project, () -> {
@@ -100,6 +94,5 @@ public class UIActionSequence {
 
         ProgressManager.getInstance().runProcessWithProgressAsynchronously(myTask, myProcessIndicator);
     }
-
 
 }

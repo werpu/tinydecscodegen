@@ -34,5 +34,5 @@ public interface I18NToolWindowListener extends EventListener {
     Topic<I18NToolWindowListener> GO_TO_DECLRATION =
             new Topic<I18NToolWindowListener>("tw events", I18NToolWindowListener.class, Topic.BroadcastDirection.TO_PARENT);
 
-    public void goToDeclaration(VirtualFile vfile, I18NKeyModel keyModel);
+    void goToDeclaration(VirtualFile vfile, I18NKeyModel keyModel);
 }

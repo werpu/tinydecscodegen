@@ -31,7 +31,7 @@ import net.werpu.tools.supportive.fs.common.PsiElementContext;
 
 /**
  * Refactoring replacement unit
- *
+ * <p>
  * The idea is that a refactoring of text
  * usually is either a replace or insert, but insert
  * is a special kind of replace where an existing position
@@ -39,7 +39,6 @@ import net.werpu.tools.supportive.fs.common.PsiElementContext;
  */
 @Getter
 public class RefactorUnit implements IRefactorUnit {
-
     PsiFile file;
     PsiElement psiElement;
     String refactoredText;
@@ -65,6 +64,5 @@ public class RefactorUnit implements IRefactorUnit {
     public int getEndOffset() {
         return psiElement.getTextRange().getEndOffset();
     }
-
 
 }

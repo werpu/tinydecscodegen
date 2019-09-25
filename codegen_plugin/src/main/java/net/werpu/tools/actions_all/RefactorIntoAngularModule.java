@@ -24,7 +24,6 @@
 
 package net.werpu.tools.actions_all;
 
-
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -43,7 +42,6 @@ import static com.intellij.ide.scratch.ScratchFileCreationHelper.reformat;
  * Refactor module into a new TNDecModule
  */
 public class RefactorIntoAngularModule extends AnAction {
-
     private static final String DIMENSION_KEY = "AnnRef";
     private static final String DLG_TITLE = "Module Code Proposal";
     private static final Dimension PREFERRED_SIZE = new Dimension(800, 600);
@@ -53,7 +51,7 @@ public class RefactorIntoAngularModule extends AnAction {
         super.update(e);
         try {
             IntellijFileContext ctx = new IntellijFileContext(e);
-            if(!ctx.getText().contains(".module")) {
+            if (!ctx.getText().contains(".module")) {
                 AngularJSModuleTransformationModel module = new AngularJSModuleTransformationModel(e);
                 e.getPresentation().setEnabledAndVisible(module.getModuleDeclStart().isPresent());
             }
@@ -61,14 +59,12 @@ public class RefactorIntoAngularModule extends AnAction {
             e.getPresentation().setEnabledAndVisible(false);
         }
 
-
     }
 
     @Override
     public void actionPerformed(AnActionEvent event) {
 
         final IntellijFileContext fileContext = new IntellijFileContext(event);
-
 
         AngularJSModuleTransformationModel transformationModel = new AngularJSModuleTransformationModel(fileContext);
         ModuleTransformation transformation = new ModuleTransformation(transformationModel);
@@ -85,8 +81,6 @@ public class RefactorIntoAngularModule extends AnAction {
         }
 
     }
-
-
 
     @Override
     public boolean isDumbAware() {

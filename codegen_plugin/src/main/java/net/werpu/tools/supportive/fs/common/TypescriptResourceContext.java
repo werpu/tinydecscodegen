@@ -32,7 +32,6 @@ import com.intellij.psi.PsiFile;
 import lombok.Getter;
 
 public class TypescriptResourceContext extends TypescriptFileContext {
-
     @Getter
     protected PsiElementContext resourceRoot;
 

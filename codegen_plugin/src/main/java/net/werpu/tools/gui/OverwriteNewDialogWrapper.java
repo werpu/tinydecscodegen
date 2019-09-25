@@ -40,13 +40,11 @@ import java.awt.event.ActionEvent;
 public class OverwriteNewDialogWrapper extends DialogWrapper {
     OverwriteNewDialog dialog;
 
-
     public OverwriteNewDialogWrapper(@Nullable Project project, OverwriteNewDialog dialog) {
         super(project, true);
         this.dialog = dialog;
         init();
     }
-
 
     @Override
     protected void init() {
@@ -62,11 +60,11 @@ public class OverwriteNewDialogWrapper extends DialogWrapper {
 
     @NotNull
     protected Action[] createActions() {
-        return new Action[] {createOverwriteAction(), createNewAction(), createCancelAction()};
+        return new Action[]{createOverwriteAction(), createNewAction(), createCancelAction()};
     }
 
-    protected  DialogWrapperExitAction createOverwriteAction() {
-        return new  DialogWrapperExitAction("Overwrite", 0) {
+    protected DialogWrapperExitAction createOverwriteAction() {
+        return new DialogWrapperExitAction("Overwrite", 0) {
             @Override
             protected void doAction(ActionEvent e) {
                 dialog.handleOverwrite(e);
@@ -75,8 +73,8 @@ public class OverwriteNewDialogWrapper extends DialogWrapper {
         };
     }
 
-    protected  DialogWrapperExitAction createNewAction() {
-        return new  DialogWrapperExitAction("New Entry", 0) {
+    protected DialogWrapperExitAction createNewAction() {
+        return new DialogWrapperExitAction("New Entry", 0) {
             @Override
             protected void doAction(ActionEvent e) {
                 dialog.handleNew(e);
@@ -85,8 +83,8 @@ public class OverwriteNewDialogWrapper extends DialogWrapper {
         };
     }
 
-    protected  DialogWrapperExitAction createCancelAction() {
-        return  new  DialogWrapperExitAction(CommonBundle.getCancelButtonText(), 1) {
+    protected DialogWrapperExitAction createCancelAction() {
+        return new DialogWrapperExitAction(CommonBundle.getCancelButtonText(), 1) {
             @Override
             protected void doAction(ActionEvent e) {
                 doCancelAction();

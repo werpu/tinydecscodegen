@@ -24,7 +24,6 @@
 
 package net.werpu.tools.supportive.transformations.shared.modelHelpers;
 
-
 import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,35 +44,30 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.JS_DEFIN
 @Getter
 @AllArgsConstructor
 public class FirstOrderFunction {
-
     /**
      * the entire function element
-     *
+     * <p>
      * aka var/let &lt;functionName&gt; = (&lt;arguments&gt;) => {..}
      * aka var/let &lt;functionName&gt; = function(&lt;arguments&gt;) {..}
      */
     PsiElementContext functionElement;
-
     /**
      * to avoid unneccesary parsing we parse the headers
      * and bodies upfront
-     *
+     * <p>
      * this is the function header
      * aka  (&lt;arguments&gt;
      * or function(&lt;arguments&gt;)
      */
     PsiElementContext functionHeader;
-
     /**
      * to avoid unneccesary parsing we parse the headers
      * and bodies upfront
-     *
+     * <p>
      * this is the function body
      * aka {....}
      */
     PsiElementContext functionBody;
-
-
     /**
      * the original parameter list coming in
      * the way I see it we can treat them modelwise the same
@@ -81,7 +75,6 @@ public class FirstOrderFunction {
      * as model holder
      */
     List<ParameterDeclaration> parameterList;
-
     /**
      * a list of variable parsing definition which possibly can
      * be externalized and dragged in
@@ -89,11 +82,8 @@ public class FirstOrderFunction {
      * a single false on this one and the externalization cannot  happen
      */
     List<ExternalVariable> exernalizables = newArrayList();
-
-
     @Setter
     String refactoredContent;
-
 
     public FirstOrderFunction(PsiElementContext functionElement, PsiElementContext functionHeader, PsiElementContext functionBody, List<ParameterDeclaration> parameterList, List<ExternalVariable> exernalizables) {
         this.functionElement = functionElement;
@@ -115,13 +105,14 @@ public class FirstOrderFunction {
 
     /**
      * rewrite of the first order function as externalizable
+     *
      * @return
      */
     public String toExternalString() {
-        if(!this.isExternalizale()) {
+        if (!this.isExternalizale()) {
             return "";
         }
-        if(!Strings.isNullOrEmpty(refactoredContent)) {
+        if (!Strings.isNullOrEmpty(refactoredContent)) {
             return refactoredContent;
         }
         StringBuilder retVal = new StringBuilder();
@@ -131,13 +122,12 @@ public class FirstOrderFunction {
         retVal.append(")");
         retVal.append(functionBody.getText());
 
-
         return retVal.toString();
     }
 
     public String getFunctionName() {
         String name = functionElement.$q(JS_DEFINITION_EXPRESSION).map(e -> e.getText()).findFirst().get();
-        if(isNeedsToBeDeclared() && name.split("\\.").length == 2) {
+        if (isNeedsToBeDeclared() && name.split("\\.").length == 2) {
             name = name.substring("this.".length());
         }
         return name;
@@ -150,15 +140,15 @@ public class FirstOrderFunction {
 
     public String getDeclarationName() {
         String name = functionElement.$q(JS_DEFINITION_EXPRESSION).map(e -> e.getText()).findFirst().get();
-        return name.substring(name.lastIndexOf(".")+1);
+        return name.substring(name.lastIndexOf(".") + 1);
 
     }
 
     @NotNull
     public String getParametersAsStr() {
         return (parameterList == null || parameterList.isEmpty()) ? "" : parameterList.stream()
-                .map(functionParameter -> functionParameter.getVariableName()+":"+functionParameter.getVariableType())
-                .reduce((par1, par2) -> par1+","+par2).get();
+                .map(functionParameter -> functionParameter.getVariableName() + ":" + functionParameter.getVariableType())
+                .reduce((par1, par2) -> par1 + "," + par2).get();
     }
 
 }

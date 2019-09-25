@@ -46,6 +46,15 @@ import java.util.List;
  */
 @Getter
 public class SingleL18n {
+    private static final String KEY_PREFIX = "SINGLEL18N_";
+    static final String KEY_RB_ALL = KEY_PREFIX + "RB_ALL";
+    static final String KEY_RB_TS = KEY_PREFIX + "RB_TS";
+    static final String KEY_RB_JSON = KEY_PREFIX + "RB_JSON";
+    static final String KEY_SELECTED_FILE = KEY_PREFIX + "CB_SEL_FILE";
+    private static final String KEY_TXT_PREFIX = KEY_PREFIX + "TXT_PREFIX";
+    private static final String KEY_CB_TS_INTERNAT = KEY_PREFIX + "CB_TS_INTERNAT";
+    VisibilityRules visibilityRules;
+    PropertiesComponent props;
     private JPanel rootPanel;
     private JLabel lblL18nFile;
     private JComboBox cbL18NFile;
@@ -67,28 +76,10 @@ public class SingleL18n {
     private JCheckBox cbTsInternat;
     private JLabel lblPrefix;
     private JLabel lblTsInternat;
-
-
     private java.util.List<IntelliFileContextComboboxModelEntry> allFiles;
-
     private java.util.List<IntelliFileContextComboboxModelEntry> containingFiles;
 
-    VisibilityRules visibilityRules;
-
-    PropertiesComponent props;
-
-
-    private static final String KEY_PREFIX = "SINGLEL18N_";
-    private static final String KEY_TXT_PREFIX = KEY_PREFIX + "TXT_PREFIX";
-    private static final String KEY_CB_TS_INTERNAT = KEY_PREFIX + "CB_TS_INTERNAT";
-    static final String KEY_RB_ALL = KEY_PREFIX + "RB_ALL";
-    static final String KEY_RB_TS = KEY_PREFIX + "RB_TS";
-    static final String KEY_RB_JSON = KEY_PREFIX + "RB_JSON";
-    static final String KEY_SELECTED_FILE = KEY_PREFIX + "CB_SEL_FILE";
-
-
     public SingleL18n(Project project) {
-
 
         rbAll.addActionListener(ev -> switchToAllFiles());
         rbExists.addActionListener(ev -> switchToContainingFiles());
@@ -99,7 +90,6 @@ public class SingleL18n {
 
         //load the defaults
         props = PropertiesComponent.getInstance(project);
-
 
         restoreSettings();
         updateVisibility();
@@ -112,7 +102,6 @@ public class SingleL18n {
 
         String prefix = props.getValue(KEY_TXT_PREFIX);
         String internat = props.getValue(KEY_CB_TS_INTERNAT);
-
 
         if (Boolean.TRUE.toString().equals(rbAll)) {
             this.rbBoth.setSelected(true);
@@ -151,8 +140,6 @@ public class SingleL18n {
         });
     }
 
-
-
     public void switchToAllFiles() {
         cbL18NFile.setModel(new ListComboBoxModel<>(allFiles));
         rbAll.setSelected(true);
@@ -168,7 +155,6 @@ public class SingleL18n {
     private void valueChanged() {
         rbExists.setEnabled(containingFiles != null && !containingFiles.isEmpty());
     }
-
 
     public void setAllFiles(List<IntelliFileContextComboboxModelEntry> allFiles) {
         this.allFiles = allFiles;
@@ -195,14 +181,12 @@ public class SingleL18n {
 
     }
 
-
     private void updateVisibility() {
         lblPrefix.setVisible(visibilityRules.isShowPrefixLine());
         txtPrefix.setVisible(visibilityRules.isShowPrefixLine());
         lblTsInternat.setVisible(visibilityRules.isShowTSInternationalisation());
         cbTsInternat.setVisible(visibilityRules.isShowTSInternationalisation());
     }
-
 
     public boolean isMultiType() {
         return rbJSON.isVisible();
@@ -229,7 +213,6 @@ public class SingleL18n {
 //visibility rules
 @AllArgsConstructor
 class VisibilityRules {
-
     SingleL18n dataSource;
 
     boolean isShowTSInternationalisation() {
@@ -247,6 +230,5 @@ class VisibilityRules {
         boolean isBoth = dataSource.getRbBoth().isVisible() && dataSource.getRbBoth().isSelected();
         return isTsFile || (isBoth && dataSource.getCbTsInternat().isSelected());
     }
-
 
 }

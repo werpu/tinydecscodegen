@@ -24,7 +24,6 @@
 
 package net.werpu.tools.gui;
 
-
 import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;

@@ -56,19 +56,14 @@ import static net.werpu.tools.supportive.utils.IntellijUtils.convertToSearchable
 @Getter
 @Setter
 public class SearchableTree<V> {
-
+    DefaultMutableTreeNode lastSelectedNode;
+    TreePath[] lastSelectedPaths;
+    int[] selectionRows;
     private Tree tree = new Tree();
     private TreeSpeedSearch speedSearch;
     private ExpansionMonitor expansionMonitor;
-
     private TreeModel originalModel;
-
     private String label;
-
-    DefaultMutableTreeNode lastSelectedNode;
-    TreePath[] lastSelectedPaths;
-
-    int[] selectionRows;
 
     public SearchableTree() {
         expansionMonitor = new ExpansionMonitor(tree);
@@ -99,7 +94,6 @@ public class SearchableTree<V> {
         this.tree.addKeyListener(l);
     }
 
-
     public <T> void makeSearchable(ClickHandler<T, MouseEvent> cHandler) {
         if (this.getExpansionMonitor() != null) {
             this.getExpansionMonitor().restore();
@@ -116,7 +110,6 @@ public class SearchableTree<V> {
 
         buildTree(tree, label, treeBuilder);
 
-
         //restoreExpansion();
 
     }
@@ -132,7 +125,6 @@ public class SearchableTree<V> {
         originalModel = (originalModel != null) ? originalModel : tree.getModel();
 
         filterStr = Strings.nullToEmpty(filterStr);
-
 
         DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) originalModel.getRoot();
 
@@ -178,9 +170,8 @@ public class SearchableTree<V> {
         return newRootNode;
     }
 
-
     private void removeEmpties(DefaultMutableTreeNode source) {
-        Enumeration en =  source.depthFirstEnumeration();
+        Enumeration en = source.depthFirstEnumeration();
 
         int depth = source.getDepth();
         Set<DefaultMutableTreeNode> nodesToRemove = new ArrayListSet<>();
@@ -205,7 +196,6 @@ public class SearchableTree<V> {
 
     }
 
-
     private DefaultMutableTreeNode filteredClone(DefaultMutableTreeNode source, String pathFilter) {
         return cloneNodes(source, node -> {
             Object userObject = node.getUserObject();
@@ -217,7 +207,6 @@ public class SearchableTree<V> {
             return node.getChildCount() > 0;
         });
     }
-
 
     private void buildTree(Tree target, String label, Consumer<SwingRootParentNode> treeBuilder) {
         SwingRootParentNode rootNode = new SwingRootParentNode(label);
@@ -235,7 +224,6 @@ public class SearchableTree<V> {
         /*found this useful helper in the jetbrains intellij sources*/
 
         applyExpansionMonitor.accept(new ExpansionMonitor(tree));
-
 
         MouseController contextMenuListener = new MouseController(tree, cHandler);
         tree.addMouseListener(contextMenuListener);
@@ -257,7 +245,6 @@ public class SearchableTree<V> {
         tree.expandPath(pathForRow);
 
         tree.setSelectionPath(pathForRow);
-
 
         Rectangle r = tree.getPathBounds(pathForRow);
         if (selectionRows != null && selectionRows.length > 0 && r == null) {
@@ -286,7 +273,6 @@ public class SearchableTree<V> {
         }));
     }
 
-
     /**
      * registers the default behavior for click and double click
      *
@@ -304,7 +290,6 @@ public class SearchableTree<V> {
 
                     if (!e.isConsumed()) {
                         e.consume();
-
 
                         Object userObject = node.getUserObject();
                         if (!(userObject instanceof IAngularFileContext)) {
@@ -341,8 +326,6 @@ public class SearchableTree<V> {
                     if (!e.isConsumed()) {
                         e.consume();
 
-
-
                         if (e.getClickCount() < 2) {
                             singleClickAction.accept((T) node);
                             return;
@@ -367,6 +350,5 @@ public class SearchableTree<V> {
                 enter, altEnter, copy);
         this.addKeyListener(retVal);
     }
-
 
 }

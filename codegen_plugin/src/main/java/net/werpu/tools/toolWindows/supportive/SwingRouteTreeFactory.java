@@ -24,7 +24,6 @@
 
 package net.werpu.tools.toolWindows.supportive;
 
-
 import com.google.common.base.Strings;
 import net.werpu.tools.supportive.fs.common.*;
 
@@ -39,7 +38,6 @@ import java.util.stream.Collectors;
 import static net.werpu.tools.actions_all.shared.Labels.*;
 
 public class SwingRouteTreeFactory {
-
     /**
      * creates a rout tree node from a given route file context
      */
@@ -48,7 +46,7 @@ public class SwingRouteTreeFactory {
         DefaultMutableTreeNode treeNodes = new SwingRootParentNode(label);
 
         //lets make the tree Nodes
-        List<PsiRouteContext> sortedRoutes = (List<PsiRouteContext>) ctx.getRoutes().stream().sorted(Comparator.comparing(PsiRouteContext::getRoute)).collect(Collectors.toList());
+        List<PsiRouteContext> sortedRoutes = ctx.getRoutes().stream().sorted(Comparator.comparing(PsiRouteContext::getRoute)).collect(Collectors.toList());
 
         for (PsiRouteContext route : sortedRoutes) {
 
@@ -72,7 +70,6 @@ public class SwingRouteTreeFactory {
         return treeNodes;
     }
 
-
     public static DefaultMutableTreeNode createModulesTree(List<NgModuleFileContext> ctx, String label) {
         return createFlatTreeTree(ctx, label, (item) -> item.getModuleName());
     }
@@ -80,7 +77,6 @@ public class SwingRouteTreeFactory {
     public static DefaultMutableTreeNode createComponentsTree(List<ComponentFileContext> ctx, String label) {
         return createFlatTreeTree(ctx, label, (item) -> item.getDisplayName());
     }
-
 
     public static <T, R extends String> DefaultMutableTreeNode createFlatTreeTree(List<T> itemsTn, String label, Function<T, R> keyExtractor) {
 

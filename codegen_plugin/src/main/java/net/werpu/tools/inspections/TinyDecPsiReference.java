@@ -31,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class TinyDecPsiReference extends PsiReferenceBase<PsiElement> {
-
     public TinyDecPsiReference(@NotNull PsiElement element, TextRange rangeInElement, boolean soft) {
         super(element, rangeInElement, soft);
     }
@@ -47,7 +46,6 @@ public class TinyDecPsiReference extends PsiReferenceBase<PsiElement> {
     public TinyDecPsiReference(@NotNull PsiElement element) {
         super(element);
     }
-
 
     @Nullable
     @Override

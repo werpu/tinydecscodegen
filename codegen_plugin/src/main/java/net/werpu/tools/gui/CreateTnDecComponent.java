@@ -83,7 +83,6 @@ public class CreateTnDecComponent {
         }
     }
 
-
     public String getName() {
         return txtName.getText();
     }
@@ -95,7 +94,6 @@ public class CreateTnDecComponent {
     public String getControllerAs() {
         return txtControllerAs.getText();
     }
-
 
     /**
      * We have some special behavior like required fields and formatted inputs
@@ -113,8 +111,6 @@ public class CreateTnDecComponent {
         });
         txtControllerAs.setText("ctrl");
 
-
     }
-
 
 }

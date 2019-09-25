@@ -40,14 +40,9 @@ import java.util.stream.Collectors;
  * Intellij psi based spring rest service reflector class
  */
 public class IntellijSpringRestReflector {
-
-
-
-
     public static boolean isRestService(List<PsiClass> toReflect) {
         return toReflect.stream().filter(IntellijSpringRestReflector::isRestService).findFirst().isPresent();
     }
-
 
     public static List<RestService> reflectRestService(List<PsiClass> toReflect, boolean flattenResult, int returnValueNestingDepth) {
         return toReflect.stream()
@@ -59,11 +54,9 @@ public class IntellijSpringRestReflector {
                 }).collect(Collectors.toList());
     }
 
-
     private static boolean isRestService(PsiClass cls) {
         return PsiAnnotationUtils.isPresent(cls, RestController.class);
     }
-
 
     private static String fetchServiceUrl(PsiClass cls) {
 
@@ -93,7 +86,6 @@ public class IntellijSpringRestReflector {
                 .sorted(Comparator.comparing(RestMethod::getName))
                 .collect(Collectors.toList());
     }
-
 
     public static List<RestVar> getRestVars(PsiMethod m) {
         return Arrays.stream(m.getParameterList().getParameters())
@@ -125,7 +117,6 @@ public class IntellijSpringRestReflector {
                 .anyMatch(ann -> PsiAnnotationUtils.isPresent(ann, RequestMapping.class));
     }
 
-
     static RestMethod mapMethod(PsiMethod m, boolean flattenResult, int returnValueNestingDepth) {
         String name = m.getName();
         PsiAnnotation mapping = PsiAnnotationUtils.getAnn(m, RequestMapping.class);
@@ -134,17 +125,17 @@ public class IntellijSpringRestReflector {
         //TODO multiple methods possible
         String method = PsiAnnotationUtils.getAttr(mapping, "method");
         //TODO multiple consumes possible
-        if(method.contains(".")) {
-            method = method.substring(method.lastIndexOf(".")+1);
+        if (method.contains(".")) {
+            method = method.substring(method.lastIndexOf(".") + 1);
         }
 
-        String comment = m.getDocComment() != null ? m.getDocComment().getText(): "";
+        String comment = m.getDocComment() != null ? m.getDocComment().getText() : "";
         String consumes = PsiAnnotationUtils.getAttr(mapping, "consumes");
         List<RestVar> params = getRestVars(m);
 
         RestVar returnType = PsiAnnotationUtils.getRestReturnType(m, returnValueNestingDepth);
 
-        if(Strings.isNullOrEmpty(method)) {
+        if (Strings.isNullOrEmpty(method)) {
             method = RestType.GET.name();
         }
         return new RestMethod(path, name, RestType.valueOf(method.toUpperCase()), Optional.ofNullable(returnType), params, comment);

@@ -37,11 +37,9 @@ import java.util.function.Function;
 import static java.awt.Color.RED;
 
 public class RequiredListener implements DocumentListener {
-
     JTextComponent comp = null;
     Border defaultBorder = null;
     Border highlightBorder = BorderFactory.createLineBorder(RED);
-
     List<Function<Boolean, Boolean>> listeners = Lists.newLinkedList();
     String regexp;
 
@@ -85,7 +83,6 @@ public class RequiredListener implements DocumentListener {
             callListeners(false);
             return;
         }*/
-
 
         if (comp.getText().trim().length() > 0) {
             // if a field is nonempty, switch it to default look

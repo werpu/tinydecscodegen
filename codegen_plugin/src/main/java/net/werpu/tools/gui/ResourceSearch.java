@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Vector;
 
 class RoTableModel extends DefaultTableModel {
-
     public RoTableModel() {
         super();
     }
@@ -92,7 +91,6 @@ public class ResourceSearch {
 
     public ResourceSearch() {
 
-
     }
 
     public void setupTable() {
@@ -129,7 +127,7 @@ public class ResourceSearch {
         JTextArea txtSearch2 = new JTextArea();
         txtSearch2.setColumns(25);
         txtSearch2.setRows(1);
-        txtSearch = new SearchTextArea((JTextArea) txtSearch2, true, false);
+        txtSearch = new SearchTextArea(txtSearch2, true, false);
         txtSearch.setMultilineEnabled(false);
     }
 

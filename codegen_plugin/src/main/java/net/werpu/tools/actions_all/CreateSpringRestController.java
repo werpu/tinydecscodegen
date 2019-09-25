@@ -61,8 +61,6 @@ import java.util.stream.Collectors;
 import static net.werpu.tools.actions_all.shared.FormAssertions.assertNotNullOrEmpty;
 
 public class CreateSpringRestController extends AnAction {
-
-
     @Override
     public void update(AnActionEvent event) {
 
@@ -76,7 +74,6 @@ public class CreateSpringRestController extends AnAction {
 
         VirtualFile srcRoot = ProjectFileIndex.getInstance(project).getSourceRootForFile(folder);
 
-
         //PsiDirectory dir = PsiDirectoryFactory.getInstance(project).createDirectory(srcRoot);
         //boolean isJavaSourceRoot = dir.getContext() instanceof PsiJavaDirectoryImpl;
 
@@ -89,7 +86,6 @@ public class CreateSpringRestController extends AnAction {
         VirtualFile folder = IntellijUtils.getFolderOrFile(event);
         IntellijFileContext ctx = new IntellijFileContext(project, folder);
 
-
         VirtualFile srcRoot = ProjectFileIndex.getInstance(project).getSourceRootForFile(folder);
         if (srcRoot != null) {//we are in a source root
 
@@ -97,7 +93,6 @@ public class CreateSpringRestController extends AnAction {
 
             restore(mainForm);
             DialogWrapper dialogWrapper = new DialogWrapper(project, true, DialogWrapper.IdeModalityType.PROJECT) {
-
                 @Nullable
                 @Override
                 protected JComponent createCenterPanel() {
@@ -110,7 +105,6 @@ public class CreateSpringRestController extends AnAction {
                     return "AnnComponent";
                 }
 
-
                 @Nullable
                 @NotNull
                 protected List<ValidationInfo> doValidateAll() {
@@ -118,7 +112,6 @@ public class CreateSpringRestController extends AnAction {
                             assertNotNullOrEmpty(mainForm.getTxtServiceName().getText(), Messages.ERR_NAME_VALUE, mainForm.getTxtServiceName())
                     ).stream().filter(s -> s != null).collect(Collectors.toList());
                 }
-
 
                 @Override
                 public void init() {
@@ -174,7 +167,6 @@ public class CreateSpringRestController extends AnAction {
 
     }
 
-
     public void apply(CreateRestController mainForm) {
         TinyDecsConfiguration state = ConfigSerializer.getInstance().getState();
         state.setNgRest(mainForm.getCbNg().isSelected());
@@ -191,19 +183,16 @@ public class CreateSpringRestController extends AnAction {
         mainForm.getCbCalcRest().setSelected(state.isCalcRestService());
     }
 
-
     void buildFile(Project project, VirtualFile folder, String className, Map<String, Object> attrs, AnActionEvent event) {
 
         WriteCommandAction.runWriteCommandAction(project, () -> {
 
             FileTemplate vslTemplate = FileTemplateManager.getInstance(project).getJ2eeTemplate(TnDecGroupFactory.TPL_SPRING_REST);
 
-
             generate(project, folder, className, vslTemplate, attrs);
             net.werpu.tools.supportive.utils.IntellijUtils.showInfoMessage("The Rest Controller has been generated", "Info");
 
         });
-
 
     }
 

@@ -42,7 +42,6 @@ public class Refactoring {
     private JRadioButton rbNg;
     private JCheckBox cbBootstrap;
 
-
     public String getNewText() {
         return Strings.nullToEmpty(txtNewText.getText());
     }
@@ -50,24 +49,23 @@ public class Refactoring {
     /**
      * selection listeners to handle real time text display
      */
-    public void onbNgSelected( Runnable r) {
+    public void onbNgSelected(Runnable r) {
         rbNg.addItemListener((ItemEvent e) -> {
-            if(e.getStateChange() == ItemEvent.SELECTED) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
                 r.run();
             }
         });
     }
 
-    public void onTnDecSelected( Runnable r) {
+    public void onTnDecSelected(Runnable r) {
         rbTnDec.addItemListener((ItemEvent e) -> {
-            if(e.getStateChange() == ItemEvent.SELECTED) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
                 r.run();
             }
         });
     }
 
-
-    public void onStartupModuleChange( Consumer<Boolean> startupListener) {
-        cbBootstrap.addItemListener(e  -> startupListener.accept(e.getStateChange() == ItemEvent.SELECTED ));
+    public void onStartupModuleChange(Consumer<Boolean> startupListener) {
+        cbBootstrap.addItemListener(e -> startupListener.accept(e.getStateChange() == ItemEvent.SELECTED));
     }
 }

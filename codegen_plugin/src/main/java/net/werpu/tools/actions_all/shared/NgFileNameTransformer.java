@@ -24,14 +24,12 @@
 
 package net.werpu.tools.actions_all.shared;
 
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.werpu.tools.supportive.utils.IntellijUtils.getTsExtension;
 
 public class NgFileNameTransformer implements FileNameTransformer {
-
     private String postfix;
 
     public NgFileNameTransformer(String postfix) {
@@ -49,7 +47,7 @@ public class NgFileNameTransformer implements FileNameTransformer {
         boolean first = true;
         while (matcher.find()) {
             String replacement = matcher.group(1);
-            builder.append(className.substring(i, matcher.start()));
+            builder.append(className, i, matcher.start());
             if (first) {
                 first = false;
                 builder.append(replacement);
@@ -59,7 +57,7 @@ public class NgFileNameTransformer implements FileNameTransformer {
 
             i = matcher.end();
         }
-        builder.append(className.substring(i, className.length()));
+        builder.append(className.substring(i));
 
         return builder.toString().toLowerCase() + "." + postfix + getTsExtension();
     }

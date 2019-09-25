@@ -36,31 +36,28 @@ import net.werpu.tools.supportive.transformations.shared.ITransformationModel;
 /**
  * A transformation which applies to  a typescript transformation
  * a typescript transformation usually is
- *
- * <p />
+ * <p>
+ * <p/>
  * &lt;prefix&gt;.&lt;key&gt;
- * <p />
- *
+ * <p/>
+ * <p>
  * the prefix pretty much in all cases is the controller name (angularjs only)
  * and some kind of injected key hosting service/variable
  */
 @Getter
 @AllArgsConstructor
 public class I18NTypescriptTransformation implements IArtifactTransformation {
-
     private final I18NTransformationModel model;
-
     private final String prefix;
     private final String finalKey;
     private final String finalText;
 
-
     @Override
     public String getTnDecTransformation() {
-        switch(model.getParsingType()) {
+        switch (model.getParsingType()) {
             case TEXT:
             case STRING_WITH_TRANSLATE:
-                return "{{::"+ getCummulatedKey() +"}}";
+                return "{{::" + getCummulatedKey() + "}}";
             default:
                 return getCummulatedKey();
 
@@ -69,9 +66,9 @@ public class I18NTypescriptTransformation implements IArtifactTransformation {
 
     @Override
     public String getNgTransformation() {
-        switch(model.getParsingType()) {
+        switch (model.getParsingType()) {
             case TEXT:
-                return "{{"+ getCummulatedKey() +"}}";
+                return "{{" + getCummulatedKey() + "}}";
             default:
                 return getCummulatedKey();
 
@@ -79,16 +76,15 @@ public class I18NTypescriptTransformation implements IArtifactTransformation {
     }
 
     public String getCummulatedKey() {
-        return (!Strings.isNullOrEmpty(prefix)) ? prefix+"."+finalKey : finalKey;
+        return (!Strings.isNullOrEmpty(prefix)) ? prefix + "." + finalKey : finalKey;
     }
 
-
     public IRefactorUnit getTnDecRefactoring() {
-        return new RefactorUnit(model.getFileContext().getPsiFile(), new DummyReplacePsiElement(model.getFrom(), model.getTo()-model.getFrom()), getTnDecTransformation());
+        return new RefactorUnit(model.getFileContext().getPsiFile(), new DummyReplacePsiElement(model.getFrom(), model.getTo() - model.getFrom()), getTnDecTransformation());
     }
 
     public IRefactorUnit getNgRefactoring() {
-        return new RefactorUnit(model.getFileContext().getPsiFile(), new DummyReplacePsiElement(model.getFrom(), model.getTo()-model.getFrom()), getNgTransformation());
+        return new RefactorUnit(model.getFileContext().getPsiFile(), new DummyReplacePsiElement(model.getFrom(), model.getTo() - model.getFrom()), getNgTransformation());
     }
 
     @Override

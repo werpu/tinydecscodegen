@@ -24,7 +24,6 @@
 
 package net.werpu.tools.factories;
 
-
 import com.intellij.codeInsight.template.TemplateContextType;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;

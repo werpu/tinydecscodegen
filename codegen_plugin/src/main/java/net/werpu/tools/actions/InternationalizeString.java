@@ -84,10 +84,9 @@ class DialogHolder {
 /**
  * Action for single string interationalization
  * <p>
-/TODO json only case
+ * /TODO json only case
  */
 public class InternationalizeString extends AnAction {
-
     public InternationalizeString() {
     }
 
@@ -99,7 +98,6 @@ public class InternationalizeString extends AnAction {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
-
 
         try {
             IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
@@ -169,7 +167,6 @@ public class InternationalizeString extends AnAction {
                             oDialog.setODialog(new OverwriteNewDialog());
                             OverwriteNewDialogWrapper oDlgWrapper = new OverwriteNewDialogWrapper(e.getProject(), oDialog.getODialog());
 
-
                             oDlgWrapper.pack();
                             oDlgWrapper.show();
                             return oDialog.getODialog().isNewEntryOutcome() || oDialog.getODialog().isOverwriteOutcome();
@@ -194,7 +191,6 @@ public class InternationalizeString extends AnAction {
 
         });
 
-
         //no l18n file exists,
         if (possibleL18nFiles.isEmpty()) {
             //no i18n file found we make a dialog prompt to create one
@@ -202,11 +198,9 @@ public class InternationalizeString extends AnAction {
             descriptor.setTitle("Select i18n target directory");
             descriptor.setDescription("Please choose a target directory for your internationalization file");
 
-
             selectOrCreateI18nFile(project, possibleL18nFiles, descriptor);
 
         }
-
 
         //next part, we check whether the string already exists in one of the files
         //first we have to fetch the value of our parsed element
@@ -226,7 +220,6 @@ public class InternationalizeString extends AnAction {
             applyFileName(mainForm, selectedItem);
         });
 
-
         if (!alreadyExistsIn.isEmpty()) {
             mainForm.switchToContainingFiles();
             applyKey(mainForm, alreadyExistsIn.get(0), model);
@@ -235,7 +228,6 @@ public class InternationalizeString extends AnAction {
             applyKey(mainForm, possibleL18nFiles.get(0), model);
             applyFileName(mainForm, possibleL18nFiles.get(0));
         }
-
 
         mainForm.getTxtText().setText(model.getValue());
 
@@ -266,7 +258,6 @@ public class InternationalizeString extends AnAction {
             }
 
             boolean isMultiType = mainForm.isMultiType();
-
 
             boolean noConflict = oDialog.getODialog() == null;
             boolean conflictOverwrite = oDialog.getODialog() != null && oDialog.getODialog().isOverwriteOutcome();
@@ -299,7 +290,6 @@ public class InternationalizeString extends AnAction {
         }
 
     }
-
 
     @NotNull
     public List<IntelliFileContextComboboxModelEntry> createComboboxEntries(Project project) {
@@ -367,7 +357,6 @@ public class InternationalizeString extends AnAction {
         }
     }
 
-
     @Nullable
     public IntellijFileContext alternativeFileExists(Project project, VirtualFile i18nFile) {
 
@@ -396,7 +385,6 @@ public class InternationalizeString extends AnAction {
             cnt++;
         }
     }
-
 
     /**
      * case 2 overwrite the internationalization value with the new one
@@ -436,7 +424,7 @@ public class InternationalizeString extends AnAction {
             mainForm, Document document, IntelliFileContextComboboxModelEntry l18nFile) throws IOException {
 
         String key = (String) mainForm.getCbL18nKey().getSelectedItem();
-        String prefix = (String) mainForm.getTxtPrefix().getText();
+        String prefix = mainForm.getTxtPrefix().getText();
         boolean typescriptReplacement = mainForm.isTypescriptReplacement();
         final String originalKey = key;
         Optional<PsiElementContext> foundValue = l18nFile.getValue().getValue(key);
@@ -468,7 +456,6 @@ public class InternationalizeString extends AnAction {
         }
     }
 
-
     /**
      * case 1, normal replacement in text editor
      * and or
@@ -476,9 +463,8 @@ public class InternationalizeString extends AnAction {
     public void invokeNormalReplacement(IntellijFileContext fileContext, I18NTransformationModel model, SingleL18n
             mainForm, Document document, IntelliFileContextComboboxModelEntry l18nFile) throws IOException {
 
-
         String finalKey = (String) mainForm.getCbL18nKey().getSelectedItem();
-        String prefix = (String) mainForm.getTxtPrefix().getText();
+        String prefix = mainForm.getTxtPrefix().getText();
         boolean typescriptReplacement = mainForm.isTypescriptReplacement();
         Optional<PsiElementContext> foundItem = l18nFile.getValue().getValue(finalKey);
 
@@ -489,7 +475,6 @@ public class InternationalizeString extends AnAction {
 
         //fetch the key if it is there and then just ignore any changes on the target file and simply insert the key
         //in the editor
-
 
         I18NTransformationModel cloned = model.cloneWithNewKey(finalKey);
         I18NFileContext tsFile = l18nFile.getTsFile().orElse(null);
@@ -521,7 +506,6 @@ public class InternationalizeString extends AnAction {
     public void addReplaceL18NConfig(I18NTransformationModel transformationModel, I18NFileContext i18nFile, Optional<PsiElementContext> i18nValue) throws IOException {
         if (!i18nValue.isPresent()) {
 
-
             if (IntellijUtils.isJSON(i18nFile.getVirtualFile().getFileType())) {
                 I18NJsonDeclFileTransformation transformation = new I18NJsonDeclFileTransformation(i18nFile, transformationModel.getKey(), transformationModel.getValue());
                 i18nFile.addRefactoring((RefactorUnit) transformation.getTnDecRefactoring());
@@ -535,7 +519,6 @@ public class InternationalizeString extends AnAction {
         }
     }
 
-
     public void updateShadowEditor(I18NTransformationModel transformationModel, Document document) {
         //in case of an open template we need to update the template text in the editor
         if (transformationModel.getFileContext().getPsiFile().getVirtualFile().getPath().substring(1).startsWith(TEMPLATE_OF)) {
@@ -545,13 +528,13 @@ public class InternationalizeString extends AnAction {
 
     public void replaceTextWithKey(SingleL18n uiForm, I18NTransformationModel transformationModel, IntelliFileContextComboboxModelEntry i18nFile, boolean typescriptReplacement, String prefix, String finalKey) throws IOException {
 
-        if(!typescriptReplacement) {
-            I18NAngularTranslateTransformation transformation =  new I18NAngularTranslateTransformation(transformationModel, finalKey, uiForm.getTxtText().getText());
+        if (!typescriptReplacement) {
+            I18NAngularTranslateTransformation transformation = new I18NAngularTranslateTransformation(transformationModel, finalKey, uiForm.getTxtText().getText());
             transformationModel.getFileContext().refactorContent(Arrays.asList(transformation.getTnDecRefactoring()));
             transformationModel.getFileContext().commit();
         } else {
 
-            I18NTypescriptTransformation transformation =  new I18NTypescriptTransformation(transformationModel, prefix, finalKey, uiForm.getTxtText().getText());
+            I18NTypescriptTransformation transformation = new I18NTypescriptTransformation(transformationModel, prefix, finalKey, uiForm.getTxtText().getText());
             transformationModel.getFileContext().refactorContent(Arrays.asList(transformation.getTnDecRefactoring()));
             transformationModel.getFileContext().commit();
         }
@@ -609,8 +592,8 @@ public class InternationalizeString extends AnAction {
 
         public FileTypeGrouper invoke() {
 
-            boolean isJson = affectedFile != null ? IntellijUtils.isJSON(affectedFile.getPsiFile().getFileType()) : true;
-            boolean isTS = affectedFile != null ? IntellijUtils.isTypescript(affectedFile.getPsiFile().getFileType()) : true;
+            boolean isJson = affectedFile == null || IntellijUtils.isJSON(affectedFile.getPsiFile().getFileType());
+            boolean isTS = affectedFile == null || IntellijUtils.isTypescript(affectedFile.getPsiFile().getFileType());
 
             if (isOverlapping(lastJSonFile, lastTsFile)) {
                 retVal.add(new IntelliFileContextComboboxModelEntry(lastJSonFile, lastTsFile));

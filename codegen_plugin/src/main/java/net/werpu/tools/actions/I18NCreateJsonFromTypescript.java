@@ -38,8 +38,7 @@ import static net.werpu.tools.actions_all.shared.VisibleAssertions.assertNotTs;
 import static net.werpu.tools.supportive.utils.IntellijUtils.getFolderOrFile;
 import static net.werpu.tools.supportive.utils.IntellijUtils.getJsonLanguageDef;
 
-public class I18NCreateJsonFromTypescript  extends I18NCreateTypescriptFromJSon {
-
+public class I18NCreateJsonFromTypescript extends I18NCreateTypescriptFromJSon {
     @Override
     public void update(AnActionEvent anActionEvent) {
 
@@ -52,7 +51,7 @@ public class I18NCreateJsonFromTypescript  extends I18NCreateTypescriptFromJSon 
             return;
         }
 
-        Optional<IntellijFileContext> found =  I18NIndexer.getAllAffectedFiles(anActionEvent.getProject())
+        Optional<IntellijFileContext> found = I18NIndexer.getAllAffectedFiles(anActionEvent.getProject())
                 .stream().filter(fileContext -> normalize(fileContext).equals(normalize(ctx))).findFirst();
         anActionEvent.getPresentation().setEnabledAndVisible(found.isPresent());
     }
@@ -63,7 +62,6 @@ public class I18NCreateJsonFromTypescript  extends I18NCreateTypescriptFromJSon 
         path = path.substring(0, path.lastIndexOf("."));
         return path;
     }
-
 
     public Language getLanguageDef() {
         return getJsonLanguageDef();
@@ -78,6 +76,5 @@ public class I18NCreateJsonFromTypescript  extends I18NCreateTypescriptFromJSon 
     public String calculateFileName(IntellijFileContext ctx) {
         return ctx.getVirtualFile().getName().replaceAll("\\.ts$", ".json");
     }
-
 
 }

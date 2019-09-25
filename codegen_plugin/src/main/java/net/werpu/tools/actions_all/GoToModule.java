@@ -39,7 +39,6 @@ import static net.werpu.tools.supportive.reflectRefact.IntellijRefactor.NG_MODUL
  * Got to the parent module definition navigational handler
  */
 public class GoToModule extends AnAction {
-
     public void update(AnActionEvent anActionEvent) {
         VisibleAssertions.tsOnlyVisible(anActionEvent);
     }

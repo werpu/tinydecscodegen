@@ -26,7 +26,6 @@ package net.werpu.tools.actions_all.shared;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.compiler.CompileContext;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
@@ -57,27 +56,19 @@ import java.util.regex.Pattern;
  * If the data needed is found it is handed over
  * to the processing engine.
  */
-
 @CustomLog
 public class JavaFileContext {
-
     public static final String REF_DATA = "@ref:\\s([^\n\\s]+).*\n";
-
     @Getter
     private boolean error;
-
     @Getter
     private Module module;
-
     @Getter
     private String className;
-
     @Getter
     private PsiFile javaFile;
-
     @Getter
     private AnActionEvent event;
-
     @Getter
     private Project project;
 
@@ -137,7 +128,7 @@ public class JavaFileContext {
         module = IntellijUtils.getModuleFromEditor(project, editor);
         className = IntellijUtils.getClassNameFromEditor(project, editor);
         VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
-        javaFile = (PsiJavaFile) PsiManager.getInstance(project).findFile(vFile);
+        javaFile = PsiManager.getInstance(project).findFile(vFile);
         error = false;
         return this;
     }

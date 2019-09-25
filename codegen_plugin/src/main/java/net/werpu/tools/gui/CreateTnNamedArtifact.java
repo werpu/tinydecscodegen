@@ -53,7 +53,6 @@ public class CreateTnNamedArtifact {
     private JScrollPane textAreaPane;
     private JTextArea template;
 
-
     public CreateTnNamedArtifact(String title) {
 
         titlePane.setText(title);
@@ -71,9 +70,7 @@ public class CreateTnNamedArtifact {
             System.out.println(evt.getPropertyName());
         });
 
-
         btnEditTemplate.setBorderPainted(false);
-
 
         btnEditTemplate.addActionListener(e -> {
             textAreaPane.setVisible(!textAreaPane.isVisible());
@@ -123,7 +120,6 @@ public class CreateTnNamedArtifact {
         }*/
     }
 
-
     public void onOk(Function<ComponentJson, Boolean> okFunc) {
         this.okFunc = okFunc;
     }
@@ -132,15 +128,12 @@ public class CreateTnNamedArtifact {
         this.cancelFunc = cancelFunc;
     }
 
-
     public void initDefault(Window window) {
         SwingUtilities.getRootPane(window).setDefaultButton(okButton);
     }
 
-
     public void setTitle(String title) {
         this.titlePane.setText(title);
     }
-
 
 }

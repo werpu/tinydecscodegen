@@ -53,10 +53,8 @@ import static net.werpu.tools.supportive.utils.IntellijUtils.*;
 /**
  * json->typescript i18n conversion (we will add a refactoring for the templates later
  * for now it is just a simple conversion)
- *
  */
 public class I18NCreateTypescriptFromJSon extends AnAction {
-
     @Override
     public void update(AnActionEvent anActionEvent) {
 
@@ -64,13 +62,12 @@ public class I18NCreateTypescriptFromJSon extends AnAction {
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
 
         if (getFolderOrFile(anActionEvent) == null ||
-                ctx.getVirtualFile().isDirectory() || assertNotJson(ctx) ) {
+                ctx.getVirtualFile().isDirectory() || assertNotJson(ctx)) {
             anActionEvent.getPresentation().setEnabledAndVisible(false);
             return;
         }
 
-
-        Optional<IntellijFileContext> found =  I18NIndexer.getAllAffectedFiles(anActionEvent.getProject())
+        Optional<IntellijFileContext> found = I18NIndexer.getAllAffectedFiles(anActionEvent.getProject())
                 .parallelStream().filter(fileContext -> fileContext.getVirtualFile().getPath().equals(ctx.getVirtualFile().getPath())).findFirst();
         anActionEvent.getPresentation().setEnabledAndVisible(found.isPresent());
     }
@@ -98,7 +95,7 @@ public class I18NCreateTypescriptFromJSon extends AnAction {
         try {
             String vslTemplateText = vslTemplate.getText();
             String mergedContent = FileTemplateUtil.mergeTemplate(attrs, vslTemplateText, false);
-            PsiFile file = createRamFileFromText(ctx.getProject(),ctx.getVirtualFile().getName(), mergedContent, getLanguageDef());
+            PsiFile file = createRamFileFromText(ctx.getProject(), ctx.getVirtualFile().getName(), mergedContent, getLanguageDef());
             writeTransaction(ctx.getProject(), () -> {
                 PsiElement reformatted = CodeStyleManager.getInstance(ctx.getProject()).reformat(file.getOriginalElement().getChildren()[0]);
                 diffOrWriteGenericFile(ctx.getProject(), ctx.getVirtualFile().getParent(), newFileName, reformatted.getText(), getLanguageDef());

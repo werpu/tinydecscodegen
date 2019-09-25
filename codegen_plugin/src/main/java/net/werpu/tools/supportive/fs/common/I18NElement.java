@@ -24,7 +24,6 @@
 
 package net.werpu.tools.supportive.fs.common;
 
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.EqualsAndHashCode;
@@ -32,29 +31,24 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
-
 
 /**
  * Model representation of an L18N Tree
  * it either is a key->string value pair or a key -> L18nSubtree
  * key value pair
  */
-
 @Getter
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class I18NElement {
-
     @EqualsAndHashCode.Exclude
     private final I18NElement parent;
-
     private final String key;
-
     @EqualsAndHashCode.Exclude
     private final String stringValue;
-
     @EqualsAndHashCode.Exclude
     @NotNull
     List<I18NElement> subElements = new ArrayList<>();
@@ -63,16 +57,16 @@ public class I18NElement {
         List<String> keys = new ArrayList<>();
         keys.add(key);
         I18NElement par = parent;
-        while(par != null) {
+        while (par != null) {
             String parKey = Strings.nullToEmpty(par.getKey());
-            if(parKey != null && !parKey.equals("_root_")) { //root element no key there
+            if (parKey != null && !parKey.equals("_root_")) { //root element no key there
                 keys.add(parKey);
             }
             par = par.getParent();
         }
         keys = Lists.reverse(keys);
         return keys.stream()
-                .collect( Collectors.joining( "." ));
+                .collect(Collectors.joining("."));
     }
 
 }

@@ -48,19 +48,14 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
  * indexing the position of all angular subprojects
  */
 public class AngularIndex extends ScalarIndexExtension<String> {
-
     public static final ID<String, Void> NAME = ID.create("TNNG_AngularIndex");
     public static final String TN_MARKER = "\"@types/angular\"";
     public static final String NG_MARKER = "\"@angular/core\"";
-
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 
     public static boolean isAngularVersion(IntellijFileContext file, AngularVersion angularVersion) {
         List<IntellijFileContext> angularRoots = getAllAffectedRoots(file.getProject(), angularVersion);
-        if (angularRoots.isEmpty()) {
-            return false;
-        }
-        return true;
+        return !angularRoots.isEmpty();
         //return angularRoots.stream().filter(angularRoot -> angularRoot.isBelow(file)).findFirst().isPresent();
     }
 
@@ -88,9 +83,9 @@ public class AngularIndex extends ScalarIndexExtension<String> {
     public static boolean isAngularVersion(AngularVersion angularVersion, PsiFile psiFile) {
         String fileName = psiFile != null ? psiFile.getName() : null;
         return psiFile != null &&
-                    ((angularVersion == AngularVersion.NG ? fileName.equals(NG_PRJ_MARKER) : false)
-                ||  (angularVersion == AngularVersion.TN_DEC ? fileName.equals(TN_DEC_PRJ_MARKER) : false)
-                ||  psiFile.getText().contains((angularVersion == AngularVersion.NG ? NG_MARKER : TN_MARKER)));
+                ((angularVersion == AngularVersion.NG && fileName.equals(NG_PRJ_MARKER))
+                        || (angularVersion == AngularVersion.TN_DEC && fileName.equals(TN_DEC_PRJ_MARKER))
+                        || psiFile.getText().contains((angularVersion == AngularVersion.NG ? NG_MARKER : TN_MARKER)));
     }
 
     @NotNull
@@ -135,18 +130,20 @@ public class AngularIndex extends ScalarIndexExtension<String> {
     }
 
     private static class MyDataIndexer implements DataIndexer<String, Void, FileContent> {
-
+        public static boolean isMarkerFile(String fileName) {
+            return fileName.equals(TN_DEC_PRJ_MARKER) || fileName.equals(NG_PRJ_MARKER);
+        }
 
         @Override
         @NotNull
         public Map<String, Void> map(@NotNull final FileContent inputData) {
             String fileName = inputData.getFile().getName();
 
-            if(inputData.getFile().getPath().contains("node_modules")) {
+            if (inputData.getFile().getPath().contains("node_modules")) {
                 return Collections.emptyMap();
             }
-            if (    (!standardSimpleFileExclusion(inputData)) && (
-                    isMarkerFile(fileName) || isNpmProjectDef(inputData, fileName)))  {
+            if ((!standardSimpleFileExclusion(inputData)) && (
+                    isMarkerFile(fileName) || isNpmProjectDef(inputData, fileName))) {
                 return Collections.singletonMap(NPM_ROOT, null);
             }
 
@@ -155,7 +152,7 @@ public class AngularIndex extends ScalarIndexExtension<String> {
 
         public boolean isNpmProjectDef(@NotNull FileContent inputData, String fileName) {
             return fileName.equals(NPM_ROOT)
-            &&
+                    &&
                     isEmbbededInPackageJson(inputData);
         }
 
@@ -163,11 +160,6 @@ public class AngularIndex extends ScalarIndexExtension<String> {
             return inputData.getPsiFile().getText().contains(NG_MARKER) ||
                     inputData.getPsiFile().getText().contains(TN_MARKER);
         }
-
-        public static boolean isMarkerFile(String fileName) {
-            return fileName.equals(TN_DEC_PRJ_MARKER) || fileName.equals(NG_PRJ_MARKER);
-        }
     }
-
 
 }

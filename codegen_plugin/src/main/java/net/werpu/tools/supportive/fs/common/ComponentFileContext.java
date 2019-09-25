@@ -24,7 +24,6 @@
 
 package net.werpu.tools.supportive.fs.common;
 
-
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Document;
@@ -54,18 +53,14 @@ import static net.werpu.tools.supportive.utils.IntellijUtils.getTsExtension;
  * ATM only one component def per file is possible
  */
 public class ComponentFileContext extends AngularResourceContext {
-
     @Getter
     Optional<PsiElement> templateText;
     @Getter
     Optional<RangeMarker> rangeMarker;
     @Getter
     Optional<TemplateFileContext> templateRef;
-
     private PsiElement componentAnnotation;
-
     private AssociativeArraySection params;
-
 
     public ComponentFileContext(Project project, PsiFile psiFile) {
         super(project, psiFile);
@@ -93,11 +88,50 @@ public class ComponentFileContext extends AngularResourceContext {
 
     }
 
+    public static Optional<TemplateFileContext> getTemplateRef(TypescriptFileContext root, PsiElement template) {
+        PsiElementContext psiElementContext = new PsiElementContext(template);
+        Optional<PsiElementContext> templateRef = psiElementContext.$q(JS_REFERENCE_EXPRESSION).findFirst();
 
+        if (templateRef.isPresent()) {
+            final String templateVarName = templateRef.get().getUnquotedText();
+            //now lets find the imports
+            Optional<PsiElement> psiImportString = findImportString(root, templateVarName);
 
+            if (!psiImportString.isPresent()) {
+                return empty();
+            }
+            String importstr = psiImportString.get().getText().trim();
+            importstr = importstr.substring(1, importstr.length() - 1);
+            if (!importstr.endsWith(getTsExtension())) {
+                importstr = importstr + getTsExtension();
+            }
+
+            //now we have an import string lets open a file on that one
+            TemplateFileContext ref = new TemplateFileContext(templateVarName, root.getProject(), root.getVirtualFile().getParent().findFileByRelativePath(importstr));
+            if (!ref.getVirtualFile().exists()) {
+                return empty();
+            }
+
+            return Optional.of(ref);
+        }
+        return empty();
+    }
+
+    public static List<ComponentFileContext> getInstances(IntellijFileContext fileContext) {
+        return fileContext.$q(COMPONENT_CLASS)
+                .map(el -> new ComponentFileContext(fileContext, el.getElement()))
+                .collect(Collectors.toList());
+
+    }
+
+    public static List<ComponentFileContext> getControllerInstances(IntellijFileContext fileContext) {
+        return fileContext.$q(CONTROLLER_CLASS)
+                .map(el -> new ComponentFileContext(fileContext, el.getElement()))
+                .collect(Collectors.toList());
+    }
 
     public String getDisplayName() {
-        return this.getClazzName() + ((getParentModule() == null) ? "" : " <" +ComponentFileGist.getFileData(psiFile).getTagName()+ "/> [" + getParentModule().getModuleName() + "]");
+        return this.getClazzName() + ((getParentModule() == null) ? "" : " <" + ComponentFileGist.getFileData(psiFile).getTagName() + "/> [" + getParentModule().getModuleName() + "]");
     }
 
     @Override
@@ -105,9 +139,8 @@ public class ComponentFileContext extends AngularResourceContext {
         return getArtifactName();
     }
 
-
     private RangeMarker replaceText(Document doc, RangeMarker marker, String newText, String quot) {
-        newText = quot+ newText+ quot;
+        newText = quot + newText + quot;
         doc.replaceString(marker.getStartOffset(), marker.getEndOffset(), newText);
 
         return doc.createRangeMarker(marker.getStartOffset(), marker.getStartOffset() + newText.length());
@@ -138,9 +171,7 @@ public class ComponentFileContext extends AngularResourceContext {
     protected void postConstruct() {
         super.postConstruct();
 
-         ComponentFileGist.init();
-
-
+        ComponentFileGist.init();
 
         if (templateText == null) {
             this.templateText = empty();
@@ -152,7 +183,7 @@ public class ComponentFileContext extends AngularResourceContext {
             this.rangeMarker = empty();
         }
         Optional<PsiElement> template = getTemplate();
-        if(!template.isPresent()) {
+        if (!template.isPresent()) {
             template = getTemplateURL();
         }
 
@@ -169,7 +200,7 @@ public class ComponentFileContext extends AngularResourceContext {
                 this.rangeMarker = Optional.of(getDocument().createRangeMarker(templateString.get().getTextRange()));
             } else {
                 templateRef = getTemplateRef(this, template.get());
-                if(!templateRef.isPresent()) {
+                if (!templateRef.isPresent()) {
                     templateRef = getTemplateHtmlRef(template.get());
                 }
             }
@@ -179,7 +210,6 @@ public class ComponentFileContext extends AngularResourceContext {
 
     }
 
-
     private Optional<PsiElement> getTemplate() {
         return ComponentFileGist.getTemplate(psiFile, componentAnnotation);
     }
@@ -188,16 +218,15 @@ public class ComponentFileContext extends AngularResourceContext {
         return ComponentFileGist.getTemplateURL(psiFile, componentAnnotation);
     }
 
-
     public Optional<String> getTemplateTextAsStr() {
 
         Optional<PsiElement> template = getTemplate();
-        if(!template.isPresent()) {
+        if (!template.isPresent()) {
             template = getTemplateURL();
         }
         if (template.isPresent()) {
             Optional<PsiElement> templateString = new PsiElementContext(template.get()).$q(JS_STRING_TEMPLATE_EXPRESSION)
-                    .map(el-> el.getElement()).findFirst();
+                    .map(el -> el.getElement()).findFirst();
 
             if (templateString.isPresent()) {
                 this.templateText = templateString;
@@ -206,50 +235,17 @@ public class ComponentFileContext extends AngularResourceContext {
             } else {
                 templateRef = getTemplateRef(this, template.get());
 
-
                 if (templateRef.isPresent()) {
                     String templateRefText = this.templateRef.get().getTemplateTextAsStr().get();
                     return Optional.ofNullable(templateRefText.substring(1, templateRefText.length() - 1));
                 } else {
                     templateRef = getTemplateHtmlRef(template.get());
-                    if(templateRef.isPresent()) {
+                    if (templateRef.isPresent()) {
                         String templateRefText = this.templateRef.get().getTemplateTextAsStr().get();
                         return Optional.ofNullable(templateRefText);
                     }
                 }
             }
-        }
-        return empty();
-    }
-
-
-    public  static Optional<TemplateFileContext> getTemplateRef(TypescriptFileContext root, PsiElement template) {
-        PsiElementContext psiElementContext = new PsiElementContext(template);
-        Optional<PsiElementContext> templateRef = psiElementContext.$q(JS_REFERENCE_EXPRESSION).findFirst();
-
-
-        if (templateRef.isPresent()) {
-            final String templateVarName = templateRef.get().getUnquotedText();
-            //now lets find the imports
-            Optional<PsiElement> psiImportString = findImportString(root, templateVarName);
-
-            if (!psiImportString.isPresent()) {
-                return empty();
-            }
-            String importstr = psiImportString.get().getText().trim();
-            importstr = importstr.substring(1, importstr.length() - 1);
-            if (!importstr.endsWith(getTsExtension())) {
-                importstr = importstr + getTsExtension();
-            }
-
-
-            //now we have an import string lets open a file on that one
-            TemplateFileContext ref = new TemplateFileContext(templateVarName, root.getProject(), root.getVirtualFile().getParent().findFileByRelativePath(importstr));
-            if (!ref.getVirtualFile().exists()) {
-                return empty();
-            }
-
-            return Optional.of(ref);
         }
         return empty();
     }
@@ -269,35 +265,14 @@ public class ComponentFileContext extends AngularResourceContext {
         return empty();
     }
 
-
-
     public Optional<String> findComponentClassName() {
         return Optional.ofNullable(ComponentFileGist.getFileData(psiFile).getClassName());
     }
-
-
-
-    public static List<ComponentFileContext> getInstances(IntellijFileContext fileContext) {
-        return fileContext.$q(COMPONENT_CLASS)
-                .map(el -> new ComponentFileContext(fileContext, el.getElement()))
-                .collect(Collectors.toList());
-
-    }
-
-    public static List<ComponentFileContext> getControllerInstances(IntellijFileContext fileContext) {
-        return fileContext.$q(CONTROLLER_CLASS)
-                .map(el -> new ComponentFileContext(fileContext, el.getElement()))
-                .collect(Collectors.toList());
-    }
-
 
     @NotNull
     private AssociativeArraySection resolveParameters() {
         return new AssociativeArraySection(project, psiFile, concat($q(COMPONENT_ARGS), $q(CONTROLLER_ARGS)).findFirst().get().getElement());
     }
-
-
-
 
     @Override
     public void commit() throws IOException {
@@ -307,13 +282,9 @@ public class ComponentFileContext extends AngularResourceContext {
         super.commit();
     }
 
-
-
-
     public String getTagName() {
-       return ComponentFileGist.getFileData(getPsiFile()).getTagName();
+        return ComponentFileGist.getFileData(getPsiFile()).getTagName();
     }
-
 
     public Icon getIcon() {
         return AllIcons.Nodes.Artifact;

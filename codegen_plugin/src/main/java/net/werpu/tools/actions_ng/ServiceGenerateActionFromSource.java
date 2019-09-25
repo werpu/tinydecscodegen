@@ -27,11 +27,9 @@ package net.werpu.tools.actions_ng;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiJavaFile;
 import lombok.CustomLog;
-import net.werpu.tools.actions.ServiceGenerationAction;
 import net.werpu.tools.actions_all.shared.JavaFileContext;
 import net.werpu.tools.actions_all.shared.NgFileNameTransformer;
 import net.werpu.tools.actions_all.shared.VisibleAssertions;
@@ -43,14 +41,11 @@ import static net.werpu.tools.actions_all.shared.VisibleAssertions.*;
 
 @CustomLog
 public class ServiceGenerateActionFromSource extends AnAction {
-
-
     @Override
     public void update(AnActionEvent anActionEvent) {
         IntellijFileContext ctx = new IntellijFileContext(anActionEvent);
         //TODO improve project angular detection
         //VisibleAssertions.ngVisible(anActionEvent);
-
 
         if (!VisibleAssertions.hasAngularVersion(anActionEvent, AngularVersion.NG) ||
                 (!anActionEvent.getPresentation().isVisible()) || assertNotJava(ctx) || (assertNotJavaRest(ctx) && assertNotSpringRest(ctx))) {
@@ -60,7 +55,6 @@ public class ServiceGenerateActionFromSource extends AnAction {
 
         anActionEvent.getPresentation().setEnabledAndVisible(true);
     }
-
 
     @Override
     public void actionPerformed(AnActionEvent event) {

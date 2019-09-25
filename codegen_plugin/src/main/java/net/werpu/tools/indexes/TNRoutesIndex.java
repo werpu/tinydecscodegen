@@ -47,7 +47,6 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.CONFIG_A
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.TN_UIROUTER_MODULE_FOR_ROOT;
 
 public class TNRoutesIndex extends ScalarIndexExtension<String> {
-
     public static final ID<String, Void> NAME = ID.create("TN_MainRoutesIndex");
     private final MyDataIndexer myDataIndexer = new MyDataIndexer();
 

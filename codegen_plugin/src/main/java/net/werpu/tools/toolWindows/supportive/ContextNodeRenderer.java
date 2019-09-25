@@ -40,7 +40,6 @@ import static net.werpu.tools.supportive.utils.StringUtils.normalizePath;
  * our contexts in the various trees
  */
 public class ContextNodeRenderer extends NodeRenderer {
-
     private final Icon ng = IconLoader.getIcon("/images/ng.png");
 
     @Nullable

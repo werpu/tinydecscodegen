@@ -76,19 +76,15 @@ public abstract class AngularResourceContext extends TypescriptResourceContext i
         super(fileContext, psiElement);
     }
 
-
     protected void findParentModule() {
         List<IntellijFileContext> modules = findFirstUpwards(psiFile -> psiFile.getContainingFile().getText().contains(NG_MODULE));
-        this.parentModule = modules.isEmpty() ? null :  new NgModuleFileContext(modules.get(0));
+        this.parentModule = modules.isEmpty() ? null : new NgModuleFileContext(modules.get(0));
     }
 
     public String getDisplayName() {
         String finalArtifactName = Strings.nullToEmpty(artifactName);
         String finalModuleName = parentModule != null ? parentModule.getModuleName() : "";
-        return finalArtifactName+" ["+finalModuleName+"]";
+        return finalArtifactName + " [" + finalModuleName + "]";
     }
-
-    
-
 
 }

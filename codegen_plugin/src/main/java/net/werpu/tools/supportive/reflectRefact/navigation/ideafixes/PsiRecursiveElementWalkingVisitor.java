@@ -32,59 +32,59 @@ import java.util.List;
 /**
  * Represents a PSI element visitor which recursively visits the children of the element
  * on which the visit was started.
- *
+ * <p>
  * Sidenote I had to crossport this
  * class because of a gigantic f***up
  * from the idea guys who blocked an api
  * without documenting any replacment
  */
 public abstract class PsiRecursiveElementWalkingVisitor extends PsiElementVisitor implements PsiRecursiveVisitor {
-  private final boolean myVisitAllFileRoots;
-  private final PsiWalkingState myWalkingState = new PsiWalkingState(this){
-    @Override
-    public void elementFinished(@NotNull PsiElement element) {
-      PsiRecursiveElementWalkingVisitor.this.elementFinished(element);
-    }
-  };
-
-  protected PsiRecursiveElementWalkingVisitor() {
-    this(false);
-  }
-
-  protected PsiRecursiveElementWalkingVisitor(boolean visitAllFileRoots) {
-    myVisitAllFileRoots = visitAllFileRoots;
-  }
-
-  @Override
-  public void visitElement(final PsiElement element) {
-    ProgressIndicatorProvider.checkCanceled();
-
-    myWalkingState.elementStarted(element);
-  }
-
-  protected void elementFinished(PsiElement element) {
-                 
-  }
-
-  @Override
-  public void visitFile(final PsiFile file) {
-    if (myVisitAllFileRoots) {
-      final FileViewProvider viewProvider = file.getViewProvider();
-      final List<PsiFile> allFiles = viewProvider.getAllFiles();
-      if (allFiles.size() > 1) {
-        if (file == viewProvider.getPsi(viewProvider.getBaseLanguage())) {
-          for (PsiFile lFile : allFiles) {
-            lFile.acceptChildren(this);
-          }
-          return;
+    private final boolean myVisitAllFileRoots;
+    private final PsiWalkingState myWalkingState = new PsiWalkingState(this) {
+        @Override
+        public void elementFinished(@NotNull PsiElement element) {
+            PsiRecursiveElementWalkingVisitor.this.elementFinished(element);
         }
-      }
+    };
+
+    protected PsiRecursiveElementWalkingVisitor() {
+        this(false);
     }
 
-    super.visitFile(file);
-  }
+    protected PsiRecursiveElementWalkingVisitor(boolean visitAllFileRoots) {
+        myVisitAllFileRoots = visitAllFileRoots;
+    }
 
-  public void stopWalking() {
-    myWalkingState.stopWalking();
-  }
+    @Override
+    public void visitElement(final PsiElement element) {
+        ProgressIndicatorProvider.checkCanceled();
+
+        myWalkingState.elementStarted(element);
+    }
+
+    protected void elementFinished(PsiElement element) {
+
+    }
+
+    @Override
+    public void visitFile(final PsiFile file) {
+        if (myVisitAllFileRoots) {
+            final FileViewProvider viewProvider = file.getViewProvider();
+            final List<PsiFile> allFiles = viewProvider.getAllFiles();
+            if (allFiles.size() > 1) {
+                if (file == viewProvider.getPsi(viewProvider.getBaseLanguage())) {
+                    for (PsiFile lFile : allFiles) {
+                        lFile.acceptChildren(this);
+                    }
+                    return;
+                }
+            }
+        }
+
+        super.visitFile(file);
+    }
+
+    public void stopWalking() {
+        myWalkingState.stopWalking();
+    }
 }

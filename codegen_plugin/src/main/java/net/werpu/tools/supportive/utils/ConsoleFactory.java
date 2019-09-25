@@ -41,7 +41,6 @@ import java.util.function.Consumer;
  * a provider class which provides an output console on a long running task
  */
 public class ConsoleFactory {
-
     public static ConsoleView getInstance(Process p, Project project, String consoleId) {
         OSProcessHandler handler = new OSProcessHandler(p, "Run npm install");
 
@@ -57,7 +56,6 @@ public class ConsoleFactory {
 
         ToolWindow window = manager.getToolWindow(id);
 
-
         if (window == null) {
             window = manager.registerToolWindow(id, true, ToolWindowAnchor.BOTTOM, view, true);
 
@@ -65,12 +63,12 @@ public class ConsoleFactory {
             final Content content = contentFactory.createContent(view.getComponent(), "NPM Install Console", true);
             window.setAutoHide(false);
             window.getContentManager().addContent(content);
-            window.show(() -> {});
+            window.show(() -> {
+            });
 
         }
         return view;
     }
-
 
     public static ConsoleView getInstance(Consumer<ConsoleView> m, Project project, String consoleId) {
 

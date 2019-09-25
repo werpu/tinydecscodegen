@@ -28,7 +28,6 @@ import com.intellij.icons.AllIcons;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
@@ -87,16 +86,13 @@ import static net.werpu.tools.supportive.utils.SwingUtils.copyToClipboard;
 import static net.werpu.tools.supportive.utils.SwingUtils.openEditor;
 import static net.werpu.tools.toolWindows.supportive.SwingRouteTreeFactory.createModulesTree;
 
-
 @Setter
 @Getter
 class ResourcePanels {
-
     private JScrollPane left;
     private JScrollPane middle1;
     private JScrollPane middle2;
     private JScrollPane right;
-
     private JPanel wrappedMiddle1;
     private JPanel wrappedMiddle2;
 
@@ -110,29 +106,22 @@ class ResourcePanels {
 
 }
 
+
 @CustomLog
 public class ResourceToolWindow implements ToolWindowFactory, Disposable {
-
     private static final int ACTION_PADDING = 3;
     private SearchableTree<NgModuleFileContext> modules = new SearchableTree<>();
     private SearchableTree<ResourceFilesContext> otherResources = new SearchableTree<>();
     private SearchableTree<ResourceFilesContext> otherResourcesModule = new SearchableTree<>();
     private SearchableTree<ResourceFilesContext> otherResourcesActiveEditorModule = new SearchableTree<>();
-
-
     private ThreeComponentsSplitter myThreeComponentsSplitter;
-
     private IntellijFileContext projectRoot = null;
-
     private TimeoutWorker resourcesWatcher;
-
     private ToolWindow toolWindow;
-
     private ResourcePanels resourcePanels;
     private AtomicBoolean refreshRunning = new AtomicBoolean(Boolean.FALSE);
 
     public ResourceToolWindow() {
-
 
         modules.getTree().setCellRenderer(new ContextNodeRenderer());
         registerPopup(modules.getTree());
@@ -164,25 +153,22 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
             }
         });
 
-
         modules.createDefaultKeyController(moduleUpdateAndGoToFile, goToParentModule, copyResourceName);
         otherResources.createDefaultKeyController(gotToFile, goToParentModule, copyResourceName);
         otherResourcesModule.createDefaultKeyController(gotToFile, goToParentModule, copyResourceName);
         otherResourcesActiveEditorModule.createDefaultKeyController(gotToFile, goToParentModule, copyResourceName);
-
 
         modules.createDefaultClickHandlers(updateSecTree, gotToFile);
         otherResources.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
         otherResourcesModule.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
         otherResourcesActiveEditorModule.createDefaultClickHandlers(NOOP_CONSUMER, gotToFile);
 
-
     }
 
     private void updateSecondaryTree(NgModuleFileContext fileSelected) {
         invokeLater(() -> {
             NgModuleFileContext module = fileSelected;
-            String moduleFileName = module.getParent().isPresent() ? module.getParent().get().getFolderPath(): "";
+            String moduleFileName = module.getParent().isPresent() ? module.getParent().get().getFolderPath() : "";
             moduleFileName = normalizePath(moduleFileName);
             otherResourcesModule.filterTree(moduleFileName, "Resources " + "[" + module.getModuleName() + "]");
             runReadSmart(module.getProject(), () -> otherResourcesModule.restoreExpansion());
@@ -245,7 +231,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         builder.withMenuItem(LBL_COPY_RESOURCE_NAME, actionEvent -> copyResourceName(foundContext))
                 .withMenuItem(LBL_COPY_RESOURCE_CLASS, actionEvent -> copyResourceClass(foundContext));
 
-
         builder.show(ev.getComponent(), ev.getX(), ev.getY());
 
     }
@@ -269,7 +254,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
         SimpleToolWindowPanel toolWindowPanel = new SimpleToolWindowPanel(true, true);
 
-
         myThreeComponentsSplitter = new ThreeComponentsSplitter(false, true) {
             @Override
             public void doLayout() {
@@ -282,7 +266,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         this.resourcePanels.setLeft(resourcePanels.getLeft());
 
         myThreeComponentsSplitter.setFirstComponent(wrapPanelBorderLayout(resourcePanels.getLeft()));
-
 
         JTabbedPane moduleTabs = new JBTabbedPane();
         JPanel wrappedMiddle2 = wrapPanelBorderLayout(resourcePanels.getMiddle2());
@@ -297,22 +280,17 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         JScrollPane jPanelRight = new JBScrollPane();
         myThreeComponentsSplitter.setLastComponent(wrapPanelBorderLayout(jPanelRight));
 
-
         myThreeComponentsSplitter.setShowDividerControls(false);
         myThreeComponentsSplitter.setDividerWidth(1);
 
         myThreeComponentsSplitter.setOrientation(false);
 
-
         resourcePanels.getLeft().setViewportView(modules.getTree());
-
 
         resourcePanels.getMiddle1().setViewportView(otherResources.getTree());
         resourcePanels.getMiddle2().setViewportView(otherResourcesModule.getTree());
 
-
         jPanelRight.setViewportView(otherResourcesActiveEditorModule.getTree());
-
 
         toolWindowPanel.setContent(myThreeComponentsSplitter);
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
@@ -320,7 +298,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         toolWindow.getContentManager().addContent(content);
 
         layout(toolWindow, myThreeComponentsSplitter);
-
 
         setupActionBar(toolWindow, toolWindowPanel);
 
@@ -330,8 +307,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
         otherResourcesActiveEditorModule.makeSearchable(this::showPopup);
 
         onEditorChange(project, this::editorSwitched);
-
-
     }
 
     @NotNull
@@ -366,7 +341,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                         }
                     },
 
-
                     new AnAction("Expand All", "Expand All Views", AllIcons.Actions.Expandall) {
                         ActionGroup expandAll = IntellijRunUtils.actionGroup(
                                 actionsManager.createExpandAllHeaderAction(modules.getTree()),
@@ -397,7 +371,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
             );
             ((ToolWindowEx) toolWindow).setTitleActions(titleActions);
 
-
             ActionToolbar actions = ActionManager.getInstance().createActionToolbar("Module Actions", IntellijRunUtils.actionGroup(
                     actionsManager.createExpandAllHeaderAction(modules.getTree()),
                     actionsManager.createCollapseAllHeaderAction(modules.getTree())
@@ -407,7 +380,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
             Objects.requireNonNull(myThreeComponentsSplitter.getFirstComponent()).add(wrapActionBar(actions.getComponent()), BorderLayout.WEST);
             myThreeComponentsSplitter.getFirstComponent().add(wrapHeader(new JLabel("Modules")), BorderLayout.NORTH);
 
-
             actions = ActionManager.getInstance().createActionToolbar("Module Resource Actions", IntellijRunUtils.actionGroup(
                     actionsManager.createExpandAllHeaderAction(otherResourcesModule.getTree()),
                     actionsManager.createCollapseAllHeaderAction(otherResourcesModule.getTree())
@@ -415,14 +387,12 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
             actions.setTargetComponent(resourcePanels.getMiddle2());
             resourcePanels.getWrappedMiddle2().add(actions.getComponent(), BorderLayout.WEST);
 
-
             actions = ActionManager.getInstance().createActionToolbar("Resource Actions", IntellijRunUtils.actionGroup(
                     actionsManager.createExpandAllHeaderAction(otherResources.getTree()),
                     actionsManager.createCollapseAllHeaderAction(otherResources.getTree())
             ), false);
             actions.setTargetComponent(resourcePanels.getMiddle1());
             resourcePanels.getWrappedMiddle1().add(actions.getComponent(), BorderLayout.WEST);
-
 
             actions = ActionManager.getInstance().createActionToolbar("Editor Resource Actions", IntellijRunUtils.actionGroup(
                     actionsManager.createExpandAllHeaderAction(otherResourcesActiveEditorModule.getTree()),
@@ -432,7 +402,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
             actions.setTargetComponent(myThreeComponentsSplitter.getLastComponent());
             Objects.requireNonNull(myThreeComponentsSplitter.getLastComponent()).add(wrapActionBar(actions.getComponent()), BorderLayout.WEST);
             myThreeComponentsSplitter.getLastComponent().add(wrapHeader(new JLabel("Current Resources")), BorderLayout.NORTH);
-
 
         }
     }
@@ -510,19 +479,15 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
                 assertNotInUse(project);
 
-
                 ContextFactory contextFactory = ContextFactory.getInstance(projectRoot);
-
 
                 ResourceFilesContext itemsTn = contextFactory.getProjectResources(projectRoot, TN_DEC);
                 ResourceFilesContext itemsNg = contextFactory.getProjectResources(projectRoot, NG);
-
 
                 modules.refreshContent(LBL_MODULES, this.buildModulesTree(itemsTn.getModules(), itemsNg.getModules()));
                 otherResources.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
                 otherResourcesModule.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
                 otherResourcesActiveEditorModule.refreshContent(LBL_RESOURCES, this.buildResourcesTree(itemsTn, itemsNg));
-
 
                 FutureTask<Boolean> run1 = newFutureRoTask(() -> {
                     modules.filterTree("", LBL_MODULES);
@@ -566,9 +531,7 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                     e.printStackTrace();
                 }*/
 
-
             });
-
 
         } catch (IndexNotReadyException exception) {
             //nnop we try another time
@@ -582,7 +545,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
 
     }
 
-
     private void get(FutureTask<Boolean> run1) {
         try {
             run1.get();
@@ -590,7 +552,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
             e.printStackTrace();
         }
     }
-
 
     private void buildModulesTree(SwingRootParentNode parentTree, List<NgModuleFileContext> modules, List<NgModuleFileContext> modules2) {
         DefaultMutableTreeNode nodes = createModulesTree(modules, LBL_TN_DEC_MODULES);
@@ -605,14 +566,12 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
                 buildModulesTree(parentTree, itemsTn, itemsNg);
     }
 
-
     private Consumer<SwingRootParentNode> buildResourcesTree(ResourceFilesContext itemsTn, ResourceFilesContext itemsNg) {
         return (parentTree) ->
                 buildResourcesTree(parentTree, itemsTn, itemsNg);
     }
 
     private void buildResourcesTree(SwingRootParentNode parentTree, ResourceFilesContext itemsTn, ResourceFilesContext itemsNg) {
-
 
         DefaultMutableTreeNode nodes = SwingRouteTreeFactory.createResourcesTree(itemsTn, LBL_TN_DEC_RESOURCES);
         parentTree.add(nodes);
@@ -624,7 +583,6 @@ public class ResourceToolWindow implements ToolWindowFactory, Disposable {
     private void assertNotInUse(Project project) {
         projectRoot = new IntellijFileContext(project);
     }
-
 
     @Override
     public void init(ToolWindow window) {

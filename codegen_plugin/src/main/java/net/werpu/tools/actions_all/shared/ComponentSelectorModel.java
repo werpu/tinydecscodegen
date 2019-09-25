@@ -36,7 +36,6 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class ComponentSelectorModel {
-
     @NotNull
     private final ComponentFileContext[] componentFileContexts;
     private int selectedIndex = 0;

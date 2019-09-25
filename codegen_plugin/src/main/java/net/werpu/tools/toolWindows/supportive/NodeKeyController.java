@@ -33,15 +33,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.function.Consumer;
 
-
 @AllArgsConstructor
 public class NodeKeyController<T> implements KeyListener {
-
     Tree tree;
     Consumer<T> enter;
     Consumer<T> altEnter;
     Consumer<T> copy;
-
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -68,12 +65,10 @@ public class NodeKeyController<T> implements KeyListener {
         }
     }
 
-
     @Override
     public void keyReleased(KeyEvent e) {
 
     }
-
 
     private boolean isBranch() {
         return !(tree.getLastSelectedPathComponent() instanceof DefaultMutableTreeNode) ||

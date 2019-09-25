@@ -51,7 +51,6 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
 import static net.werpu.tools.supportive.utils.StringUtils.isThis;
 
-
 @Getter
 public class AngularJSComponentTransformationModel extends TypescriptFileContext implements ITransformationModel {
 
@@ -59,7 +58,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
      * higher level queries only
      * used for the time being for the components
      */
-
     /**
      * searches for all inline functions within a certain function
      * the root for this query is the function definition block
@@ -69,7 +67,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
      * fetches all class attributes from a given class root is the class block
      */
     public static final Object[] CLASS_ATTRS = {CHILD_ELEM, JS_ES_6_FIELD_STATEMENT, CHILD_ELEM, TYPE_SCRIPT_FIELD};
-
     /**
      * fetches the resturn block of a given template function attribute
      * root element the class block
@@ -110,7 +107,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
      * potential candidates for the class attributes from the constructor function
      */
     public static final Object[] CLASS_VARIABLE_CANDIDATES = {CHILD_ELEM, JS_EXPRESSION_STATEMENT, TEXT_STARTS_WITH("this."), CHILD_ELEM, JS_ASSIGNMENT_EXPRESSION, CHILD_ELEM, JS_DEFINITION_EXPRESSION};
-
     protected Optional<PsiElementContext> lastImport;
     protected PsiElementContext rootBlock;
     protected PsiElementContext classBlock;
@@ -120,37 +116,20 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     protected List<Injector> injects; //imports into the constructor
     protected String selectorName; //trace back into the module declaration for this component and then run our string dash transformation
     protected String priority; //trace back into the module declaration for this component and then run our string dash transformation
-
     protected Optional<PsiElementContext> constructorDef;
     protected Optional<PsiElementContext> constructorBlock;
     protected Optional<PsiElementContext> transclude;
-
     protected List<FirstOrderFunction> inlineFunctions;
     protected List<ClassAttribute> possibleClassAttributes;
     protected String template; //original template after being found
     protected List<ComponentBinding> bindings;
-
     protected String clazzName;
-
     protected List<PsiElementContext> attributes;
-
-
-    public List<String> getAttributesAsString() {
-         return attributes.stream().map(attr -> attr.getName()).collect(Collectors.toList());
-    }
 
     public AngularJSComponentTransformationModel(Project project, PsiFile psiFile, PsiElementContext rootBlock) {
         super(project, psiFile);
         applyRootBlock(psiFile, rootBlock);
         this.postConstruct2();
-    }
-
-    public void applyRootBlock(PsiFile psiFile, PsiElementContext rootBlock) {
-        if (rootBlock != null) {
-            this.rootBlock = rootBlock;
-        } else {
-            this.rootBlock = new PsiElementContext(psiFile);
-        }
     }
 
     public AngularJSComponentTransformationModel(AnActionEvent event, PsiElementContext rootBlock) {
@@ -169,6 +148,18 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         super(fileContext);
         applyRootBlock(getPsiFile(), rootBlock);
         this.postConstruct2();
+    }
+
+    public List<String> getAttributesAsString() {
+        return attributes.stream().map(attr -> attr.getName()).collect(Collectors.toList());
+    }
+
+    public void applyRootBlock(PsiFile psiFile, PsiElementContext rootBlock) {
+        if (rootBlock != null) {
+            this.rootBlock = rootBlock;
+        } else {
+            this.rootBlock = new PsiElementContext(psiFile);
+        }
     }
 
     /**
@@ -193,7 +184,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
         parseConstructor();
 
-
         parseInjects();
         parseBindings();
 
@@ -210,7 +200,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         parsePriority();
         parseInlineClassAttributeCandidates();
     }
-
 
     protected void parseClassName() {
         clazzName = classBlock.getName();
@@ -248,7 +237,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 template = "``;//ERROR Template could not be resolved";
             }
         }
-
 
     }
 
@@ -291,7 +279,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                         .filter(e2 -> e2.getTextRangeOffset() == parentFunctionBlock.getTextRangeOffset()).findFirst().isPresent())
                 .collect(Collectors.toList());
 
-
     }
 
     /**
@@ -329,7 +316,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                     param -> new ParameterDeclaration(param)
             ).collect(Collectors.toList()) : Collections.emptyList();
 
-
             return Optional.ofNullable(new FirstOrderFunction(inlineFunction, funtionDefinition.get(), functionBlock.get(), parameters, foundExternalizables));
         }
         return Optional.empty();
@@ -346,7 +332,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                         .map(el -> new ClassAttribute(el))
                         .distinct()
                         .collect(Collectors.toList());
-
 
     }
 
@@ -418,9 +403,9 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
     protected void parseSelectorName() {
 
-        Optional<String> selectorNameDefined =  classBlock.$q(TN_COMP_SELECTOR)
+        Optional<String> selectorNameDefined = classBlock.$q(TN_COMP_SELECTOR)
                 .map(el -> el.getUnquotedText()).findFirst();
-        if(selectorNameDefined.isPresent()) {
+        if (selectorNameDefined.isPresent()) {
             selectorName = selectorNameDefined.get();
             return;
         }
@@ -431,11 +416,8 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     protected void getSelectorFromDefinitionName() {
         selectorName = super.findFirstUpwards(el -> {
             Optional<PsiElementContext> ctx = new IntellijFileContext(getProject(), el).$q(TN_DEC_COMPONENT_NAME(clazzName)).findFirst();
-            if (!ctx.isPresent()) {
-                return false;
-            }
+            return ctx.isPresent();
             //TODO check imports
-            return true;
 
         }).stream()
                 .flatMap(el -> el.$q(TN_DEC_COMPONENT_NAME(clazzName)))
@@ -458,8 +440,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 .map(el -> el.getUnquotedText()).findFirst().orElse(null);
     }
 
-
-
     protected void parseBindToController() {
         bindToController = classBlock.$q(TN_COMP_BIND_TO_CONTROLLER)
                 .map(el -> el.getUnquotedText()).findFirst().orElse("true");
@@ -469,7 +449,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         restrict = classBlock.$q(TN_COMP_BIND_RESTRICT)
                 .map(el -> el.getUnquotedText()).findFirst().orElse("E");
     }
-
 
     protected void parseAttributes() {
         attributes = classBlock.$q(CLASS_ATTRS)
@@ -482,15 +461,14 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
         return !el.getName().equals("bindings") && !el.getName().equals("controllerAs")
                 && !el.getName().equals("bindToController") && !el.getName().equals("restrict")
                 && !el.getName().equals("controller") && !el.getName().equals("template")
-                && !el.getName().equals("priority")&& !el.getName().equals("scope");
+                && !el.getName().equals("priority") && !el.getName().equals("scope");
     }
-
 
     protected void parseBindings() {
         parseBindings(TN_COMP_BINDINGS);
     }
 
-    protected void parseBindings(Object ... query) {
+    protected void parseBindings(Object... query) {
         bindings = classBlock.$q(query).map(el -> {
             String propName = el.getName();
             Optional<PsiElementContext> first = el.$q(PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
@@ -505,7 +483,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
 
     public String getRefactoredConstructorBlock() {
 
-
         List<IRefactorUnit> refactorings = inlineFunctions.stream()
                 .filter(FirstOrderFunction::isExternalizale)
                 .map(el -> {
@@ -514,7 +491,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                 }).collect(Collectors.toList());
 
         String retVal = calculateRefactoring(refactorings, constructorBlock.get());
-
 
         //we transform the text into its own typescript shadow scratch file to perform
         //this refactorings against the injects
@@ -538,7 +514,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
                     .distinct()
                     .map(foundRefExpr -> newThisRefactoring(ctx, foundRefExpr))
                     .collect(Collectors.toList());
-
 
             if (injectionRefactorings.isEmpty()) {
                 continue;
@@ -573,7 +548,6 @@ public class AngularJSComponentTransformationModel extends TypescriptFileContext
     public String getFromImportsToClassDecl() {
         return rootBlock.getText().substring(lastImport.get().getTextRangeOffset() + lastImport.get().getTextLength() + 1, classBlock.getTextRangeOffset());
     }
-
 
     public String getCodeBetweenDefinitionAndClassBlock() {
         return "";

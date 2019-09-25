@@ -35,7 +35,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum UnaryCommand {
-
     CHILD_ELEM,
     FIRST,
     PARENTS,

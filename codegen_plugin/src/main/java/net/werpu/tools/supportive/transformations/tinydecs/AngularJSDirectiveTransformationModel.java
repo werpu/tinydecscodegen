@@ -44,11 +44,10 @@ import java.util.stream.Stream;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
 
-
 /**
  * Directive code patterns, those are very similar to function based component definitions
  * (function based component definitions are in fact a subset of the directive based definitions)
- *
+ * <p>
  * TODO maybe another approach in this case is better
  * we might be able to just fetch all properties except for a handful of props
  * which need special treatment
@@ -57,6 +56,8 @@ import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngin
 public class AngularJSDirectiveTransformationModel extends AngularJSComponentTransformationModel {
     public static final Object[] DEFINITION_BLOCK = {JS_RETURN_STATEMENT, JS_OBJECT_LITERAL_EXPRESSION, FIRST};
     public static final Object[] TEMPLATE_DEF = {DEFINITION_BLOCK, CHILD_ELEM, JS_PROPERTY, NAME_EQ("template")};
+    PsiElementContext outerDefintioon;
+    List<GenericFunction> additionalFunctions;
 
     public AngularJSDirectiveTransformationModel(Project project, PsiFile psiFile, PsiElementContext rootBlock) {
         super(project, psiFile, rootBlock);
@@ -69,15 +70,9 @@ public class AngularJSDirectiveTransformationModel extends AngularJSComponentTra
     public AngularJSDirectiveTransformationModel(Project project, VirtualFile virtualFile, PsiElementContext rootBlock) {
         super(project, virtualFile, rootBlock);
     }
-
     public AngularJSDirectiveTransformationModel(IntellijFileContext fileContext) {
         super(fileContext);
     }
-
-
-    PsiElementContext outerDefintioon;
-
-    List<GenericFunction> additionalFunctions;
 
     @Override
     public String getRefactoredConstructorBlock() {
@@ -109,7 +104,6 @@ public class AngularJSDirectiveTransformationModel extends AngularJSComponentTra
         return rootBlock.getText().substring(outerDefintioon.$q(JS_BLOCK_STATEMENT, FIRST).findFirst().get().getTextRangeOffset() + 1, classBlock.getTextRangeOffset());
     }
 
-
     @Override
     protected void postConstruct2() {
         super.postConstruct2();
@@ -126,8 +120,8 @@ public class AngularJSDirectiveTransformationModel extends AngularJSComponentTra
 
     @Override
     protected void parseRestrict() {
-        restrict = "\"" +classBlock.$q(DEFINITION_BLOCK, JS_PROPERTY, NAME_EQ("restrict"), PSI_ELEMENT_JS_STRING_LITERAL)
-                .map(el -> el.getUnquotedText()).findFirst().orElse("E")+"\"";
+        restrict = "\"" + classBlock.$q(DEFINITION_BLOCK, JS_PROPERTY, NAME_EQ("restrict"), PSI_ELEMENT_JS_STRING_LITERAL)
+                .map(el -> el.getUnquotedText()).findFirst().orElse("E") + "\"";
     }
 
     @Override
@@ -146,11 +140,9 @@ public class AngularJSDirectiveTransformationModel extends AngularJSComponentTra
         Optional<PsiElementContext> func = el.$q(CHILD_ELEM, TYPESCRIPT_FUNCTION_EXPRESSION).findFirst();
         if (func.isPresent()) {
 
-
             List<ParameterDeclaration> parameters = func.get().$q(TYPE_SCRIPT_PARAMETER_LIST, FIRST, TYPE_SCRIPT_PARAM).map(
                     param -> new ParameterDeclaration(param)
             ).collect(Collectors.toList());
-
 
             return new GenericFunction(propName, parameters, func.get().$q(JS_BLOCK_STATEMENT).findFirst().get());
         }
@@ -168,7 +160,6 @@ public class AngularJSDirectiveTransformationModel extends AngularJSComponentTra
         super.parseInjects();
         parseRootInjects();
 
-
     }
 
     private void parseRootInjects() {
@@ -177,13 +168,12 @@ public class AngularJSDirectiveTransformationModel extends AngularJSComponentTra
                     String paramName = param.getName();
                     Optional<PsiElementContext> psiParamType = param.$q(TYPE_SCRIPT_SINGLE_TYPE).findFirst();
                     String paramType = (psiParamType.isPresent()) ? psiParamType.get().getText() : "any";
-                    Injector injector = new Injector(paramName,paramName+": "+ paramType);
+                    Injector injector = new Injector(paramName, paramName + ": " + paramType);
                     if (!injects.contains(injector)) {
                         injects.add(injector);
                     }
                 });
     }
-
 
     public void refactoriThisIntoFunctions() {
 
@@ -209,7 +199,6 @@ public class AngularJSDirectiveTransformationModel extends AngularJSComponentTra
             inlineFunction.setRefactoredContent(ctx.calculateRefactoring(injectionRefactorings));
         }*/
     }
-
 
     @Override
     protected void parseTemplate() {

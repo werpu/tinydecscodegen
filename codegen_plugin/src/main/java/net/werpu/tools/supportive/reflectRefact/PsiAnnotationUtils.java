@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public class PsiAnnotationUtils {
-
     public static String getAttr(PsiAnnotation mapping, String attrVal) {
         PsiAnnotationMemberValue attributeValue = mapping.findAttributeValue(attrVal);
         String retVal = (attributeValue != null) ? attributeValue.getText() : "";
@@ -79,9 +78,10 @@ public class PsiAnnotationUtils {
 
     /**
      * returns a filter function which allows to filter the element at the precise position
+     *
      * @return
      */
-    public static  Predicate<PsiElementContext> getPositionFilter(int cursorPos) {
+    public static Predicate<PsiElementContext> getPositionFilter(int cursorPos) {
         Predicate<PsiElementContext> positionFilter = el -> {
             int offSet = el.getTextRangeOffset();
             int offSetEnd = offSet + el.getText().length();
@@ -99,23 +99,22 @@ public class PsiAnnotationUtils {
     @NotNull
     static RestVar getRestReturnType(PsiMethod m, int returnValueNestingDepth) {
         String sReturnType = m.getReturnType().getCanonicalText();
-        for(int cnt = 0; cnt < returnValueNestingDepth; cnt++) {
+        for (int cnt = 0; cnt < returnValueNestingDepth; cnt++) {
             int from = sReturnType.indexOf("<");
             int to = sReturnType.lastIndexOf(">");
-            if(from == -1 || to == -1) {
+            if (from == -1 || to == -1) {
                 break;
             }
-            sReturnType = sReturnType.substring(from+1, to);
+            sReturnType = sReturnType.substring(from + 1, to);
         }
 
-        if(sReturnType.equals("Response") || sReturnType.equals("ResponseEntity")) {
+        if (sReturnType.equals("Response") || sReturnType.equals("ResponseEntity")) {
             //TODO source parsing of the java source
             sReturnType = "any";
         }
 
         List<GenericType> childTypes = ReflectUtils.buildGenericTypes(sReturnType);
         GenericType genericTypes = new GenericType("", childTypes);
-
 
         return new RestVar(RestVarType.RequestRetval, null, null,
                 ReflectUtils.isArrayType(sReturnType),

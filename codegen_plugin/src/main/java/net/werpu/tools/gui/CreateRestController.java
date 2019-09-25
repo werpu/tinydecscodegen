@@ -43,7 +43,6 @@ public class CreateRestController {
     private JRadioButton cbTnDec;
     private JRadioButton cbNg;
 
-
     public CreateRestController() {
 
         txtServiceName.getDocument().addDocumentListener(new DocumentListener() {
@@ -62,7 +61,6 @@ public class CreateRestController {
                 update();
             }
 
-
         });
         cbCalcRest.addActionListener(new ActionListener() {
             @Override
@@ -78,6 +76,5 @@ public class CreateRestController {
         }
         SwingUtils.update(txtRestPath, txtServiceName);
     }
-
 
 }

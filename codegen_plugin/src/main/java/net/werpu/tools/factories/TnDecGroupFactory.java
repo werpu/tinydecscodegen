@@ -30,7 +30,6 @@ import com.intellij.ide.fileTemplates.FileTemplateGroupDescriptorFactory;
 import net.werpu.tools.gui.TTIcons;
 
 public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
-
     public static final String TPL_ANNOTATED_COMPONENT = "Annotated Component";
     public static final String TPL_ANNOTATED_DIRECTIVE = "Annotated Directive";
     public static final String TPL_ANNOTATED_CONTROLLER = "Annotated Controller";
@@ -57,7 +56,6 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
     public static final String TPL_TN_DEC_COMPONENT_TRANSFORMATION = "TnDec Component Transformation";
     public static final String TPL_TN_DEC_DIRECTIVE_TRANSFORMATION = "TnDec Directive Transformation";
     public static final String TPL_NG_MODULE_TRANSFORMATION = "NgModuleTransformation";
-
     public static final String TPL_EXT = "ts";
     public static final String TPL_EXT_XML = "xml";
     public static final String TPL_EXT_JAVA = "java";
@@ -89,12 +87,12 @@ public class TnDecGroupFactory implements FileTemplateGroupDescriptorFactory {
         group.addTemplate(new FileTemplateDescriptor(TPL_SPRING_REST + "." + TPL_EXT_JAVA));
         group.addTemplate(new FileTemplateDescriptor(TPL_SPRING_REST_METHOD + "." + TPL_EXT_JAVA));
 
-        group.addTemplate(new FileTemplateDescriptor(TPL_TN_DEC_MODULE_TRANSFORMATION+"."+TPL_EXT));
-        group.addTemplate(new FileTemplateDescriptor(TPL_NG_MODULE_TRANSFORMATION+"."+TPL_EXT));
-        group.addTemplate(new FileTemplateDescriptor(TPL_TN_DEC_COMPONENT_TRANSFORMATION+"."+TPL_EXT));
-        group.addTemplate(new FileTemplateDescriptor(TPL_TN_DEC_DIRECTIVE_TRANSFORMATION+"."+TPL_EXT));
-        group.addTemplate(new FileTemplateDescriptor(TPL_I18N_JSON_FILE+"."+TPL_EXT_JS));
-        group.addTemplate(new FileTemplateDescriptor(TPL_I18N_TS_FILE+"."+TPL_EXT));
+        group.addTemplate(new FileTemplateDescriptor(TPL_TN_DEC_MODULE_TRANSFORMATION + "." + TPL_EXT));
+        group.addTemplate(new FileTemplateDescriptor(TPL_NG_MODULE_TRANSFORMATION + "." + TPL_EXT));
+        group.addTemplate(new FileTemplateDescriptor(TPL_TN_DEC_COMPONENT_TRANSFORMATION + "." + TPL_EXT));
+        group.addTemplate(new FileTemplateDescriptor(TPL_TN_DEC_DIRECTIVE_TRANSFORMATION + "." + TPL_EXT));
+        group.addTemplate(new FileTemplateDescriptor(TPL_I18N_JSON_FILE + "." + TPL_EXT_JS));
+        group.addTemplate(new FileTemplateDescriptor(TPL_I18N_TS_FILE + "." + TPL_EXT));
 
         return group;
     }

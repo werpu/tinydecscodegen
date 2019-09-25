@@ -40,12 +40,10 @@ import net.werpu.tools.supportive.dtos.ModuleElementScope;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * Create an Angular 2 module
  */
 public class CreateNgModule extends CreateTnDecModule {
-
     @Override
     public void update(AnActionEvent anActionEvent) {
         VisibleAssertions.ngVisible(anActionEvent);
@@ -78,6 +76,5 @@ public class CreateNgModule extends CreateTnDecModule {
         }
         return transformed.toLowerCase();
     }
-
 
 }

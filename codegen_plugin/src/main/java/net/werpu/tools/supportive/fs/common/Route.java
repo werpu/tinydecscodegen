@@ -35,27 +35,18 @@ import java.io.Serializable;
 
 import static net.werpu.tools.supportive.utils.StringUtils.normalizePath;
 
-
 @Getter
 @Setter
 @EqualsAndHashCode
 public class Route implements Cloneable, Serializable, Comparable {
-
+    String componentPath;
+    Class originContext;
     @NonNull
     private String routeKey;
-
     private String viewName;
-
     private String url;
-
     private String component;
-
     private String routeVarName;
-
-    String componentPath;
-
-
-    Class originContext;
 
     public Route(String routeKey, String url, String component, Class origin) {
         setRouteKey(routeKey);
@@ -76,12 +67,6 @@ public class Route implements Cloneable, Serializable, Comparable {
         this.componentPath = componentPath;
         this.viewName = viewName;
     }
-
-    public void setRouteKey(String routeKey) {
-        this.routeKey = routeKey;
-        this.routeVarName = routeKey.replaceAll("\\.", "_");
-    }
-
 
     public String toStringTnNg1() {
         String routeTemplateStr = "\n\n$stateProvider.state('%s',\n" +
@@ -123,7 +108,6 @@ public class Route implements Cloneable, Serializable, Comparable {
         return String.format(routeTemplatesSimple, getLocalRouteDeclName(), getRouteVarName());
     }
 
-
     public void setComponentPath(String componentPath) {
         this.componentPath = normalizePath(componentPath)
                 .replaceAll("^(.*)\\.ts$", "$1");
@@ -133,9 +117,13 @@ public class Route implements Cloneable, Serializable, Comparable {
         return String.format("import {%s} from \"%s\";", component, componentPath);
     }
 
-
     public String getRouteKey() {
         return (Strings.isNullOrEmpty(routeKey)) ? urlToRouteKey(url) : routeKey;
+    }
+
+    public void setRouteKey(String routeKey) {
+        this.routeKey = routeKey;
+        this.routeVarName = routeKey.replaceAll("\\.", "_");
     }
 
     private String urlToRouteKey(String url) {
@@ -144,7 +132,7 @@ public class Route implements Cloneable, Serializable, Comparable {
     }
 
     public String getLocalRouteDeclName() {
-        return "lRte_"+getRouteVarName();
+        return "lRte_" + getRouteVarName();
     }
 
     public String getRawComponentName() {

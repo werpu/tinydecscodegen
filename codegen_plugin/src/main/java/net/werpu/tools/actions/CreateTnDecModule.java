@@ -64,8 +64,6 @@ import static net.werpu.tools.actions_all.shared.FormAssertions.*;
  * The idea is that every created artifact should auto register if possible
  */
 public class CreateTnDecModule extends AnAction {
-
-
     public static final String EXPORT = "___EXPORT___";
 
     public CreateTnDecModule() {
@@ -82,9 +80,7 @@ public class CreateTnDecModule extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         final Project project = IntellijUtils.getProject(event);
 
-
         VirtualFile folder = IntellijUtils.getFolderOrFile(event);
-
 
         final net.werpu.tools.gui.CreateTnDecComponent mainForm = new net.werpu.tools.gui.CreateTnDecComponent();
         mainForm.getLblSelector().setText("Module name *");
@@ -111,10 +107,8 @@ public class CreateTnDecModule extends AnAction {
                         validateInput(mainForm)
                 ).stream().filter(s -> s != null).collect(Collectors.toList())).create();
 
-
         dialogWrapper.setTitle("Create Module");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
-
 
         //mainForm.initDefault(dialogWrapper.getWindow());
         dialogWrapper.show();

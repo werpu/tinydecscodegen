@@ -65,5 +65,4 @@ public class Labels {
     public static final String LBL_COPY_I18N_TRANSLATE__TS = "Copy I18N Translate (TS/JS)";
     public static final String LBL_GO_TO_I18N_DCL = "Go To I18N Declaration";
 
-
 }

@@ -27,7 +27,6 @@ package net.werpu.tools.supportive.transformations.tinydecs;
 /**
  * Transformation utils class to transform
  * an abirtrary internal function to an external one
- *
  */
 public class FunctionTransformation {
     public static String transformToExternalDecl(AngularFunctionModel function) {

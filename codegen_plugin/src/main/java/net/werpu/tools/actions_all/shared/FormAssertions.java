@@ -29,7 +29,6 @@ import com.intellij.openapi.ui.ValidationInfo;
 import javax.swing.*;
 
 public class FormAssertions {
-
     public static final String TAG_SELECTOR_PATTERN = "[0-9a-z\\-]+";
     public static final String VALID_NAME = "[0-9a-zA-Z\\$\\_]+";
     public static final String VALID_ROUTE = "[0-9a-zA-Z\\$\\_\\.]+";

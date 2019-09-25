@@ -41,7 +41,6 @@ import static com.intellij.ide.scratch.ScratchFileCreationHelper.reformat;
  * action endpoint for the component refactoring dialog
  */
 public class RefactorIntoAnnotatedComponent extends AnAction {
-
     @Override
     public void update(AnActionEvent e) {
         super.update(e);
@@ -62,7 +61,6 @@ public class RefactorIntoAnnotatedComponent extends AnAction {
         //
         final IntellijFileContext fileContext = new IntellijFileContext(event);
 
-
         AngularJSComponentTransformationModel transformationModel = new AngularJSComponentTransformationModel(fileContext);
         ComponentTransformation transformation = new ComponentTransformation(transformationModel);
 
@@ -78,12 +76,9 @@ public class RefactorIntoAnnotatedComponent extends AnAction {
         }
     }
 
-
-
     @Override
     public boolean isDumbAware() {
         return true;
     }
-
 
 }

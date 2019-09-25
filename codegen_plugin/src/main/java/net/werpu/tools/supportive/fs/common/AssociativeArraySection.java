@@ -24,8 +24,6 @@
 
 package net.werpu.tools.supportive.fs.common;
 
-
-
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
@@ -44,18 +42,17 @@ import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 /**
  * A psi associative array
  */
-public class AssociativeArraySection extends AngularResourceContext{
-
+public class AssociativeArraySection extends AngularResourceContext {
     public AssociativeArraySection(Project project, PsiFile psiFile, PsiElement psiElement) {
         super(project, psiFile, psiElement);
     }
 
-
     /**
      * all the needed operations to add a value
-     *
+     * <p>
      * to a def section in ngmodule aka associative array with an array of
      * values as value {[key: string]: Function | String}
+     *
      * @param sectionName
      * @param partName
      * @return
@@ -70,14 +67,11 @@ public class AssociativeArraySection extends AngularResourceContext{
         return false;
     }
 
-
-
     /**
      * puts or replaces a vlue
      *
-     *
      * @param sectionName the name of the section
-     * @param value the value
+     * @param value       the value
      * @throws IOException
      */
     public void put(String sectionName, String value) throws IOException {
@@ -86,7 +80,7 @@ public class AssociativeArraySection extends AngularResourceContext{
 
         //StringBuilder elValue = new StringBuilder("\"");
         //elValue.append(value).append("\"");
-        if(prop.isPresent()) {
+        if (prop.isPresent()) {
             addRefactoring(new RefactorUnit(getPsiFile(), prop.get(), value));
             commit();
         } else {
@@ -94,8 +88,6 @@ public class AssociativeArraySection extends AngularResourceContext{
             put(sectionName, value);
         }
     }
-
-
 
     public Optional<PsiElementContext> get(String sectionName) throws IOException {
         //PsiElement(JS:COMMA)
@@ -106,18 +98,17 @@ public class AssociativeArraySection extends AngularResourceContext{
     /**
      * adds or inserts a value if a section already exists
      *
-     *
      * @param sectionName the name of the section
-     * @param value the value
+     * @param value       the value
      * @throws IOException
      */
     public void addInsertValue(String sectionName, String value) throws IOException {
         //PsiElement(JS:COMMA)
         Optional<PsiElementContext> propsArray = $q(JS_PROPERTY, TreeQueryEngine.NAME_EQ(sectionName), JS_ARRAY_LITERAL_EXPRESSION).findFirst();
         boolean hasElement = propsArray.get().$q(PSI_ELEMENT_JS_IDENTIFIER).findFirst().isPresent();
-        int insertPos =  propsArray.get().$q(PSI_ELEMENT_JS_RBRACKET).reduce((el1, el2) -> el2).get().getTextRangeOffset();
+        int insertPos = propsArray.get().$q(PSI_ELEMENT_JS_RBRACKET).reduce((el1, el2) -> el2).get().getTextRangeOffset();
         StringBuilder insertStr = new StringBuilder();
-        if(hasElement) {
+        if (hasElement) {
             insertStr.append(", ");
         }
         insertStr.append(value);
@@ -127,17 +118,17 @@ public class AssociativeArraySection extends AngularResourceContext{
 
     /**
      * adds the core of the arguments section
+     *
      * @param ngModuleArgs
      * @throws IOException
      */
     public void addArgumentsSection(Optional<PsiElementContext> ngModuleArgs) throws IOException {
-        if(ngModuleArgs.get().$q(JS_OBJECT_LITERAL_EXPRESSION).findFirst().isPresent()) {
+        if (ngModuleArgs.get().$q(JS_OBJECT_LITERAL_EXPRESSION).findFirst().isPresent()) {
             return;
         }
         addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(ngModuleArgs.get().getTextRangeOffset() + 1), "{}"));
         commit();
     }
-
 
     /**
      * adds or inserts a section
@@ -147,17 +138,17 @@ public class AssociativeArraySection extends AngularResourceContext{
     public void addOrInsertSection(String sectionName) throws IOException {
         PsiElementContext argsList = this.getResourceRoot();
 
-        if(argsList.$q(JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, TreeQueryEngine.NAME_EQ(sectionName)).findFirst().isPresent()) {
+        if (argsList.$q(JS_OBJECT_LITERAL_EXPRESSION, JS_PROPERTY, TreeQueryEngine.NAME_EQ(sectionName)).findFirst().isPresent()) {
             return;
         }
 
         Optional<PsiElementContext> lastSectionEnd = argsList.
                 //last
                         $q(PSI_ELEMENT_JS_RBRACKET).reduce((el1, el2) -> el2);
-        if(!lastSectionEnd.isPresent()) {
+        if (!lastSectionEnd.isPresent()) {
             addSection(sectionName);
         } else {
-            addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(lastSectionEnd.get().getTextRangeOffset()+1), ",\n    "+sectionName+": []"));
+            addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(lastSectionEnd.get().getTextRangeOffset() + 1), ",\n    " + sectionName + ": []"));
 
         }
         commit();
@@ -165,16 +156,16 @@ public class AssociativeArraySection extends AngularResourceContext{
 
     /**
      * adds a section
+     *
      * @param sectionName
      */
     public void addSection(String sectionName) throws IOException {
 
         PsiElementContext argsList = this.getResourceRoot();
-        int insertPos = argsList.getTextRangeOffset()+ Math.round(argsList.getTextLength() / 2);
-        addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(insertPos), "\n    "+sectionName+": []\n"));
+        int insertPos = argsList.getTextRangeOffset() + Math.round(argsList.getTextLength() / 2);
+        addRefactoring(new RefactorUnit(getPsiFile(), new DummyInsertPsiElement(insertPos), "\n    " + sectionName + ": []\n"));
         commit();
     }
-
 
     @Override
     public String getResourceName() {

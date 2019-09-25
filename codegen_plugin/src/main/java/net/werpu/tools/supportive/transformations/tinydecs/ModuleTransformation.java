@@ -39,9 +39,7 @@ import java.util.Map;
 @Getter
 @AllArgsConstructor
 public class ModuleTransformation implements IArtifactTransformation {
-    
     AngularJSModuleTransformationModel transformationModel;
-
 
     @Override
     public String getTnDecTransformation() throws IOException {
@@ -52,7 +50,6 @@ public class ModuleTransformation implements IArtifactTransformation {
         String text = FileTemplateUtil.mergeTemplate(attrs, getTnTemplate().getText(), false);
         return text;
     }
-
 
     @Override
     public String getNgTransformation() throws IOException {
@@ -66,7 +63,6 @@ public class ModuleTransformation implements IArtifactTransformation {
 
     }
 
-
     protected FileTemplate getTnTemplate() {
         return FileTemplateManager.getInstance(transformationModel.getProject()).getJ2eeTemplate(TnDecGroupFactory.TPL_TN_DEC_MODULE_TRANSFORMATION);
     }
@@ -74,6 +70,5 @@ public class ModuleTransformation implements IArtifactTransformation {
     protected FileTemplate getNgTemplate() {
         return FileTemplateManager.getInstance(transformationModel.getProject()).getJ2eeTemplate(TnDecGroupFactory.TPL_NG_MODULE_TRANSFORMATION);
     }
-
 
 }

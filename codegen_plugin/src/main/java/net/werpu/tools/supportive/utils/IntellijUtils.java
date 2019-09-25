@@ -19,7 +19,7 @@
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ */
 
 
 package net.werpu.tools.supportive.utils;
@@ -40,7 +40,6 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.compiler.CompileContext;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileChooser.FileChooser;
@@ -111,9 +110,7 @@ import static net.werpu.tools.supportive.utils.StringUtils.normalizePath;
  */
 @CustomLog
 public class IntellijUtils {
-
     public static final String NPM_INSTALL_CONSOLE = "NPM Install Console";
-
     public static FileNameTransformer fileNameTransformer = new SimpleFileNameTransformer();
 
     /**
@@ -132,7 +129,7 @@ public class IntellijUtils {
         text = text.replaceAll("\\r", "");
         final Collection<PsiFile> alreadyExisting = Arrays.stream(((PsiJavaFile) javaFile).getClasses()).flatMap(psiJavaClass -> IntellijUtils.searchRefs(project, psiJavaClass.getQualifiedName(), "ts").stream()).collect(Collectors.toList());
 
-        PsiFile file = createRamFileFromText(project,fileName, text, Language.findLanguageByID("TypeScript"));
+        PsiFile file = createRamFileFromText(project, fileName, text, Language.findLanguageByID("TypeScript"));
         ApplicationManager.getApplication().runWriteAction(() -> {
             moveFileToGeneratedDir(file, project, module);
             boolean diffed = false;
@@ -140,7 +137,7 @@ public class IntellijUtils {
 
                 for (PsiFile origFile : alreadyExisting) {
 
-                    diffed = diffed || showDiff(project,  origFile,  file, alreadyExisting.size() == 1);
+                    diffed = diffed || showDiff(project, origFile, file, alreadyExisting.size() == 1);
                 }
             }
             if (!diffed) {
@@ -149,24 +146,24 @@ public class IntellijUtils {
         });
     }
 
-
     /**
      * Generic diff create functionality (TODO replace all other diff creates with this one)
+     *
      * @param project
      * @param folder
      * @param fileName
      * @param content
      * @param language
      */
-    public static void diffOrWriteGenericFile(Project project, VirtualFile folder, String fileName, String content, Language language)  {
+    public static void diffOrWriteGenericFile(Project project, VirtualFile folder, String fileName, String content, Language language) {
 
-        PsiFile file = createRamFileFromText(project,fileName, content, language);
+        PsiFile file = createRamFileFromText(project, fileName, content, language);
         ApplicationManager.getApplication().runWriteAction(() -> {
 
             Optional<VirtualFile> origFile = Arrays.stream(folder.getChildren()).filter(virtualFile -> virtualFile.getName().equals(fileName)).findFirst();
             if (origFile.isPresent()) {
-               IntellijFileContext ctx = new IntellijFileContext(project, origFile.get());
-               showDiff(project,  ctx.getPsiFile(), file, true);
+                IntellijFileContext ctx = new IntellijFileContext(project, origFile.get());
+                showDiff(project, ctx.getPsiFile(), file, true);
             } else {
                 try {
                     createAndOpen(project, folder, content, fileName);
@@ -185,7 +182,6 @@ public class IntellijUtils {
             FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
             descriptor.setTitle("Select Generation Target Directory");
             descriptor.setDescription("Please choose a target directory");
-
 
             if (!Strings.isNullOrEmpty(oldPath)) {
                 VirtualFile storedPath = LocalFileSystem.getInstance().findFileByPath(oldPath);
@@ -227,7 +223,7 @@ public class IntellijUtils {
      * @param file     the newly generated file
      * @param origFile the original file
      */
-    public static boolean showDiff(Project project, PsiFile origFile,  PsiFile file, boolean showTemp) {
+    public static boolean showDiff(Project project, PsiFile origFile, PsiFile file, boolean showTemp) {
         //we do not show the diffs of target files
         String title = "Reference already exists";
         return showDiff(project, title, origFile, file, showTemp);
@@ -248,11 +244,9 @@ public class IntellijUtils {
                 "Newly Generated File"//,
                 /*"Java File: "+javaFile.getVirtualFile().getPath().substring(project.getBasePath().length()*/);
 
-
         DiffManager.getInstance().showDiff(project, request);
         return true;
     }
-
 
     /**
      * Shows a three panel diff
@@ -261,7 +255,7 @@ public class IntellijUtils {
      * @param file     the newly generated file
      * @param origFile the original file
      */
-    public static boolean showDiff(String title, Project project, Document origFile, Document file,  boolean showTemp) {
+    public static boolean showDiff(String title, Project project, Document origFile, Document file, boolean showTemp) {
         //we do not show the diffs of target files
 
         SimpleDiffRequest request = new SimpleDiffRequest(
@@ -271,7 +265,6 @@ public class IntellijUtils {
 
                 "Original File ",
                 "Altered File");
-
 
         DiffManager.getInstance().showDiff(project, request);
         return true;
@@ -314,7 +307,6 @@ public class IntellijUtils {
         for (VirtualFile virtualFile1 : classessRoots) {
             urls.add(addClassPath(virtualFile1));
         }
-
 
         return new URLClassLoader(urls.toArray(new URL[urls.size()]), IntellijUtils.class.getClassLoader());
     }
@@ -444,11 +436,8 @@ public class IntellijUtils {
         return ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(vFile);
     }
 
-
-
     public static boolean generateService(Project project, Module module, PsiJavaFile javaFile, boolean ng) throws ClassNotFoundException {
         final AtomicBoolean retVal = new AtomicBoolean(true);
-
 
         Arrays.stream(javaFile.getClasses()).forEach(javaClass -> {
             if (!javaClass.hasModifierProperty(PsiModifier.PUBLIC) || !retVal.get()) {
@@ -466,7 +455,6 @@ public class IntellijUtils {
             }
             String text = IntellijRestGenerator.generate(project, restService, ng);//TypescriptRestGenerator.generate(restService, ng);
 
-
             String fileName = fileNameTransformer.transform(restService.get(0).getServiceName());
 
             generateOrDiffTsFile(text, fileName, restService.get(0).getServiceName(), project, module, javaFile, ArtifactType.SERVICE);
@@ -475,10 +463,8 @@ public class IntellijUtils {
         return retVal.get();
     }
 
-
     public static boolean generateService(Project project, Module module, String className, PsiFile javaFile, URLClassLoader urlClassLoader, boolean ng) throws ClassNotFoundException {
         Class compiledClass = urlClassLoader.loadClass(className);
-
 
         List<RestService> restService = SpringJavaRestReflector.reflectRestService(Arrays.asList(compiledClass), true);
         if (restService == null || restService.isEmpty()) {
@@ -516,32 +502,30 @@ public class IntellijUtils {
      * going over the temp file route
      * way better this way.
      *
-     * @param project the project to create the file in
-     * @param folder the target folder
-     * @param str text content of the file
+     * @param project  the project to create the file in
+     * @param folder   the target folder
+     * @param str      text content of the file
      * @param fileName the file name
-     *
      * @return
      * @throws IOException
      */
     public static VirtualFile createFileDirectly(Project project, VirtualFile folder, String str, String fileName) throws IOException {
-        File f = new File(folder.getPath()+"/"+fileName);
+        File f = new File(folder.getPath() + "/" + fileName);
         f.createNewFile();
         f.setWritable(true);
-        PrintWriter out = new PrintWriter(folder.getPath()+"/"+fileName);
+        PrintWriter out = new PrintWriter(folder.getPath() + "/" + fileName);
         out.println(str);
         out.flush();
         out.close();
         VirtualFileManager.getInstance().syncRefresh();
         URL url = new File(f.getAbsolutePath()).toURI().toURL();
         String path = url.getPath();
-        if(path.startsWith("/")) {
+        if (path.startsWith("/")) {
             path = path.substring(1);
         }
-        String fileUrl = url.getProtocol()+":///"+ path;
+        String fileUrl = url.getProtocol() + ":///" + path;
 
         VirtualFile vFile = VirtualFileManager.getInstance().findFileByUrl(fileUrl);
-
 
         return vFile;
     }
@@ -592,7 +576,6 @@ public class IntellijUtils {
     public static void npmInstall(Project project, String projectDir, String doneMessage, String doneTitle) {
         BackgroundableProcessIndicator myProcessIndicator = null;
 
-
         boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
         GeneralCommandLine cmd = new GeneralCommandLine(isWindows ? "npm.cmd" : "npm", "install", "--verbose", "--no-progress");
         cmd.withWorkDirectory(projectDir);
@@ -601,7 +584,6 @@ public class IntellijUtils {
         }
 
         cmd.withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE);
-
 
         Process p2 = null;
         try {
@@ -615,7 +597,7 @@ public class IntellijUtils {
         final Process p = p2;
         ConsoleFactory.getInstance(p, project, NPM_INSTALL_CONSOLE);
 
-        final Task.Backgroundable myTask = backgroundTask(project,"calling npm install", (progressIndicator) -> {
+        final Task.Backgroundable myTask = backgroundTask(project, "calling npm install", (progressIndicator) -> {
             try {
                 while (p.isAlive()) {
                     Thread.sleep(1000);
@@ -638,7 +620,6 @@ public class IntellijUtils {
 
         runWithProcessAsnyc(myTask, "Running npm install");
 
-
     }
 
     /**
@@ -647,7 +628,6 @@ public class IntellijUtils {
      *
      * @param tree the tree which needs to be searched
      * @return a conversion function on the current tree from node to searchable string
-     *
      */
     public static Convertor<TreePath, String> convertToSearchableString(Tree tree) {
         return (TreePath treePath) -> {
@@ -662,11 +642,11 @@ public class IntellijUtils {
 
             if (userObject instanceof PsiRouteContext) {
                 return ((PsiRouteContext) userObject).getRoute().getRouteVarName();
-            } else if(userObject instanceof IAngularFileContext) {
+            } else if (userObject instanceof IAngularFileContext) {
                 String resourcePath = ((IAngularFileContext) userObject).getVirtualFile().getPath();
                 String projectPath = ((IAngularFileContext) userObject).getPsiFile().getProject().getBasePath();
                 Path relPath = Paths.get(projectPath).relativize(Paths.get(resourcePath));
-                return  ((IAngularFileContext) userObject).getDisplayName()+ " "+  StringUtils.normalizePath(relPath.toString());
+                return ((IAngularFileContext) userObject).getDisplayName() + " " + StringUtils.normalizePath(relPath.toString());
             }
             return null;
 
@@ -675,18 +655,16 @@ public class IntellijUtils {
 
     public static boolean isTypescript(FileType fileType) {
         String defaultExtension = fileType.getDefaultExtension();
-        if(!defaultExtension.startsWith(".")) {
-            defaultExtension = "."+defaultExtension;
+        if (!defaultExtension.startsWith(".")) {
+            defaultExtension = "." + defaultExtension;
         }
         return defaultExtension.equalsIgnoreCase(getTsExtension());
     }
 
-
-
     public static boolean isJSON(FileType fileType) {
         String defaultExtension = fileType.getDefaultExtension();
-        if(!defaultExtension.startsWith(".")) {
-            defaultExtension = "."+defaultExtension;
+        if (!defaultExtension.startsWith(".")) {
+            defaultExtension = "." + defaultExtension;
         }
         return defaultExtension.equalsIgnoreCase(getJsonExtension());
     }
@@ -699,11 +677,6 @@ public class IntellijUtils {
         } finally {
             ProjectManagerEx.getInstanceEx().unblockReloadingProjectOnExternalChanges();
         }
-    }
-
-
-    static class ClassHolder {
-        public Class hierarchyEndpoint = null;
     }
 
     public static boolean generateDto(Project project, Module module, String className, PsiFile javaFile, URLClassLoader urlClassLoader) throws ClassNotFoundException {
@@ -751,10 +724,8 @@ public class IntellijUtils {
             generateOrDiffTsFile(text, fileName, className, project, module, javaFile, ArtifactType.DTO);
         }
 
-
         return true;
     }
-
 
     public static boolean generateDto(Project project, Module module, PsiJavaFile javaFile) throws ClassNotFoundException {
         final AtomicBoolean retVal = new AtomicBoolean(true);
@@ -770,7 +741,6 @@ public class IntellijUtils {
 
                 Confirm dialog = new Confirm(data -> {
 
-
                     List<GenericClass> dtos = IntellijDtoReflector.reflectDto(Arrays.asList(javaClass), data);
                     if (dtos == null || dtos.isEmpty()) {
                         Messages.showErrorDialog(project, "No rest code was found in the selected file", "An Error has occurred");
@@ -778,7 +748,6 @@ public class IntellijUtils {
                         return false;
                     }
                     String text = IntellijDtoGenerator.generate(project, dtos);//TypescriptDtoGenerator.generate(dtos);
-
 
                     String fileName = fileNameTransformer.transform(dtos.get(0).getName());
                     generateOrDiffTsFile(text, fileName, className, project, module, javaFile, ArtifactType.DTO);
@@ -804,10 +773,8 @@ public class IntellijUtils {
             }
         });
 
-
         return retVal.get();
     }
-
 
     /**
      * search in the comments of a given filetype for refs
@@ -842,7 +809,6 @@ public class IntellijUtils {
         return foundFiles;
     }
 
-
     public static Collection<PsiFile> searchFiles(Project project, String extension, String searchStr) {
         List<PsiFile> foundFiles = Lists.newLinkedList();
 
@@ -855,7 +821,6 @@ public class IntellijUtils {
                     }
                     return false;
                 }, true);
-
 
         return foundFiles;
     }
@@ -871,7 +836,6 @@ public class IntellijUtils {
             com.intellij.openapi.ui.Messages.showErrorDialog(project, message, title);
         });
     }
-
 
     public static String getTsExtension() {
         String retVal = FileTypeManager.getInstance().getStdFileType("TypeScript").getDefaultExtension();
@@ -905,14 +869,10 @@ public class IntellijUtils {
         return retVal;
     }
 
-    /*
-     * Action helpers to improve readability
-     */
-
     public static List<Object> flattendArr(Object[] items) {
         List<Object> retList = new LinkedList<>();
-        for(Object item: items) {
-            if(item.getClass().isArray()) {
+        for (Object item : items) {
+            if (item.getClass().isArray()) {
                 retList.addAll(flattendArr((Object[]) item));
             } else {
                 retList.add(item);
@@ -920,6 +880,10 @@ public class IntellijUtils {
         }
         return retList;
     }
+
+    /*
+     * Action helpers to improve readability
+     */
 
     /**
      * one of the most important functions
@@ -937,7 +901,6 @@ public class IntellijUtils {
                 language, text);
     }
 
-
     public static Language getTypescriptLanguageDef() {
         return LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("TypeScript"));
     }
@@ -946,10 +909,9 @@ public class IntellijUtils {
         return LanguageUtil.getFileTypeLanguage(FileTypeManager.getInstance().getStdFileType("JSON"));
     }
 
-
     public static Optional<Language> getTnDecTemplateLanguageDef() {
         Language lang = getHtmlLanguage();
-        Language [] dialects = LanguageUtil.getLanguageDialects(lang);
+        Language[] dialects = LanguageUtil.getLanguageDialects(lang);
         Optional<Language> languageVariant = Arrays.asList(dialects).stream().filter(item -> item.getDisplayName().toLowerCase().contains("angularjs")).findFirst();
         return languageVariant;
     }
@@ -958,12 +920,16 @@ public class IntellijUtils {
         return LanguageUtil.getFileTypeLanguage(StdFileTypes.HTML);
     }
 
-
     public static Optional<Language> getNgTemplateLanguageDef() {
         Language lang = getHtmlLanguage();
-        Language [] dialects = LanguageUtil.getLanguageDialects(lang);
+        Language[] dialects = LanguageUtil.getLanguageDialects(lang);
         Optional<Language> languageVariant = Arrays.asList(dialects).stream().filter(item -> item.getDisplayName().toLowerCase().contains("angular2")).findFirst();
         return languageVariant;
+    }
+
+
+    static class ClassHolder {
+        public Class hierarchyEndpoint = null;
     }
 
 }

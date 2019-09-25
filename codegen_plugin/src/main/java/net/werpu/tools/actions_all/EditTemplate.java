@@ -28,7 +28,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.command.impl.UndoManagerImpl;
 import com.intellij.openapi.command.undo.UndoManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -64,10 +63,8 @@ import static net.werpu.tools.supportive.utils.IntellijRunUtils.invokeLater;
 import static net.werpu.tools.supportive.utils.IntellijUtils.createRamFileFromText;
 import static net.werpu.tools.supportive.utils.SwingUtils.createHtmlEditor;
 
-
 @CustomLog
 public class EditTemplate extends AnAction implements EditorCallback {
-
     public static final String TEMPLATE_OF = "Template of: ";
 
     public void update(AnActionEvent anActionEvent) {
@@ -78,13 +75,11 @@ public class EditTemplate extends AnAction implements EditorCallback {
             return;
         }
 
-
         anActionEvent.getPresentation().setEnabledAndVisible(true);
     }
 
     @Override
     public void hasTyped(Editor editor) {
-
 
     }
 
@@ -94,13 +89,11 @@ public class EditTemplate extends AnAction implements EditorCallback {
 
         ComponentFileContext fileContext = new ComponentFileContext(e);
 
-
         if (!fileContext.getTemplateTextAsStr().isPresent()) {
             net.werpu.tools.supportive.utils.IntellijUtils.showErrorDialog(fileContext.getProject(), "No template string could be found", Messages.ERR_OCCURRED);
             return;
         }
         final Editor ediOrig = IntellijUtils.getEditor(e);
-
 
         runWriteCommandAction(fileContext.getProject(), () -> {
 
@@ -112,9 +105,8 @@ public class EditTemplate extends AnAction implements EditorCallback {
             //and on every doc update I update the original editor document
             //intellij handles the rest
             String title = TEMPLATE_OF + fileContext.getVirtualFile().getName();
-            PsiFile workFile = createRamFileFromText(fileContext.getProject(),title,
+            PsiFile workFile = createRamFileFromText(fileContext.getProject(), title,
                     "", HTMLLanguage.INSTANCE);
-
 
             final RetVal htmlEditContext = createDoubleBuffer(fileContext, workFile);
             final Document doubleBuffer = htmlEditContext.getDocument();
@@ -142,7 +134,6 @@ public class EditTemplate extends AnAction implements EditorCallback {
                         () -> appendBehavior(fileContext, ediOrig, title, doubleBuffer)
                 );
             }
-
 
         });
     }
@@ -213,7 +204,6 @@ public class EditTemplate extends AnAction implements EditorCallback {
         });
     }
 
-
     void closeOldEditor(Project project, String title) {
 
         executeOntabs(project, title, (editorPos, htmlPos, ed, tabbedPane) -> {
@@ -223,7 +213,6 @@ public class EditTemplate extends AnAction implements EditorCallback {
         });
 
     }
-
 
     @NotNull
     public DocumentListener newCloseListener(ComponentFileContext fileContext, Editor ediOrig, String title) {
@@ -235,7 +224,6 @@ public class EditTemplate extends AnAction implements EditorCallback {
 
             @Override
             public void documentChanged(DocumentEvent event) {
-
 
                 if (fileContext.inTemplate(event.getOffset())) {
                     //Arrays.stream(editors).forEach(editor -> editor.dispose());
@@ -279,6 +267,7 @@ public class EditTemplate extends AnAction implements EditorCallback {
     interface TabExecutor {
         void apply(int editorPos, int htmlEditorPos, EditorWindow ed, EditorTabbedContainer tabbedPane);
     }
+
 
     @Getter
     @AllArgsConstructor

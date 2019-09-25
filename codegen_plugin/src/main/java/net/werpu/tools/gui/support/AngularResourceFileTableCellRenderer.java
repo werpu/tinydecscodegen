@@ -31,7 +31,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class AngularResourceFileTableCellRenderer extends DefaultTableCellRenderer {
-
     @Override
     protected void setValue(Object value) {
         if (value instanceof IAngularFileContext) {

@@ -40,7 +40,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 public class CreateNgPipe extends CreateTnDecFilter {
-
     @Override
     public void update(AnActionEvent anActionEvent) {
         VisibleAssertions.ngVisible(anActionEvent);
@@ -60,7 +59,6 @@ public class CreateNgPipe extends CreateTnDecFilter {
     protected void generate(Project project, VirtualFile folder, String className, FileTemplate vslTemplate, Map<String, Object> attrs) {
         new GenerateFileAndAddRef(project, folder, className, vslTemplate, attrs, new NgFileNameTransformer("pipe"), ModuleElementScope.DECLARATIONS, ModuleElementScope.EXPORT).run();
     }
-
 
     @NotNull
     @Override

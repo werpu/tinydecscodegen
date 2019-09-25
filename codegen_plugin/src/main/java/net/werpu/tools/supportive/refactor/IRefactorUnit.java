@@ -27,20 +27,19 @@ package net.werpu.tools.supportive.refactor;
 /**
  * generic interface describing a refactoring
  * a refactoring is always an atomic substitution on the AST
- *
+ * <p>
  * aka following the crud rules
- *
+ * <p>
  * insert -> replace "" -> with someting
  * update -> remove and insert with something differet
  * remove  something -> ""
- *
+ * <p>
  * A more complex refactoring is a chain of refactor units
  * ATM we only allow refactorings on a single file
  * (multi file refactorings are atm not part of any plugin
  * functionality)
  */
 public interface IRefactorUnit {
-
     /**
      * @return absolute start offset (to the parent document root)
      */

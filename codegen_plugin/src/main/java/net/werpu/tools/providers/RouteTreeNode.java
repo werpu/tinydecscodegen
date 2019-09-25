@@ -40,17 +40,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * Abstract treenode for our Psi Route Contexts
  */
 @Setter
 @Getter
 public class RouteTreeNode extends AbstractTreeNode<PsiRouteContext> {
-
-
     List<RouteTreeNode> children = Lists.newLinkedList();
-
     Map<String, RouteTreeNode> _routeIdx = new HashMap<>();
 
     public RouteTreeNode(Project project, PsiRouteContext value) {
@@ -61,7 +57,6 @@ public class RouteTreeNode extends AbstractTreeNode<PsiRouteContext> {
         applyFrom(nodeDescriptor);
 
     }
-
 
     //TODO check how to handle go to component
     @Override
@@ -84,6 +79,5 @@ public class RouteTreeNode extends AbstractTreeNode<PsiRouteContext> {
     protected void update(PresentationData presentationData) {
 
     }
-
 
 }

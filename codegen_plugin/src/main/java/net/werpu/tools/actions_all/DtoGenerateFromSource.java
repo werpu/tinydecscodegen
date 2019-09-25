@@ -28,7 +28,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
@@ -36,7 +35,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiJavaFile;
 import lombok.CustomLog;
-import net.werpu.tools.actions.ServiceGenerationAction;
 import net.werpu.tools.actions_all.shared.JavaFileContext;
 import net.werpu.tools.actions_all.shared.SimpleFileNameTransformer;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
@@ -46,9 +44,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 
 import static net.werpu.tools.actions_all.shared.VisibleAssertions.*;
+
 @CustomLog
 public class DtoGenerateFromSource extends AnAction {
-
     public void update(AnActionEvent anActionEvent) {
         final Project project = anActionEvent.getData(CommonDataKeys.PROJECT);
         if (project == null)

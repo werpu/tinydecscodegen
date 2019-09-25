@@ -60,6 +60,7 @@ JSFile:Dummy.ts(0,37)
 
  */
 
+
 /**
  * a file context pointing to a
  * template.ts file
@@ -67,12 +68,10 @@ JSFile:Dummy.ts(0,37)
  * export let template = '&lt;template text&gt;';
  */
 public class TemplateFileContext extends TypescriptFileContext {
-
+    Optional<RangeMarker> rangeMarker = Optional.empty();
     @Getter
     private String refName;
-
     private Optional<PsiElement> templateText;
-    Optional<RangeMarker> rangeMarker = Optional.empty();
 
     public TemplateFileContext(String refName, Project project, PsiFile psiFile) {
         super(project, psiFile);
@@ -88,29 +87,27 @@ public class TemplateFileContext extends TypescriptFileContext {
         rangeMarker = getInitialRangeMarker();
     }
 
-
     public void directUpdateTemplate(String text) {
-        if(this.rangeMarker.isPresent()) {
+        if (this.rangeMarker.isPresent()) {
             rangeMarker = Optional.of(replaceText(document, rangeMarker.get(), text, rangeMarker.get().getStartOffset() == 0 ? "" : "`"));
         }
     }
 
-
     private RangeMarker replaceText(Document doc, RangeMarker marker, String newText, String quot) {
-        newText = quot+newText+quot;
+        newText = quot + newText + quot;
         doc.replaceString(marker.getStartOffset(), marker.getEndOffset(), newText);
 
-        return doc.createRangeMarker(marker.getStartOffset(), marker.getStartOffset()+newText.length());
+        return doc.createRangeMarker(marker.getStartOffset(), marker.getStartOffset() + newText.length());
     }
 
     Optional<PsiElement> getPsiTemplateText() {
-        Optional<PsiElementContext> elCtx =  super.queryContent(TYPE_SCRIPT_VARIABLE, TreeQueryEngine.NAME_EQ(refName), STRING_TEMPLATE_EXPR).findFirst();
-        if(elCtx.isPresent()) {
+        Optional<PsiElementContext> elCtx = super.queryContent(TYPE_SCRIPT_VARIABLE, TreeQueryEngine.NAME_EQ(refName), STRING_TEMPLATE_EXPR).findFirst();
+        if (elCtx.isPresent()) {
             return Optional.of(elCtx.get().element);
         } else {
             //fallback to literal expression for other not determinalbe strings
-            elCtx =  super.queryContent(TYPE_SCRIPT_VARIABLE, TreeQueryEngine.NAME_EQ(refName), JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
-            if(elCtx.isPresent()) {
+            elCtx = super.queryContent(TYPE_SCRIPT_VARIABLE, TreeQueryEngine.NAME_EQ(refName), JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+            if (elCtx.isPresent()) {
                 return Optional.of(elCtx.get().element);
             }
         }
@@ -122,29 +119,27 @@ public class TemplateFileContext extends TypescriptFileContext {
           el2.getChildren()[0].toString().equals("JSStringTemplateExpression"))
                 .map(el2 -> el2.getChildren()[0]).findFirst();*/
 
-
     }
 
     Optional<RangeMarker> getInitialRangeMarker() {
-        if(!templateText.isPresent()) {
+        if (!templateText.isPresent()) {
             return Optional.empty();
         }
         return Optional.of(document.createRangeMarker(templateText.get().getTextRange()));
     }
 
     public Optional<String> getTemplateTextAsStr() {
-        if(!templateText.isPresent()) {
+        if (!templateText.isPresent()) {
             return Optional.empty();
         }
         return Optional.of(templateText.get().getText());
     }
 
     public void setTemplateText(String newText) {
-        if(!templateText.isPresent()) {
+        if (!templateText.isPresent()) {
             return;
         }
         super.addRefactoring(new RefactorUnit(psiFile, this.templateText.get(), "`" + newText + "`"));
     }
-
 
 }

@@ -60,8 +60,6 @@ import static java.util.Optional.ofNullable;
 import static net.werpu.tools.actions_all.shared.FormAssertions.*;
 
 public class CreateNgRoute extends AnAction {
-
-
     public static final String ROOT_MODULE = "[]";
 
     //TODO element nearest
@@ -124,7 +122,6 @@ public class CreateNgRoute extends AnAction {
         }
 
         DialogWrapper dialogWrapper = new DialogWrapper(fileContext.getProject(), true, DialogWrapper.IdeModalityType.PROJECT) {
-
             @Nullable
             @Override
             protected JComponent createCenterPanel() {
@@ -148,7 +145,6 @@ public class CreateNgRoute extends AnAction {
                 return CreateNgRoute.this.validate(route, ctx, mainForm);
             }
 
-
             @Override
             public void init() {
                 super.init();
@@ -163,12 +159,10 @@ public class CreateNgRoute extends AnAction {
             }
         };
 
-
         dialogWrapper.setTitle("Create Route");
         dialogWrapper.getWindow().setPreferredSize(new Dimension(400, 300));
 
         dialogWrapper.show();
-
 
         if (dialogWrapper.isOK()) {
             Route route = getRoute(mainForm, selectorModel);
@@ -192,7 +186,6 @@ public class CreateNgRoute extends AnAction {
                                             .findFirst().get();
                                     rContext.addRoute(route, moduleFileContext);
                                 }
-
 
                                 rContext.commit();
                                 net.werpu.tools.supportive.utils.IntellijUtils.showInfoMessage("The new route has been added", "Info");
@@ -232,7 +225,6 @@ public class CreateNgRoute extends AnAction {
 
     @NotNull
     public Route getRoute(CreateRoute mainForm, ComponentSelectorModel selectorModel) {
-
 
         return new Route(
                 mainForm.getTxtRouteName().getText(),
