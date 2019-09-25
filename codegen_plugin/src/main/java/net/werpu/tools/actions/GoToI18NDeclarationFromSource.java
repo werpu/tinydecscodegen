@@ -51,6 +51,9 @@ public class GoToI18NDeclarationFromSource extends AnAction {
 
     @Override
     public void update(AnActionEvent anActionEvent) {
+        if(true) {
+            return;
+        }
         //must be either typescript or html to be processable
         VisibleAssertions.templateVisible(anActionEvent);
         if (IntellijUtils.getFolderOrFile(anActionEvent) == null) {

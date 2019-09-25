@@ -37,10 +37,17 @@ import net.werpu.tools.supportive.utils.SwingUtils;
 
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static net.werpu.tools.supportive.reflectRefact.PsiAnnotationUtils.getPositionFilter;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
+import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.PARENTS_EQ;
 
+/**
+ * a model to determine the i18n key from a
+ * cursor position within an embeded template
+ */
 @Getter
 @RequiredArgsConstructor
 @AllArgsConstructor
@@ -62,45 +69,129 @@ public class I18NKeyModel {
 
         //search for an embedded string template in case of an embedded template
         //we can recycle a lot from the parsing of the i18n transformation model
-        Optional<PsiElementContext> oCtx = fileContext.$q(STRING_TEMPLATE_EXPR)
-                .filter(positionFilter)
+        HandleTagTextPattern handleTagTextPattern = new HandleTagTextPattern(cursorPos, positionFilter).invoke();
+        if (handleTagTextPattern.is()) return;
+        Predicate<PsiElementContext> positionFilterEmbedded = handleTagTextPattern.getPositionFilterEmbedded();
+        Language language = handleTagTextPattern.getLanguage();
+        IntellijFileContext parsingRoot = handleTagTextPattern.getParsingRoot();
+        handleXMLAttributePattern(positionFilterEmbedded, language, parsingRoot);
+        return;
+
+    }
+
+    private void handleXMLAttributePattern(Predicate<PsiElementContext> positionFilterEmbedded, Language language, IntellijFileContext parsingRoot) {
+        Optional<PsiElementContext> toReplace;
+        PsiFile ramFile;//case xml attribute and xml attribute value
+        toReplace = parsingRoot.$q(PSI_XML_ATTRIBUTE_VALUE).filter(positionFilterEmbedded)
                 .reduce((el1, el2) -> el2);
-        PsiElementContext rootElementContext = oCtx.isPresent() ? oCtx.get() : new PsiElementContext(fileContext.getPsiFile()).$q("PsiElement(HTML_DOCUMENT)").findFirst().get();
-
-
-        String templateText = (oCtx.isPresent()) ? oCtx.get().getText().substring(1, Math.max(0, oCtx.get().getTextLength() - 1)) : fileContext.getText();
-        int newOffset = oCtx.isPresent() ? oCtx.get().getTextRangeOffset() + 1 : rootElementContext.getTextRangeOffset();
-        Predicate<PsiElementContext> positionFilterEmbedded = el -> {
-            int offSet = el.getTextRangeOffset();
-            int offSetEnd = offSet + el.getText().length();
-            return cursorPos >= (offSet + newOffset) && cursorPos <= (offSetEnd + newOffset);
-        };
-
-
-        Language language = IntellijUtils.getTnDecTemplateLanguageDef().orElse(IntellijUtils.getNgTemplateLanguageDef().orElse(IntellijUtils.getHtmlLanguage()));
-        PsiFile ramFile = IntellijUtils.createRamFileFromText(fileContext.getProject(),
-                "template.html",
-                templateText,
-                //TODO make a distinction between tndec and and ng via our internal detector engine
-                language.getDialects().size() > 0 ? language.getDialects().get(0) : language);
-        //determine which case of embedding we have here
-        IntellijFileContext parsingRoot = new IntellijFileContext(fileContext.getProject(), ramFile);
-
-        Optional<PsiElementContext> toReplace = parsingRoot.$q(PSI_ELEMENT_JS_STRING_LITERAL).filter(positionFilterEmbedded)
-                .reduce((el1, el2) -> el2);
-
         if (toReplace.isPresent()) {
-            key = toReplace.get().getUnquotedText();
-            if(key.startsWith("ctrl.")) {
-                key = key.substring(5);
+            Optional<PsiElementContext> xmlNameElement = toReplace.get().$q(PARENTS_EQ(PSI_XML_ATTRIBUTE), XML_ATTRIBUTE_NAME).findFirst();
+            String name = xmlNameElement.orElseThrow(ElementNotResolvableException::new).getText();
+            PsiElementContext foundElement = toReplace.get();
+            //in case of translate we make a simple replace
+            //in the other cases we have to introduce an interpolation
+            //sidenote interpolations for this case are already handled by the first part
+            boolean translate = name.equals("translate");
+            Optional<PsiElementContext> first = foundElement.$q(XML_ATTRIBUTE_VALUE).findFirst();
+            if (translate) {
+                fetchKey(first);
+                return;
             }
-            if(key.contains(" ")) {
-                throw new ElementNotResolvableException();
+            //we cannot drill deeper psi-treewise
+            //now regular expressions must do the job
+            String translateText = first.get().getText();
+            Pattern p = Pattern.compile("('|\")([^('|\")]+)('|\").*");
+            Matcher matcher = p.matcher(translateText);
+            if (matcher.find()) {
+                this.key = matcher.group(2);
+                fixKey();
+                return;
+            } else {
+                key = translateText;
+                fixKey();
             }
-            return;
+        }
+        throw new ElementNotResolvableException();
+    }
+
+    private void fetchKey(Optional<PsiElementContext> toReplace) {
+        key = toReplace.orElseThrow(ElementNotResolvableException::new).getUnquotedText();
+        fixKey();
+    }
+
+    private void fixKey() {
+        if (key.startsWith("ctrl.")) {
+            key = key.substring(5);
+        }
+        if (key.contains(" ")) {
+            throw new ElementNotResolvableException();
+        }
+    }
+
+    private class HandleTagTextPattern {
+        private boolean myResult;
+        private int cursorPos;
+        private Predicate<PsiElementContext> positionFilter;
+        private Predicate<PsiElementContext> positionFilterEmbedded;
+        private Language language;
+        private IntellijFileContext parsingRoot;
+
+        public HandleTagTextPattern(int cursorPos, Predicate<PsiElementContext> positionFilter) {
+            this.cursorPos = cursorPos;
+            this.positionFilter = positionFilter;
         }
 
-        throw new ElementNotResolvableException();
+        boolean is() {
+            return myResult;
+        }
 
+        public Predicate<PsiElementContext> getPositionFilterEmbedded() {
+            return positionFilterEmbedded;
+        }
+
+        public Language getLanguage() {
+            return language;
+        }
+
+        public IntellijFileContext getParsingRoot() {
+            return parsingRoot;
+        }
+
+        public HandleTagTextPattern invoke() {
+            Optional<PsiElementContext> oCtx = fileContext.$q(STRING_TEMPLATE_EXPR)
+                    .filter(positionFilter)
+                    .reduce((el1, el2) -> el2);
+            PsiElementContext rootElementContext = oCtx.isPresent() ? oCtx.get() : new PsiElementContext(fileContext.getPsiFile()).$q("PsiElement(HTML_DOCUMENT)").findFirst().get();
+
+
+            String templateText = (oCtx.isPresent()) ? oCtx.get().getText().substring(1, Math.max(0, oCtx.get().getTextLength() - 1)) : fileContext.getText();
+            int newOffset = oCtx.isPresent() ? oCtx.get().getTextRangeOffset() + 1 : rootElementContext.getTextRangeOffset();
+            positionFilterEmbedded = el -> {
+                int offSet = el.getTextRangeOffset();
+                int offSetEnd = offSet + el.getText().length();
+                return cursorPos >= (offSet + newOffset) && cursorPos <= (offSetEnd + newOffset);
+            };
+
+
+            language = IntellijUtils.getTnDecTemplateLanguageDef().orElse(IntellijUtils.getNgTemplateLanguageDef().orElse(IntellijUtils.getHtmlLanguage()));
+            PsiFile ramFile = IntellijUtils.createRamFileFromText(fileContext.getProject(),
+                    "template.html",
+                    templateText,
+                    //TODO make a distinction between tndec and and ng via our internal detector engine
+                    language.getDialects().size() > 0 ? language.getDialects().get(0) : language);
+            //determine which case of embedding we have here
+            parsingRoot = new IntellijFileContext(fileContext.getProject(), ramFile);
+
+            Optional<PsiElementContext> toReplace = parsingRoot.$q(PSI_ELEMENT_JS_STRING_LITERAL).filter(positionFilterEmbedded)
+                    .reduce((el1, el2) -> el2);
+
+            if (toReplace.isPresent()) {
+                fetchKey(toReplace);
+                myResult = true;
+                return this;
+            }
+            myResult = false;
+            return this;
+        }
     }
 }

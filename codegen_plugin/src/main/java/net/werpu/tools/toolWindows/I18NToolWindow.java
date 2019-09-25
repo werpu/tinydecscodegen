@@ -94,6 +94,7 @@ public class I18NToolWindow implements ToolWindowFactory {
     boolean initialized = false;
 
 
+
     @SuppressWarnings("unchecked")
     public I18NToolWindow() {
 
