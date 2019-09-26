@@ -212,13 +212,8 @@ public class I18NToolWindow implements ToolWindowFactory {
         Content content = contentFactory.createContent(toolWindowPanel, "", false);
         toolWindow.getContentManager().addContent(content);
 
-        if (toolWindow instanceof ToolWindowEx) {
-            AnAction[] titleActions = new AnAction[]{
-                    CommonActionsManager.getInstance().createExpandAllHeaderAction(files.getTree()),
-                    CommonActionsManager.getInstance().createCollapseAllHeaderAction(files.getTree())
-            };
-            ((ToolWindowEx) toolWindow).setTitleActions(titleActions);
-        }
+
+        setupActionBar(toolWindow, toolWindowPanel);
     }
 
     private void evtGoToDeclaration(VirtualFile virtualFile, I18NKeyModel model) {
@@ -370,7 +365,8 @@ public class I18NToolWindow implements ToolWindowFactory {
 
                 files.getTree().setRootVisible(false);
                 files.getTree().setModel(newModel);
-                setupActionBar(toolWindow, toolWindowPanel);
+
+
 
                 /*found this usefule helper in the jetbrains intellij sources*/
                 if (searchPath == null) {

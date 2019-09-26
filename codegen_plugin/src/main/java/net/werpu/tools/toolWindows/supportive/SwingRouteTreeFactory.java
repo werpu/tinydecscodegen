@@ -46,7 +46,7 @@ public class SwingRouteTreeFactory {
         DefaultMutableTreeNode treeNodes = new SwingRootParentNode(label);
 
         //lets make the tree Nodes
-        List<PsiRouteContext> sortedRoutes = ctx.getRoutes().stream().sorted(Comparator.comparing(PsiRouteContext::getRoute)).collect(Collectors.toList());
+        List<PsiRouteContext> sortedRoutes = (List<PsiRouteContext>) ctx.getRoutes().stream().sorted(Comparator.comparing(PsiRouteContext::getRoute)).collect(Collectors.toList());
 
         for (PsiRouteContext route : sortedRoutes) {
 
