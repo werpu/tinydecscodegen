@@ -40,7 +40,7 @@ allprojects {
 }
 
 
-def GRADLE_VERSION = '1.18.10'
+def LOMBOK_VERSION = '1.18.10'
 
 subprojects {
     apply plugin: 'java'
@@ -72,10 +72,10 @@ subprojects {
         compile group: 'com.thoughtworks.paranamer', name: 'paranamer', version: '2.4'
         compile group: 'org.jboss.resteasy', name: 'jaxrs-api', version: '3.0.12.Final'
 
-        annotationProcessor group:'org.projectlombok', name:'lombok', version: GRADLE_VERSION
-        compileOnly group: 'org.projectlombok', name: 'lombok', version: GRADLE_VERSION
-        testAnnotationProcessor group:'org.projectlombok', name:'lombok', version: GRADLE_VERSION
-        testCompileOnly group: 'org.projectlombok', name: 'lombok', version: GRADLE_VERSION
+        annotationProcessor group:'org.projectlombok', name:'lombok', version: LOMBOK_VERSION
+        compileOnly group: 'org.projectlombok', name: 'lombok', version: LOMBOK_VERSION
+        testAnnotationProcessor group:'org.projectlombok', name:'lombok', version: LOMBOK_VERSION
+        testCompileOnly group: 'org.projectlombok', name: 'lombok', version: LOMBOK_VERSION
         testCompile group: 'junit', name: 'junit', version: '4.12'
     }
 

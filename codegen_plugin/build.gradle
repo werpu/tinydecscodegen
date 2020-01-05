@@ -31,7 +31,7 @@ apply plugin: 'org.jetbrains.intellij'
 intellij {
     //release numbers can be found at https://s3-eu-west-1.amazonaws.com/intellij-releases/
     //localPath = '/Applications/Intellij IDEA.app'
-    version = 'IU-192.5728.98'
+    version = 'IU-193.5662.53'
     type = 'IU'
     plugins = ['JavaScriptLanguage', "AngularJS", 'CSS', 'java']
 

@@ -911,8 +911,8 @@ public class IntellijUtils {
 
     public static Optional<Language> getTnDecTemplateLanguageDef() {
         Language lang = getHtmlLanguage();
-        Language[] dialects = LanguageUtil.getLanguageDialects(lang);
-        Optional<Language> languageVariant = Arrays.asList(dialects).stream().filter(item -> item.getDisplayName().toLowerCase().contains("angularjs")).findFirst();
+        Set<Language> dialects = LanguageUtil.getAllDerivedLanguages(lang);
+        Optional<Language> languageVariant = dialects.stream().filter(item -> item.getDisplayName().toLowerCase().contains("angularjs")).findFirst();
         return languageVariant;
     }
 
@@ -922,8 +922,8 @@ public class IntellijUtils {
 
     public static Optional<Language> getNgTemplateLanguageDef() {
         Language lang = getHtmlLanguage();
-        Language[] dialects = LanguageUtil.getLanguageDialects(lang);
-        Optional<Language> languageVariant = Arrays.asList(dialects).stream().filter(item -> item.getDisplayName().toLowerCase().contains("angular2")).findFirst();
+        Set<Language> dialects = LanguageUtil.getAllDerivedLanguages(lang);
+        Optional<Language> languageVariant = dialects.stream().filter(item -> item.getDisplayName().toLowerCase().contains("angular2")).findFirst();
         return languageVariant;
     }
 

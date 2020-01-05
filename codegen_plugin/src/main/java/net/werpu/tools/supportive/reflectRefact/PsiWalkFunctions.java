@@ -189,6 +189,10 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
         queryEngine = new TreeQueryEngine<PsiElementContext>(new PsiElementQueryAdapter());
     }
 
+    public static Object[] ANNOTATED_TEMPLATE(String referenceType) {
+        return new Object[]{JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("template"), PARENT, referenceType};
+    }
+
     public static Object[] DEF_CALL(String callType) {
         return new Object[]{JS_CALL_EXPRESSION, DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER), TEXT_EQ(callType)};
     }
