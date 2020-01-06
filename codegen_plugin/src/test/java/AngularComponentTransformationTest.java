@@ -76,6 +76,9 @@ public class AngularComponentTransformationTest extends LightJavaCodeInsightFixt
         assertTrue("classblock must be preset", ctx.getClassBlock() != null);
         assertTrue("rootblock must be preset", ctx.getRootBlock() != null);
         assertTrue("watches must be present", ctx.getWatches().size() == 2);
+        assertTrue("watches must be present", ctx.getWatches().get(1).getOldValueVarName() == null);
+        assertTrue("watches must be present", ctx.getWatches().get(1).getNewValueVarName().equals("newValue"));
+        assertTrue("watches must be present", ctx.getWatches().get(1).getNewValueVarType().equals("string[]"));
         // assertTrue("both searchoptions", ctx.get);
     }
 

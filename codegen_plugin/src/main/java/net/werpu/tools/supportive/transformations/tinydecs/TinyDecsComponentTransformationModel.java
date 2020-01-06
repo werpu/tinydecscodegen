@@ -325,7 +325,7 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
     }
 
     private String resolveType(PsiElementContext el) {
-        Optional<PsiElementContext> type = el.$q(TYPE_SCRIPT_SINGLE_TYPE).reduce((el1, el2) -> el2);
+        Optional<PsiElementContext> type = el.$q(ANY(TYPE_SCRIPT_ARRAY_TYPE, TYPE_SCRIPT_SINGLE_TYPE)).findFirst();
 
         return type.isPresent() ? type.get().getText() : "any";
     }

@@ -91,11 +91,10 @@ export class ProbeComponent {
         //prevents refactoring to the outside
         //because if the _t reference
         this.$onInit();
-        this.$scope.$watch("ctrl.suggestions", (newValue: any, oldValue: any) => {
+        this.$scope.$watch("ctrl.suggestions", (newValue: string[]) => {
             /*blarg*/
             if(newValue == null) {
                 console.log(newValue);
-                console.log(oldValue);
             }
         });
     };

@@ -183,6 +183,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     //requires starting from DCL
     public static final Object[] ANG1_MODULE_REQUIRES = {JS_ARRAY_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL};
     public static final String TYPE_SCRIPT_SINGLE_TYPE = "TypeScriptSingleType";
+    public static final String TYPE_SCRIPT_ARRAY_TYPE = "TypeScriptArrayType";
     public static final String JS_STRING_TEMPLATE_EXPRESSION = "JSStringTemplateExpression";
     private static final String ERR_UNDEFINED_QUERY_MAPPING = "Undefined query mapping";
 
