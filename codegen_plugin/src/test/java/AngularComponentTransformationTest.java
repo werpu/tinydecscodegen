@@ -53,4 +53,18 @@ public class AngularComponentTransformationTest extends LightJavaCodeInsightFixt
         assertTrue("no error throw in analysis", true);
     }
 
+    public void testAnalysisStructure() {
+        PsiFile psiFile = myFixture.configureByFile("tinydecs/probeComponent.ts");
+        Project project = myFixture.getProject();
+
+        TinyDecsComponentTransformationModel ctx = new TinyDecsComponentTransformationModel(new IntellijFileContext(project, psiFile));
+
+        assertTrue("tag name must be parsed", "probe-component".equals(ctx.getSelectorName()));
+        assertTrue("tag name must be parsed", "ctrl".equals(ctx.getControllerAs()));
+
+       // assertTrue("both searchoptions", ctx.get);
+    }
+
+
+
 }

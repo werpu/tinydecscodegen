@@ -28,6 +28,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import lombok.Getter;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
@@ -74,6 +75,7 @@ import static net.werpu.tools.supportive.transformations.tinydecs.AngularJSCompo
  * <p>
  * Template needs remapping (different topic, reliant on the component database)
  */
+@Getter
 public class TinyDecsComponentTransformationModel extends TypescriptFileContext implements ITransformationModel {
     public static final String ANN_INPUT = "Input";
     public static final String ANN_BOTH = "Both";
@@ -204,7 +206,7 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
      */
     void parseSelectorName() {
 
-        Optional<PsiElementContext> selectorContext = annotationBlock.get().$q(JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("selector"), PARENT, JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
+        Optional<PsiElementContext> selectorContext = annotationBlock.get().$q(JS_PROPERTY, NAME_EQ("selector"), JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
         if (!selectorContext.isPresent()) {
             return;
         }
