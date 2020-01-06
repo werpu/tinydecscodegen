@@ -60,7 +60,7 @@ public class AngularComponentTransformationTest extends LightJavaCodeInsightFixt
         TinyDecsComponentTransformationModel ctx = new TinyDecsComponentTransformationModel(new IntellijFileContext(project, psiFile));
 
         assertTrue("tag name must be parsed", "probe-component".equals(ctx.getSelectorName()));
-        assertTrue("tag name must be parsed", "ctrl".equals(ctx.getControllerAs()));
+        assertTrue("controllerAs must be present", "ctrl".equals(ctx.getControllerAs()));
 
        // assertTrue("both searchoptions", ctx.get);
     }
