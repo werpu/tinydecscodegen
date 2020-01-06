@@ -61,17 +61,17 @@ import static net.werpu.tools.supportive.transformations.tinydecs.AngularJSCompo
  * input can stay as is
  * output can stay as is
  * AString needs to be remapped into its angular counterpart
- *
+ * <p>
  * also all props need to be added to a global index (different issue which then can be looked up
  * for prop types
- *
+ * <p>
  * all scope other references need to be replaced with this references
  * since a component is an isolated scope (wont be too many
  * outside of watch)
- *
+ * <p>
  * onInit etc.. need to be remapped into interface definitions
- *
- *
+ * <p>
+ * <p>
  * Template needs remapping (different topic, reliant on the component database)
  */
 public class TinyDecsComponentTransformationModel extends TypescriptFileContext implements ITransformationModel {
@@ -187,6 +187,7 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
 
     /**
      * parse the component annotation
+     *
      * @return
      */
     private boolean parseComponentAnnotation() {
