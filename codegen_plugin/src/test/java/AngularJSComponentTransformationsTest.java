@@ -24,7 +24,8 @@
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.transformations.tinydecs.AngularJSComponentTransformationModel;
 import net.werpu.tools.supportive.transformations.tinydecs.AngularJSDirectiveTransformationModel;
@@ -43,7 +44,7 @@ import static net.werpu.tools.supportive.transformations.shared.modelHelpers.Bin
  * before adding a ui (the ui will be the last part which will be added
  *
  */
-public class AngularJSComponentTransformationsTest extends LightCodeInsightFixtureTestCase {
+public class AngularJSComponentTransformationsTest extends LightJavaCodeInsightFixtureTestCase {
 
 
 

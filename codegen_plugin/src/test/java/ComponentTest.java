@@ -23,14 +23,14 @@
  */
 
 import com.intellij.psi.PsiFile;
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import net.werpu.tools.supportive.fs.common.ComponentFileContext;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import org.junit.Test;
 
 import static util.TestUtils.JS_TEST_PROBES_PATH;
 
-public class ComponentTest extends LightCodeInsightFixtureTestCase {
+public class ComponentTest extends LightJavaCodeInsightFixtureTestCase {
 
     @Override
     protected void setUp() throws Exception {

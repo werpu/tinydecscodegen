@@ -23,7 +23,7 @@
  */
 
 import com.intellij.psi.PsiFile;
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import net.werpu.tools.supportive.fs.common.ComponentFileContext;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.I18NFileContext;
@@ -40,7 +40,7 @@ import static util.TestUtils.JS_TEST_PROBES_PATH;
 /**
  * Unit tests for the L18n subsystem,
  */
-public class I18nEditingTest extends LightCodeInsightFixtureTestCase {
+public class I18nEditingTest extends LightJavaCodeInsightFixtureTestCase {
 
     private static final int POS_STATIC_TEXT = 194;
     private static final int POS_STATIC_TEXT_2 = 252;

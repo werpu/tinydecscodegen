@@ -23,7 +23,7 @@
  */
 
 import com.intellij.psi.PsiJavaFile;
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import org.junit.Test;
 import rest.GenericClass;
 import net.werpu.tools.supportive.reflectRefact.IntellijDtoReflector;
@@ -32,7 +32,7 @@ import util.TestUtils;
 import java.util.Arrays;
 import java.util.List;
 
-public class LombokTest extends LightCodeInsightFixtureTestCase {
+public class LombokTest extends LightJavaCodeInsightFixtureTestCase {
 
     @Override
     protected void setUp() throws Exception {

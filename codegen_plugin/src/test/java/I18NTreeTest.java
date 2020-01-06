@@ -23,7 +23,7 @@
  */
 
 import com.intellij.psi.PsiFile;
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.PsiI18nEntryContext;
 import org.junit.Test;
@@ -33,7 +33,7 @@ import static util.TestUtils.JS_TEST_PROBES_PATH;
 /**
  * Test for the json/typescript -> L18NTree parsing and vice versa
  */
-public class I18NTreeTest extends LightCodeInsightFixtureTestCase {
+public class I18NTreeTest extends LightJavaCodeInsightFixtureTestCase {
 
 
     @Override

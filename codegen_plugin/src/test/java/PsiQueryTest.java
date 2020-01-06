@@ -24,7 +24,7 @@
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
 import net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine;
 import org.junit.Test;
@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static util.TestUtils.JS_TEST_PROBES_PATH;
 
-public class PsiQueryTest extends LightCodeInsightFixtureTestCase {
+public class PsiQueryTest extends LightJavaCodeInsightFixtureTestCase {
 
     @Override
     protected void setUp() throws Exception {

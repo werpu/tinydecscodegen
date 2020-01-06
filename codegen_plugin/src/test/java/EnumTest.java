@@ -23,7 +23,7 @@
  */
 
 import com.intellij.psi.PsiJavaFile;
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import org.junit.Test;
 import probes.EnumProbe;
 import rest.GenericClass;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 import static util.TestUtils.JAVA_TEST_PROBES_PATH;
 
-public class EnumTest extends LightCodeInsightFixtureTestCase {
+public class EnumTest extends LightJavaCodeInsightFixtureTestCase {
 
     @Override
     protected void setUp() throws Exception {

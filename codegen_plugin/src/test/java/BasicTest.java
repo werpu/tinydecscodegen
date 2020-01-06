@@ -23,7 +23,7 @@
  */
 
 import com.intellij.psi.PsiJavaFile;
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import org.junit.Test;
 import reflector.utils.ReflectUtils;
 import reflector.utils.TypescriptTypeMapper;
@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("unchecked")
-public class BasicTest extends LightCodeInsightFixtureTestCase {
+public class BasicTest extends LightJavaCodeInsightFixtureTestCase {
 
     @Override
     protected void setUp() throws Exception {
