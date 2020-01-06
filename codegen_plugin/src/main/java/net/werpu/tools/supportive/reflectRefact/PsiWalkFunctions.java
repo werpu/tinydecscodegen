@@ -100,6 +100,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final String TS_CONFIG = "tsconfig.json";
     public static final String PACKAGE_LOCK = "package-lock.json";
     public static final String PSI_ELEMENT_JS_RBRACKET = "PsiElement(JS:RBRACKET)";
+    public static final String PSI_ELEMENT_JS_TRUE_KEYWORD = "PsiElement(JS:TRUE_KEYWORD)";
     public static final String PSI_ELEMENT_JS_IDENTIFIER = "PsiElement(JS:IDENTIFIER)";
     public static final String PSI_ELEMENT_JS_STRING_LITERAL = "PsiElement(JS:STRING_LITERAL)";
     public static final String PSI_ELEMENT_JS_NUMERIC_LITERAL = "PsiElement(JS:NUMERIC_LITERAL)";

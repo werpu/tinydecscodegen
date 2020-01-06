@@ -35,6 +35,13 @@ public class ComponentBinding {
     @EqualsAndHashCode.Exclude
     BindingType bindingType;
     String name;
+    @EqualsAndHashCode.Exclude
+    String tsType;
+
+    public ComponentBinding(BindingType bindingType, String name) {
+        this.bindingType = bindingType;
+        this.name = name;
+    }
 
     public String toString() {
         StringBuilder retVal = new StringBuilder();

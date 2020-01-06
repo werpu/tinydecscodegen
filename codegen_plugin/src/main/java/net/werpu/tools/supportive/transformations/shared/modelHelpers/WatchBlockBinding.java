@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright 2019 Werner Punz
+ * Copyright 2020 Werner Punz
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the "Software"),
@@ -19,7 +19,7 @@
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+ * /
  */
 
 package net.werpu.tools.supportive.transformations.shared.modelHelpers;
@@ -27,25 +27,32 @@ package net.werpu.tools.supportive.transformations.shared.modelHelpers;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import net.werpu.tools.supportive.fs.common.PsiElementContext;
 
+/**
+ * watch block descriptor
+ * isolates the data which is used
+ * for rewriting the entire watch block
+ */
 @Getter
 @AllArgsConstructor
 @EqualsAndHashCode
-public class Injector {
-    String name;
+public class WatchBlockBinding {
     @EqualsAndHashCode.Exclude
-    String tsNameType;
+    PsiElementContext watchBlock;
+
+    String propertyName;
     @EqualsAndHashCode.Exclude
-    String type;
+    String newValueVarName;
 
-    public Injector(String name, String tsNameType) {
-        this.name = name;
-        this.tsNameType = tsNameType;
-    }
+    @EqualsAndHashCode.Exclude
+    String newValueVarType;
 
-    @Override
-    public String toString() {
-        return "@Inject('" + name + "') private " + tsNameType;
-    }
+    @EqualsAndHashCode.Exclude
+    String oldValueVarName;
+
+    @EqualsAndHashCode.Exclude
+    String oldValueVarType;
+
 
 }

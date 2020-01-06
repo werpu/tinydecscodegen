@@ -32,29 +32,53 @@ import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
 import net.werpu.tools.supportive.transformations.shared.ITransformationModel;
-import net.werpu.tools.supportive.transformations.shared.modelHelpers.ClassAttribute;
-import net.werpu.tools.supportive.transformations.shared.modelHelpers.ComponentBinding;
-import net.werpu.tools.supportive.transformations.shared.modelHelpers.FirstOrderFunction;
-import net.werpu.tools.supportive.transformations.shared.modelHelpers.Injector;
+import net.werpu.tools.supportive.transformations.shared.modelHelpers.*;
 import net.werpu.tools.supportive.utils.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Stream.concat;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
-import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.ANY_TS_IMPORT;
+import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.SUB_QUERY;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
-import static net.werpu.tools.supportive.transformations.tinydecs.AngularJSComponentTransformationModel.*;
+import static net.werpu.tools.supportive.transformations.tinydecs.AngularJSComponentTransformationModel.TEMPLATE_IDENTIFIER;
 
 /**
  * Transformation model for the tiny decorations
  *
  * @See also AngularJSTransformationModel
+ * <p>
+ * <p>
+ * resolution algorithm
+ * watches will be replaced by empty strings and setters to the appropriate properties if possible
+ * otherwise warning will be added that there is a deep search going on and it needs to be
+ * resolved manually
+ * <p>
+ * injects will stay the same but a provide section will be added on top
+ * input can stay as is
+ * output can stay as is
+ * AString needs to be remapped into its angular counterpart
+ *
+ * also all props need to be added to a global index (different issue which then can be looked up
+ * for prop types
+ *
+ * all scope other references need to be replaced with this references
+ * since a component is an isolated scope (wont be too many
+ * outside of watch)
+ *
+ * onInit etc.. need to be remapped into interface definitions
+ *
+ *
+ * Template needs remapping (different topic, reliant on the component database)
  */
 public class TinyDecsComponentTransformationModel extends TypescriptFileContext implements ITransformationModel {
-
+    public static final String ANN_INPUT = "Input";
+    public static final String ANN_BOTH = "Both";
+    public static final String ANN_FUNC = "Func";
+    public static final String ANN_STRING = "AString";
     protected Optional<PsiElementContext> lastImport;
     protected PsiElementContext rootBlock;
     protected PsiElementContext classBlock;
@@ -68,8 +92,8 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
     protected Optional<PsiElementContext> constructorBlock;
     protected Optional<PsiElementContext> transclude;
     protected Optional<PsiElementContext> annotationBlock;
-    protected List<FirstOrderFunction> inlineFunctions;
     protected List<ClassAttribute> possibleClassAttributes;
+    protected List<WatchBlockBinding> watches;
     protected String template; //original template after being found
     protected List<ComponentBinding> bindings;
     protected String clazzName;
@@ -95,7 +119,6 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
         this.postConstruct2();
     }
 
-
     /**
      * we need as second postConstruct because
      * the block root must be present before running
@@ -114,15 +137,20 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
          * please check double you might break something
          */
         parseImport();
-        parseAnnotation();
-        parseSelector();
+        parseClassBlock();
+        parseComponentAnnotation();
+        parseSelectorName();
         parseControllerAs();
         parseTemplate();
+
+        parseBindings();
+        parseInjects();
+        parseAttributes();
+        parseWatches();
        /* parseClassBlock();
 
         parseConstructor();
 
-        parseInjects();
         parseBindings();
 
         parseInlineFunctions();
@@ -139,47 +167,63 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
         parseInlineClassAttributeCandidates();*/
     }
 
+    /**
+     * parse the import positions
+     */
     protected void parseImport() {
         lastImport =
                 this.$q(ANY_TS_IMPORT).reduce((e1, e2) -> e2);
     }
 
+    /**
+     * parse the beginning of the class block
+     */
     protected void parseClassBlock() {
         Stream<PsiElementContext> psiElementContextStream = rootBlock.$q(TYPE_SCRIPT_CLASS)
                 .filter(el -> el.getText().contains("template") && el.getText().contains("controller"));
         classBlock = psiElementContextStream.findFirst().get();
     }
 
-
-    private boolean parseAnnotation() {
+    /**
+     * parse the component annotation
+     * @return
+     */
+    private boolean parseComponentAnnotation() {
         Optional<PsiElementContext> decorator = rootBlock.$q(COMPONENT_ANN).findFirst();
-        if(!decorator.isPresent()) {
+        if (!decorator.isPresent()) {
             return true;
         }
         this.annotationBlock = decorator;
         return false;
     }
 
-    void parseSelector() {
+    /**
+     * parses the selector data
+     */
+    void parseSelectorName() {
 
         Optional<PsiElementContext> selectorContext = annotationBlock.get().$q(JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("selector"), PARENT, JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
-        if(!selectorContext.isPresent()) {
+        if (!selectorContext.isPresent()) {
             return;
         }
         selectorName = StringUtils.stripQuotes(selectorContext.get().getText());
     }
 
+    /**
+     * parses the controller as data
+     */
     void parseControllerAs() {
         Optional<PsiElementContext> controllerAsContext = annotationBlock.get().$q(JS_PROPERTY, PSI_ELEMENT_JS_IDENTIFIER, TEXT_EQ("controllerAs"), PARENT, JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_STRING_LITERAL).findFirst();
-        if(!controllerAsContext.isPresent()) {
+        if (!controllerAsContext.isPresent()) {
             this.controllerAs = "ctrl";
             return;
         }
         this.controllerAs = StringUtils.stripQuotes(controllerAsContext.get().getText());
     }
 
-
-
+    /**
+     * parse the template and resolves the template text
+     */
     protected void parseTemplate() {
         Optional<PsiElementContext> returnStmt = annotationBlock.get().$q(ANNOTATED_TEMPLATE(JS_RETURN_STATEMENT)).findFirst();
         Optional<PsiElementContext> stringTemplate = annotationBlock.get().$q(ANNOTATED_TEMPLATE(JS_STRING_TEMPLATE_EXPRESSION)).findFirst();
@@ -217,4 +261,117 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
 
     }
 
+    /**
+     * parse the component bindings for remapping
+     */
+    private void parseBindings() {
+        this.bindings = rootBlock.$q(COMPONENT_ANN).filter(ann -> {
+            PsiElementContext ident = ann.$q(JS_ES_6_DECORATOR, PSI_ELEMENT_JS_IDENTIFIER).reduce((el1, el2) -> el2).get();
+            String text = ident.getText();
+            return text.equals(ANN_INPUT) ||
+                    text.equals(ANN_BOTH) ||
+                    text.equals(ANN_FUNC) ||
+                    text.equals(ANN_STRING);
+        }).map(ann -> {
+            PsiElementContext ident = ann.$q(JS_ES_6_DECORATOR, PSI_ELEMENT_JS_IDENTIFIER).reduce((el1, el2) -> el2).get();
+            boolean optional = ann.$q(JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_TRUE_KEYWORD).findFirst().isPresent();
+            PsiElementContext annRoot = ann.$q(PARENTS_EQ_FIRST(JS_ES_6_FIELD_STATEMENT)).findFirst().get();
+            PsiElementContext identifier = annRoot.$q(PSI_ELEMENT_JS_IDENTIFIER).reduce((el1, el2) -> el2).get();
+            Optional<PsiElementContext> type = annRoot.$q(TYPE_SCRIPT_SINGLE_TYPE).reduce((el1, el2) -> el2);
+
+            BindingType bindingType = null;
+            String identStr = ident.getText().toUpperCase();
+            if (optional) {
+                bindingType = BindingType.valueOf("OPT_" + identStr);
+            } else {
+                bindingType = BindingType.valueOf(identStr);
+            }
+
+            return new ComponentBinding(bindingType, identifier.getName(), type.isPresent() ? type.get().getText() : "any");
+        }).collect(Collectors.toList());
+
+    }
+
+    /**
+     * parse the injects for further processing
+     */
+    private void parseInjects() {
+        this.injects = rootBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ("constructor"), TYPE_SCRIPT_PARAMETER_LIST, TYPE_SCRIPT_PARAM)
+                .map(el -> {
+                    String name = el.getName();
+                    Optional<PsiElementContext> type = el.$q(TYPE_SCRIPT_SINGLE_TYPE).reduce((el1, el2) -> el2);
+                    Optional<PsiElementContext> ref = el.$q(ANY(SUB_QUERY(JS_ES_6_DECORATOR, JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL),
+                            SUB_QUERY(JS_ES_6_DECORATOR, JS_ARGUMENTS_LIST, JS_REFERENCE_EXPRESSION))).findFirst();
+                    return new Injector(ref.get().getText(), name, type.isPresent() ? type.get().getText() : "any");
+                }).collect(Collectors.toList());
+
+    }
+
+    /**
+     * parse the class attributes/properties
+     */
+    private void parseAttributes() {
+        possibleClassAttributes = rootBlock.$q(TYPE_SCRIPT_CLASS, DIRECT_CHILD(JS_ES_6_FIELD_STATEMENT))
+                .filter(el -> !el.$q(JS_ES_6_DECORATOR).findFirst().isPresent())
+                .map(el -> {
+                    String name = el.$q(TYPE_SCRIPT_FIELD).findFirst().get().getName();
+                    String typeName = resolveType(el);
+                    return new ClassAttribute(el, name, typeName);
+                }).collect(Collectors.toList());
+    }
+
+    private String resolveType(PsiElementContext el) {
+        Optional<PsiElementContext> type = el.$q(TYPE_SCRIPT_SINGLE_TYPE).reduce((el1, el2) -> el2);
+
+        return type.isPresent() ? type.get().getText() : "any";
+    }
+
+    //watches need to be transformed into setters
+
+    /**
+     * parse the watch blocks in the code and parse its meta data
+     * for further transformations
+     */
+    private void parseWatches() {
+        this.watches = rootBlock.$q(JS_EXPRESSION_STATEMENT).filter(el -> {
+            Optional<PsiElementContext> ident = el.$q(PSI_ELEMENT_JS_IDENTIFIER).findFirst();
+
+            return ident.isPresent() && ident.get().getText().equals("$watch");
+        }).map(el -> {
+            Optional<PsiElementContext> funcStart = el.$q(TYPESCRIPT_FUNCTION_EXPRESSION).findFirst();
+            if (!funcStart.isPresent()) {
+                return null;
+            }
+
+            //resolve the parameters
+            List<PsiElementContext> params = funcStart.get().$q(DIRECT_CHILD(TYPE_SCRIPT_PARAMETER_LIST), TYPE_SCRIPT_PARAM).collect(Collectors.toList());
+            String paramName1 = null;
+            String paramType1 = null;
+            String paramName2 = null;
+            String paramType2 = null;
+
+            String propName = el.$q(JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_LITERAL).findFirst().orElseGet(
+                    () -> el.$q(JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_TEMPLATE_PART).findFirst().get()
+            ).getUnquotedText();
+
+            if (propName.startsWith(this.bindToController + ".")) {
+                propName = propName.substring(this.bindToController.length() + 1);
+            }
+
+            if (params.size() > 0) {
+                paramName1 = params.get(0).getName();
+                paramType1 = resolveType(params.get(0));
+            }
+
+            if (params.size() > 1) {
+                paramName2 = params.get(0).getName();
+                paramType2 = resolveType(params.get(0));
+            }
+
+            return new WatchBlockBinding(funcStart.get(), propName, paramName1, paramType1, paramName2, paramType2);
+
+        })
+                .filter(binding -> binding != null)
+                .collect(Collectors.toList());
+    }
 }
