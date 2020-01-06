@@ -22,5 +22,35 @@
  * /
  */
 
-public class AngularComponentTransformationTest {
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiFile;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
+import net.werpu.tools.supportive.fs.common.IntellijFileContext;
+import net.werpu.tools.supportive.transformations.tinydecs.TinyDecsComponentTransformationModel;
+import util.TestUtils;
+
+public class AngularComponentTransformationTest extends LightJavaCodeInsightFixtureTestCase {
+    @Override
+    protected String getTestDataPath() {
+        return TestUtils.JS_TEST_PROBES_PATH;
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        myFixture.allowTreeAccessForAllFiles();
+    }
+
+    /**
+     * it must perform a basic component parsing properly
+     */
+    public void testBasicComponentAnalysis() {
+        PsiFile psiFile = myFixture.configureByFile("tinydecs/probeComponent.ts");
+        Project project = myFixture.getProject();
+
+        TinyDecsComponentTransformationModel ctx = new TinyDecsComponentTransformationModel(new IntellijFileContext(project, psiFile));
+
+        assertTrue("no error throw in analysis", true);
+    }
+
 }

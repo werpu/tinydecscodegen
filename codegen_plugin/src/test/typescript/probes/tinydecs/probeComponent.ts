@@ -36,7 +36,7 @@ export class ProbeComponent {
 
     getClass: Function;
 
-    constructor(@Inject('$scope') private $scope: IScope) {
+    constructor(@Inject('$scope') private $scope: IScope, @Inject(GlobalSearchOptions) opts: GlobalSearchOptions) {
         var _t = this;
 
         let myVar2: string = "booga";

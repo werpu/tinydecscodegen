@@ -179,6 +179,7 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
      * parse the beginning of the class block
      */
     protected void parseClassBlock() {
+        this.rootBlock = new PsiElementContext(this.getPsiFile());
         Stream<PsiElementContext> psiElementContextStream = rootBlock.$q(TYPE_SCRIPT_CLASS)
                 .filter(el -> el.getText().contains("template") && el.getText().contains("controller"));
         classBlock = psiElementContextStream.findFirst().get();
@@ -206,7 +207,7 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
         if (!selectorContext.isPresent()) {
             return;
         }
-        selectorName = StringUtils.stripQuotes(selectorContext.get().getText());
+        selectorName = selectorContext.get().getUnquotedText();
     }
 
     /**
@@ -296,7 +297,7 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
      * parse the injects for further processing
      */
     private void parseInjects() {
-        this.injects = rootBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ("constructor"), TYPE_SCRIPT_PARAMETER_LIST, TYPE_SCRIPT_PARAM)
+        this.injects = rootBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ("constructor"), DIRECT_CHILD(TYPE_SCRIPT_PARAMETER_LIST), TYPE_SCRIPT_PARAM)
                 .map(el -> {
                     String name = el.getName();
                     Optional<PsiElementContext> type = el.$q(TYPE_SCRIPT_SINGLE_TYPE).reduce((el1, el2) -> el2);
