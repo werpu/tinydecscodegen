@@ -67,8 +67,12 @@ export class ProbeComponent {
             return myVar2.toString();
         };
 
-        $scope.watch("ctrl.searchOptions", (newVal: any) => {
-            alert(newVal);
+        $scope.$watch("ctrl.showAllSuggestions", (newValue: any, oldValue: any) => {
+            /*blarg*/
+            if(newValue == null) {
+                console.log(newValue);
+                console.log(oldValue);
+            }
         });
 
         this.blarg();
@@ -87,6 +91,13 @@ export class ProbeComponent {
         //prevents refactoring to the outside
         //because if the _t reference
         this.$onInit();
+        this.$scope.$watch("ctrl.suggestions", (newValue: any, oldValue: any) => {
+            /*blarg*/
+            if(newValue == null) {
+                console.log(newValue);
+                console.log(oldValue);
+            }
+        });
     };
 
     $onInit() {

@@ -337,10 +337,12 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
      * for further transformations
      */
     private void parseWatches() {
-        this.watches = rootBlock.$q(JS_EXPRESSION_STATEMENT).filter(el -> {
-            Optional<PsiElementContext> ident = el.$q(PSI_ELEMENT_JS_IDENTIFIER).findFirst();
+        this.watches = rootBlock.$q(JS_CALL_EXPRESSION).filter(el -> {
+            Optional<PsiElementContext> ident = el.$q(PSI_ELEMENT_JS_IDENTIFIER).filter(el2 -> {
+                return el2.getText().equals("$watch");
+            }).findFirst();
 
-            return ident.isPresent() && ident.get().getText().equals("$watch");
+            return ident.isPresent();
         }).map(el -> {
             Optional<PsiElementContext> funcStart = el.$q(TYPESCRIPT_FUNCTION_EXPRESSION).findFirst();
             if (!funcStart.isPresent()) {
@@ -358,8 +360,8 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
                     () -> el.$q(JS_ARGUMENTS_LIST, PSI_ELEMENT_JS_STRING_TEMPLATE_PART).findFirst().get()
             ).getUnquotedText();
 
-            if (propName.startsWith(this.bindToController + ".")) {
-                propName = propName.substring(this.bindToController.length() + 1);
+            if (propName.startsWith(this.controllerAs + ".")) {
+                propName = propName.substring(this.controllerAs.length() + 1);
             }
 
             if (params.size() > 0) {
@@ -368,8 +370,8 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
             }
 
             if (params.size() > 1) {
-                paramName2 = params.get(0).getName();
-                paramType2 = resolveType(params.get(0));
+                paramName2 = params.get(1).getName();
+                paramType2 = resolveType(params.get(1));
             }
 
             return new WatchBlockBinding(funcStart.get(), propName, paramName1, paramType1, paramName2, paramType2);

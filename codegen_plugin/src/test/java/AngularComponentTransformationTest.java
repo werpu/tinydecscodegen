@@ -61,8 +61,22 @@ public class AngularComponentTransformationTest extends LightJavaCodeInsightFixt
 
         assertTrue("tag name must be parsed", "probe-component".equals(ctx.getSelectorName()));
         assertTrue("controllerAs must be present", "ctrl".equals(ctx.getControllerAs()));
+        assertTrue("injects must be parsed", ctx.getInjects().size() == 2);
 
-       // assertTrue("both searchoptions", ctx.get);
+        assertTrue("injects must be parsed", ctx.getInjects().get(0).getName().equals("'$scope'"));
+        assertTrue("injects must be parsed", ctx.getInjects().get(0).getType().equals("IScope"));
+        assertTrue("injects must be parsed", ctx.getInjects().get(0).getTsNameType().equals("$scope"));
+
+
+        assertTrue("injects must be parsed", ctx.getInjects().get(1).getName().equals("GlobalSearchOptions"));
+        assertTrue("injects must be parsed", ctx.getInjects().get(1).getType().equals("GlobalSearchOptions"));
+        assertTrue("injects must be parsed", ctx.getInjects().get(1).getTsNameType().equals("opts"));
+
+
+        assertTrue("classblock must be preset", ctx.getClassBlock() != null);
+        assertTrue("rootblock must be preset", ctx.getRootBlock() != null);
+        assertTrue("watches must be present", ctx.getWatches().size() == 2);
+        // assertTrue("both searchoptions", ctx.get);
     }
 
 
