@@ -112,6 +112,9 @@ export class ProbeComponent {
         this.GlobalSearchableEntityType = GlobalSearchableEntityType;
     }
 
+    /**
+     * postLinkIt
+     */
     $postLink() {
         alert("booga");
     }

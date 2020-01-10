@@ -28,6 +28,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.jgoodies.common.base.Strings;
 import lombok.Getter;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
@@ -84,6 +85,11 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
     public static final String ANN_BOTH = "Both";
     public static final String ANN_FUNC = "Func";
     public static final String ANN_STRING = "AString";
+    public static final String CONSTRUCTOR = "constructor";
+    public static final String $_POST_LINK = "$postLink";
+    public static final String $_ON_DESTROY = "$onDestroy";
+    public static final String $_ON_CHANGES = "$onChanges";
+    public static final String $_ON_INIT = "$onInit";
     protected Optional<PsiElementContext> lastImport;
     protected PsiElementContext rootBlock;
     protected PsiElementContext classBlock;
@@ -108,6 +114,8 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
     protected List<ComponentBinding> bindings;
     protected String clazzName;
     protected List<PsiElementContext> attributes;
+
+    protected List<PsiElementContext> passThroughMethods;
 
     public TinyDecsComponentTransformationModel(Project project, PsiFile psiFile) {
         super(project, psiFile);
@@ -164,6 +172,8 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
         parseOnChanges();
         parseConstructor();
         parseOnDestroy();
+
+        parsePassThroughMethods();
 
         /*
         parseConstructor();
@@ -280,14 +290,11 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
     private void parseBindings() {
         this.bindings = classBlock.$q(JS_ES_6_FIELD_STATEMENT).filter(ann -> {
             Optional<PsiElementContext> ident = ann.$q(JS_ES_6_DECORATOR, PSI_ELEMENT_JS_IDENTIFIER).reduce((el1, el2) -> el2);
-            if(!ident.isPresent()) {
+            if (!ident.isPresent()) {
                 return false;
             }
             String text = ident.get().getText();
-            return text.equals(ANN_INPUT) ||
-                    text.equals(ANN_BOTH) ||
-                    text.equals(ANN_FUNC) ||
-                    text.equals(ANN_STRING);
+            return isAnnotatedBinding(text);
         }).map(ann -> {
             PsiElementContext ident = ann.$q(JS_ES_6_DECORATOR, PSI_ELEMENT_JS_IDENTIFIER).reduce((el1, el2) -> el2).get();
             boolean optional = ann.$q(JS_LITERAL_EXPRESSION, PSI_ELEMENT_JS_TRUE_KEYWORD).findFirst().isPresent();
@@ -308,11 +315,12 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
 
     }
 
+
     /**
      * parse the injects for further processing
      */
     private void parseInjects() {
-        this.injects = rootBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ("constructor"), DIRECT_CHILD(TYPE_SCRIPT_PARAMETER_LIST), TYPE_SCRIPT_PARAM)
+        this.injects = rootBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ(CONSTRUCTOR), DIRECT_CHILD(TYPE_SCRIPT_PARAMETER_LIST), TYPE_SCRIPT_PARAM)
                 .map(el -> {
                     String name = el.getName();
                     Optional<PsiElementContext> type = el.$q(TYPE_SCRIPT_SINGLE_TYPE).reduce((el1, el2) -> el2);
@@ -394,7 +402,7 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
     }
 
     private void parsePostLinkDef() {
-        this.postLinkDef = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ("$postLink")).findFirst();
+        this.postLinkDef = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ($_POST_LINK)).findFirst();
     }
 
     private void parseOnInitDef() {
@@ -402,41 +410,42 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
     }
 
     private void parseOnChanges() {
-        this.onChangesDef = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ("$onChanges")).findFirst();
+        this.onChangesDef = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ($_ON_CHANGES)).findFirst();
     }
 
     private void parseOnDestroy() {
         this.destroyDef = new ArrayList<>();
-        Optional<PsiElementContext> destroyFunction = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ("$onDestroy")).findFirst();
-        if(destroyFunction.isPresent()) {
+        Optional<PsiElementContext> destroyFunction = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ($_ON_DESTROY)).findFirst();
+        if (destroyFunction.isPresent()) {
             destroyDef.add(new DestroyBinding(destroyFunction.get(), null));
         }
 
         List<PsiElementContext> destroyWatches = classBlock.$q(JS_EXPRESSION_STATEMENT, JS_REFERENCE_EXPRESSION, ALL(TEXT_CONTAINS("$on"), TEXT_CONTAINS("$destroy")), PARENT, JS_EXPRESSION_STATEMENT)
-        .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
-        List<DestroyBinding> rets = destroyWatches.stream().map( (final PsiElementContext destroyDef) -> {
+        List<DestroyBinding> rets = destroyWatches.stream().map((final PsiElementContext destroyDef) -> {
             Optional<PsiElementContext> functionExpr = destroyDef.$q(DIRECT_CHILD(TYPESCRIPT_FUNCTION_EXPRESSION)).reduce((el1, el2) -> el2);
             Optional<PsiElementContext> referenceExpr = destroyDef.$q(DIRECT_CHILD(JS_REFERENCE_EXPRESSION)).reduce((el1, el2) -> el2);
 
             //either or or nothing
-            if(functionExpr.isPresent()) {
-                return new DestroyBinding(destroyDef,functionExpr.get());
-            } else if(referenceExpr.isPresent()) {
+            if (functionExpr.isPresent()) {
+                return new DestroyBinding(destroyDef, functionExpr.get());
+            } else if (referenceExpr.isPresent()) {
                 Optional<PsiElementContext> functionDeclaration = resolveDeclaration(referenceExpr);
-                if(functionDeclaration.isPresent()) {
+                if (functionDeclaration.isPresent()) {
                     return new DestroyBinding(destroyDef, functionDeclaration.get());
                 }
             }
             return null;
 
         }).filter(el -> el != null)
-        .collect(Collectors.toList());
+                .collect(Collectors.toList());
         this.destroyDef.addAll(rets);
     }
 
     /**
      * resolves the declaration of a given function
+     *
      * @param referenceExpr
      * @return
      */
@@ -448,8 +457,31 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
 
 
     protected void parseConstructor() {
-        constructorDef = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ("constructor")).findFirst();
+        constructorDef = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ(CONSTRUCTOR)).findFirst();
         constructorBlock = constructorDef.get().$q(FUNCTION_BLOCK).findFirst();
+    }
+
+    protected void parsePassThroughMethods() {
+        this.passThroughMethods = classBlock.$q(DIRECT_CHILD(TYPE_SCRIPT_FUNC)).filter(func -> {
+            String name = func.getName();
+            return !Strings.isBlank(name) && !isLifecycleHook(name);
+        }).collect(Collectors.toList());
+
+    }
+
+    private boolean isLifecycleHook(String name) {
+        return name.equals(CONSTRUCTOR) ||
+                name.equals($_POST_LINK) ||
+                name.equals($_ON_INIT) ||
+                name.equals($_ON_DESTROY) ||
+                name.equals($_ON_CHANGES);
+    }
+
+    private boolean isAnnotatedBinding(String text) {
+        return text.equals(ANN_INPUT) ||
+                text.equals(ANN_BOTH) ||
+                text.equals(ANN_FUNC) ||
+                text.equals(ANN_STRING);
     }
 
 }

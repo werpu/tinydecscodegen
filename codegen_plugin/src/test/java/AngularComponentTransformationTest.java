@@ -87,6 +87,8 @@ public class AngularComponentTransformationTest extends LightJavaCodeInsightFixt
         assertTrue("two attributes", ctx.getPossibleClassAttributes().size() == 2);
         assertTrue("bindings must be set", ctx.getBindings().size() == 5);
 
+
+        assertTrue("other methods must be passed through 1:1", ctx.getPassThroughMethods().size() == 1);
         // assertTrue("both searchoptions", ctx.get);
     }
 
