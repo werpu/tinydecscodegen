@@ -84,6 +84,9 @@ public class AngularComponentTransformationTest extends LightJavaCodeInsightFixt
         assertTrue("onInit must be present", ctx.getOnInitDef().isPresent());
         assertTrue("onDestroy must be present", !ctx.getDestroyDef().isEmpty());
         assertTrue("classname must be correct", ctx.getClazzName().equals("ProbeComponent"));
+        assertTrue("two attributes", ctx.getPossibleClassAttributes().size() == 2);
+        assertTrue("bindings must be set", ctx.getBindings().size() == 5);
+
         // assertTrue("both searchoptions", ctx.get);
     }
 

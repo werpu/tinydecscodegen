@@ -65,6 +65,7 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final String JS_ASSIGNMENT_EXPRESSION = "JSAssignmentExpression";
     public static final String JS_LITERAL_EXPRESSION = "JSLiteralExpression";
     public static final String JS_ES_6_DECORATOR = "ES6Decorator";
+    public static final String JS_ES_6_FIELD_STATEMENT = "ES6FieldStatement";
     public static final String JS_ES_6_FROM_CLAUSE = "ES6FromClause";
     public static final String NG_COMPONENT = "@Component";
     public static final String NG_INJECT = "@Inject";
@@ -86,7 +87,6 @@ public class PsiWalkFunctions extends BaseQueryEngineImplementation<PsiElementCo
     public static final String JS_ES_6_IMPORT_DECLARATION = "ES6ImportDeclaration";
     public static final QueryExtension<Object> ANY_TS_IMPORT = ALL(SUB_QUERY(JS_ES_6_IMPORT_DECLARATION), SUB_QUERY(TYPESCRIPT_IMPORT_STATEMENT));
     public static final String JS_ES_6_IMPORT_SPECIFIER = "ES6ImportSpecifier";
-    public static final String JS_ES_6_FIELD_STATEMENT = "ES6FieldStatement";
     public static final String JS_CALL_EXPRESSION = "JSCallExpression";
     public static final String JS_UIROUTER_MODULE_FOR_ROOT = "UIRouterModule.forRoot";
     public static final String JS_ROUTER_MODULE_FOR_ROOT = "$routeProvider.when";

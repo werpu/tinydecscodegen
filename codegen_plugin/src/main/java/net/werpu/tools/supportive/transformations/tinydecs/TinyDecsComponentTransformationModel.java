@@ -278,9 +278,12 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
      * parse the component bindings for remapping
      */
     private void parseBindings() {
-        this.bindings = rootBlock.$q(COMPONENT_ANN).filter(ann -> {
-            PsiElementContext ident = ann.$q(JS_ES_6_DECORATOR, PSI_ELEMENT_JS_IDENTIFIER).reduce((el1, el2) -> el2).get();
-            String text = ident.getText();
+        this.bindings = classBlock.$q(JS_ES_6_FIELD_STATEMENT).filter(ann -> {
+            Optional<PsiElementContext> ident = ann.$q(JS_ES_6_DECORATOR, PSI_ELEMENT_JS_IDENTIFIER).reduce((el1, el2) -> el2);
+            if(!ident.isPresent()) {
+                return false;
+            }
+            String text = ident.get().getText();
             return text.equals(ANN_INPUT) ||
                     text.equals(ANN_BOTH) ||
                     text.equals(ANN_FUNC) ||
