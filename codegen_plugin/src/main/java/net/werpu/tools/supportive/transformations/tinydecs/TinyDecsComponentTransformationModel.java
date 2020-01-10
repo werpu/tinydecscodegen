@@ -96,6 +96,11 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
     protected Optional<PsiElementContext> annotationBlock;
     protected List<ClassAttribute> possibleClassAttributes;
     protected List<WatchBlockBinding> watches;
+    protected Optional<PsiElementContext> postLinkDef;
+    protected Optional<PsiElementContext> onInitDef;
+    protected Optional<PsiElementContext> onChangesDef;
+    protected List<PsiElementContext> destroyDef;
+
     protected String template; //original template after being found
     protected List<ComponentBinding> bindings;
     protected String clazzName;

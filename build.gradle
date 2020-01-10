@@ -23,13 +23,18 @@
  */
 
 plugins {
-    id "org.jetbrains.intellij" version "0.4.10"
+    id "org.jetbrains.intellij" version "0.4.15"
     id 'net.ltgt.apt' version '0.15'
 }
 
 wrapper {
+    gradleVersion = '6.0.1' // version required
     distributionType = Wrapper.DistributionType.ALL
 }
+/*task wrapper(type: Wrapper) {
+    gradleVersion = '6.0.1' // version required
+}
+*/
 
 
 allprojects {
@@ -50,13 +55,13 @@ subprojects {
     repositories {
         mavenLocal()
 
-        maven { url "http://repo.maven.apache.org/maven2" }
+        maven { url "https://repo.maven.apache.org/maven2" }
         maven { url "https://plugins.gradle.org/m2/" }
         maven {
             url "https://oss.sonatype.org/content/repositories/snapshots/"
         }
         maven {
-            url 'http://dl.bintray.com/jetbrains/intellij-plugin-service'
+            url 'https://dl.bintray.com/jetbrains/intellij-plugin-service'
         }
         maven {
             url 'https://www.jetbrains.com/intellij-repository'
@@ -72,11 +77,20 @@ subprojects {
         compile group: 'com.thoughtworks.paranamer', name: 'paranamer', version: '2.4'
         compile group: 'org.jboss.resteasy', name: 'jaxrs-api', version: '3.0.12.Final'
 
-        annotationProcessor group:'org.projectlombok', name:'lombok', version: LOMBOK_VERSION
-        compileOnly group: 'org.projectlombok', name: 'lombok', version: LOMBOK_VERSION
-        testAnnotationProcessor group:'org.projectlombok', name:'lombok', version: LOMBOK_VERSION
-        testCompileOnly group: 'org.projectlombok', name: 'lombok', version: LOMBOK_VERSION
-        testCompile group: 'junit', name: 'junit', version: '4.12'
+        //you ust have gradle 4.8+ even for the init to make gradlew work othwise comment this section
+        //until gradlew is setup
+        def subVersions = gradle.gradleVersion.split("\\.")
+        def lombokIncompat = Integer.parseInt(subVersions[0]) < 5
+        if(!lombokIncompat) {
+            annotationProcessor group:'org.projectlombok', name:'lombok', version: LOMBOK_VERSION
+            compileOnly group: 'org.projectlombok', name: 'lombok', version: LOMBOK_VERSION
+            testAnnotationProcessor group:'org.projectlombok', name:'lombok', version: LOMBOK_VERSION
+            testCompileOnly group: 'org.projectlombok', name: 'lombok', version: LOMBOK_VERSION
+            testCompile group: 'junit', name: 'junit', version: '4.12'
+        } else {
+            logger.warn("Lombok incompatibility found if not doing it yet run gradle gradlew and then use gradlew for the build")
+        }
+        
     }
 
 }
