@@ -391,20 +391,20 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
     }
 
     private void parsePostLinkDef() {
-        this.postLinkDef = classBlock.$q(TYPESCRIPT_FUNCTION_EXPRESSION, NAME_EQ("$postLink")).findFirst();
+        this.postLinkDef = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ("$postLink")).findFirst();
     }
 
     private void parseOnInitDef() {
-        this.onInitDef = classBlock.$q(TYPESCRIPT_FUNCTION_EXPRESSION, NAME_EQ("$onInit")).findFirst();
+        this.onInitDef = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ("$onInit")).findFirst();
     }
 
     private void parseOnChanges() {
-        this.onChangesDef = classBlock.$q(TYPESCRIPT_FUNCTION_EXPRESSION, NAME_EQ("$onChanges")).findFirst();
+        this.onChangesDef = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ("$onChanges")).findFirst();
     }
 
     private void parseOnDestroy() {
         this.destroyDef = new ArrayList<>();
-        Optional<PsiElementContext> destroyFunction = classBlock.$q(TYPESCRIPT_FUNCTION_EXPRESSION, NAME_EQ("$onDestroy")).findFirst();
+        Optional<PsiElementContext> destroyFunction = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ("$onDestroy")).findFirst();
         if(destroyFunction.isPresent()) {
             destroyDef.add(new DestroyBinding(destroyFunction.get(), null));
         }

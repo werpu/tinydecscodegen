@@ -79,6 +79,11 @@ public class AngularComponentTransformationTest extends LightJavaCodeInsightFixt
         assertTrue("watches must be present", ctx.getWatches().get(1).getOldValueVarName() == null);
         assertTrue("watches must be present", ctx.getWatches().get(1).getNewValueVarName().equals("newValue"));
         assertTrue("watches must be present", ctx.getWatches().get(1).getNewValueVarType().equals("string[]"));
+        assertTrue("constructor must be referenced", ctx.getConstructorDef().isPresent());
+        assertTrue("postlink present", ctx.getPostLinkDef().isPresent());
+        assertTrue("onInit must be present", ctx.getOnInitDef().isPresent());
+        assertTrue("onDestroy must be present", !ctx.getDestroyDef().isEmpty());
+        assertTrue("classname must be correct", ctx.getClazzName().equals("ProbeComponent"));
         // assertTrue("both searchoptions", ctx.get);
     }
 
