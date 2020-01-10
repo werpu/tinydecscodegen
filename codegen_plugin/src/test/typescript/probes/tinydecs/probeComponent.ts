@@ -75,6 +75,15 @@ export class ProbeComponent {
             }
         });
 
+        let newVar = () => {
+            console.log("scope destroy");
+        };
+        $scope.$on("$destroy", newVar);
+
+        $scope.$on("$destroy", () => {
+            console.log("functionBlock")
+        });
+
         this.blarg();
 
         if (true == (() => {
@@ -103,5 +112,12 @@ export class ProbeComponent {
         this.GlobalSearchableEntityType = GlobalSearchableEntityType;
     }
 
+    $postLink() {
+        alert("booga");
+    }
+
+    $onDestroy() {
+        console.log("lifecycle hook destroy");
+    }
 
 }

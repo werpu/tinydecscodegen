@@ -35,7 +35,9 @@ import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
 import net.werpu.tools.supportive.transformations.shared.ITransformationModel;
 import net.werpu.tools.supportive.transformations.shared.modelHelpers.*;
 import net.werpu.tools.supportive.utils.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,6 +47,7 @@ import static java.util.stream.Stream.concat;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.SUB_QUERY;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
+import static net.werpu.tools.supportive.transformations.tinydecs.AngularJSComponentTransformationModel.FUNCTION_BLOCK;
 import static net.werpu.tools.supportive.transformations.tinydecs.AngularJSComponentTransformationModel.TEMPLATE_IDENTIFIER;
 
 /**
@@ -99,7 +102,7 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
     protected Optional<PsiElementContext> postLinkDef;
     protected Optional<PsiElementContext> onInitDef;
     protected Optional<PsiElementContext> onChangesDef;
-    protected List<PsiElementContext> destroyDef;
+    protected List<DestroyBinding> destroyDef;
 
     protected String template; //original template after being found
     protected List<ComponentBinding> bindings;
@@ -154,24 +157,24 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
         parseInjects();
         parseAttributes();
         parseWatches();
-       /* parseClassBlock();
 
+        parsePostLinkDef();
+        parseOnInitDef();
+        parseClassBlock();
+        parseOnChanges();
         parseConstructor();
+        parseOnDestroy();
 
-        parseBindings();
-
+        /*
+        parseConstructor();
         parseInlineFunctions();
-
         parseTemplate();
-        parseClassName();
-        parseSelectorName();
-        parseControllerAs();
-        parseBindToController();
         parseRestrict();
         parseTransclude();
         parseAttributes();
         parsePriority();
-        parseInlineClassAttributeCandidates();*/
+        parseInlineClassAttributeCandidates();
+        */
     }
 
     /**
@@ -190,6 +193,7 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
         Stream<PsiElementContext> psiElementContextStream = rootBlock.$q(TYPE_SCRIPT_CLASS)
                 .filter(el -> el.getText().contains("template") && el.getText().contains("controller"));
         classBlock = psiElementContextStream.findFirst().get();
+        clazzName = classBlock.getName();
     }
 
     /**
@@ -385,4 +389,64 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
                 .filter(binding -> binding != null)
                 .collect(Collectors.toList());
     }
+
+    private void parsePostLinkDef() {
+        this.postLinkDef = classBlock.$q(TYPESCRIPT_FUNCTION_EXPRESSION, NAME_EQ("$postLink")).findFirst();
+    }
+
+    private void parseOnInitDef() {
+        this.onInitDef = classBlock.$q(TYPESCRIPT_FUNCTION_EXPRESSION, NAME_EQ("$onInit")).findFirst();
+    }
+
+    private void parseOnChanges() {
+        this.onChangesDef = classBlock.$q(TYPESCRIPT_FUNCTION_EXPRESSION, NAME_EQ("$onChanges")).findFirst();
+    }
+
+    private void parseOnDestroy() {
+        this.destroyDef = new ArrayList<>();
+        Optional<PsiElementContext> destroyFunction = classBlock.$q(TYPESCRIPT_FUNCTION_EXPRESSION, NAME_EQ("$onDestroy")).findFirst();
+        if(destroyFunction.isPresent()) {
+            destroyDef.add(new DestroyBinding(destroyFunction.get(), null));
+        }
+
+        List<PsiElementContext> destroyWatches = classBlock.$q(JS_EXPRESSION_STATEMENT, JS_REFERENCE_EXPRESSION, ALL(TEXT_CONTAINS("$on"), TEXT_CONTAINS("$destroy")), PARENT, JS_EXPRESSION_STATEMENT)
+        .collect(Collectors.toList());
+
+        List<DestroyBinding> rets = destroyWatches.stream().map( (final PsiElementContext destroyDef) -> {
+            Optional<PsiElementContext> functionExpr = destroyDef.$q(DIRECT_CHILD(TYPESCRIPT_FUNCTION_EXPRESSION)).reduce((el1, el2) -> el2);
+            Optional<PsiElementContext> referenceExpr = destroyDef.$q(DIRECT_CHILD(JS_REFERENCE_EXPRESSION)).reduce((el1, el2) -> el2);
+
+            //either or or nothing
+            if(functionExpr.isPresent()) {
+                return new DestroyBinding(destroyDef,functionExpr.get());
+            } else if(referenceExpr.isPresent()) {
+                Optional<PsiElementContext> functionDeclaration = resolveDeclaration(referenceExpr);
+                if(functionDeclaration.isPresent()) {
+                    return new DestroyBinding(destroyDef, functionDeclaration.get());
+                }
+            }
+            return null;
+
+        }).filter(el -> el != null)
+        .collect(Collectors.toList());
+        this.destroyDef.addAll(rets);
+    }
+
+    /**
+     * resolves the declaration of a given function
+     * @param referenceExpr
+     * @return
+     */
+    @NotNull
+    private Optional<PsiElementContext> resolveDeclaration(Optional<PsiElementContext> referenceExpr) {
+        String name = referenceExpr.get().getName();
+        return referenceExpr.get().$q(PARENTS, JS_BLOCK_STATEMENT, JS_VAR_STATEMENT, DIRECT_CHILD(TYPE_SCRIPT_VARIABLE), NAME_EQ(name)).findFirst();
+    }
+
+
+    protected void parseConstructor() {
+        constructorDef = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ("constructor")).findFirst();
+        constructorBlock = constructorDef.get().$q(FUNCTION_BLOCK).findFirst();
+    }
+
 }

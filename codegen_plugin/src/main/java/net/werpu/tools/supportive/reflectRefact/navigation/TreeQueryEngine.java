@@ -41,8 +41,7 @@ import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static net.werpu.tools.supportive.utils.IntellijUtils.flattendArr;
-import static net.werpu.tools.supportive.utils.StringUtils.literalEquals;
-import static net.werpu.tools.supportive.utils.StringUtils.literalStartsWith;
+import static net.werpu.tools.supportive.utils.StringUtils.*;
 
 /**
  * central query engine.
@@ -240,6 +239,12 @@ public class TreeQueryEngine<T> {
     public static <T> QueryExtension<T> TEXT_STARTS_WITH(String val) {
         return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream.filter(el -> {
             return literalStartsWith(engine.getNavigationAdapter().getText(el), val);
+        });
+    }
+
+    public static <T> QueryExtension<T> TEXT_CONTAINS(String val) {
+        return (TreeQueryEngine<T> engine, Stream<T> stream) -> stream.filter(el -> {
+            return literalContains(engine.getNavigationAdapter().getText(el), val);
         });
     }
 
