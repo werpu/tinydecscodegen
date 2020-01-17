@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static net.werpu.tools.factories.TnDecGroupFactory.TPL_TN_DEC_ANGULAR_COMPONENT_TRANSFORMATION;
 import static net.werpu.tools.factories.TnDecGroupFactory.TPL_TN_DEC_COMPONENT_TRANSFORMATION;
 
 @Getter
@@ -50,6 +51,6 @@ public class TnAngularComponentTransformation implements IArtifactTransformation
     }
 
     protected FileTemplate getTnTemplate() {
-        return FileTemplateManager.getInstance(transformationModel.getProject()).getJ2eeTemplate(TPL_TN_DEC_COMPONENT_TRANSFORMATION);
+        return FileTemplateManager.getInstance(transformationModel.getProject()).getJ2eeTemplate(TPL_TN_DEC_ANGULAR_COMPONENT_TRANSFORMATION);
     }
 }

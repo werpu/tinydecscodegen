@@ -127,15 +127,15 @@ public class ComponentBinding {
 
     private void applyBidirectionalPattern(StringBuilder retVal, boolean optional) {
         retVal.append("// <"+ name +"> associated getter setter pattern for bidirectional input output \n ");
-        retVal.append(name+"Value: "+ this.tsType+"; \n\n");
+        retVal.append("    "+name+"Value: "+ this.tsType+"; \n\n");
 
-        retVal.append("@Input(" + (optional ? "true": "") + ") get "+name+"() {\n");
-        retVal.append("    return this."+name+"Value");
-        retVal.append("}\n\n");
-        retVal.append("set "+ name+"(newValue: "+this.tsType+") {\n");
-        retVal.append("    this."+name+"Value = newValue;\n");
-        retVal.append("    this."+name+"Change.emit(newValue)\n");
-        retVal.append("}\n");
+        retVal.append("    @Input(" + (optional ? "true": "") + ") get "+name+"() {\n");
+        retVal.append("         return this."+name+"Value; \n");
+        retVal.append("    }\n\n");
+        retVal.append("    set "+ name+"(newValue: "+this.tsType+") {\n");
+        retVal.append("         this."+name+"Value = newValue;\n");
+        retVal.append("        this."+name+"Change.emit(newValue)\n");
+        retVal.append("    }\n");
         retVal.append("// </"+ name +"> associated getter setter pattern for bidirectional input output \n ");
     }
 

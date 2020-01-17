@@ -9,7 +9,7 @@ ${data.fromImportsToClassDecl}
  */
 @Component({
     selector: "${data.selectorName}",
-    template: ${data.template},
+    template: ${data.template}#if($data.transcludeText),
     transclude: ${data.transcludeText}
     #end
 

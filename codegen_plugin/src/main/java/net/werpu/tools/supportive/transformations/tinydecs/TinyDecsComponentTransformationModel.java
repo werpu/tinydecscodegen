@@ -329,7 +329,7 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
                 bindingType = BindingType.valueOf(identStr);
             }
 
-            return new ComponentBinding(bindingType, identifier.getName(), type.isPresent() ? type.get().getText() : "any");
+            return new ComponentBinding(bindingType, identifier.getUnquotedText(), type.isPresent() ? type.get().getText() : "any");
         }).collect(Collectors.toList());
 
     }
