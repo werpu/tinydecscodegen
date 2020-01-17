@@ -33,15 +33,14 @@ import lombok.Getter;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
+import net.werpu.tools.supportive.refactor.RefactorUnit;
 import net.werpu.tools.supportive.transformations.shared.ITransformationModel;
 import net.werpu.tools.supportive.transformations.shared.modelHelpers.*;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.sql.Ref;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -110,12 +109,10 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
     protected Optional<PsiElementContext> onInitDef;
     protected Optional<PsiElementContext> onChangesDef;
     protected List<DestroyBinding> destroyDef;
-
     protected String template; //original template after being found
     protected List<ComponentBinding> bindings;
     protected String clazzName;
     protected List<PsiElementContext> attributes;
-
     protected List<PsiElementContext> passThroughMethods;
 
     public TinyDecsComponentTransformationModel(Project project, PsiFile psiFile) {
@@ -285,21 +282,19 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
 
     }
 
-
     public String getFromImportsToClassDecl() {
         return rootBlock.getText().substring(lastImport.get().getTextRangeOffset() + lastImport.get().getTextLength() + 1, classBlock.getTextRangeOffset());
     }
 
     public String getImports() {
         String imports = rootBlock.getText().substring(0, lastImport.get().getTextRangeOffset() + lastImport.get().getTextLength() + 1);
-        String [] importsPerLine = imports.split("\\n+");
+        String[] importsPerLine = imports.split("\\n+");
         return Arrays.stream(importsPerLine)
-                .filter( line ->  {
+                .filter(line -> {
                     return !line.contains("TinyDecorations");
                 })
-                .reduce("", (target, line) -> target + "\n"+line );
+                .reduce("", (target, line) -> target + "\n" + line);
     }
-
 
     //------------------- helpers -------------------------------------------
 
@@ -333,7 +328,6 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
         }).collect(Collectors.toList());
 
     }
-
 
     /**
      * parse the injects for further processing
@@ -474,7 +468,6 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
         return referenceExpr.get().$q(PARENTS, JS_BLOCK_STATEMENT, JS_VAR_STATEMENT, DIRECT_CHILD(TYPE_SCRIPT_VARIABLE), NAME_EQ(name)).findFirst();
     }
 
-
     protected void parseConstructor() {
         constructorDef = classBlock.$q(TYPE_SCRIPT_FUNC, NAME_EQ(CONSTRUCTOR)).findFirst();
         constructorBlock = constructorDef.get().$q(FUNCTION_BLOCK).findFirst();
@@ -537,10 +530,30 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
 
         //TODO add other refactorings on the fly on a need to know base
 
-
-
         return "TODO";
     }
 
+    //TODO we probably have to move this into resolvers... because this is stuff we
+    //will have to reuse in other parts of the system
+
+    List<RefactorUnit> refactorBindings(PsiElementContext methodBlock) {
+        return Collections.emptyList();
+    }
+
+    List<RefactorUnit> refactorWatches(PsiElementContext methodBlock) {
+        return Collections.emptyList();
+    }
+
+    List<RefactorUnit> refactorOns(PsiElementContext methodBlock) {
+        return Collections.emptyList();
+    }
+
+    List<RefactorUnit> refactorRemainingScopes(PsiElementContext methodBlock) {
+        return Collections.emptyList();
+    }
+
+    List<RefactorUnit> refactorCompiles(PsiElementContext methodBlock) {
+        return Collections.emptyList();
+    }
 
 }
