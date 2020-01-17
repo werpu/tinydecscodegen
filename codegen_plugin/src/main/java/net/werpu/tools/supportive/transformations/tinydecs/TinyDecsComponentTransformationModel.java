@@ -503,4 +503,44 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
                 text.equals(ANN_STRING);
     }
 
+    //refatorMethods
+    //we need to apply following refactorings
+    //
+    private String refactorMethodBlock(String methodBody) {
+        //function binding...
+        //call
+        //this.<bindingname>({
+        // param: value
+        // }}
+
+        // this.bindingname.emit(value...)
+
+        //$scope.$watch("<crlAs>.<attribute>") ->
+        //binding -> onChanges entry...
+        //no binding -> setter with shadow old value, getter with new value
+        // set <attribute>(newValue: type) {
+        //    oldValue = this._<attrbute>;
+        //    <existing code>
+        //   this._<attribute> = newValue;
+        //}
+
+        //in case of deep watches perform a deep compare leave the watch alone and set a warning that this code could not be transformated
+        //TODO routine has to be written/copied yet from lodash
+        //
+
+        //$scope.$on for the time being place a warning in front, unless destroy, postlink etc.. move this code into the appropriate locations
+        //TODO in the long run replace on message handlers with the proposed reactive solutions
+
+        //simple $scope variable references, add attributes and replace them with this and public attributes unless they do not already exist
+
+        //$compile reference, place a warning.. TODO check what angular proposes for $compile replacement
+
+        //TODO add other refactorings on the fly on a need to know base
+
+
+
+        return "TODO";
+    }
+
+
 }
