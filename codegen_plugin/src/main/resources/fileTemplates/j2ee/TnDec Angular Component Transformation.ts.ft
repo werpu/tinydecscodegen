@@ -1,0 +1,45 @@
+${data.imports}
+import {Component, Input, Output, Inject, EventEmitter} from "angular";
+
+${data.fromImportsToClassDecl}
+
+/**
+ * Component ${data.selectorName}
+ * @author ${AUTHOR}
+ */
+@Component({
+    selector: "${data.selectorName}",
+    template: ${data.template},
+    transclude: ${data.transcludeText}
+    #end
+
+})
+export class ${data.clazzName} {
+
+#foreach($binding in ${data.bindings})
+    ${binding.toNgString()}
+#end
+
+#foreach($attr in ${data.attributes})
+    ${attr.text};
+#end
+
+#foreach($attr in ${data.possibleClassAttributes})
+    ${attr.text};
+#end
+
+#foreach($func in ${data.inlineFunctions})
+#if(${func.externalizale} == false && ${func.needsToBeDeclared})
+    ${func.declarationName}: Function;
+#end
+#end
+
+    constructor(${data.injectsStr}) ${data.refactoredConstructorBlock}
+
+
+#foreach($firstOrderFunction in ${data.inlineFunctions})
+    ${firstOrderFunction.toExternalString()}
+#end
+
+
+}

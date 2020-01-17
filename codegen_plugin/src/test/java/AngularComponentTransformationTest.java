@@ -22,12 +22,16 @@
  * /
  */
 
+import com.google.common.base.Strings;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.transformations.tinydecs.TinyDecsComponentTransformationModel;
+import net.werpu.tools.supportive.transformations.tinydecs.TnAngularComponentTransformation;
 import util.TestUtils;
+
+import java.io.IOException;
 
 public class AngularComponentTransformationTest extends LightJavaCodeInsightFixtureTestCase {
     @Override
@@ -90,6 +94,30 @@ public class AngularComponentTransformationTest extends LightJavaCodeInsightFixt
 
         assertTrue("other methods must be passed through 1:1", ctx.getPassThroughMethods().size() == 1);
         // assertTrue("both searchoptions", ctx.get);
+    }
+
+    public void testTransformationResult() throws IOException {
+        PsiFile psiFile = myFixture.configureByFile("tinydecs/probeComponent.ts");
+        Project project = myFixture.getProject();
+
+        TinyDecsComponentTransformationModel ctx = new TinyDecsComponentTransformationModel(new IntellijFileContext(project, psiFile));
+        TnAngularComponentTransformation transformation = new TnAngularComponentTransformation(ctx);
+
+        String result = transformation.getNgTransformation();
+        assertTrue("result must not be empty", !Strings.isNullOrEmpty(result));
+
+        assertTrue("imports must be processed", result.indexOf("${data.imports}") == -1);
+        assertTrue("additional imports must be processed", result.indexOf("${data.fromImportsToClassDecl}") == -1);
+        assertTrue("class declaration must be there", result.indexOf("export class ProbeComponent") != -1);
+        assertTrue("class declaration must be there", result.indexOf("export class ProbeComponent") != -1);
+        assertTrue("component declaration must be there", result.indexOf("@Component({") != -1);
+        assertTrue("selector must be there", result.indexOf("selector: \"probe-component\"") != -1);
+
+        //TODO attributes, injectors, methods, bindings etc...
+
+
+
+
     }
 
 

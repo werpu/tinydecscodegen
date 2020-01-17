@@ -43,6 +43,102 @@ public class ComponentBinding {
         this.name = name;
     }
 
+    public String toNgString() {
+        StringBuilder retVal = new StringBuilder();
+
+        switch (bindingType) {
+            case BOTH: {
+                retVal.append("@Output() ");
+                retVal.append(name + "Change");
+                retVal.append(" = new EventEmitter(); \n\n");
+                applyBidirectionalPattern(retVal, true);
+
+                //we need a dedicated setter
+                //the pattern is output event emiter
+                //@input getter on the value
+                //silent setter which sets the value and emits the event
+                //this is braindead but oh well
+
+                break;
+            }
+            case INPUT: {
+                retVal.append("@Input() ");
+                retVal.append(name);
+                retVal.append(": any;");
+                break;
+            }
+            case ASTRING: {
+                retVal.append("@AString() ");
+                retVal.append(name);
+                retVal.append(": string;");
+                break;
+            }
+            case FUNC: {
+                retVal.append("@Output() ");
+                retVal.append(name);
+                retVal.append(" = new EventEmitter();");
+
+                //pattern here the function as eventEmitter
+                //callback into the function call from
+                // this.<name>({
+                //  $param1: value...
+                // }}
+                // to do something(clickedEntry: SomeModel): void {
+                //        this.<name>.emit([param1, ...]);
+                //    }
+
+                //TODO the rest of the patterns needs to be fullfilled in the method transformation code section
+
+                break;
+            }
+            case OPT_BOTH: {
+                retVal.append("@Output(true) ");
+                retVal.append(name);
+                retVal.append("Change = new EventEmitter();");
+
+                applyBidirectionalPattern(retVal, true);
+
+                break;
+            }
+            case OPT_INPUT: {
+                retVal.append("@Input(true) ");
+                retVal.append(name);
+                retVal.append(": any;");
+                break;
+            }
+            case OPT_FUNC: {
+                retVal.append("@Output(true) ");
+                retVal.append(name);
+                retVal.append(" = new EventEmitter();");
+                break;
+            }
+            case OPT_ASTRING: {
+                retVal.append("@Input(true) ");
+                retVal.append(name);
+                retVal.append(": string;");
+                break;
+            }
+            default:
+                break;
+
+        }
+        return retVal.toString();
+    }
+
+    private void applyBidirectionalPattern(StringBuilder retVal, boolean optional) {
+        retVal.append("// <"+ name +"> associated getter setter pattern for bidirectional input output \n ");
+        retVal.append(name+"Value: "+ this.tsType+"; \n\n");
+
+        retVal.append("@Input(" + (optional ? "true": "") + ") get "+name+"() {\n");
+        retVal.append("    return this."+name+"Value");
+        retVal.append("}\n\n");
+        retVal.append("set "+ name+"(newValue: "+this.tsType+") {\n");
+        retVal.append("    this."+name+"Value = newValue;\n");
+        retVal.append("    this."+name+"Change.emit(newValue)\n");
+        retVal.append("}\n");
+        retVal.append("// </"+ name +"> associated getter setter pattern for bidirectional input output \n ");
+    }
+
     public String toString() {
         StringBuilder retVal = new StringBuilder();
 
@@ -60,7 +156,7 @@ public class ComponentBinding {
                 break;
             }
             case ASTRING: {
-                retVal.append("@AString() ");
+                retVal.append("@Input() ");
                 retVal.append(name);
                 retVal.append(": string;");
                 break;

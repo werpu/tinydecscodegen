@@ -18,6 +18,7 @@ package net.werpu.tools.supportive.transformations.tinydecs;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.werpu.tools.supportive.transformations.shared.IArtifactTransformation;
 import net.werpu.tools.supportive.transformations.shared.ITransformationModel;
@@ -29,22 +30,23 @@ import java.util.Map;
 import static net.werpu.tools.factories.TnDecGroupFactory.TPL_TN_DEC_COMPONENT_TRANSFORMATION;
 
 @Getter
+@AllArgsConstructor
 public class TnAngularComponentTransformation implements IArtifactTransformation {
     ITransformationModel transformationModel;
 
     @Override
     public String getTnDecTransformation() throws IOException {
+        return "TODO";
+    }
+
+    @Override
+    public String getNgTransformation() throws IOException {
         Map<String, Object> attrs = new HashMap<>();
         attrs.put("data", transformationModel);
         attrs.put("import", "import {Component, Controller, Input, Output} from \"angular\";");
 
         String text = FileTemplateUtil.mergeTemplate(attrs, getTnTemplate().getText(), false);
         return text;
-    }
-
-    @Override
-    public String getNgTransformation() throws IOException {
-        return "TODO";
     }
 
     protected FileTemplate getTnTemplate() {

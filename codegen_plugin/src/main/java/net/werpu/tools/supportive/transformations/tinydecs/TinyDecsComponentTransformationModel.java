@@ -39,6 +39,7 @@ import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -283,6 +284,24 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
         }
 
     }
+
+
+    public String getFromImportsToClassDecl() {
+        return rootBlock.getText().substring(lastImport.get().getTextRangeOffset() + lastImport.get().getTextLength() + 1, classBlock.getTextRangeOffset());
+    }
+
+    public String getImports() {
+        String imports = rootBlock.getText().substring(0, lastImport.get().getTextRangeOffset() + lastImport.get().getTextLength() + 1);
+        String [] importsPerLine = imports.split("\\n+");
+        return Arrays.stream(importsPerLine)
+                .filter( line ->  {
+                    return !line.contains("TinyDecorations");
+                })
+                .reduce("", (target, line) -> target + "\n"+line );
+    }
+
+
+    //------------------- helpers -------------------------------------------
 
     /**
      * parse the component bindings for remapping
