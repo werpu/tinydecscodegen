@@ -67,7 +67,7 @@ export class ProbeComponent {
             return myVar2.toString();
         };
 
-        $scope.$watch("ctrl.showAllSuggestions", (newValue: any, oldValue: any) => {
+        $scope.$watch("ctrl.showAllSuggestions", (newValue: string, oldValue: any) => {
             /*blarg*/
             if(newValue == null) {
                 console.log(newValue);
@@ -116,11 +116,21 @@ export class ProbeComponent {
      * postLinkIt
      */
     $postLink() {
-        alert("booga");
+        this.$scope.$watch("ctrl.searchOptions", (newValue: any, oldValue: any)=> {
+            alert(newValue);
+            alert(oldValue);
+        })
     }
 
     $onDestroy() {
         console.log("lifecycle hook destroy");
+        this.showAllCallback({
+            param1: "value1",
+            param2: 2,
+            param3: function() {
+
+            }
+        })
     }
 
 }

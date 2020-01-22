@@ -24,6 +24,7 @@
 
 package net.werpu.tools.supportive.transformations.tinydecs;
 
+import com.google.common.base.Joiner;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -33,6 +34,7 @@ import lombok.Getter;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 import net.werpu.tools.supportive.fs.common.TypescriptFileContext;
+import net.werpu.tools.supportive.refactor.DummyInsertPsiElement;
 import net.werpu.tools.supportive.refactor.RefactorUnit;
 import net.werpu.tools.supportive.transformations.shared.ITransformationModel;
 import net.werpu.tools.supportive.transformations.shared.modelHelpers.*;
@@ -499,12 +501,15 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
     //refatorMethods
     //we need to apply following refactorings
     //
-    private String refactorMethodBlock(String methodBody) {
-        //function binding...
-        //call
-        //this.<bindingname>({
-        // param: value
-        // }}
+    //TODO we probably have to refactor in multiple passes
+    //to refactor nested definitions out, for the time being lets
+    //only do it within one pass and do not go any deeper
+    //we need one pass per call depth to get everything right
+    //after ever pass we need another parsing of the refactored file
+    private String refactorMethodBlock(PsiElementContext methodBody) {
+
+        List<RefactorUnit> refactorings = new LinkedList<>();
+        refactorings.addAll(refactorFuntionBindingCalls(methodBody));
 
         // this.bindingname.emit(value...)
 
@@ -536,12 +541,183 @@ public class TinyDecsComponentTransformationModel extends TypescriptFileContext 
     //TODO we probably have to move this into resolvers... because this is stuff we
     //will have to reuse in other parts of the system
 
-    List<RefactorUnit> refactorBindings(PsiElementContext methodBlock) {
-        return Collections.emptyList();
+    //function binding...
+    //call
+    //this.<bindingname>({
+    // param: value
+    // }} needs to be replaced by this.<bindingName>(value, value2 etc...)
+    List<RefactorUnit> refactorFuntionBindingCalls(PsiElementContext methodBlock) {
+
+        final List<RefactorUnit> ret = new LinkedList<>();
+
+        final Set<String> functionBindings = getFunctionBindingNames();
+
+        List<PsiElementContext> methodCalls = methodBlock.$q(JS_EXPRESSION_STATEMENT, JS_CALL_EXPRESSION, JS_REFERENCE_EXPRESSION, DIRECT_CHILD(PSI_ELEMENT_JS_IDENTIFIER))
+                .filter(ctx -> functionBindings.contains(ctx.getUnquotedText()))
+                .map(ctx -> ctx.$q(JS_CALL_EXPRESSION).findFirst().get())
+                .collect(Collectors.toList());
+
+        //now we have all method calls
+        methodCalls.stream().forEach(methodCall -> {
+
+            String callBody = methodCall.getText().substring(0, methodCall.getText().indexOf("("));
+            List<String> methodParams = methodCalls.stream()
+                    .map(ctx -> ctx.$q(JS_CALL_EXPRESSION).findFirst().get())
+                    .flatMap(ctx -> ctx.$q(DIRECT_CHILD(JS_ARGUMENTS_LIST), DIRECT_CHILD(JS_OBJECT_LITERAL_EXPRESSION), CHILD_ELEM, ANY(JS_LITERAL_EXPRESSION, TYPE_SCRIPT_FUNC_EXPR, JS_STRING_TEMPLATE_EXPRESSION)))
+                    .map(ctx -> ctx.getText())
+                    .collect(Collectors.toList());
+
+            if (methodParams.isEmpty()) {
+                return;
+            }
+            RefactorUnit refactorUnit = new RefactorUnit(methodCall.getElement().getContainingFile(), methodCall, callBody + "(" + Joiner.on(", ").join(methodParams) + ")");
+
+            ret.add(refactorUnit);
+        });
+
+        return ret;
     }
 
-    List<RefactorUnit> refactorWatches(PsiElementContext methodBlock) {
-        return Collections.emptyList();
+    /**
+     * returns a filtered set of function binding names
+     *
+     * @return
+     */
+    @NotNull
+    private Set<String> getFunctionBindingNames() {
+        return this.bindings.stream().filter(binding -> binding.getBindingType() == BindingType.FUNC || binding.getBindingType() == BindingType.OPT_FUNC)
+                .map(binding -> binding.getName())
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * @param methodBlock         method block containing the scope definitions
+     * @param onChangesTarget     refactor inserts for the changes block, which have an unclear position as of yet
+     * @param setterGetterTargets refactor inserts for the setter and getter blocks, which have an unclear position os of yet
+     * @return a set of generic clears which should clear out the code parts which are refactored without any replacement
+     */
+    private List<RefactorUnit> refactorWatches(PsiElementContext methodBlock, List<RefactorUnit> onChangesTarget, List<RefactorUnit> setterGetterTargets) {
+        //$scope.$watch("<crlAs>.<attribute>") ->
+        //binding -> onChanges entry...
+        //no binding -> setter with shadow old value, getter with new value
+        // set <attribute>(newValue: type) {
+        //    oldValue = this._<attrbute>;
+        //    <existing code>
+        //   this._<attribute> = newValue;
+        //}
+
+        final List<RefactorUnit> inCodeRefactorings = new LinkedList<>();
+        List<PsiElementContext> watches = methodBlock.$q(JS_EXPRESSION_STATEMENT, DIRECT_CHILD(JS_CALL_EXPRESSION), DIRECT_CHILD(JS_REFERENCE_EXPRESSION), TEXT_CONTAINS("$scope.$watch"), PARENTS_EQ_FIRST(JS_CALL_EXPRESSION)).collect(Collectors.toList());
+        watches.stream().forEach(element -> {
+            Optional<PsiElementContext> watched = element.$q(DIRECT_CHILD(JS_ARGUMENTS_LIST), DIRECT_CHILD(PSI_ELEMENT_JS_STRING_LITERAL)).findFirst();
+            if (!watched.isPresent()) {
+                return;
+            }
+            final Set<String> bindingNames = getBindingNames();
+            String[] watchedStr = watched.get().getUnquotedText().split(".");
+            Optional<String> watchedAttr = Arrays.stream(watchedStr).filter(name -> bindingNames.contains(name)).findFirst();
+            if (watchedAttr.isPresent()) {
+                //new onchanges entry
+                handleOnChangesRefactoring(element, inCodeRefactorings, onChangesTarget);
+            } else {
+                handleSetterGetterRefactoring(element, inCodeRefactorings, setterGetterTargets, watchedAttr);
+            }
+        });
+        return inCodeRefactorings;
+    }
+
+    private void handleSetterGetterRefactoring(PsiElementContext element, List<RefactorUnit> inCodeRefactorings, List<RefactorUnit> setterGetterTargets, Optional<String> watchedAttr) {
+        Optional<PsiElementContext> callbackFunction = element.$q(DIRECT_CHILD(JS_ARGUMENTS_LIST), DIRECT_CHILD(TYPE_SCRIPT_FUNC_EXPR)).findFirst();
+        if (!callbackFunction.isPresent()) {
+            RefactorUnit noRefactoringWarning = createNoRefactoringWarning(element);
+            inCodeRefactorings.add(noRefactoringWarning);
+        } else {
+            PsiElementContext callback = callbackFunction.get();
+
+            //new setter and getter and protected _<attrName> variable;
+            String newValueName = callback.$q(TYPE_SCRIPT_PARAM).map(el -> el.getName()).findFirst().orElse("newValue");
+            String oldValueName = callback.$q(TYPE_SCRIPT_PARAM).map(el -> el.getName()).reduce("oldValue", (name1, name2) -> name2);
+            if (newValueName.equals(oldValueName)) {//only one param which means automatically newValue
+                oldValueName = "oldValue";
+            }
+            String attrName = watchedAttr.get();
+            String varName = "_"+attrName;
+            String attrType = callback.$q(TYPE_SCRIPT_PARAM, ANY(TYPE_SCRIPT_ARRAY_TYPE, TYPE_SCRIPT_SINGLE_TYPE)).map(theType -> theType.getText()).findFirst().orElse("any");
+            String codeBlock = callback.$q(JS_BLOCK_STATEMENT).map(el -> el.getText()).findFirst().orElse("{}");
+            codeBlock = codeBlock.substring(1, codeBlock.length() - 1);
+
+
+            //0 attrName, 1 varName, 2 attrType, 3 newValueName, 4 oldValueName, 5 codeBlock
+            StringBuilder refTxt = new StringBuilder();
+            refTxt.append("protected {1}: {2}};\n\n");
+            refTxt.append("get {0} {\n");
+            refTxt.append("     return this.{1};\n");
+            refTxt.append("}\n\n");
+
+            refTxt.append("set {0}({3}: {2}) {\n");
+            refTxt.append("   let {4} = {1} \n ");
+            refTxt.append("   this.{1} = {3}; \n ");
+            refTxt.append("   {5}\n");
+            refTxt.append("}\n");
+
+
+            String finalRefTxt = String.format(refTxt.toString(), new Object[]{
+                attrName, varName, attrType, newValueName, oldValueName, codeBlock
+            });
+
+            RefactorUnit setterGetterAttrInsert = new RefactorUnit(element.getElement().getContainingFile(), new DummyInsertPsiElement(0), finalRefTxt);
+            setterGetterTargets.add(setterGetterAttrInsert);
+        }
+    }
+
+    /**
+     * handles the onchanges refactoring part which is
+     * move the code if possible to the onchanges function
+     * if not but we have a classical attribute watch pattern
+     * place an in code warning for manual interference
+     */
+    private void handleOnChangesRefactoring(PsiElementContext element, List<RefactorUnit> inCodeWarnings, List<RefactorUnit> onChangesTarget) {
+        Optional<PsiElementContext> callbackFunction = element.$q(DIRECT_CHILD(JS_ARGUMENTS_LIST), DIRECT_CHILD(TYPE_SCRIPT_FUNC_EXPR)).findFirst();
+        if (!callbackFunction.isPresent()) {
+            RefactorUnit noRefactoringWarning = createNoRefactoringWarning(element);
+            inCodeWarnings.add(noRefactoringWarning);
+        } else {
+            PsiElementContext callback = callbackFunction.get();
+            //we now have the structure of a callback first order function
+            //lets determine the old and newValue, oldValue being optional, newValue as well
+            String newValueName = callback.$q(TYPE_SCRIPT_PARAM).map(el -> el.getName()).findFirst().orElse("newValue");
+            String oldValueName = callback.$q(TYPE_SCRIPT_PARAM).map(el -> el.getName()).reduce("oldValue", (name1, name2) -> name2);
+            if (newValueName.equals(oldValueName)) {//only one param which means automatically newValue
+                oldValueName = "oldValue";
+            }
+
+            String codeBlock = callback.$q(JS_BLOCK_STATEMENT).map(el -> el.getText()).findFirst().orElse("{}");
+            codeBlock = codeBlock.substring(1, codeBlock.length() - 1);
+            StringBuilder refTxt = new StringBuilder();
+            refTxt.append("if(changes?.{0}) {\n");
+            refTxt.append("    let {1} = changes?.{0}?.newValue; \n");
+            refTxt.append("    let {2} = changes?.{0}?.oldValue; \n");
+            refTxt.append("         {3}");
+            refTxt.append("}");
+
+            String finalRefTxt = String.format(refTxt.toString(), new Object[]{oldValueName, newValueName, codeBlock});
+
+            RefactorUnit onChangesInsert = new RefactorUnit(element.getElement().getContainingFile(), new DummyInsertPsiElement(0), finalRefTxt);
+            onChangesTarget.add(onChangesInsert);
+        }
+    }
+
+    @NotNull
+    private RefactorUnit createNoRefactoringWarning(PsiElementContext element) {
+        StringBuilder finalRefTxt = new StringBuilder();
+        finalRefTxt.append("//warning this code part could not be safely refactored, you have to do it yourself \n");
+        finalRefTxt.append(element.getText());
+        return new RefactorUnit(element.getElement().getContainingFile(), element, finalRefTxt.toString());
+    }
+
+    @NotNull
+    private Set<String> getBindingNames() {
+        return this.bindings.stream().map(binding -> binding.getName()).collect(Collectors.toSet());
     }
 
     List<RefactorUnit> refactorOns(PsiElementContext methodBlock) {

@@ -26,6 +26,7 @@ package net.werpu.tools.supportive.refactor;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.werpu.tools.supportive.fs.common.PsiElementContext;
 
@@ -38,10 +39,12 @@ import net.werpu.tools.supportive.fs.common.PsiElementContext;
  * with zero length is replaced by a text.
  */
 @Getter
+@AllArgsConstructor
 public class RefactorUnit implements IRefactorUnit {
     PsiFile file;
     PsiElement psiElement;
     String refactoredText;
+    int nestingDepth;
 
     public RefactorUnit(PsiFile file, PsiElement psiElement, String refactoredText) {
         this.file = file;
@@ -54,6 +57,8 @@ public class RefactorUnit implements IRefactorUnit {
         this.psiElement = psiElement.getElement();
         this.refactoredText = refactoredText;
     }
+
+
 
     @Override
     public int getStartOffset() {
