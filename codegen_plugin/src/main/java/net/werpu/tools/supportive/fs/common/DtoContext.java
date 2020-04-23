@@ -79,7 +79,7 @@ public class DtoContext extends AngularResourceContext {
 
     @Override
     public Icon getIcon() {
-        return AllIcons.Nodes.Jsf.ManagedBean;
+        return AllIcons.Javaee.WebService;
     }
 
 }

@@ -23,9 +23,11 @@
  */
 
 plugins {
-    id "org.jetbrains.intellij" version "0.4.15"
+    id "org.jetbrains.intellij" version "0.4.18"
     id 'net.ltgt.apt' version '0.15'
 }
+
+
 
 wrapper {
     gradleVersion = '6.0.1' // version required
@@ -45,7 +47,7 @@ allprojects {
 }
 
 
-def LOMBOK_VERSION = '1.18.10'
+def LOMBOK_VERSION = '1.18.12'
 
 subprojects {
     apply plugin: 'java'

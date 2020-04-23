@@ -153,6 +153,6 @@ public class NgModuleFileContext extends AngularResourceContext {
     }
 
     public Icon getIcon() {
-        return AllIcons.Javaee.EjbModule;
+        return AllIcons.Javaee.WebModuleGroup;
     }
 }

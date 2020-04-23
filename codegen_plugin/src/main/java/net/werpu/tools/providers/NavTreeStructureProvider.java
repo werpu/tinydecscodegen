@@ -57,12 +57,10 @@ public class NavTreeStructureProvider implements TreeStructureProvider {
         Map<String, RouteTreeNode> _routeIdx = new HashMap<>();
 
         //lets make the tree Nodes
-        List<PsiRouteContext> sortedRoutes = (List<PsiRouteContext>) ctx.getRoutes().stream()
-                .sorted(Comparator.comparing(PsiRouteContext::getRoute))
+        List<PsiRouteContext> sortedRoutes = ctx.getRoutes().stream()
+                .sorted((PsiRouteContext o1, PsiRouteContext o2) -> o1.getRoute().compareTo(o2.getRoute()))
                 .collect(Collectors.toList());
 
-        PsiRouteContext oldData = null;
-        RouteTreeNode oldNode = null;
         for (PsiRouteContext route : sortedRoutes) {
 
             String routeKey = route.getRoute().getRouteKey();
@@ -86,17 +84,13 @@ public class NavTreeStructureProvider implements TreeStructureProvider {
 
     @NotNull
     @Override
-    public Collection<AbstractTreeNode> modify(@NotNull AbstractTreeNode abstractTreeNode, @NotNull Collection<AbstractTreeNode> collection, ViewSettings viewSettings) {
-        //get the navs and subnavs with all the extra data
-
-        //not needed
+    public Collection<AbstractTreeNode<?>> modify(@NotNull AbstractTreeNode<?> parent, @NotNull Collection<AbstractTreeNode<?>> children, ViewSettings settings) {
         return null;
     }
 
     @Nullable
     @Override
-    public Object /*PsiRouteContext*/ getData(Collection<AbstractTreeNode> selected, String dataName) {
-
-        return ((RouteTreeNode) selected.stream().filter(item -> item.getName().equals(dataName)).findFirst().get()).getValue();
+    public Object getData(@NotNull Collection<AbstractTreeNode<?>> selected, @NotNull String dataId) {
+        return null;
     }
 }

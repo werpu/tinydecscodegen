@@ -25,10 +25,17 @@
 package net.werpu.tools.supportive.transformations.tinydecs;
 
 import com.google.common.base.Joiner;
+import com.intellij.lang.javascript.JavascriptASTFactory;
+import com.intellij.lang.javascript.psi.ecma6.TypeScriptFunction;
+import com.intellij.lang.typescript.TypeScriptResolveHelper;
+import com.intellij.lang.typescript.psi.TypeScriptPsiUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElementFactory;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiParserFacade;
+import com.intellij.refactoring.RefactoringFactory;
 import com.jgoodies.common.base.Strings;
 import lombok.Getter;
 import net.werpu.tools.supportive.fs.common.IntellijFileContext;
@@ -41,14 +48,12 @@ import net.werpu.tools.supportive.transformations.shared.modelHelpers.*;
 import net.werpu.tools.supportive.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.Ref;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Stream.concat;
 import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.*;
-import static net.werpu.tools.supportive.reflectRefact.PsiWalkFunctions.SUB_QUERY;
 import static net.werpu.tools.supportive.reflectRefact.navigation.TreeQueryEngine.*;
 import static net.werpu.tools.supportive.transformations.tinydecs.AngularJSComponentTransformationModel.FUNCTION_BLOCK;
 import static net.werpu.tools.supportive.transformations.tinydecs.AngularJSComponentTransformationModel.TEMPLATE_IDENTIFIER;

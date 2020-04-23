@@ -35,6 +35,7 @@ import javax.swing.*;
 
 @EqualsAndHashCode(callSuper = false)
 public class PsiRouteContext extends PsiElementContext implements IAngularFileContext {
+
     @Getter
     private final Route route;
 
@@ -69,6 +70,8 @@ public class PsiRouteContext extends PsiElementContext implements IAngularFileCo
     }
 
     public Icon getIcon() {
-        return AllIcons.Nodes.Jsf.NavigationCase;
+        return AllIcons.Ide.Link;
     }
+
+
 }
